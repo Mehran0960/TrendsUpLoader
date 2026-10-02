@@ -1,5 +1,9 @@
 const JSON_HEADERS={"content-type":"application/json; charset=UTF-8","cache-control":"no-store"};
 const GEOS=["US","IR"],HN_TOP=10;
+const RSS_FEEDS=[
+  {source:"ars_technica",url:"https://feeds.arstechnica.com/arstechnica/index",category:"technology"},
+  {source:"techcrunch",url:"https://techcrunch.com/feed/",category:"business"}
+];
 const RISK_RULES=[
   [/\b(porn|xxx|sex|onlyfans)\b|پورن|سکس|مستهجن|فحشا/i,"adult"],
   [/\b(gambling|casino|betting)\b|قمار|شرط.?بندی|کازینو/i,"gambling"],
@@ -42,6 +46,16 @@ function score(x){
 async function getText(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.text();}
 async function getJson(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.json();}
 async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
+async function readRssFeed(source,feed,category){
+  const xml=await getText(feed),out=[];
+  for(const [i,block] of xml.split(/<item>/i).slice(1,21).entries()){
+    const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");
+    if(!title)continue;
+    const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),guid=xmlTag(b,"guid");
+    out.push({source,external_id:guid||link||title.toLowerCase(),trend_key:trendKey(title),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:Math.max(1,90-i*3),category,risk_flags:riskFlags(title)});
+  }
+  return out;
+}
 async function readGoogleNews(source,feed,category){
   const xml=await getText(feed),out=[];
   for(const [i,block] of xml.split(/<item>/i).slice(1,21).entries()){
@@ -90,6 +104,7 @@ async function runOnce(env,controller){
     ...(collectTrends?GEOS.map(readGoogleTrends):[]),
     readGoogleNews("google_news_ir","https://news.google.com/rss?hl=fa&gl=IR&ceid=IR:fa","iran"),
     readGoogleNews("google_news_us","https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en","web"),
+    ...RSS_FEEDS.map(x=>readRssFeed(x.source,x.url,x.category)),
     readHackerNews()
   ];
   const started=now(),run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)").bind(started,"started",tasks.length,0).run();
