@@ -1,13 +1,1 @@
-# Trend Radar MVP
-
-Trend -> Signal -> Score -> Store.
-
-Current phase: signal collection only. Publishing and AI generation are disabled.
-
-Core sources: Google Trends Trending Now RSS and Hacker News official Firebase API.
-
-Storage: Cloudflare D1 (trend-radar-db).
-
-Endpoints: GET /, GET /health, POST /run.
-
-No secrets are stored in source and no paid provider is required by the core collector.
+# Trend Radar MVP\n\nTrend -> Signal -> Score -> Store.\n\nCurrent phase: signal collection only; publishing and AI generation are disabled.\n\nCore sources: Google Trends Trending Now (US + Iran) and Hacker News official Firebase API.\n\nStorage: Cloudflare D1 (trend-radar-core).\n\nEndpoints: GET /, GET /health, GET /status. Collection runs automatically every 15 minutes.\n\nNo secrets are stored in source and no paid provider is required by the core collector.
