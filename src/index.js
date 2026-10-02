@@ -81,6 +81,57 @@ async function readGoogleNews(source,feed,category){
   return out;
 }
 async function readHackerNews(){const ids=(await getJson("https://hacker-news.firebaseio.com/v0/beststories.json")).slice(0,HN_TOP),out=[];for(const id of ids){try{const item=await getJson("https://hacker-news.firebaseio.com/v0/item/"+id+".json");if(item&&item.type==="story"&&item.title)out.push({source:"hacker_news",external_id:String(id),trend_key:trendKey(item.title),title:item.title,url:item.url||("https://news.ycombinator.com/item?id="+id),published_at:new Date(Number(item.time||0)*1000).toISOString(),signal_value:Number(item.score||0),category:"technology",risk_flags:riskFlags(item.title)});}catch(_){}}return out;}
+function cosine(a,b){
+  let dot=0,na=0,nb=0;
+  const n=Math.min(a.length,b.length);
+  for(let i=0;i<n;i++){const x=Number(a[i])||0,y=Number(b[i])||0;dot+=x*y;na+=x*x;nb+=y*y;}
+  return na&&nb?dot/Math.sqrt(na*nb):0;
+}
+async function enrichSemantics(env,signals){
+  if(!env.AI||!signals.length)return {embedded:0,clusters:0};
+  const fresh=signals
+    .filter(x=>(!x.risk_flags)&&Number(x.content_fit??contentFit(x.title??""))>=0)
+    .sort((a,b)=>Number(b.signal_value||0)-Number(a.signal_value||0))
+    .slice(0,30);
+  if(!fresh.length)return {embedded:0,clusters:0};
+  const currentKeys=new Set(fresh.map(x=>String(x.source)+"::"+String(x.external_id)));
+  const existing=await env.DB.prepare("SELECT id,source,external_id,title,embedding_json,semantic_cluster FROM signals WHERE embedding_json IS NOT NULL ORDER BY last_seen_at DESC LIMIT 120").all();
+  const refs=[];
+  for(const row of (existing.results||[])){
+    if(currentKeys.has(String(row.source)+"::"+String(row.external_id)))continue;
+    try{
+      const v=JSON.parse(row.embedding_json);
+      if(Array.isArray(v)&&v.length)refs.push({id:Number(row.id),source:String(row.source),embedding:v,cluster:row.semantic_cluster||null});
+    }catch(_){}
+  }
+  const resp=await env.AI.run("@cf/baai/bge-m3",{text:fresh.map(x=>String(x.title||""))});
+  const vectors=Array.isArray(resp?.data)?resp.data:[];
+  let embedded=0;
+  const updates=[];
+  for(let i=0;i<fresh.length;i++){
+    const x=fresh[i],v=vectors[i];
+    if(!Array.isArray(v)||!v.length)continue;
+    let best=null;
+    for(const ref of refs){
+      if(ref.source===String(x.source))continue;
+      const sim=cosine(v,ref.embedding);
+      if(!best||sim>best.sim)best={sim,ref};
+    }
+    let cluster=null,similarity=0;
+    if(best&&best.sim>=0.78){
+      cluster=best.ref.cluster||("sem-"+best.ref.id);
+      similarity=best.sim;
+    }else{
+      cluster="sem-"+String(x.source)+"-"+String(x.external_id).slice(0,32).replace(/[^a-zA-Z0-9_-]/g,"");
+    }
+    updates.push(env.DB.prepare("UPDATE signals SET embedding_json=?,semantic_cluster=?,semantic_similarity=? WHERE source=? AND external_id=?").bind(JSON.stringify(v),cluster,similarity,String(x.source),String(x.external_id)));
+    refs.push({id:0,source:String(x.source),embedding:v,cluster});
+    embedded++;
+  }
+  for(let i=0;i<updates.length;i+=10)await env.DB.batch(updates.slice(i,i+10));
+  const clusters=new Set(updates.map((_,i)=>String(fresh[i]?.source)+"::"+String(fresh[i]?.external_id))).size;
+  return {embedded,clusters};
+}
 async function saveSignals(env,signals){
   const t=now(),normalized=signals.map(x=>({...x,source:String(x?.source??"unknown"),external_id:String(x?.external_id??x?.title??"unknown")}));
   const groups=new Map();
@@ -121,7 +172,7 @@ async function runOnce(env,controller){
   const runId=run.meta?.last_row_id;
   const rr=await Promise.allSettled(tasks);
   const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason)),successfulSources=new Set(signals.map(x=>String(x?.source??"unknown"))).size;
-  try { await saveSignals(env,signals); }
+  try { await saveSignals(env,signals); if(collectTrends) await enrichSemantics(env,signals); }
   catch(e) {
     const msg=String(e);
     await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,signal_count=?,error=? WHERE id=?").bind(now(),"failed",signals.length,msg,runId).run();
@@ -136,6 +187,6 @@ export default {async fetch(request,env){
   if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}
   if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,velocity_pct,risk_flags,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
   if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked,(SELECT COUNT(*) FROM signals WHERE content_fit>0) positive_content_fit,(SELECT COUNT(*) FROM signals WHERE content_fit<0) negative_content_fit FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
-  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.trend_key=s.trend_key AND s.trend_key<>'') source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.trend_key=s.trend_key AND s.trend_key<>'')>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.trend_key=s.trend_key AND s.trend_key<>'')=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=-5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,ROUND(s.semantic_similarity,3) semantic_similarity,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL) source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=-5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
     return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});
 },async scheduled(controller,env,ctx){ctx.waitUntil(runOnce(env,controller));}};
