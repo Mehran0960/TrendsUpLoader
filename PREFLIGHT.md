@@ -22,5 +22,8 @@ Core MVP uses dependencies that can operate without paid plans or private API ke
 - No paid traffic.
 - Publishing stays disabled until signal-quality validation passes.
 
-### Failure policy
+### Runtime verification status
+The Worker is deployed and the Cron trigger is configured. Historical logs show the earlier version failed during D1 binding; the corrected version must be verified by a post-deployment execution before source quality is evaluated. External fetches from this management environment are blocked, so a management-side 403 is not treated as proof that the Worker runtime is blocked.
+
+## Failure policy
 Every source is optional. One source outage must not stop the collector or corrupt stored data.
