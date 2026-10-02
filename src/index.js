@@ -25,23 +25,25 @@ async function getJson(url){const r=await fetch(url,{headers:{"user-agent":"tren
 async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
 async function readHackerNews(){const ids=(await getJson("https://hacker-news.firebaseio.com/v0/beststories.json")).slice(0,HN_TOP),out=[];for(const id of ids){try{const item=await getJson("https://hacker-news.firebaseio.com/v0/item/"+id+".json");if(item&&item.type==="story"&&item.title)out.push({source:"hacker_news",external_id:String(id),trend_key:trendKey(item.title),title:item.title,url:item.url||("https://news.ycombinator.com/item?id="+id),published_at:new Date(Number(item.time||0)*1000).toISOString(),signal_value:Number(item.score||0),category:"technology",risk_flags:riskFlags(item.title)});}catch(_){}}return out;}
 async function saveSignals(env,signals){
-  const t=now(),stmts=[];
-  for(let i=0;i<signals.length;i+=10){
-    const chunk=signals.slice(i,i+10),vals=[],params=[];
-    for(const x of chunk){
-      vals.push("(?,?,?,?,?,?,?,?,?,?,?,?,?)");
-      params.push(x.source,x.external_id,x.trend_key,x.title,x.url,x.published_at,t,t,x.signal_value,x.category,x.risk_flags||null,0,0);
-    }
-    const sql="INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct) VALUES "+vals.join(",")+" ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=signals.signal_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=CASE WHEN ABS(signals.signal_value)>0 THEN ((excluded.signal_value-signals.signal_value)/ABS(signals.signal_value))*100 ELSE 0 END";
-    stmts.push(env.DB.prepare(sql).bind(...params));
+  const t=now(),groups=new Map();
+  for(const x of signals){if(!groups.has(x.source))groups.set(x.source,[]);groups.get(x.source).push(x);}
+  const previous=new Map();
+  for(const [source,items] of groups){
+    const qs=items.map(()=>"?").join(",");
+    const params=[source,...items.map(x=>x.external_id)];
+    const r=await env.DB.prepare("SELECT source,external_id,signal_value FROM signals WHERE source=? AND external_id IN ("+qs+")").bind(...params).all();
+    for(const row of (r.results||[]))previous.set(source+"::"+row.external_id,Number(row.signal_value||0));
   }
-  if(stmts.length)await env.DB.batch(stmts);
-  const rows=await env.DB.prepare("SELECT source,external_id,signal_value,previous_value,velocity_pct,published_at,risk_flags FROM signals").all();
-  const update=[];
-  for(const x of (rows.results||[]))update.push(env.DB.prepare("UPDATE signals SET score=? WHERE source=? AND external_id=?").bind(score(x),x.source,x.external_id));
-  for(let i=0;i<update.length;i+=10)await env.DB.batch(update.slice(i,i+10));
-  const obs=signals.map(x=>env.DB.prepare("INSERT INTO observations(source,external_id,trend_key,observed_at,signal_value,score,risk_flags) SELECT ?,?,?,?,signal_value,score,risk_flags FROM signals WHERE source=? AND external_id=?").bind(x.source,x.external_id,x.trend_key,t,x.source,x.external_id));
-  for(let i=0;i<obs.length;i+=10)await env.DB.batch(obs.slice(i,i+10));
+  const stmts=[];
+  for(const x of signals){
+    const prev=previous.get(x.source+"::"+x.external_id)||0;
+    const velocity=prev>0?((x.signal_value-prev)/Math.abs(prev))*100:0;
+    const row={...x,previous_value:prev,velocity_pct:velocity};
+    const s=score(row);
+    stmts.push(env.DB.prepare("INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct,score) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=excluded.previous_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=excluded.velocity_pct,score=excluded.score").bind(x.source,x.external_id,x.trend_key,x.title,x.url,x.published_at,t,t,x.signal_value,x.category,x.risk_flags||null,prev,velocity,s)));
+    stmts.push(env.DB.prepare("INSERT INTO observations(source,external_id,trend_key,observed_at,signal_value,score,risk_flags) VALUES(?,?,?,?,?,?,?)").bind(x.source,x.external_id,x.trend_key,t,x.signal_value,s,x.risk_flags||null));
+  }
+  for(let i=0;i<stmts.length;i+=10)await env.DB.batch(stmts.slice(i,i+10));
 }
 async function runOnce(env){
   const started=now(),tasks=[...GEOS.map(readGoogleTrends),readHackerNews],rr=await Promise.allSettled(tasks);
