@@ -1,11 +1,13 @@
 # Trend Radar MVP
 
-Zero-cost-first trend detection engine.
+Trend -> Signal -> Score -> Store.
 
-Safety rules:
-- No paid service enabled by default.
-- No secrets in Git.
-- External providers are optional adapters.
-- Publishing stays disabled until validation passes.
+Current phase: signal collection only. Publishing and AI generation are disabled.
 
-Flow: Sources -> Normalize -> Score -> Cost/Risk Gate -> Draft -> Publish -> Metrics
+Core sources: Google Trends Trending Now RSS and Hacker News official Firebase API.
+
+Storage: Cloudflare D1 (trend-radar-db).
+
+Endpoints: GET /, GET /health, POST /run.
+
+No secrets are stored in source and no paid provider is required by the core collector.
