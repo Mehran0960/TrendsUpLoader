@@ -7,6 +7,15 @@ const RISK_RULES=[
   [/\b(election|president|politics|political|parliament|government)\b|انتخابات|رئیس.?جمهور|سیاست|سیاسی|پارلمان|مجلس|دولت/i,"politics"],
   [/\b(earthquake|flood|hurricane|wildfire)\b|زلزله|سیل|طوفان|آتش.?سوزی/i,"disaster"]
 ];
+const CONTENT_RULES=[
+  [/\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics)\b|هوش مصنوعی|چت.?جی.?پی.?تی|کلود|جمینای|اُپن.?ای|ربات/i,12],
+  [/\b(software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|app|apps)\b|نرم.?افزار|گیت.?هاب|لینوکس|اندروید|آیفون|برنامه|اپلیکیشن|برنامه.?نویسی/i,9],
+  [/\b(gadget|smartphone|laptop|chip|gpu|nvidia|amd|intel|hardware)\b|گجت|گوشی|لپ.?تاپ|تراشه|پردازنده|سخت.?افزار/i,8],
+  [/\b(startup|business|entrepreneur|ecommerce|retail|market|economy|finance|investing|money)\b|استارت.?آپ|کسب.?و.?کار|کارآفرینی|فروشگاه|اقتصاد|مالی|سرمایه.?گذاری|پول/i,8],
+  [/\b(deal|discount|price|product|tool|tutorial|guide)\b|تخفیف|قیمت|محصول|ابزار|آموزش|راهنما/i,5],
+  [/\b(weather|forecast|temperature|horoscope|astrology|lottery|lotto)\b|آب.?وهوا|هواشناسی|پیش.?بینی.?هوا|فال|طالع.?بینی|لاتاری/i,-12],
+  [/\b(celebrity|actor|actress|singer|influencer)\b|سلبریتی|بازیگر|خواننده|اینفلوئنسر/i,-3]
+];
 function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
 function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s\\S]*?)<\\/(?:[\\w-]+:)?"+tag+">","i");const m=block.match(re);return m?decodeEntities(m[1].trim()):"";}
 function parseTraffic(s){const m=String(s||"").replace(/,/g,"").match(/([0-9.]+)([KkMmBb])?/);if(!m)return 0;const n=Number(m[1]);return m[2]?(["K","k"].includes(m[2])?n*1e3:["M","m"].includes(m[2])?n*1e6:n*1e9):n;}
@@ -17,12 +26,18 @@ function trendKey(s){
   return [...new Set(tokens)].sort((a,b)=>a.localeCompare(b)).slice(0,6).join(" ");
 }
 function riskFlags(title){return RISK_RULES.filter(([re])=>re.test(title)).map(([,name])=>name).join(",");}
+function contentFit(title){
+  let fit=0;
+  for(const [re,weight] of CONTENT_RULES)if(re.test(title))fit+=weight;
+  return Math.max(-15,Math.min(15,fit));
+}
 function score(x){
   const fresh=Math.max(0,25-Math.max(0,(Date.now()-new Date(x.published_at||now()).getTime())/3600000));
   const mag=x.source.startsWith("google_trends")?Math.min(50,Math.log10(Math.max(1,x.signal_value))*10):Math.min(45,x.signal_value/5);
   const vel=Math.max(0,Math.min(30,x.velocity_pct>0?Math.log10(1+x.velocity_pct)*15:0));
+  const fit=Math.max(-15,Math.min(15,Number(x.content_fit??contentFit(x.title))));
   const risk=x.risk_flags?30:0;
-  return Math.round(Math.max(0,Math.min(100,mag+fresh+vel-risk))*100)/100;
+  return Math.round(Math.max(0,Math.min(100,mag+fresh+vel+fit-risk))*100)/100;
 }
 async function getText(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.text();}
 async function getJson(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.json();}
@@ -50,17 +65,20 @@ async function saveSignals(env,signals){
   const previous=new Map();
   for(const [source,items] of groups){
     const qs=items.map(()=>"?").join(",");
-    const params=[source,...items.map(x=>x.external_id)];
-    const r=await env.DB.prepare("SELECT source,external_id,signal_value FROM signals WHERE source=? AND external_id IN ("+qs+")").bind(...params).all();
-    for(const row of (r.results||[]))previous.set(source+"::"+row.external_id,Number(row.signal_value||0));
+    const params=[source,...keys];
+    const r=await env.DB.prepare("SELECT source,trend_key,signal_value FROM signals WHERE source=? AND trend_key IN ("+qs+") ORDER BY last_seen_at DESC").bind(...params).all();
+    for(const row of (r.results||[])){
+      const k=source+"::"+String(row.trend_key??"");
+      if(!previous.has(k))previous.set(k,Number(row.signal_value||0));
+    }
   }
   const stmts=[];
   for(const x of normalized){
-    const prev=previous.get(x.source+"::"+x.external_id)||0;
+    const prev=previous.get(x.source+"::"+String(x.trend_key??x.title??""))||0;
     const velocity=prev>0?((x.signal_value-prev)/Math.abs(prev))*100:0;
-    const safe={source:String(x.source??"unknown"),external_id:String(x.external_id??x.title??"unknown"),trend_key:String(x.trend_key??x.title??""),title:String(x.title??"untitled"),url:x.url??null,published_at:x.published_at??t,signal_value:Number(x.signal_value??0),category:x.category??null,risk_flags:x.risk_flags??null,previous_value:prev,velocity_pct:velocity};
+    const safe={source:String(x.source??"unknown"),external_id:String(x.external_id??x.title??"unknown"),trend_key:String(x.trend_key??x.title??""),title:String(x.title??"untitled"),url:x.url??null,published_at:x.published_at??t,signal_value:Number(x.signal_value??0),category:x.category??null,risk_flags:x.risk_flags??null,previous_value:prev,velocity_pct:velocity,content_fit:Number(x.content_fit??contentFit(x.title??""))};
     const s=score(safe);
-    stmts.push(env.DB.prepare("INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct,score) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=excluded.previous_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=excluded.velocity_pct,score=excluded.score").bind(safe.source,safe.external_id,safe.trend_key,safe.title,safe.url,safe.published_at,t,t,safe.signal_value,safe.category,safe.risk_flags,safe.previous_value,safe.velocity_pct,s));
+    stmts.push(env.DB.prepare("INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct,score) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=excluded.previous_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=excluded.velocity_pct,score=excluded.score").bind(safe.source,safe.external_id,safe.trend_key,safe.title,safe.url,safe.published_at,t,t,safe.signal_value,safe.category,safe.risk_flags,safe.previous_value,safe.velocity_pct,s,safe.content_fit));
     stmts.push(env.DB.prepare("INSERT INTO observations(source,external_id,trend_key,observed_at,signal_value,score,risk_flags) VALUES(?,?,?,?,?,?,?)").bind(safe.source,safe.external_id,safe.trend_key,t,safe.signal_value,s,safe.risk_flags));
   }
   for(let i=0;i<stmts.length;i+=10)await env.DB.batch(stmts.slice(i,i+10));
@@ -89,10 +107,10 @@ async function runOnce(env,controller){
 }
 export default {async fetch(request,env){
   const u=new URL(request.url);
-  if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"signal-validation",publishing_enabled:false,ai_enabled:false}),{headers:JSON_HEADERS});
+  if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"opportunity-validation",publishing_enabled:false,ai_enabled:false}),{headers:JSON_HEADERS});
   if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}
   if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,velocity_pct,risk_flags,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
-  if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
-  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,s.score,s.velocity_pct,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.trend_key=s.trend_key AND s.trend_key<>'') source_count FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.score>=45 ORDER BY source_count DESC,s.score DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked,(SELECT COUNT(*) FROM signals WHERE content_fit>0) positive_content_fit,(SELECT COUNT(*) FROM signals WHERE content_fit<0) negative_content_fit FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.trend_key=s.trend_key AND s.trend_key<>'') source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.trend_key=s.trend_key AND s.trend_key<>'')>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.trend_key=s.trend_key AND s.trend_key<>'')=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=-5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
     return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});
 },async scheduled(controller,env,ctx){ctx.waitUntil(runOnce(env,controller));}};
