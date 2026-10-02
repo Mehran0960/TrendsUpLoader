@@ -35,3 +35,13 @@ Keep a weight only when it improves the proportion of useful candidates in the m
 
 ## Phase D — go/no-go
 Only after data demonstrates repeatable useful rankings do we add AI drafting or automatic publishing.
+
+
+## Current validation layer (v2)
+- Google Trends is sampled every 15 minutes because the source has returned HTTP 429 under aggressive polling.
+- Google News (IR/US) and Hacker News are sampled every 5 minutes.
+- content_fit is stored on signals and contributes a bounded relevance adjustment for the project's target content areas.
+- Velocity is measured against the previous observation for the same source + trend_key, not only the same external URL/id.
+- Candidate ranking adds a bounded cross-source confirmation bonus when the same normalized topic appears in multiple sources.
+- Low-value utility topics such as routine weather/forecast/lottery/horoscope signals are filtered from candidate output.
+- AI generation and publishing remain disabled until the ranking layer demonstrates useful signal quality on real observations.
