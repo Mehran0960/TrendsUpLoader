@@ -1,0 +1,7 @@
+name = "trend-radar-mvp"
+main = "src/index.js"
+compatibility_date = "2026-10-02"
+
+[vars]
+PUBLISHING_ENABLED = "false"
+AI_ENABLED = "false"
