@@ -1,16 +1,60 @@
 const JSON_HEADERS={"content-type":"application/json; charset=UTF-8","cache-control":"no-store"};
-const DB_SQL="INSERT INTO signals(source,external_id,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,score) VALUES ";
-const TREND_GEOS=["US","IR"];
-const HN_TOP=10;
+const GEOS=["US","IR"],HN_TOP=10;
+const RISK_RULES=[
+  [/\b(porn|xxx|sex|onlyfans)\b/i,"adult"],
+  [/\b(gambling|casino|betting)\b/i,"gambling"],
+  [/\b(war|attack|terror|explosion|murder|killed|death)\b/i,"violence"],
+  [/\b(election|president|politics|political|parliament|government)\b/i,"politics"],
+  [/\b(earthquake|flood|hurricane|wildfire)\b/i,"disaster"]
+];
 function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
 function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s\\S]*?)<\\/(?:[\\w-]+:)?"+tag+">","i");const m=block.match(re);return m?decodeEntities(m[1].trim()):"";}
 function parseTraffic(s){const m=String(s||"").replace(/,/g,"").match(/([0-9.]+)([KkMmBb])?/);if(!m)return 0;const n=Number(m[1]);return m[2]?(["K","k"].includes(m[2])?n*1e3:["M","m"].includes(m[2])?n*1e6:n*1e9):n;}
 function now(){return new Date().toISOString();}
-function score(x){let s=0;if(x.source.startsWith("google_trends"))s=Math.min(60,x.signal_value/20000);if(x.source==="hacker_news")s=Math.min(35,x.signal_value/20);const age=Math.max(0,(Date.now()-new Date(x.published_at||now()).getTime())/3600000);return Math.round(Math.min(100,s+Math.max(0,25-age))*100)/100;}
+function trendKey(s){return String(s||"").toLowerCase().replace(/https?:\/\/\S+/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim().split(/\s+/).slice(0,10).join(" ");}
+function riskFlags(title){return RISK_RULES.filter(([re])=>re.test(title)).map(([,name])=>name).join(",");}
+function score(x){
+  const fresh=Math.max(0,25-Math.max(0,(Date.now()-new Date(x.published_at||now()).getTime())/3600000));
+  const mag=x.source.startsWith("google_trends")?Math.min(50,Math.log10(Math.max(1,x.signal_value))*10):Math.min(45,x.signal_value/5);
+  const vel=Math.max(0,Math.min(30,x.velocity_pct>0?Math.log10(1+x.velocity_pct)*15:0));
+  const risk=x.risk_flags?30:0;
+  return Math.round(Math.max(0,Math.min(100,mag+fresh+vel-risk))*100)/100;
+}
 async function getText(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.text();}
 async function getJson(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.json();}
-async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web"});}return out;}
-async function readHackerNews(){const ids=(await getJson("https://hacker-news.firebaseio.com/v0/beststories.json")).slice(0,HN_TOP),out=[];for(const id of ids){try{const item=await getJson("https://hacker-news.firebaseio.com/v0/item/"+id+".json");if(item&&item.type==="story"&&item.title)out.push({source:"hacker_news",external_id:String(id),title:item.title,url:item.url||("https://news.ycombinator.com/item?id="+id),published_at:new Date(Number(item.time||0)*1000).toISOString(),signal_value:Number(item.score||0),category:"technology"});}catch(_){}}return out;}
-async function saveSignals(env,signals){const t=now(),stmts=[];for(let i=0;i<signals.length;i+=10){const chunk=signals.slice(i,i+10),vals=[],params=[];for(const x of chunk){vals.push("(?,?,?,?,?,?,?,?,?,?)");params.push(x.source,x.external_id,x.title,x.url,x.published_at,t,t,x.signal_value,x.category,score(x));}stmts.push(env.DB.prepare(DB_SQL+vals.join(",")+" ON CONFLICT(source,external_id) DO UPDATE SET title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,signal_value=excluded.signal_value,category=excluded.category,score=excluded.score").bind(...params));}if(stmts.length)await env.DB.batch(stmts);}
-async function runOnce(env){const started=now(),tasks=[...TREND_GEOS.map(g=>readGoogleTrends(g)),readHackerNews()],rr=await Promise.allSettled(tasks),signals=rr.flatMap(r=>r.status==="fulfilled"?r.value:[]),errors=rr.map((r,i)=>r.status==="rejected"?String(r.reason):null).filter(Boolean),source_count=tasks.length;await saveSignals(env,signals);await env.DB.prepare("INSERT INTO runs(started_at,finished_at,status,source_count,signal_count,error) VALUES(?,?,?,?,?,?)").bind(started,now(),errors.length?"partial":"ok",source_count,signals.length,errors.join(" | ")||null).run();return {ok:true,signals:signals.length,errors};}
-export default {async fetch(request,env){const u=new URL(request.url);if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"signal-collection",publishing_enabled:false,ai_enabled:false}),{headers:JSON_HEADERS});if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) AS n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) AS n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});},async scheduled(_controller,env,ctx){ctx.waitUntil(runOnce(env));}};
+async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
+async function readHackerNews(){const ids=(await getJson("https://hacker-news.firebaseio.com/v0/beststories.json")).slice(0,HN_TOP),out=[];for(const id of ids){try{const item=await getJson("https://hacker-news.firebaseio.com/v0/item/"+id+".json");if(item&&item.type==="story"&&item.title)out.push({source:"hacker_news",external_id:String(id),trend_key:trendKey(item.title),title:item.title,url:item.url||("https://news.ycombinator.com/item?id="+id),published_at:new Date(Number(item.time||0)*1000).toISOString(),signal_value:Number(item.score||0),category:"technology",risk_flags:riskFlags(item.title)});}catch(_){}}return out;}
+async function saveSignals(env,signals){
+  const t=now(),stmts=[];
+  for(let i=0;i<signals.length;i+=10){
+    const chunk=signals.slice(i,i+10),vals=[],params=[];
+    for(const x of chunk){
+      vals.push("(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+      params.push(x.source,x.external_id,x.trend_key,x.title,x.url,x.published_at,t,t,x.signal_value,x.category,x.risk_flags||null,0,0);
+    }
+    const sql="INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct) VALUES "+vals.join(",")+" ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=signals.signal_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=CASE WHEN ABS(signals.signal_value)>0 THEN ((excluded.signal_value-signals.signal_value)/ABS(signals.signal_value))*100 ELSE 0 END";
+    stmts.push(env.DB.prepare(sql).bind(...params));
+  }
+  if(stmts.length)await env.DB.batch(stmts);
+  const rows=await env.DB.prepare("SELECT source,external_id,signal_value,previous_value,velocity_pct,published_at,risk_flags FROM signals").all();
+  const update=[];
+  for(const x of (rows.results||[]))update.push(env.DB.prepare("UPDATE signals SET score=? WHERE source=? AND external_id=?").bind(score(x),x.source,x.external_id));
+  for(let i=0;i<update.length;i+=10)await env.DB.batch(update.slice(i,i+10));
+  const obs=signals.map(x=>env.DB.prepare("INSERT INTO observations(source,external_id,trend_key,observed_at,signal_value,score,risk_flags) SELECT ?,?,?,?,signal_value,score,risk_flags FROM signals WHERE source=? AND external_id=?").bind(x.source,x.external_id,x.trend_key,t,x.source,x.external_id));
+  for(let i=0;i<obs.length;i+=10)await env.DB.batch(obs.slice(i,i+10));
+}
+async function runOnce(env){
+  const started=now(),tasks=[...GEOS.map(readGoogleTrends),readHackerNews],rr=await Promise.allSettled(tasks);
+  const signals=rr.flatMap(r=>r.status==="fulfilled"?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason));
+  await saveSignals(env,signals);
+  await env.DB.prepare("INSERT INTO runs(started_at,finished_at,status,source_count,signal_count,error) VALUES(?,?,?,?,?,?)").bind(started,now(),errors.length?"partial":"ok",tasks.length,signals.length,errors.join(" | ")||null).run();
+  return {ok:true,signals:signals.length,errors};
+}
+export default {async fetch(request,env){
+  const u=new URL(request.url);
+  if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"signal-validation",publishing_enabled:false,ai_enabled:false}),{headers:JSON_HEADERS});
+  if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}
+  if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,velocity_pct,risk_flags,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT COUNT(*) observations, COUNT(DISTINCT source||':'||external_id) entities, AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END) avg_positive_velocity, SUM(CASE WHEN risk_flags IS NOT NULL THEN 1 ELSE 0 END) risk_marked FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});
+},async scheduled(_controller,env,ctx){ctx.waitUntil(runOnce(env));}};
