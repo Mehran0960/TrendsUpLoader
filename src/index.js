@@ -38,9 +38,9 @@ async function saveSignals(env,signals){
   for(const x of signals){
     const prev=previous.get(x.source+"::"+x.external_id)||0;
     const velocity=prev>0?((x.signal_value-prev)/Math.abs(prev))*100:0;
-    const row={...x,previous_value:prev,velocity_pct:velocity};
-    const s=score(row);
-    stmts.push(env.DB.prepare("INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct,score) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=excluded.previous_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=excluded.velocity_pct,score=excluded.score").bind(x.source,x.external_id,x.trend_key,x.title,x.url,x.published_at,t,t,x.signal_value,x.category,x.risk_flags||null,prev,velocity,s));
+    const safe={source:String(x.source??"unknown"),external_id:String(x.external_id??x.title??"unknown"),trend_key:String(x.trend_key??x.title??""),title:String(x.title??"untitled"),url:x.url??null,published_at:x.published_at??t,signal_value:Number(x.signal_value??0),category:x.category??null,risk_flags:x.risk_flags??null,previous_value:prev,velocity_pct:velocity};
+    const s=score(safe);
+    stmts.push(env.DB.prepare("INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct,score) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=excluded.previous_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=excluded.velocity_pct,score=excluded.score").bind(safe.source,safe.external_id,safe.trend_key,safe.title,safe.url,safe.published_at,t,t,safe.signal_value,safe.category,safe.risk_flags,safe.previous_value,safe.velocity_pct,s));
     stmts.push(env.DB.prepare("INSERT INTO observations(source,external_id,trend_key,observed_at,signal_value,score,risk_flags) VALUES(?,?,?,?,?,?,?)").bind(x.source,x.external_id,x.trend_key,t,x.signal_value,s,x.risk_flags||null));
   }
   for(let i=0;i<stmts.length;i+=10)await env.DB.batch(stmts.slice(i,i+10));
