@@ -120,7 +120,7 @@ async function runOnce(env,controller){
   const started=now(),run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)").bind(started,"started",tasks.length,0).run();
   const runId=run.meta?.last_row_id;
   const rr=await Promise.allSettled(tasks);
-  const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason)),successfulSources=rr.filter(r=>r.status==="fulfilled").length;
+  const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason)),successfulSources=new Set(signals.map(x=>String(x?.source??"unknown"))).size;
   try { await saveSignals(env,signals); }
   catch(e) {
     const msg=String(e);
