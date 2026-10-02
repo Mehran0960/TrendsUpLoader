@@ -1,11 +1,11 @@
 const JSON_HEADERS={"content-type":"application/json; charset=UTF-8","cache-control":"no-store"};
 const GEOS=["US","IR"],HN_TOP=10;
 const RISK_RULES=[
-  [/\b(porn|xxx|sex|onlyfans)\b/i,"adult"],
-  [/\b(gambling|casino|betting)\b/i,"gambling"],
-  [/\b(war|attack|terror|explosion|murder|killed|death)\b/i,"violence"],
-  [/\b(election|president|politics|political|parliament|government)\b/i,"politics"],
-  [/\b(earthquake|flood|hurricane|wildfire)\b/i,"disaster"]
+  [/\b(porn|xxx|sex|onlyfans)\b|پورن|سکس|مستهجن|فحشا/i,"adult"],
+  [/\b(gambling|casino|betting)\b|قمار|شرط.?بندی|کازینو/i,"gambling"],
+  [/\b(war|attack|terror|explosion|murder|killed|death)\b|جنگ|حمله|ترور|انفجار|قتل|کشته|مرگ|خشونت/i,"violence"],
+  [/\b(election|president|politics|political|parliament|government)\b|انتخابات|رئیس.?جمهور|سیاست|سیاسی|پارلمان|مجلس|دولت/i,"politics"],
+  [/\b(earthquake|flood|hurricane|wildfire)\b|زلزله|سیل|طوفان|آتش.?سوزی/i,"disaster"]
 ];
 function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
 function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s\\S]*?)<\\/(?:[\\w-]+:)?"+tag+">","i");const m=block.match(re);return m?decodeEntities(m[1].trim()):"";}
@@ -50,14 +50,14 @@ async function runOnce(env){
   const started=now(),run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)").bind(started,"started",3,0).run();
   const runId=run.meta?.last_row_id;
   const tasks=[...GEOS.map(readGoogleTrends),readHackerNews()],rr=await Promise.allSettled(tasks);
-  const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason));
+  const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason)),successfulSources=rr.filter(r=>r.status==="fulfilled").length;
   try { await saveSignals(env,signals); }
   catch(e) {
     const msg=String(e);
     await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,signal_count=?,error=? WHERE id=?").bind(now(),"failed",signals.length,msg,runId).run();
     throw e;
   }
-  await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,signal_count=?,error=? WHERE id=?").bind(now(),errors.length?"partial":"ok",signals.length,errors.join(" | ")||null,runId).run();
+  await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,source_count=?,signal_count=?,error=? WHERE id=?").bind(now(),errors.length?"partial":"ok",successfulSources,signals.length,errors.join(" | ")||null,runId).run();
   return {ok:errors.length===0,signals:signals.length,errors};
 }
 export default {async fetch(request,env){
@@ -65,7 +65,7 @@ export default {async fetch(request,env){
   if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"signal-validation",publishing_enabled:false,ai_enabled:false}),{headers:JSON_HEADERS});
   if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}
   if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,velocity_pct,risk_flags,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
-  if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL) risk_marked FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
   if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT source,title,url,score,velocity_pct,risk_flags,category,last_seen_at FROM signals WHERE risk_flags IS NULL AND score>=45 ORDER BY score DESC,last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
     return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});
 },async scheduled(_controller,env,ctx){ctx.waitUntil(runOnce(env));}};
