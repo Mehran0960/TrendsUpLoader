@@ -46,11 +46,18 @@ async function saveSignals(env,signals){
   for(let i=0;i<stmts.length;i+=10)await env.DB.batch(stmts.slice(i,i+10));
 }
 async function runOnce(env){
-  const started=now(),tasks=[...GEOS.map(readGoogleTrends),readHackerNews],rr=await Promise.allSettled(tasks);
+  const started=now(),run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)").bind(started,"started",3,0).run();
+  const runId=run.meta?.last_row_id;
+  const tasks=[...GEOS.map(readGoogleTrends),readHackerNews],rr=await Promise.allSettled(tasks);
   const signals=rr.flatMap(r=>r.status==="fulfilled"?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason));
-  await saveSignals(env,signals);
-  await env.DB.prepare("INSERT INTO runs(started_at,finished_at,status,source_count,signal_count,error) VALUES(?,?,?,?,?,?)").bind(started,now(),errors.length?"partial":"ok",tasks.length,signals.length,errors.join(" | ")||null).run();
-  return {ok:true,signals:signals.length,errors};
+  try { await saveSignals(env,signals); }
+  catch(e) {
+    const msg=String(e);
+    await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,signal_count=?,error=? WHERE id=?").bind(now(),"failed",signals.length,msg,runId).run();
+    throw e;
+  }
+  await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,signal_count=?,error=? WHERE id=?").bind(now(),errors.length?"partial":"ok",signals.length,errors.join(" | ")||null,runId).run();
+  return {ok:errors.length===0,signals:signals.length,errors};
 }
 export default {async fetch(request,env){
   const u=new URL(request.url);
