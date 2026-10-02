@@ -170,18 +170,25 @@ async function runOnce(env,controller){
   const runId=run.meta?.last_row_id;
   const rr=await Promise.allSettled(tasks);
   const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason)),successfulSources=new Set(signals.map(x=>String(x?.source??"unknown"))).size;
-  try { await saveSignals(env,signals); if(collectTrends) await enrichSemantics(env,signals); }
-  catch(e) {
+  let semanticError=null;
+  try {
+    await saveSignals(env,signals);
+  } catch(e) {
     const msg=String(e);
     await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,signal_count=?,error=? WHERE id=?").bind(now(),"failed",signals.length,msg,runId).run();
     throw e;
   }
-  await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,source_count=?,signal_count=?,error=? WHERE id=?").bind(now(),errors.length?"partial":"ok",successfulSources,signals.length,errors.join(" | ")||null,runId).run();
+  if(collectTrends){
+    try { await enrichSemantics(env,signals); }
+    catch(e){ semanticError=String(e); }
+  }
+  const allErrors=[...errors,...(semanticError?[semanticError]:[])];
+  await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,source_count=?,signal_count=?,error=? WHERE id=?").bind(now(),allErrors.length?"partial":"ok",successfulSources,signals.length,allErrors.join(" | ")||null,runId).run();
   return {ok:errors.length===0,signals:signals.length,errors};
 }
 export default {async fetch(request,env){
   const u=new URL(request.url);
-  if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"opportunity-validation",publishing_enabled:false,ai_enabled:true}),{headers:JSON_HEADERS});
+  if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"opportunity-validation",publishing_enabled:false,ai_enabled:true,semantic_enabled:true}),{headers:JSON_HEADERS});
   if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}
   if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,velocity_pct,risk_flags,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
   if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked,(SELECT COUNT(*) FROM signals WHERE content_fit>0) positive_content_fit,(SELECT COUNT(*) FROM signals WHERE content_fit<0) negative_content_fit,(SELECT COUNT(*) FROM signals WHERE embedding_json IS NOT NULL) semantic_embedded,(SELECT COUNT(DISTINCT semantic_cluster) FROM signals WHERE semantic_cluster IS NOT NULL) semantic_clusters FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
