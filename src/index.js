@@ -49,8 +49,8 @@ async function saveSignals(env,signals){
 async function runOnce(env){
   const started=now(),run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)").bind(started,"started",3,0).run();
   const runId=run.meta?.last_row_id;
-  const tasks=[...GEOS.map(readGoogleTrends),readHackerNews],rr=await Promise.allSettled(tasks);
-  const signals=rr.flatMap(r=>r.status==="fulfilled"?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason));
+  const tasks=[...GEOS.map(readGoogleTrends),readHackerNews()],rr=await Promise.allSettled(tasks);
+  const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason));
   try { await saveSignals(env,signals); }
   catch(e) {
     const msg=String(e);
