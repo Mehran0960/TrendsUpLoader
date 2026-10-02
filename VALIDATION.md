@@ -47,3 +47,5 @@ Only after data demonstrates repeatable useful rankings do we add AI drafting or
 - AI generation and publishing remain disabled until the ranking layer demonstrates useful signal quality on real observations.
 
 - Independent RSS sources added to the codebase: Ars Technica and TechCrunch. The production Worker still needs a successful deployment of this commit before these feeds become active at runtime.
+
+- Source fetches now retry bounded transient 502/503/504 failures; HTTP 429 is not retried automatically to avoid amplifying rate-limit pressure.
