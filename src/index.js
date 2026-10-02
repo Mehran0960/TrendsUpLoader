@@ -163,8 +163,6 @@ async function runOnce(env,controller){
   const collectTrends=minute%15===0;
   const tasks=[
     ...(collectTrends?GEOS.map(readGoogleTrends):[]),
-    readGoogleNews("google_news_ir","https://news.google.com/rss?hl=fa&gl=IR&ceid=IR:fa","iran"),
-    readGoogleNews("google_news_us","https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en","web"),
     ...RSS_FEEDS.map(x=>readRssFeed(x.source,x.url,x.category)),
     readHackerNews()
   ];
