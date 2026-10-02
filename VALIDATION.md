@@ -49,3 +49,6 @@ Only after data demonstrates repeatable useful rankings do we add AI drafting or
 - Independent RSS sources added to the codebase: Ars Technica and TechCrunch. The production Worker still needs a successful deployment of this commit before these feeds become active at runtime.
 
 - Source fetches now retry bounded transient 502/503/504 failures; HTTP 429 is not retried automatically to avoid amplifying rate-limit pressure.
+
+- Pre-production end-to-end dry run of the current Worker code passed with 17 parameter-binding checks and no binding mismatches; D1 batch path was also exercised with a mock implementation.
+- The latest production deployment is active, but no post-deployment Cron Run is yet visible in D1, so production success is not claimed until that Run appears.
