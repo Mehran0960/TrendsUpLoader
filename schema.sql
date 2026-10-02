@@ -43,3 +43,6 @@ CREATE TABLE IF NOT EXISTS runs (
   error TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_runs_started ON runs(started_at DESC);
+
+-- v2: content-fit signal for opportunity ranking
+-- Apply separately to existing D1: ALTER TABLE signals ADD COLUMN content_fit REAL NOT NULL DEFAULT 0;
