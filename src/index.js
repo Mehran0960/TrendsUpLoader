@@ -86,7 +86,8 @@ async function saveSignals(env,signals){
   for(const x of normalized){if(!groups.has(x.source))groups.set(x.source,[]);groups.get(x.source).push(x);}
   const previous=new Map();
   for(const [source,items] of groups){
-    const qs=items.map(()=>"?").join(",");
+    const keys=Array.from(new Set(items.map(x=>String(x.trend_key??x.title??""))));
+    const qs=keys.map(()=>"?").join(",");
     const params=[source,...keys];
     const r=await env.DB.prepare("SELECT source,trend_key,signal_value FROM signals WHERE source=? AND trend_key IN ("+qs+") ORDER BY last_seen_at DESC").bind(...params).all();
     for(const row of (r.results||[])){
