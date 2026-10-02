@@ -51,8 +51,9 @@ function score(x){
   const risk=x.risk_flags?30:0;
   return Math.round(Math.max(0,Math.min(100,mag+fresh+vel+fit-risk))*100)/100;
 }
-async function getText(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.text();}
-async function getJson(url){const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(!r.ok)throw new Error("HTTP "+r.status+" from "+url);return r.json();}
+async function fetchWithRetry(url,json=false){let last=null;for(let i=0;i<3;i++){try{const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(r.ok)return json?r.json():r.text();if([502,503,504].includes(r.status)){last=new Error("HTTP "+r.status+" from "+url);if(i<2)await new Promise(resolve=>setTimeout(resolve,250*(i+1)));continue;}throw new Error("HTTP "+r.status+" from "+url);}catch(e){last=e;if(i<2)await new Promise(resolve=>setTimeout(resolve,250*(i+1)));}}throw last||new Error("fetch failed: "+url);}
+async function getText(url){return fetchWithRetry(url,false);}
+async function getJson(url){return fetchWithRetry(url,true);}
 async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
 async function readRssFeed(source,feed,category){
   const xml=await getText(feed),out=[];
