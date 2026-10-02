@@ -25,10 +25,18 @@ function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s
 function parseTraffic(s){const m=String(s||"").replace(/,/g,"").match(/([0-9.]+)([KkMmBb])?/);if(!m)return 0;const n=Number(m[1]);return m[2]?(["K","k"].includes(m[2])?n*1e3:["M","m"].includes(m[2])?n*1e6:n*1e9):n;}
 function now(){return new Date().toISOString();}
 function trendKey(s){
-  const stop=new Set(["the","a","an","and","or","of","to","in","on","for","with","is","are","was","were","has","have","this","that","new","how","several","discovered","discover","upcoming","will","be","been","being","latest","update","updates","today","tomorrow","according","report","reports","reported","news","says","said","say","over","into","from","after","before","via","what","why","when","where","who","how","از","به","در","برای","با","و","یا","که","این","آن","یک","بر","را","است","شد","های","هایش","جدید","آخرین","امروز","فردا","خبر","گزارش","گزارشها","گفت","گفته","خواهد","شدند","شده"]);
-  const tokens=String(s||"").toLowerCase().replace(/https?:\/\/\S+/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim().split(/\s+/).filter(t=>t.length>2&&!stop.has(t));
-  return [...new Set(tokens)].sort((a,b)=>a.localeCompare(b)).slice(0,6).join(" ");
+  const stop=new Set(["the","a","an","and","or","of","to","in","on","for","with","is","are","was","were","has","have","this","that","new","how","several","discovered","discover","upcoming","will","be","been","being","latest","update","updates","today","tomorrow","according","report","reports","reported","news","says","said","say","over","into","from","after","before","via","what","why","when","where","who","از","به","در","برای","با","و","یا","که","این","آن","یک","بر","را","است","شد","های","هایش","جدید","آخرین","امروز","فردا","خبر","گزارش","گزارشها","گفت","گفته","خواهد","شدند","شده","درمورد","مربوط","توسط"]);
+  const important=new Set(["ai","ml","xr","vr","ar","5g","6g","gpu","cpu","api","hn","os"]);
+  const normalized=String(s||"").toLowerCase()
+    .replace(/[يى]/g,"ی").replace(/ك/g,"ک").replace(/[\u200c\u200d]/g," ")
+    .replace(/https?:\/\/\S+/g,"")
+    .replace(/[^\p{L}\p{N}]+/gu," ").trim();
+  const raw=normalized.split(/\s+/).filter(t=>((t.length>2||important.has(t))&&!stop.has(t)&&!/^\d+$/.test(t)));
+  const tokens=[...new Set(raw.map(t=>t.length>5&&t.endsWith("s")?t.slice(0,-1):t))];
+  tokens.sort((a,b)=>(b.length-a.length)||a.localeCompare(b));
+  return tokens.slice(0,5).sort((a,b)=>a.localeCompare(b)).join(" ");
 }
+
 function riskFlags(title){return RISK_RULES.filter(([re])=>re.test(title)).map(([,name])=>name).join(",");}
 function contentFit(title){
   let fit=0;
