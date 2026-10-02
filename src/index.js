@@ -20,7 +20,7 @@ const CONTENT_RULES=[
   [/\b(weather|forecast|temperature|climate|horoscope|astrology|lottery|lotto)\b|آب.?وهوا|هوای?\s+(فردا|امروز)|هواشناسی|پیش.?بینی.?هوا|فال|طالع.?بینی|لاتاری/i,-12],
   [/\b(celebrity|actor|actress|singer|influencer)\b|سلبریتی|بازیگر|خواننده|اینفلوئنسر/i,-3]
 ];
-function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
+function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#(x[0-9a-f]+|\d+);/gi,(_,v)=>String.fromCodePoint(v.toLowerCase().startsWith("x")?parseInt(v.slice(1),16):parseInt(v,10)));}
 function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s\\S]*?)<\\/(?:[\\w-]+:)?"+tag+">","i");const m=block.match(re);return m?decodeEntities(m[1].trim()):"";}
 function parseTraffic(s){const m=String(s||"").replace(/,/g,"").match(/([0-9.]+)([KkMmBb])?/);if(!m)return 0;const n=Number(m[1]);return m[2]?(["K","k"].includes(m[2])?n*1e3:["M","m"].includes(m[2])?n*1e6:n*1e9):n;}
 function now(){return new Date().toISOString();}
@@ -55,7 +55,7 @@ function score(x){
 async function fetchWithRetry(url,json=false){let last=null;for(let i=0;i<3;i++){try{const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(r.ok)return json?r.json():r.text();if([502,503,504].includes(r.status)){last=new Error("HTTP "+r.status+" from "+url);if(i<2)await new Promise(resolve=>setTimeout(resolve,250*(i+1)));continue;}throw new Error("HTTP "+r.status+" from "+url);}catch(e){last=e;if(i<2)await new Promise(resolve=>setTimeout(resolve,250*(i+1)));}}throw last||new Error("fetch failed: "+url);}
 async function getText(url){return fetchWithRetry(url,false);}
 async function getJson(url){return fetchWithRetry(url,true);}
-async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
+async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");const explore="https://trends.google.com/trends/explore?q="+encodeURIComponent(title)+"&geo="+encodeURIComponent(geo);out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:explore,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
 async function readRssFeed(source,feed,category){
   const xml=await getText(feed),out=[];
   for(const [i,block] of xml.split(/<item>/i).slice(1,21).entries()){
