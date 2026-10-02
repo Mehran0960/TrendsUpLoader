@@ -45,3 +45,5 @@ Only after data demonstrates repeatable useful rankings do we add AI drafting or
 - Candidate ranking adds a bounded cross-source confirmation bonus when the same normalized topic appears in multiple sources.
 - Low-value utility topics such as routine weather/forecast/lottery/horoscope signals are filtered from candidate output.
 - AI generation and publishing remain disabled until the ranking layer demonstrates useful signal quality on real observations.
+
+- Independent RSS sources added to the codebase: Ars Technica and TechCrunch. The production Worker still needs a successful deployment of this commit before these feeds become active at runtime.
