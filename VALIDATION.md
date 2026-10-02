@@ -52,3 +52,6 @@ Only after data demonstrates repeatable useful rankings do we add AI drafting or
 
 - Pre-production end-to-end dry run of the current Worker code passed with 17 parameter-binding checks and no binding mismatches; D1 batch path was also exercised with a mock implementation.
 - The latest production deployment is active, but no post-deployment Cron Run is yet visible in D1, so production success is not claimed until that Run appears.
+
+- Google News IR/US were removed from the core collector after repeated HTTP 503 responses; they remain outside the core reliability path.
+- Semantic clustering now uses the Cloudflare Workers AI `@cf/baai/bge-m3` binding, with embeddings stored in D1 and candidate source confirmation based on semantic clusters.
