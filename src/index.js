@@ -24,6 +24,7 @@ function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&
 function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s\\S]*?)<\\/(?:[\\w-]+:)?"+tag+">","i");const m=block.match(re);return m?decodeEntities(m[1].trim()):"";}
 function parseTraffic(s){const m=String(s||"").replace(/,/g,"").match(/([0-9.]+)([KkMmBb])?/);if(!m)return 0;const n=Number(m[1]);return m[2]?(["K","k"].includes(m[2])?n*1e3:["M","m"].includes(m[2])?n*1e6:n*1e9):n;}
 function now(){return new Date().toISOString();}
+function hashString(s){let h=2166136261;for(const ch of String(s||"")){h^=ch.charCodeAt(0);h=Math.imul(h,16777619);}return (h>>>0).toString(16).padStart(8,"0");}
 function trendKey(s){
   const stop=new Set(["the","a","an","and","or","of","to","in","on","for","with","is","are","was","were","has","have","this","that","new","how","several","discovered","discover","upcoming","will","be","been","being","latest","update","updates","today","tomorrow","according","report","reports","reported","news","says","said","say","over","into","from","after","before","via","what","why","when","where","who","از","به","در","برای","با","و","یا","که","این","آن","یک","بر","را","است","شد","های","هایش","جدید","آخرین","امروز","فردا","خبر","گزارش","گزارشها","گفت","گفته","خواهد","شدند","شده","درمورد","مربوط","توسط"]);
   const important=new Set(["ai","ml","xr","vr","ar","5g","6g","gpu","cpu","api","hn","os"]);
@@ -122,7 +123,7 @@ async function enrichSemantics(env,signals){
       cluster=best.ref.cluster||("sem-"+best.ref.id);
       similarity=best.sim;
     }else{
-      cluster="sem-"+String(x.source)+"-"+String(x.external_id).slice(0,32).replace(/[^a-zA-Z0-9_-]/g,"");
+      cluster="sem-"+hashString(String(x.source)+"::"+String(x.external_id));
     }
     updates.push(env.DB.prepare("UPDATE signals SET embedding_json=?,semantic_cluster=?,semantic_similarity=? WHERE source=? AND external_id=?").bind(JSON.stringify(v),cluster,similarity,String(x.source),String(x.external_id)));
     refs.push({id:0,source:String(x.source),embedding:v,cluster});
