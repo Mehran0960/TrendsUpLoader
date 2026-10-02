@@ -21,7 +21,7 @@ function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s
 function parseTraffic(s){const m=String(s||"").replace(/,/g,"").match(/([0-9.]+)([KkMmBb])?/);if(!m)return 0;const n=Number(m[1]);return m[2]?(["K","k"].includes(m[2])?n*1e3:["M","m"].includes(m[2])?n*1e6:n*1e9):n;}
 function now(){return new Date().toISOString();}
 function trendKey(s){
-  const stop=new Set(["the","a","an","and","or","of","to","in","on","for","with","is","are","was","were","has","have","this","that","new","how","از","به","در","برای","با","و","یا","که","این","آن","یک","بر","را","است","شد","های","هایش"]);
+  const stop=new Set(["the","a","an","and","or","of","to","in","on","for","with","is","are","was","were","has","have","this","that","new","how","several","discovered","discover","upcoming","will","be","been","being","latest","update","updates","today","tomorrow","according","report","reports","reported","news","says","said","say","over","into","from","after","before","via","what","why","when","where","who","how","از","به","در","برای","با","و","یا","که","این","آن","یک","بر","را","است","شد","های","هایش","جدید","آخرین","امروز","فردا","خبر","گزارش","گزارشها","گفت","گفته","خواهد","شدند","شده"]);
   const tokens=String(s||"").toLowerCase().replace(/https?:\/\/\S+/g,"").replace(/[^\p{L}\p{N}]+/gu," ").trim().split(/\s+/).filter(t=>t.length>2&&!stop.has(t));
   return [...new Set(tokens)].sort((a,b)=>a.localeCompare(b)).slice(0,6).join(" ");
 }
