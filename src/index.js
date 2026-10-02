@@ -25,8 +25,9 @@ async function getJson(url){const r=await fetch(url,{headers:{"user-agent":"tren
 async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:link||null,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
 async function readHackerNews(){const ids=(await getJson("https://hacker-news.firebaseio.com/v0/beststories.json")).slice(0,HN_TOP),out=[];for(const id of ids){try{const item=await getJson("https://hacker-news.firebaseio.com/v0/item/"+id+".json");if(item&&item.type==="story"&&item.title)out.push({source:"hacker_news",external_id:String(id),trend_key:trendKey(item.title),title:item.title,url:item.url||("https://news.ycombinator.com/item?id="+id),published_at:new Date(Number(item.time||0)*1000).toISOString(),signal_value:Number(item.score||0),category:"technology",risk_flags:riskFlags(item.title)});}catch(_){}}return out;}
 async function saveSignals(env,signals){
-  const t=now(),groups=new Map();
-  for(const x of signals){if(!groups.has(x.source))groups.set(x.source,[]);groups.get(x.source).push(x);}
+  const t=now(),normalized=signals.map(x=>({...x,source:String(x?.source??"unknown"),external_id:String(x?.external_id??x?.title??"unknown")}));
+  const groups=new Map();
+  for(const x of normalized){if(!groups.has(x.source))groups.set(x.source,[]);groups.get(x.source).push(x);}
   const previous=new Map();
   for(const [source,items] of groups){
     const qs=items.map(()=>"?").join(",");
@@ -35,7 +36,7 @@ async function saveSignals(env,signals){
     for(const row of (r.results||[]))previous.set(source+"::"+row.external_id,Number(row.signal_value||0));
   }
   const stmts=[];
-  for(const x of signals){
+  for(const x of normalized){
     const prev=previous.get(x.source+"::"+x.external_id)||0;
     const velocity=prev>0?((x.signal_value-prev)/Math.abs(prev))*100:0;
     const safe={source:String(x.source??"unknown"),external_id:String(x.external_id??x.title??"unknown"),trend_key:String(x.trend_key??x.title??""),title:String(x.title??"untitled"),url:x.url??null,published_at:x.published_at??t,signal_value:Number(x.signal_value??0),category:x.category??null,risk_flags:x.risk_flags??null,previous_value:prev,velocity_pct:velocity};
