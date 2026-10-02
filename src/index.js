@@ -17,7 +17,7 @@ const CONTENT_RULES=[
   [/\b(gadget|smartphone|laptop|chip|gpu|nvidia|amd|intel|hardware)\b|گجت|گوشی|لپ.?تاپ|تراشه|پردازنده|سخت.?افزار/i,8],
   [/\b(startup|business|entrepreneur|ecommerce|retail|market|economy|finance|investing|money)\b|استارت.?آپ|کسب.?و.?کار|کارآفرینی|فروشگاه|اقتصاد|مالی|سرمایه.?گذاری|پول/i,8],
   [/\b(deal|discount|price|product|tool|tutorial|guide)\b|تخفیف|قیمت|محصول|ابزار|آموزش|راهنما/i,5],
-  [/\b(weather|forecast|temperature|horoscope|astrology|lottery|lotto)\b|آب.?وهوا|هواشناسی|پیش.?بینی.?هوا|فال|طالع.?بینی|لاتاری/i,-12],
+  [/\b(weather|forecast|temperature|climate|horoscope|astrology|lottery|lotto)\b|آب.?وهوا|هوای?\s+(فردا|امروز)|هواشناسی|پیش.?بینی.?هوا|فال|طالع.?بینی|لاتاری/i,-12],
   [/\b(celebrity|actor|actress|singer|influencer)\b|سلبریتی|بازیگر|خواننده|اینفلوئنسر/i,-3]
 ];
 function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
