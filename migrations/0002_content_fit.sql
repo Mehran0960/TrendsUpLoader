@@ -1,0 +1,1 @@
+ALTER TABLE signals ADD COLUMN content_fit REAL NOT NULL DEFAULT 0;
