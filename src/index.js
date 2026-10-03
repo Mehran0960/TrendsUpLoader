@@ -117,7 +117,22 @@ async function readGoogleNews(source,feed,category){
   }
   return out;
 }
-async function readHackerNews(){const ids=(await getJson("https://hacker-news.firebaseio.com/v0/beststories.json")).slice(0,HN_TOP),out=[];for(const id of ids){try{const item=await getJson("https://hacker-news.firebaseio.com/v0/item/"+id+".json");if(item&&item.type==="story"&&item.title)out.push({source:"hacker_news",external_id:String(id),trend_key:trendKey(item.title),title:item.title,url:item.url||("https://news.ycombinator.com/item?id="+id),published_at:new Date(Number(item.time||0)*1000).toISOString(),signal_value:Number(item.score||0),category:"technology",risk_flags:riskFlags(item.title)});}catch(_){}}return out;}
+async function readHackerNews(){
+  const ids=(await getJson("https://hacker-news.firebaseio.com/v0/beststories.json")).slice(0,HN_TOP);
+  const rr=await Promise.allSettled(ids.map(id=>getJson("https://hacker-news.firebaseio.com/v0/item/"+id+".json")));
+  const out=[];
+  for(let i=0;i<rr.length;i++){
+    const item=rr[i].status==="fulfilled"?rr[i].value:null;
+    const id=ids[i];
+    if(item&&item.type==="story"&&item.title)out.push({
+      source:"hacker_news",external_id:String(id),trend_key:trendKey(item.title),title:item.title,
+      url:item.url||("https://news.ycombinator.com/item?id="+id),
+      published_at:new Date(Number(item.time||0)*1000).toISOString(),
+      signal_value:Number(item.score||0),category:"technology",risk_flags:riskFlags(item.title)
+    });
+  }
+  return out;
+}
 function cosine(a,b){
   let dot=0,na=0,nb=0;
   const n=Math.min(a.length,b.length);
@@ -256,13 +271,20 @@ async function saveSignals(env,signals){
   }
   for(let i=0;i<stmts.length;i+=10)await env.DB.batch(stmts.slice(i,i+10));
 }
+function withTimeout(promise,ms,label){
+  return Promise.race([
+    promise,
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" timeout after "+ms+"ms")),ms))
+  ]);
+}
+
 async function runOnce(env,controller){
   const minute=new Date(Number(controller?.scheduledTime||Date.now())).getUTCMinutes();
   const collectTrends=minute%15===0;
   const tasks=[
-    ...(collectTrends?GEOS.map(readGoogleTrends):[]),
-    ...RSS_FEEDS.map(x=>readRssFeed(x.source,x.url,x.category)),
-    readHackerNews()
+    ...(collectTrends?GEOS.map((geo)=>withTimeout(readGoogleTrends(geo),45000,"google_trends_"+geo)):[]),
+    ...RSS_FEEDS.map(x=>withTimeout(readRssFeed(x.source,x.url,x.category),45000,x.source)),
+    withTimeout(readHackerNews(),60000,"hacker_news")
   ];
   const started=now(),run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)").bind(started,"started",tasks.length,0).run();
   const runId=run.meta?.last_row_id;
