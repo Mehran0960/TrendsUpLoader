@@ -1,5 +1,6 @@
 name: Zero-Cost Content Pipeline
 # V3 validation: sentence-synced captions and topic-aware original visuals
+# Telegram publish enabled when repository secrets are configured
 
 concurrency:
   group: trend-radar-content
