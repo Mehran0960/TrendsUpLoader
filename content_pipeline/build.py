@@ -12,7 +12,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from html import unescape
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, features
 import arabic_reshaper
 from bidi.algorithm import get_display
 
@@ -122,28 +122,23 @@ def fetch_source_context(url: str):
         return {}
 
 def fa(text: str) -> str:
-    return get_display(arabic_reshaper.reshape(str(text)))
+    raw = str(text)
+    if features.check("raqm"):
+        return raw
+    return get_display(arabic_reshaper.reshape(raw))
 
-def font(size: int, bold=False):
-    paths = (
-        "/usr/share/fonts/truetype/noto/NotoSansArabic-Bold.ttf",
-        "/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    )
-    if not bold:
-        paths = paths[1:] + paths[:1]
-    for p in paths:
-        if Path(p).exists():
-            return ImageFont.truetype(p, size)
-    return ImageFont.load_default()
+def rtl_kwargs():
+    if features.check("raqm"):
+        return {"direction": "rtl", "language": "fa"}
+    return {}
 
 def wrap_pixels(draw, text, fnt, max_width):
     words = str(text).split()
     lines, cur = [], ""
     for word in words:
         nxt = (cur + " " + word).strip()
-        if draw.textbbox((0, 0), fa(nxt), font=fnt)[2] <= max_width:
+        box = draw.textbbox((0, 0), fa(nxt), font=fnt, **rtl_kwargs())
+        if (box[2] - box[0]) <= max_width:
             cur = nxt
         else:
             if cur:
@@ -154,20 +149,21 @@ def wrap_pixels(draw, text, fnt, max_width):
     return lines
 
 def draw_rtl_block(draw, text, y, fnt, max_width, fill=(245,245,245), align="center", spacing=12):
-    rendered = [(x, fa(x)) for x in wrap_pixels(draw, text, fnt, max_width)]
-    heights = [draw.textbbox((0,0), r, font=fnt)[3] for _, r in rendered]
+    lines = wrap_pixels(draw, text, fnt, max_width)
     cur_y = y
-    for (_, r), h in zip(rendered, heights):
-        box = draw.textbbox((0,0), r, font=fnt)
-        w = box[2] - box[0]
+    kw = rtl_kwargs()
+    for line in lines:
+        r = fa(line)
+        box = draw.textbbox((0,0), r, font=fnt, **kw)
+        h = box[3] - box[1]
         if align == "right":
-            x = WIDTH - 52 - w
+            x, anchor = WIDTH - 52, "ra"
         elif align == "left":
-            x = 52
+            x, anchor = 52, "la"
         else:
-            x = (WIDTH - w) / 2
-        draw.text((x+2, cur_y+2), r, font=fnt, fill=(0,0,0))
-        draw.text((x, cur_y), r, font=fnt, fill=fill)
+            x, anchor = WIDTH / 2, "ma"
+        draw.text((x+2, cur_y+2), r, font=fnt, fill=(0,0,0), anchor=anchor, **kw)
+        draw.text((x, cur_y), r, font=fnt, fill=fill, anchor=anchor, **kw)
         cur_y += h + spacing
     return cur_y
 
@@ -295,7 +291,7 @@ def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: s
         draw_generic_visual(d, title)
 
     d.rounded_rectangle((48,190,255,242), radius=16, fill=(27,39,60))
-    d.text((66,200), fa(f"{number:02d} • {label}"), font=font(24, bold=True), fill=(190,215,235))
+    d.text((66,200), fa(f"{number:02d} • {label}"), font=font(24, bold=True), fill=(190,215,235), **rtl_kwargs())
     d.rounded_rectangle((40,885,680,1195), radius=30, fill=(5,9,18), outline=(85,105,130), width=2)
     draw_rtl_block(d, caption, 925, font(34, bold=True), 565, fill=(248,248,248), align="center", spacing=10)
     img.save(path)
