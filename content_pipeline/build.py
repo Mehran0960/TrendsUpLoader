@@ -191,16 +191,22 @@ def generate_audience_script(title, source, context):
     fallback = build_safe_script(title, source, context)
     writer_url = os.environ.get("CONTENT_WRITER_URL", "").strip()
     if not writer_url:
-        return fallback, "template"
+        return title, fallback, "template"
     try:
         data = post_json(writer_url, {"title": title, "description": str(context.get("description") or "")[:1600], "source": source})
-        text = re.sub(r"\s+", " ", str(data.get("text") or "")).strip()
+        raw = re.sub(r"\s+", " ", str(data.get("text") or "")).strip()
+        marker_title, marker_script = "", raw
+        m = re.search(r"TITLE\s*:\s*(.*?)\s*SCRIPT\s*:\s*(.*)$", raw, re.I)
+        if m:
+            marker_title = m.group(1).strip(" |-:")
+            marker_script = m.group(2).strip()
         forbidden = ("رادار", "امتیاز", "الگوریتم", "فرایند تولید", "فرآیند تولید")
-        if not data.get("ok") or len(text) < 80 or any(x in text for x in forbidden):
-            return fallback, "template"
-        return text[:1600], "ai"
+        if not data.get("ok") or len(marker_script) < 80 or any(x in marker_script for x in forbidden):
+            return title, fallback, "template"
+        return marker_title or title, marker_script[:1600], "ai"
     except Exception:
-        return fallback, "template"
+        return title, fallback, "template"
+
 def run(cmd):
     subprocess.run(cmd, check=True)
 
@@ -263,6 +269,7 @@ def main():
     iran = c.get("iran_interest_similarity")
 
     context = fetch_source_context(c.get("url"))
+    display_title, script, script_mode = generate_audience_script(title, source, context)
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     slug = re.sub(r"[^a-z0-9]+","-",title.lower()).strip("-")[:50] or "topic"
@@ -279,10 +286,10 @@ def main():
     summary = re.sub(r"\s+", " ", str(context.get("description") or "")).strip()
     summary_short = summary[:220] if summary else "برای جزئیات بیشتر، منبع اصلی خبر را بررسی کنید."
     scenes = [
-        (title, "01 • NEWS"),
-        (summary_short, "02 • CONTEXT"),
-        ("جزئیات و صحت ادعاها را از منبع اصلی بررسی کنید.", "03 • CHECK"),
-        ("منبع اصلی در توضیحات پست قرار می‌گیرد.", "04 • SOURCE"),
+        (display_title, "01 • خبر"),
+        (summary_short, "02 • زمینه"),
+        ("جزئیات و صحت ادعاها را از منبع اصلی بررسی کنید.", "03 • بررسی"),
+        ("منبع اصلی در توضیحات پست قرار می‌گیرد.", "04 • منبع"),
     ]
     images = []
     for i, (body, label) in enumerate(scenes, 1):
@@ -299,6 +306,8 @@ def main():
         "source": source,
         "source_url": c.get("url"),
         "source_context": context,
+        "display_title_fa": display_title,
+        "script_mode": script_mode,
         "script_mode": script_mode,
         "score_internal": score,
         "content_fit_internal": fit,
