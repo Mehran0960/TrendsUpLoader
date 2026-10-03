@@ -59,6 +59,17 @@ def main():
     if found is None:
         return 0
     video, meta = found
+    if str(meta.get("quality_gate") or "") != "passed_publish":
+        print("Telegram publish skipped: metadata quality gate not passed.")
+        return 0
+    duration = float(meta.get("duration_seconds") or 0)
+    if duration < 18:
+        print(f"Telegram publish skipped: video too short ({duration:.2f}s).")
+        return 0
+    script_quality = str(meta.get("script_quality") or "")
+    if script_quality != "passed":
+        print("Telegram publish skipped: script quality gate not passed.")
+        return 0
     size = video.stat().st_size
     if size > 50 * 1024 * 1024:
         raise RuntimeError(f"Video is {size} bytes; Telegram bot limit is 50 MB.")
