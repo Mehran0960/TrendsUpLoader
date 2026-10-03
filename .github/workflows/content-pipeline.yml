@@ -40,7 +40,6 @@ jobs:
       - name: Build automated Persian video
         env:
           RADAR_URL: https://trend-radar.m-hoseyni-6966.workers.dev/candidates
-          CONTENT_WRITER_URL: https://trend-content-writer.m-hoseyni-6966.workers.dev
         run: python content_pipeline/build.py
 
       - name: Upload generated content
