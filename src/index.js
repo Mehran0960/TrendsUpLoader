@@ -27,17 +27,6 @@ const IR_NOISE_RULES=[
   /^.+\s+vs\.?\s+.+$/i
 ];
 const IR_SINGLE_USEFUL=/آیفون|اپل|گوگل|مایکروسافت|اندروید|تلگرام|اینستاگرام|واتساپ|هوش|ربات|تکنولوژی|فناوری|لینوکس|گیت.?هاب|چت.?جی.?پی.?تی|جمینای/i;
-const OUT_OF_SCOPE_RULES=[
-  [/\b(soccer|football|basketball|baseball|hockey|tennis|golf|cricket|rugby|volleyball|nba|nfl|nhl|mlb|fifa|match|score|vs|versus|tournament|championship|league)\b|فوتبال|بسکتبال|والیبال|تنیس|گلف|هاکی|کریکت|مسابقه|نتیجه|جام|لیگ|قهرمانی/i,-15],
-  [/\b(actor|actress|singer|celebrity|celebrity|model|tv show|movie|film|netflix|grammy|oscar)\b|بازیگر|خواننده|سلبریتی|فیلم|سریال|نتفلیکس|اسکار|گرمی/i,-15],
-  [/\b(cancer|diabetes|pregnancy|weight loss|symptom|disease|virus|vaccine|hospital|doctor|medical|medicine|drug|treatment)\b|سرطان|دیابت|بارداری|لاغری|علائم|بیماری|ویروس|واکسن|بیمارستان|پزشک|پزشکی|دارو|درمان/i,-15],
-  [/\b(stock price|share price|match prediction|lottery|horoscope|astrology)\b|فال|طالع.?بینی|لاتاری/i,-15]
-];
-function outOfScopeFit(title){
-  let fit=0;
-  for(const [re,weight] of OUT_OF_SCOPE_RULES)if(re.test(title))fit+=weight;
-  return Math.max(-15,Math.min(0,fit));
-}
 function usefulIranTrendTitle(title){
   const t=String(title||"").trim();
   if(!t||IR_NOISE_RULES.some(re=>re.test(t)))return false;
@@ -67,7 +56,6 @@ function riskFlags(title){return RISK_RULES.filter(([re])=>re.test(title)).map((
 function contentFit(title){
   let fit=0;
   for(const [re,weight] of CONTENT_RULES)if(re.test(title))fit+=weight;
-  fit+=outOfScopeFit(title);
   return Math.max(-15,Math.min(15,fit));
 }
 function score(x){
