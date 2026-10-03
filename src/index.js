@@ -320,32 +320,82 @@ function withTimeout(promise,ms,label){
 }
 
 async function runOnce(env,controller){
-  const minute=new Date(Number(controller?.scheduledTime||Date.now())).getUTCMinutes();
+  const scheduledAt=Number(controller?.scheduledTime||Date.now());
+  const d=new Date(scheduledAt);
+  const minute=d.getUTCMinutes();
+  const hour=d.getUTCHours();
+  const minuteOfDay=hour*60+minute;
   const collectTrends=minute%15===0;
+  const runSemantics=minuteOfDay%60===0;
+  const started=now();
+
+  // Recover prior invocations that exceeded the expected execution window.
+  const staleCutoff=new Date(Date.now()-3*60*1000).toISOString();
+  try{
+    await withTimeout(
+      env.DB.prepare("UPDATE runs SET finished_at=?,status='partial',error=COALESCE(error,'execution exceeded watchdog window') WHERE status='started' AND started_at<?")
+        .bind(started,staleCutoff).run(),
+      10000,
+      "stale_run_cleanup"
+    );
+  }catch(_){}
+
   const tasks=[
     ...(collectTrends?GEOS.map((geo)=>withTimeout(readGoogleTrends(geo),45000,"google_trends_"+geo)):[]),
     ...RSS_FEEDS.map(x=>withTimeout(readRssFeed(x.source,x.url,x.category),45000,x.source)),
     withTimeout(readHackerNews(),60000,"hacker_news")
   ];
-  const started=now(),run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)").bind(started,"started",tasks.length,0).run();
+
+  const run=await env.DB.prepare("INSERT INTO runs(started_at,status,source_count,signal_count) VALUES(?,?,?,?)")
+    .bind(started,"started",tasks.length,0).run();
   const runId=run.meta?.last_row_id;
-  const rr=await Promise.allSettled(tasks);
-  const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]),errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason)),successfulSources=new Set(signals.map(x=>String(x?.source??"unknown"))).size;
-  let semanticError=null;
-  try {
-    await saveSignals(env,signals);
-  } catch(e) {
-    const msg=String(e);
-    await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,signal_count=?,error=? WHERE id=?").bind(now(),"failed",signals.length,msg,runId).run();
-    throw e;
+
+  const finish=async(status,signalCount,error)=>{
+    try{
+      await withTimeout(
+        env.DB.prepare("UPDATE runs SET finished_at=?,status=?,source_count=?,signal_count=?,error=? WHERE id=?")
+          .bind(now(),status,0,signalCount,error||null,runId).run(),
+        10000,
+        "run_finalize"
+      );
+    }catch(_){}
+  };
+
+  try{
+    let rr;
+    try{
+      rr=await withTimeout(Promise.allSettled(tasks),75000,"source_collection");
+    }catch(e){
+      await finish("failed",0,String(e));
+      return {ok:false,signals:0,errors:[String(e)]};
+    }
+
+    const signals=rr.flatMap(r=>r.status==="fulfilled"&&Array.isArray(r.value)?r.value:[]);
+    const errors=rr.filter(r=>r.status==="rejected").map(r=>String(r.reason));
+
+    try{
+      await withTimeout(saveSignals(env,signals),60000,"save_signals");
+    }catch(e){
+      await finish("failed",signals.length,String(e));
+      return {ok:false,signals:signals.length,errors:[...errors,String(e)]};
+    }
+
+    let semanticError=null;
+    if(runSemantics){
+      try{
+        await withTimeout(enrichSemantics(env,signals),90000,"semantic_enrichment");
+      }catch(e){
+        semanticError=String(e);
+      }
+    }
+
+    const allErrors=[...errors,...(semanticError?[semanticError]:[])];
+    await finish(allErrors.length?"partial":"ok",signals.length,allErrors.join(" | "));
+    return {ok:errors.length===0,signals:signals.length,errors};
+  }catch(e){
+    await finish("failed",0,String(e));
+    return {ok:false,signals:0,errors:[String(e)]};
   }
-  if(collectTrends){
-    try { await enrichSemantics(env,signals); }
-    catch(e){ semanticError=String(e); }
-  }
-  const allErrors=[...errors,...(semanticError?[semanticError]:[])];
-  await env.DB.prepare("UPDATE runs SET finished_at=?,status=?,source_count=?,signal_count=?,error=? WHERE id=?").bind(now(),allErrors.length?"partial":"ok",successfulSources,signals.length,allErrors.join(" | ")||null,runId).run();
-  return {ok:errors.length===0,signals:signals.length,errors};
 }
 export default {async fetch(request,env){
   const u=new URL(request.url);
