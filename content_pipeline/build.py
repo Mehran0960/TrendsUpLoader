@@ -204,6 +204,20 @@ def download_commons_visuals(title: str, out_dir: Path, limit=3):
     return out
 
 
+def font(size: int, bold=False):
+    paths = (
+        "/usr/share/fonts/truetype/noto/NotoSansArabic-Bold.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    )
+    if not bold:
+        paths = paths[1:] + paths[:1]
+    for p in paths:
+        if Path(p).exists():
+            return ImageFont.truetype(p, size)
+    return ImageFont.load_default()
+
 def fa(text: str) -> str:
     raw = str(text)
     if features.check("raqm"):
