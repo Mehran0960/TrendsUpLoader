@@ -21,6 +21,7 @@ OUT = Path("out")
 VOICE_DIR = Path(".voices")
 WIDTH, HEIGHT = 720, 1280
 FPS = 30
+PIPER_VOICE = os.environ.get("PIPER_VOICE", "fa_IR-gyro-medium").strip() or "fa_IR-gyro-medium"
 
 def get_json(url: str):
     req = Request(url, headers={"User-Agent": "trend-radar-content-pipeline/2.0"})
@@ -445,9 +446,9 @@ def prepare_tts(text: str) -> str:
 
 def piper_voice(text: str, wav: Path):
     VOICE_DIR.mkdir(exist_ok=True)
-    run([sys.executable, "-m", "piper.download_voices", "fa_IR-amir-medium", "--data-dir", str(VOICE_DIR)])
+    run([sys.executable, "-m", "piper.download_voices", PIPER_VOICE, "--data-dir", str(VOICE_DIR)])
     tts_text = prepare_tts(text)
-    run([sys.executable, "-m", "piper", "-m", "fa_IR-amir-medium", "--data-dir", str(VOICE_DIR),
+    run([sys.executable, "-m", "piper", "-m", PIPER_VOICE, "--data-dir", str(VOICE_DIR),
          "-f", str(wav), "--", tts_text])
 
 def wav_seconds(path: Path) -> float:
@@ -571,6 +572,7 @@ def main():
         "source_context": context,
         "display_title_fa": display_title,
         "script_mode": script_mode,
+        "voice_model": PIPER_VOICE,
         "score_internal": score,
         "content_fit_internal": fit,
         "iran_interest_similarity_internal": iran,
