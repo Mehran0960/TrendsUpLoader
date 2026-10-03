@@ -163,28 +163,19 @@ def make_scene(path: Path, title: str, body: str, label: str):
     draw_center(d, body, 820, font(42), WIDTH-100, fill=(225,225,225), spacing=14)
     img.save(path)
 
-def build_safe_script(title, source, score, fit, velocity, source_count, iran_similarity):
-    source_name = source.replace("_", " ")
-    velocity_text = ""
-    try:
-        v = float(velocity)
-        if abs(v) >= 1:
-            direction = "رو به بالا" if v > 0 else "رو به پایین"
-            velocity_text = f" سرعت تغییر سیگنال هم {direction} و حدود {abs(v):.0f} درصد گزارش شده."
-    except Exception:
-        pass
-    multi = " و در بیش از یک منبع دیده شده" if float(source_count or 1) >= 2 else " و فعلاً در یک منبع دیده شده"
-    iran_text = "" if iran_similarity is None else " یک شاخص جداگانه برای ارتباط معنایی با جست‌وجوهای ایران هم ثبت شده، اما این شاخص به‌تنهایی به معنی محبوبیت واقعی در ایران نیست."
+def build_safe_script(title, source, context):
+    desc = re.sub(r"\s+", " ", str(context.get("description") or "")).strip(" .")
+    if desc:
+        return (
+            f"{title}. {desc}. "
+            "جزئیات بیشتر و صحت ادعاها را باید از منبع اصلی بررسی کرد. "
+            f"منبع: {source.replace('_', ' ')}."
+        )
     return (
-        f"قلاب: {title}. "
-        f"این عنوان الان در رادار روند ما ثبت شده؛ منبع ثبت‌شده {source_name} است و امتیاز فرصت {score:.0f} و امتیاز تناسب محتوا {fit:.0f} است.{velocity_text} "
-        f"این یعنی موضوع ارزش بررسی دارد، نه اینکه حتماً مهم‌ترین موضوع بازار یا اینترنت باشد."
-        f"{multi}. "
-        f"چیزی که فعلاً با اطمینان می‌دانیم خودِ سیگنال و عنوان منتشرشده است؛ برای گفتن جزئیات بیشتر باید منبع اصلی را بخوانیم و ادعاها را جداگانه بررسی کنیم."
-        f"{iran_text} "
-        f"پس قدم بعدی، آزمایش انتشار و اندازه‌گیری واکنش واقعی مخاطب است؛ نه حدس زدن بر اساس یک امتیاز."
+        f"{title}. "
+        "این خبر فعلاً بر اساس عنوان منبع روایت می‌شود؛ برای جزئیات بیشتر باید متن منبع اصلی بررسی شود. "
+        f"منبع: {source.replace('_', ' ')}."
     )
-
 def run(cmd):
     subprocess.run(cmd, check=True)
 
@@ -246,7 +237,7 @@ def main():
     fit = float(c.get("content_fit", 0))
     iran = c.get("iran_interest_similarity")
 
-    script = build_safe_script(title, source, score, fit, c.get("velocity_pct"), c.get("source_count", 1), iran)
+    context = fetch_source_context(c.get("url"))
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     slug = re.sub(r"[^a-z0-9]+","-",title.lower()).strip("-")[:50] or "topic"
@@ -260,11 +251,13 @@ def main():
     piper_voice(script, wav)
     duration = ffprobe_seconds(wav)
 
+    summary = re.sub(r"\s+", " ", str(context.get("description") or "")).strip()
+    summary_short = summary[:220] if summary else "برای جزئیات بیشتر، منبع اصلی خبر را بررسی کنید."
     scenes = [
-        ("قلاب: این موضوع همین حالا در رادار دیده شده.", "01 • HOOK"),
-        ("امتیاز فرصت: %.0f | تناسب محتوا: %.0f" % (score, fit), "02 • SIGNAL"),
-        ("داغ بودن به‌تنهایی اثبات اهمیت نیست؛ جزئیات باید از منبع اصلی بررسی شود.", "03 • FACT CHECK"),
-        ("مرحله بعد: انتشار آزمایشی و اندازه‌گیری واکنش واقعی.", "04 • TEST"),
+        (title, "01 • NEWS"),
+        (summary_short, "02 • CONTEXT"),
+        ("جزئیات و صحت ادعاها را از منبع اصلی بررسی کنید.", "03 • CHECK"),
+        ("منبع اصلی در توضیحات پست قرار می‌گیرد.", "04 • SOURCE"),
     ]
     images = []
     for i, (body, label) in enumerate(scenes, 1):
@@ -280,6 +273,10 @@ def main():
         "title": title,
         "source": source,
         "source_url": c.get("url"),
+        "source_context": context,
+        "score_internal": score,
+        "content_fit_internal": fit,
+        "iran_interest_similarity_internal": iran,
         "score": score,
         "content_fit": fit,
         "velocity_pct": c.get("velocity_pct"),
