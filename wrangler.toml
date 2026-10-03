@@ -3,7 +3,7 @@ main = "src/index.js"
 compatibility_date = "2026-10-02"
 
 [triggers]
-crons = ["*/15 * * * *"]
+crons = ["*/30 * * * *"]
 
 [ai]
 binding = "AI"
@@ -11,4 +11,4 @@ binding = "AI"
 [[d1_databases]]
 binding = "DB"
 database_name = "trend-radar-core"
-database_id = "39ebabd1-35b5-4304-af67-ad92b0baed01"
+database_id = "39ebabd1-35b5-4308-af67-ad92b0baed01"
