@@ -29,6 +29,23 @@ def get_json(url: str):
         return json.load(r)
 
 
+def local_content_fit(title: str) -> float:
+    """Cheap local relevance score used only as a fallback when Radar metadata is incomplete."""
+    t = str(title or "").lower()
+    groups = [
+        (10, ("ai", "artificial intelligence", "llm", "chatgpt", "claude", "gemini", "openai", "anthropic", "agent", "robot", "robotics")),
+        (9, ("software", "github", "coding", "developer", "programming", "browser", "linux", "android", "iphone", "apple", "google", "microsoft")),
+        (8, ("chip", "gpu", "nvidia", "processor", "hardware", "semiconductor")),
+        (8, ("startup", "business", "economy", "finance", "market", "investing", "money")),
+        (7, ("security", "vulnerability", "malware", "cybersecurity", "hack")),
+        (5, ("gadget", "device", "app", "technology", "tech")),
+    ]
+    score = 0.0
+    for points, words in groups:
+        if any(w in t for w in words):
+            score = max(score, float(points))
+    return score
+
 def get_candidate_data():
     collected, errors = [], []
     for url, mode in (
@@ -985,6 +1002,7 @@ def main():
     else:
         candidates, candidate_source = get_candidate_data()
     usable = []
+    fallback = []
     for c in candidates:
         try:
             score = float(c.get("score", 0))
@@ -993,15 +1011,28 @@ def main():
             risk = str(c.get("risk_flags") or "").strip()
             source_count = float(c.get("source_count", 1) or 1)
             opportunity = float(c.get("opportunity_score", score) or score)
-            if risk or fit < 5 or score < 50:
+            if risk:
                 continue
-            usable.append((opportunity + min(source_count,3)*5, c))
+            primary_value = opportunity + min(source_count, 3) * 5
+            if fit >= 5 and score >= 50:
+                usable.append((primary_value, c))
+            elif fit >= 5 and score >= 20:
+                fallback.append((primary_value, c))
         except Exception:
             pass
-    if not usable:
-        raise RuntimeError("No usable candidate found")
-    usable.sort(key=lambda x: x[0], reverse=True)
-    _, c = usable[0]
+
+    if usable:
+        usable.sort(key=lambda x: x[0], reverse=True)
+        _, c = usable[0]
+        selection_mode = "radar_strict"
+    elif fallback:
+        fallback.sort(key=lambda x: x[0], reverse=True)
+        _, c = fallback[0]
+        selection_mode = "safe_fallback"
+    else:
+        raise RuntimeError("No usable candidate found: no safe candidate met minimum fallback thresholds")
+
+
 
     title = re.sub(r"\s+", " ", str(c.get("title") or "موضوع جدید")).strip()
     source = str(c.get("source") or candidate_source or "radar")
@@ -1109,6 +1140,7 @@ def main():
         "video_assets": [m for _,m in video_assets],
         "visual_assets": [m for _,m in visual_assets],
         "quality_gate": "passed_topic_relevance",
+        "selection_mode": selection_mode,
         "segments": segment_meta,
     }
     (base / "metadata.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
