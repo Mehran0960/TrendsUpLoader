@@ -778,7 +778,7 @@ def make_broll_segment(video_path: Path, wav: Path, out: Path, duration: float, 
         "-i",str(wav),
         "-t",f"{duration:.3f}",
         "-vf",f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,crop={WIDTH}:{HEIGHT},setsar=1,fps={FPS}",
-        "-map","0:v:0","-map","1:a:0","-an","-r",str(FPS),
+        "-map","0:v:0","-map","1:a:0","-r",str(FPS),
         "-c:v","libx264","-pix_fmt","yuv420p","-c:a","aac","-b:a","128k",
         "-shortest","-movflags","+faststart",str(out)
     ])
