@@ -244,7 +244,51 @@ def download_openverse_visuals(title: str, out_dir: Path, limit=4):
             p.unlink(missing_ok=True)
     return out
 
+CURATED_BROLL = {
+    "security": [{
+        "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Seguridad_en_Internet.webm",
+        "page_url": "https://commons.wikimedia.org/wiki/File:Seguridad_en_Internet.webm",
+        "title": "Seguridad en Internet.webm",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0/",
+        "artist": "Universitat Oberta de Catalunya",
+        "description": "Internet security explainer video.",
+        "width": 640, "height": 360, "size": 23820000, "duration_seconds": 302.946,
+        "relevance": 5,
+    }],
+    "ai": [{
+        "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Robot_Exhibit.webm",
+        "page_url": "https://commons.wikimedia.org/wiki/File:Robot_Exhibit.webm",
+        "title": "Robot Exhibit.webm",
+        "license": "Public domain",
+        "license_url": "",
+        "artist": "VOA Africa",
+        "description": "Public-domain explanatory video about robots and technology.",
+        "width": 854, "height": 480, "size": 9340000, "duration_seconds": 134.0,
+        "relevance": 4,
+    }],
+    "software": [{
+        "url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Bot-Puppy-Linux.webm",
+        "page_url": "https://commons.wikimedia.org/wiki/File:Bot-Puppy-Linux.webm",
+        "title": "Bot-Puppy-Linux.webm",
+        "license": "CC0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "artist": "uploader",
+        "description": "Linux desktop software screencast.",
+        "width": 900, "height": 600, "size": 880000, "duration_seconds": 10.05,
+        "relevance": 4,
+    }],
+}
+
 def search_commons_videos(title: str, limit=3):
+    low = title.lower()
+    category = None
+    if any(k in low for k in ("linux", "kernel", "security", "vulner", "cyber")):
+        category = "security"
+    elif any(k in low for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt", "claude", "robot")):
+        category = "ai"
+    elif any(k in low for k in ("software", "github", "browser", "app", "code")):
+        category = "software"
     """Find small, relevant, openly licensed video files on Wikimedia Commons."""
     import urllib.parse
     low = title.lower()
@@ -311,7 +355,9 @@ def search_commons_videos(title: str, limit=3):
         except Exception:
             continue
     candidates.sort(key=lambda x:(x["relevance"], -x["size"]), reverse=True)
-    return candidates[:limit]
+    if candidates:
+        return candidates[:limit]
+    return CURATED_BROLL.get(category, [])[:limit]
 
 def download_commons_videos(title: str, out_dir: Path, limit=3):
     metas=search_commons_videos(title, limit=limit)
