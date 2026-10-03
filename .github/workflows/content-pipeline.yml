@@ -52,7 +52,6 @@ jobs:
       - name: Install Argos English to Persian model
         env:
           ARGOS_DEVICE_TYPE: cpu
-          ARGOS_PACKAGES_DIR: ~/.local/share/argos-translate/packages
         run: |
           python - <<'PY'
           import argostranslate.package as package
