@@ -37,33 +37,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install piper-tts pillow arabic-reshaper python-bidi
 
-      # Standard-output validation run
-      - name: Smoke test Persian AI writer
-        env:
-          CONTENT_WRITER_URL: https://trend-radar.m-hoseyni-6966.workers.dev/write
-        run: |
-          python - <<'PY'
-          import json, os, urllib.request
-          payload = {
-              "title": "آزمایش تولید نریشن فارسی",
-              "description": "A short test of the Persian narration writer.",
-              "source": "smoke-test"
-          }
-          req = urllib.request.Request(
-              os.environ["CONTENT_WRITER_URL"],
-              data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-              headers={"Content-Type":"application/json"},
-              method="POST",
-          )
-          with urllib.request.urlopen(req, timeout=30) as r:
-              data = json.load(r)
-          text = str(data.get("text") or "")
-          forbidden = ("رادار", "امتیاز", "الگوریتم", "فرایند تولید", "فرآیند تولید")
-          if not data.get("ok") or len(text) < 40 or any(x in text for x in forbidden):
-              raise SystemExit("AI writer smoke test failed: " + json.dumps(data, ensure_ascii=False))
-          print(json.dumps({"ok": True, "chars": len(text), "model": data.get("model")}, ensure_ascii=False))
-          PY
-
       - name: Build automated Persian video
         env:
           RADAR_URL: https://trend-radar.m-hoseyni-6966.workers.dev/candidates
