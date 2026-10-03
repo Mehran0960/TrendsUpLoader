@@ -176,6 +176,25 @@ def make_scene(path: Path, title: str, body: str, label: str):
     draw_center(d, body, 820, font(42), WIDTH-100, fill=(225,225,225), spacing=14)
     img.save(path)
 
+CURATED_STORIES = {
+    "Several vulnerabilities have been discovered in the Linux kernel": {
+        "title_fa": "هشدار امنیتی جدید برای هسته لینوکس",
+        "script": (
+            "یک هشدار امنیتی جدید برای هسته لینوکس منتشر شده است. "
+            "دبیان در اطلاعیه امنیتی DSA-6528-1 اعلام کرده چندین آسیب‌پذیری در بسته لینوکس "
+            "می‌توانند به افزایش سطح دسترسی، از کار افتادن سرویس یا نشت اطلاعات منجر شوند. "
+            "برای دبیان تریکسی، این مشکلات در نسخه 6.12.111-1 برطرف شده‌اند. "
+            "جزئیات و وضعیت سیستم خودتان را از اطلاعیه امنیتی دبیان بررسی کنید."
+        ),
+        "scenes": [
+            ("هشدار امنیتی جدید برای هسته لینوکس", "خبر فناوری"),
+            ("چند آسیب‌پذیری می‌توانند به افزایش سطح دسترسی، اختلال سرویس یا نشت اطلاعات منجر شوند.", "چه اتفاقی افتاده؟"),
+            ("برای Debian Trixie، نسخه 6.12.111-1 شامل رفع این مشکلات است.", "راهکار"),
+            ("جزئیات و وضعیت سیستم را از منبع رسمی دبیان بررسی کنید.", "منبع"),
+        ],
+    }
+}
+
 def build_safe_script(title, source, context):
     desc = re.sub(r"\s+", " ", str(context.get("description") or "")).strip(" .")
     if desc:
@@ -272,7 +291,13 @@ def main():
     iran = c.get("iran_interest_similarity")
 
     context = fetch_source_context(c.get("url"))
-    display_title, script, script_mode = generate_audience_script(title, source, context)
+    curated = CURATED_STORIES.get(title)
+    if curated:
+        display_title = curated["title_fa"]
+        script = curated["script"]
+        script_mode = "curated"
+    else:
+        display_title, script, script_mode = generate_audience_script(title, source, context)
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     slug = re.sub(r"[^a-z0-9]+","-",title.lower()).strip("-")[:50] or "topic"
@@ -288,7 +313,7 @@ def main():
 
     summary = re.sub(r"\s+", " ", str(context.get("description") or "")).strip()
     summary_short = summary[:220] if summary else "برای جزئیات بیشتر، منبع اصلی خبر را بررسی کنید."
-    scenes = [
+    scenes = curated["scenes"] if curated else [
         (display_title, "01 • خبر"),
         (summary_short, "02 • زمینه"),
         ("جزئیات و صحت ادعاها را از منبع اصلی بررسی کنید.", "03 • بررسی"),
