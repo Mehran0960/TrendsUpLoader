@@ -121,6 +121,20 @@ def fetch_source_context(url: str):
     except Exception:
         return {}
 
+def font(size: int, bold=False):
+    paths = (
+        "/usr/share/fonts/truetype/noto/NotoSansArabic-Bold.ttf",
+        "/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    )
+    if not bold:
+        paths = paths[1:] + paths[:1]
+    for p in paths:
+        if Path(p).exists():
+            return ImageFont.truetype(p, size)
+    return ImageFont.load_default()
+
 def fa(text: str) -> str:
     raw = str(text)
     if features.check("raqm"):
