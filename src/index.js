@@ -66,7 +66,29 @@ function score(x){
   const risk=x.risk_flags?30:0;
   return Math.round(Math.max(0,Math.min(100,mag+fresh+vel+fit-risk))*100)/100;
 }
-async function fetchWithRetry(url,json=false){let last=null;for(let i=0;i<3;i++){try{const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"}});if(r.ok)return json?r.json():r.text();if([502,503,504].includes(r.status)){last=new Error("HTTP "+r.status+" from "+url);if(i<2)await new Promise(resolve=>setTimeout(resolve,250*(i+1)));continue;}throw new Error("HTTP "+r.status+" from "+url);}catch(e){last=e;if(i<2)await new Promise(resolve=>setTimeout(resolve,250*(i+1)));}}throw last||new Error("fetch failed: "+url);}
+async function fetchWithRetry(url,json=false){
+  let last=null;
+  for(let i=0;i<3;i++){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort("upstream_timeout"),10000);
+    try{
+      const r=await fetch(url,{headers:{"user-agent":"trend-radar-mvp/1.0"},signal:controller.signal});
+      if(r.ok)return json?r.json():r.text();
+      if([429,502,503,504].includes(r.status)){
+        last=new Error("HTTP "+r.status+" from "+url);
+        if(i<2)await new Promise(resolve=>setTimeout(resolve,500*(i+1)));
+        continue;
+      }
+      throw new Error("HTTP "+r.status+" from "+url);
+    }catch(e){
+      last=e?.name==="AbortError"?new Error("Timeout from "+url):e;
+      if(i<2)await new Promise(resolve=>setTimeout(resolve,500*(i+1)));
+    }finally{
+      clearTimeout(timer);
+    }
+  }
+  throw last||new Error("fetch failed: "+url);
+}
 async function getText(url){return fetchWithRetry(url,false);}
 async function getJson(url){return fetchWithRetry(url,true);}
 async function readGoogleTrends(geo){const xml=await getText("https://trends.google.com/trending/rss?geo="+geo),out=[];for(const block of xml.split(/<item>/i).slice(1,41)){const b=block.split(/<\/item>/i)[0],title=xmlTag(b,"title");if(!title)continue;const link=xmlTag(b,"link"),pub=xmlTag(b,"pubDate"),traffic=xmlTag(b,"approx_traffic");const explore="https://trends.google.com/trends/explore?q="+encodeURIComponent(title)+"&geo="+encodeURIComponent(geo);out.push({source:"google_trends_"+geo.toLowerCase(),external_id:title.toLowerCase(),trend_key:trendKey(title),title,url:explore,published_at:pub?new Date(pub).toISOString():now(),signal_value:parseTraffic(traffic),category:geo==="IR"?"iran":"web",risk_flags:riskFlags(title)});}return out;}
@@ -270,4 +292,4 @@ export default {async fetch(request,env){
   if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked,(SELECT COUNT(*) FROM signals WHERE content_fit>0) positive_content_fit,(SELECT COUNT(*) FROM signals WHERE content_fit<0) negative_content_fit,(SELECT COUNT(*) FROM signals WHERE embedding_json IS NOT NULL) semantic_embedded,(SELECT COUNT(DISTINCT semantic_cluster) FROM signals WHERE semantic_cluster IS NOT NULL) semantic_clusters,(SELECT COUNT(*) FROM signals WHERE iran_interest_similarity>0) iran_interest_linked,COALESCE(AVG(CASE WHEN iran_interest_similarity>0 THEN iran_interest_similarity END),0) avg_iran_interest_similarity FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
   if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,ROUND(s.semantic_similarity,3) semantic_similarity,ROUND(s.iran_interest_similarity,3) iran_interest_similarity,s.iran_interest_match,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL) source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=-5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
     return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});
-},async scheduled(controller,env,ctx){ctx.waitUntil(runOnce(env,controller));}};
+},async scheduled(controller,env){return await runOnce(env,controller);}};
