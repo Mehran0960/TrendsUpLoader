@@ -492,115 +492,118 @@ def draw_glow_circle(d, center, r, fill, outline):
         # Solid approximation keeps the renderer dependency-free.
         d.ellipse((cx-rr,cy-rr,cx+rr,cy+rr), outline=outline, width=max(1,7-k))
 
-def paste_cover(base_img, image_path, region=(55,250,665,880), darkness=0.20):
-    x1,y1,x2,y2 = region
-    target_w, target_h = x2-x1, y2-y1
+def paste_cover(base_img, image_path):
     with Image.open(image_path) as src:
         src = src.convert("RGB")
-        fitted = ImageOps.fit(src, (target_w, target_h), method=Image.Resampling.LANCZOS, centering=(0.5,0.5))
-    base_img.paste(fitted, (x1,y1))
-    d = ImageDraw.Draw(base_img)
-    d.rounded_rectangle(region, radius=28, outline=(105,135,165), width=3)
-    d.rounded_rectangle((x1,y1,x2,y2), radius=28, fill=(5,9,18, int(255*darkness))) if False else None
-    # Bottom readability gradient using translucent overlay.
-    overlay = Image.new("RGBA", (target_w,target_h), (0,0,0,0))
+        fitted = ImageOps.fit(src, (WIDTH, HEIGHT), method=Image.Resampling.LANCZOS, centering=(0.5,0.48))
+    base_img.paste(fitted, (0,0))
+    overlay = Image.new("RGBA", (WIDTH,HEIGHT), (0,0,0,0))
     od = ImageDraw.Draw(overlay)
-    for yy in range(target_h):
-        alpha = int(115 * (yy/target_h))
-        od.line((0,yy,target_w,yy), fill=(0,0,0,alpha))
-    base_img.paste(overlay, (x1,y1), overlay)
+    # Cinematic readability gradient: keep the photo dominant.
+    for y in range(HEIGHT):
+        top_alpha = int(115 * max(0.0, 1.0 - y/430.0))
+        bottom_alpha = int(185 * max(0.0, (y-760)/520.0))
+        od.line((0,y,WIDTH,y), fill=(4,8,16,max(top_alpha,bottom_alpha)))
+    base_img.paste(overlay, (0,0), overlay)
 
 def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: str, number: int, real_image_path=None):
-    img = Image.new("RGB", (WIDTH, HEIGHT), (7, 12, 25))
+    img = Image.new("RGB", (WIDTH, HEIGHT), (7,12,25))
     d = ImageDraw.Draw(img)
-    for y in range(HEIGHT):
-        t=y/HEIGHT
-        d.line((0,y,WIDTH,y), fill=(7, int(13+18*t), int(27+35*t)))
-    draw_particles(d, title + str(number))
-
-    d.rounded_rectangle((42,42,678,142), radius=24, fill=(14,22,40), outline=(64,88,118), width=2)
-    draw_rtl_block(d, title, 62, font(30, bold=True), 570, fill=(247,249,255), align="center", spacing=6)
-
-    d.rounded_rectangle((48,168,255,218), radius=16, fill=(24,38,61), outline=(65,92,125), width=2)
-    d.text((68,181), fa(f"{number:02d} • {label}"), font=font(22, bold=True), fill=(205,225,244), **rtl_kwargs())
 
     if real_image_path and real_image_path.exists():
         paste_cover(img, real_image_path)
-    elif visual_kind == "shield":
-        d.rounded_rectangle((92,330,430,700), radius=34, fill=(18,31,50), outline=(74,108,145), width=3)
-        for yy in (390,470,550,630):
-            d.rounded_rectangle((135,yy,390,yy+52), radius=14, fill=(27,48,74), outline=(69,96,124), width=2)
-            d.ellipse((160,yy+18,176,yy+34), fill=(95,180,230))
-            d.line((205,yy+26,345,yy+26), fill=(90,120,150), width=6)
-        draw_shield(d, (525,470), 145, warning=True)
-        d.line((438,350,510,410), fill=(205,90,100), width=9)
-        d.line((438,410,500,470), fill=(205,90,100), width=9)
-        d.ellipse((425,338,450,363), fill=(230,100,105))
-        d.ellipse((425,398,450,423), fill=(230,100,105))
-    elif visual_kind == "security_cards":
-        nodes=[(180,390),(360,300),(540,390),(170,610),(360,720),(550,610),(360,510)]
-        for a,b in ((0,6),(1,6),(2,6),(3,6),(4,6),(5,6)):
-            d.line((*nodes[a],*nodes[b]), fill=(61,94,132), width=6)
-        for x,y in nodes[:-1]:
-            d.ellipse((x-52,y-52,x+52,y+52), fill=(25,52,83), outline=(95,138,186), width=4)
-            draw_shield(d,(x,y),34,warning=True)
-        d.ellipse((308,458,412,562), fill=(44,78,122), outline=(155,198,230), width=5)
-        draw_shield(d,(360,510),52,warning=True)
-    elif visual_kind == "package":
-        d.polygon([(135,400),(360,500),(585,400),(585,650),(360,770),(135,650)], fill=(26,47,69), outline=(92,124,160))
-        d.polygon([(135,400),(360,300),(585,400),(360,500)], fill=(40,67,92), outline=(100,132,165))
-        d.line((360,500,360,770), fill=(92,124,160), width=4)
-        d.polygon([(360,340),(315,410),(345,410),(345,475),(375,475),(375,410),(405,410)], fill=(118,218,165))
-        draw_rtl_block(d, "نسخه به‌روزشده", 810, font(38, bold=True), 500, fill=(238,247,252), align="center")
-        d.rounded_rectangle((192,860,528,930), radius=18, fill=(15,26,42), outline=(78,104,135), width=2)
-        d.text((214,876), "6.12.111-1", font=font(34, bold=True), fill=(208,230,242))
-    elif visual_kind == "document":
-        d.rounded_rectangle((170,290,550,760), radius=28, fill=(232,237,244), outline=(112,135,158), width=4)
-        d.polygon([(458,290),(550,382),(458,382)], fill=(190,201,215))
-        for i,w in enumerate((275,315,240,292,220)):
-            d.rounded_rectangle((215,445+i*52,215+w,461+i*52), radius=8, fill=(97,116,138))
-        d.ellipse((380,610,520,750), outline=(42,82,125), width=16)
-        d.line((492,720,600,828), fill=(42,82,125), width=20)
-        d.ellipse((432,662,468,698), outline=(95,155,205), width=7)
-    elif visual_kind == "ai_network":
-        draw_agent(d)
-    elif visual_kind == "ai_chat":
-        draw_ai_chat(d)
-    elif visual_kind == "ai_agent":
-        draw_data_flow(d)
-    elif visual_kind == "ai_human":
-        draw_human_machine(d)
-    elif visual_kind == "software_terminal":
-        draw_terminal(d)
-    elif visual_kind == "software_browser":
-        draw_browser(d)
-    elif visual_kind == "software_code":
-        draw_code(d)
-    elif visual_kind == "software_flow":
-        draw_data_flow(d)
-    elif visual_kind == "chip":
-        draw_chip_scene(d)
-    elif visual_kind == "chip_data":
-        draw_data_flow(d)
-    elif visual_kind == "device":
-        d.rounded_rectangle((215,300,505,790), radius=45, fill=(30,35,45), outline=(105,130,155), width=5)
-        d.rounded_rectangle((245,350,475,700), radius=25, fill=(23,56,81), outline=(125,175,210), width=3)
-        d.ellipse((330,720,390,780), outline=(105,130,155), width=5)
-    elif visual_kind == "industry":
-        d.rounded_rectangle((90,520,630,735), radius=24, fill=(24,43,62), outline=(84,118,150), width=3)
-        for x,h in ((135,100),(230,160),(325,210),(420,145),(515,190)):
-            d.rounded_rectangle((x,735-h,x+58,735), radius=10, fill=(70,125,165))
-    elif visual_kind in ("finance_chart","finance_signal"):
-        draw_finance_chart(d)
-    elif visual_kind == "finance_market":
-        draw_data_flow(d)
-    elif visual_kind == "finance_people":
-        draw_human_machine(d)
-    else:
-        draw_generic_visual(d, title)
+        # Minimal editorial overlay.
+        d.rounded_rectangle((34,34,210,88), radius=18, fill=(10,18,32))
+        d.text((54,48), fa(f"{number:02d}  •  {label}"), font=font(22,bold=True), fill=(230,240,248), **rtl_kwargs())
 
-    d.rounded_rectangle((34,955,686,1220), radius=28, fill=(5,9,18), outline=(73,98,126), width=2)
-    draw_rtl_block(d, caption, 992, font(32, bold=True), 570, fill=(248,249,250), align="center", spacing=9)
+        # Small accent / scene marker.
+        d.rounded_rectangle((35,150,115,162), radius=6, fill=(115,205,225))
+        if number == 1:
+            draw_rtl_block(d, title, 182, font(40,bold=True), 610, fill=(250,252,255), align="right", spacing=7)
+        else:
+            draw_rtl_block(d, "ادامهٔ ماجرا", 175, font(28,bold=True), 610, fill=(225,235,242), align="right", spacing=5)
+
+        # Lower-third subtitle with strong contrast but limited footprint.
+        d.rounded_rectangle((30,920,690,1228), radius=30, fill=(5,9,17), outline=(85,110,135), width=2)
+        draw_rtl_block(d, caption, 966, font(34,bold=True), 575, fill=(250,250,250), align="center", spacing=10)
+    else:
+        for y in range(HEIGHT):
+            t=y/HEIGHT
+            d.line((0,y,WIDTH,y), fill=(7,int(13+18*t),int(27+35*t)))
+        draw_particles(d,title+str(number))
+        d.rounded_rectangle((42,42,678,142),radius=24,fill=(14,22,40),outline=(64,88,118),width=2)
+        draw_rtl_block(d,title,62,font(30,bold=True),570,fill=(247,249,255),align="center",spacing=6)
+        d.rounded_rectangle((48,168,255,218),radius=16,fill=(24,38,61),outline=(65,92,125),width=2)
+        d.text((68,181),fa(f"{number:02d} • {label}"),font=font(22,bold=True),fill=(205,225,244),**rtl_kwargs())
+        if visual_kind == "shield":
+            d.rounded_rectangle((92,330,430,700), radius=34, fill=(18,31,50), outline=(74,108,145), width=3)
+            for yy in (390,470,550,630):
+                d.rounded_rectangle((135,yy,390,yy+52), radius=14, fill=(27,48,74), outline=(69,96,124), width=2)
+                d.ellipse((160,yy+18,176,yy+34), fill=(95,180,230))
+                d.line((205,yy+26,345,yy+26), fill=(90,120,150), width=6)
+            draw_shield(d,(525,470),145,warning=True)
+        elif visual_kind == "security_cards":
+            nodes=[(180,390),(360,300),(540,390),(170,610),(360,720),(550,610),(360,510)]
+            for a,b in ((0,6),(1,6),(2,6),(3,6),(4,6),(5,6)):
+                d.line((*nodes[a],*nodes[b]),fill=(61,94,132),width=6)
+            for x,y in nodes[:-1]:
+                d.ellipse((x-52,y-52,x+52,y+52),fill=(25,52,83),outline=(95,138,186),width=4)
+                draw_shield(d,(x,y),34,warning=True)
+            d.ellipse((308,458,412,562),fill=(44,78,122),outline=(155,198,230),width=5)
+            draw_shield(d,(360,510),52,warning=True)
+        elif visual_kind == "package":
+            d.polygon([(135,400),(360,500),(585,400),(585,650),(360,770),(135,650)],fill=(26,47,69),outline=(92,124,160))
+            d.polygon([(135,400),(360,300),(585,400),(360,500)],fill=(40,67,92),outline=(100,132,165))
+            d.line((360,500,360,770),fill=(92,124,160),width=4)
+            d.polygon([(360,340),(315,410),(345,410),(345,475),(375,475),(375,410),(405,410)],fill=(118,218,165))
+            draw_rtl_block(d,"نسخه به‌روزشده",810,font(38,bold=True),500,fill=(238,247,252),align="center")
+            d.rounded_rectangle((192,860,528,930),radius=18,fill=(15,26,42),outline=(78,104,135),width=2)
+            d.text((214,876),"6.12.111-1",font=font(34,bold=True),fill=(208,230,242))
+        elif visual_kind == "document":
+            d.rounded_rectangle((170,290,550,760),radius=28,fill=(232,237,244),outline=(112,135,158),width=4)
+            d.polygon([(458,290),(550,382),(458,382)],fill=(190,201,215))
+            for i,w in enumerate((275,315,240,292,220)):
+                d.rounded_rectangle((215,445+i*52,215+w,461+i*52),radius=8,fill=(97,116,138))
+            d.ellipse((380,610,520,750),outline=(42,82,125),width=16)
+            d.line((492,720,600,828),fill=(42,82,125),width=20)
+        elif visual_kind == "ai_network":
+            draw_agent(d)
+        elif visual_kind == "ai_chat":
+            draw_ai_chat(d)
+        elif visual_kind == "ai_agent":
+            draw_data_flow(d)
+        elif visual_kind == "ai_human":
+            draw_human_machine(d)
+        elif visual_kind == "software_terminal":
+            draw_terminal(d)
+        elif visual_kind == "software_browser":
+            draw_browser(d)
+        elif visual_kind == "software_code":
+            draw_code(d)
+        elif visual_kind == "software_flow":
+            draw_data_flow(d)
+        elif visual_kind == "chip":
+            draw_chip_scene(d)
+        elif visual_kind == "chip_data":
+            draw_data_flow(d)
+        elif visual_kind == "device":
+            d.rounded_rectangle((215,300,505,790),radius=45,fill=(30,35,45),outline=(105,130,155),width=5)
+            d.rounded_rectangle((245,350,475,700),radius=25,fill=(23,56,81),outline=(125,175,210),width=3)
+        elif visual_kind == "industry":
+            d.rounded_rectangle((90,520,630,735),radius=24,fill=(24,43,62),outline=(84,118,150),width=3)
+            for x,h in ((135,100),(230,160),(325,210),(420,145),(515,190)):
+                d.rounded_rectangle((x,735-h,x+58,735),radius=10,fill=(70,125,165))
+        elif visual_kind in ("finance_chart","finance_signal"):
+            draw_finance_chart(d)
+        elif visual_kind == "finance_market":
+            draw_data_flow(d)
+        elif visual_kind == "finance_people":
+            draw_human_machine(d)
+        else:
+            draw_generic_visual(d,title)
+
+        d.rounded_rectangle((34,955,686,1220),radius=28,fill=(5,9,18),outline=(73,98,126),width=2)
+        draw_rtl_block(d,caption,992,font(32,bold=True),570,fill=(248,249,250),align="center",spacing=9)
     img.save(path)
 
 
