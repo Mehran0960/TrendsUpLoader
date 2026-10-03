@@ -5,6 +5,7 @@ import os
 import re
 import subprocess
 import sys
+import wave
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -161,11 +162,10 @@ def piper_voice(text: str, wav: Path):
          "-f", str(wav), "--", text])
 
 def ffprobe_seconds(path: Path) -> float:
-    r = subprocess.run(
-        ["ffprobe","-v","error","-show_entries","format=duration",
-         "-of","default=noprint_wrappers=1:nokey=1",str(path)],
-        capture_output=True, text=True, check=True)
-    return float(r.stdout.strip())
+    with wave.open(str(path), "rb") as wf:
+        frames = wf.getnframes()
+        rate = wf.getframerate()
+        return frames / float(rate or 1)
 
 def make_video(images, wav, mp4, duration):
     per = max(3.0, duration / len(images))
