@@ -20,6 +20,20 @@ const CONTENT_RULES=[
   [/\b(weather|forecast|temperature|climate|horoscope|astrology|lottery|lotto)\b|آب.?وهوا|هوای?\s+(فردا|امروز)|هواشناسی|پیش.?بینی.?هوا|فال|طالع.?بینی|لاتاری/i,-12],
   [/\b(celebrity|actor|actress|singer|influencer)\b|سلبریتی|بازیگر|خواننده|اینفلوئنسر/i,-3]
 ];
+const IR_NOISE_RULES=[
+  /^(خبر|news|weather|آب.?وهوا|هواشناسی|وضعیت هوای فردا|هوای امروز|weather tomorrow)$/i,
+  /فال|طالع.?بینی|لاتاری|lottery/i,
+  /^.+\s+مقابل\s+.+$/i,
+  /^.+\s+vs\.?\s+.+$/i
+];
+const IR_SINGLE_USEFUL=/آیفون|اپل|گوگل|مایکروسافت|اندروید|تلگرام|اینستاگرام|واتساپ|هوش|ربات|تکنولوژی|فناوری|لینوکس|گیت.?هاب|چت.?جی.?پی.?تی|جمینای/i;
+function usefulIranTrendTitle(title){
+  const t=String(title||"").trim();
+  if(!t||IR_NOISE_RULES.some(re=>re.test(t)))return false;
+  const tokens=t.split(/\s+/).filter(Boolean);
+  return tokens.length>=2||/[A-Za-z0-9]/.test(t)||IR_SINGLE_USEFUL.test(t);
+}
+
 function decodeEntities(s){return String(s||"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#(x[0-9a-f]+|\d+);/gi,(_,v)=>String.fromCodePoint(v.toLowerCase().startsWith("x")?parseInt(v.slice(1),16):parseInt(v,10)));}
 function xmlTag(block,tag){const re=new RegExp("<(?:[\\w-]+:)?"+tag+"[^>]*>([\\s\\S]*?)<\\/(?:[\\w-]+:)?"+tag+">","i");const m=block.match(re);return m?decodeEntities(m[1].trim()):"";}
 function parseTraffic(s){const m=String(s||"").replace(/,/g,"").match(/([0-9.]+)([KkMmBb])?/);if(!m)return 0;const n=Number(m[1]);return m[2]?(["K","k"].includes(m[2])?n*1e3:["M","m"].includes(m[2])?n*1e6:n*1e9):n;}
@@ -102,11 +116,20 @@ async function enrichSemantics(env,signals){
     if(currentKeys.has(String(row.source)+"::"+String(row.external_id)))continue;
     try{
       const v=JSON.parse(row.embedding_json);
-      if(Array.isArray(v)&&v.length)refs.push({id:Number(row.id),source:String(row.source),embedding:v,cluster:row.semantic_cluster||null});
+      if(Array.isArray(v)&&v.length)refs.push({id:Number(row.id),source:String(row.source),title:String(row.title||""),embedding:v,cluster:row.semantic_cluster||null});
     }catch(_){}
   }
   const resp=await env.AI.run("@cf/baai/bge-m3",{text:fresh.map(x=>String(x.title||""))});
   const vectors=Array.isArray(resp?.data)?resp.data:[];
+  const iranPool=refs
+    .filter(r=>r.source==="google_trends_ir"&&usefulIranTrendTitle(r.title))
+    .map(r=>({title:r.title,embedding:r.embedding}));
+  for(let i=0;i<fresh.length;i++){
+    const x=fresh[i],v=vectors[i];
+    if(Array.isArray(v)&&v.length&&String(x.source)==="google_trends_ir"&&usefulIranTrendTitle(x.title)){
+      iranPool.push({title:String(x.title||""),embedding:v});
+    }
+  }
   let embedded=0;
   const updates=[];
   for(let i=0;i<fresh.length;i++){
@@ -125,13 +148,24 @@ async function enrichSemantics(env,signals){
     }else{
       cluster="sem-"+hashString(String(x.source)+"::"+String(x.external_id));
     }
-    updates.push(env.DB.prepare("UPDATE signals SET embedding_json=?,semantic_cluster=?,semantic_similarity=? WHERE source=? AND external_id=?").bind(JSON.stringify(v),cluster,similarity,String(x.source),String(x.external_id)));
-    refs.push({id:0,source:String(x.source),embedding:v,cluster});
+    let iranSimilarity=0,iranMatch=null;
+    if(String(x.source)!=="google_trends_ir"){
+      let bestIran=null;
+      for(const ref of iranPool){
+        const sim=cosine(v,ref.embedding);
+        if(!bestIran||sim>bestIran.sim)bestIran={sim,ref};
+      }
+      if(bestIran){
+        iranSimilarity=Number(bestIran.sim)||0;
+        iranMatch=bestIran.ref.title||null;
+      }
+    }
+    updates.push(env.DB.prepare("UPDATE signals SET embedding_json=?,semantic_cluster=?,semantic_similarity=?,iran_interest_similarity=?,iran_interest_match=? WHERE source=? AND external_id=?").bind(JSON.stringify(v),cluster,similarity,iranSimilarity,iranMatch,String(x.source),String(x.external_id)));
+    refs.push({id:0,source:String(x.source),title:String(x.title||""),embedding:v,cluster});
     embedded++;
   }
   for(let i=0;i<updates.length;i+=10)await env.DB.batch(updates.slice(i,i+10));
-  const clusters=new Set(updates.map((_,i)=>String(fresh[i]?.source)+"::"+String(fresh[i]?.external_id))).size;
-  return {embedded,clusters};
+  return {embedded,clusters:embedded};
 }
 async function saveSignals(env,signals){
   const t=now(),normalized=signals.map(x=>({...x,source:String(x?.source??"unknown"),external_id:String(x?.external_id??x?.title??"unknown")}));
@@ -189,10 +223,10 @@ async function runOnce(env,controller){
 }
 export default {async fetch(request,env){
   const u=new URL(request.url);
-  if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"opportunity-validation",publishing_enabled:false,ai_enabled:true,semantic_enabled:true}),{headers:JSON_HEADERS});
+  if(request.method==="GET"&&u.pathname==="/")return new Response(JSON.stringify({service:"trend-radar",mode:"opportunity-validation",publishing_enabled:false,ai_enabled:true,semantic_enabled:true,iran_relevance_enabled:true}),{headers:JSON_HEADERS});
   if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}
   if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,velocity_pct,risk_flags,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
-  if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked,(SELECT COUNT(*) FROM signals WHERE content_fit>0) positive_content_fit,(SELECT COUNT(*) FROM signals WHERE content_fit<0) negative_content_fit,(SELECT COUNT(*) FROM signals WHERE embedding_json IS NOT NULL) semantic_embedded,(SELECT COUNT(DISTINCT semantic_cluster) FROM signals WHERE semantic_cluster IS NOT NULL) semantic_clusters FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
-  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,ROUND(s.semantic_similarity,3) semantic_similarity,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL) source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=-5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked,(SELECT COUNT(*) FROM signals WHERE content_fit>0) positive_content_fit,(SELECT COUNT(*) FROM signals WHERE content_fit<0) negative_content_fit,(SELECT COUNT(*) FROM signals WHERE embedding_json IS NOT NULL) semantic_embedded,(SELECT COUNT(DISTINCT semantic_cluster) FROM signals WHERE semantic_cluster IS NOT NULL) semantic_clusters,(SELECT COUNT(*) FROM signals WHERE iran_interest_similarity>0) iran_interest_linked,COALESCE(AVG(CASE WHEN iran_interest_similarity>0 THEN iran_interest_similarity END),0) avg_iran_interest_similarity FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,ROUND(s.semantic_similarity,3) semantic_similarity,ROUND(s.iran_interest_similarity,3) iran_interest_similarity,s.iran_interest_match,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL) source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=-5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
     return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});
 },async scheduled(controller,env,ctx){ctx.waitUntil(runOnce(env,controller));}};
