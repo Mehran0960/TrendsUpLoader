@@ -350,11 +350,11 @@ async function runOnce(env,controller){
     .bind(started,"started",tasks.length,0).run();
   const runId=run.meta?.last_row_id;
 
-  const finish=async(status,signalCount,error)=>{
+  const finish=async(status,sourceCount,signalCount,error)=>{
     try{
       await withTimeout(
         env.DB.prepare("UPDATE runs SET finished_at=?,status=?,source_count=?,signal_count=?,error=? WHERE id=?")
-          .bind(now(),status,0,signalCount,error||null,runId).run(),
+          .bind(now(),status,sourceCount,signalCount,error||null,runId).run(),
         10000,
         "run_finalize"
       );
@@ -366,7 +366,7 @@ async function runOnce(env,controller){
     try{
       rr=await withTimeout(Promise.allSettled(tasks),75000,"source_collection");
     }catch(e){
-      await finish("failed",0,String(e));
+      await finish("failed",0,0,String(e));
       return {ok:false,signals:0,errors:[String(e)]};
     }
 
@@ -376,7 +376,8 @@ async function runOnce(env,controller){
     try{
       await withTimeout(saveSignals(env,signals),60000,"save_signals");
     }catch(e){
-      await finish("failed",signals.length,String(e));
+      const successfulSources=new Set(signals.map(x=>String(x?.source??"unknown"))).size;
+      await finish("failed",successfulSources,signals.length,String(e));
       return {ok:false,signals:signals.length,errors:[...errors,String(e)]};
     }
 
@@ -389,11 +390,12 @@ async function runOnce(env,controller){
       }
     }
 
+    const successfulSources=new Set(signals.map(x=>String(x?.source??"unknown"))).size;
     const allErrors=[...errors,...(semanticError?[semanticError]:[])];
-    await finish(allErrors.length?"partial":"ok",signals.length,allErrors.join(" | "));
+    await finish(allErrors.length?"partial":"ok",successfulSources,signals.length,allErrors.join(" | "));
     return {ok:errors.length===0,signals:signals.length,errors};
   }catch(e){
-    await finish("failed",0,String(e));
+    await finish("failed",0,0,String(e));
     return {ok:false,signals:0,errors:[String(e)]};
   }
 }
