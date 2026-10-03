@@ -38,46 +38,55 @@ def local_content_fit(title: str) -> int:
     return best
 
 def get_candidate_data():
+    collected = []
     errors = []
-    for url in (RADAR_URL, RADAR_URL.rsplit("/", 1)[0] + "/status"):
+
+    for url, mode in (
+        (RADAR_URL, "radar"),
+        (RADAR_URL.rsplit("/", 1)[0] + "/status", "status"),
+    ):
         try:
             data = get_json(url)
-            candidates = data.get("candidates") if isinstance(data, dict) else None
-            if isinstance(candidates, list) and candidates:
-                return candidates, "radar"
-            top = data.get("top") if isinstance(data, dict) else None
-            if isinstance(top, list) and top:
-                return top, "status"
+            if mode == "radar":
+                items = data.get("candidates") if isinstance(data, dict) else None
+            else:
+                items = data.get("top") if isinstance(data, dict) else None
+            if isinstance(items, list):
+                collected.extend(items)
         except Exception as e:
-            errors.append(str(e))
+            errors.append(f"{mode}: {e}")
 
-    # Zero-cost direct fallback: public Hacker News API.
+    # Independent zero-cost fallback: public Hacker News API.
     try:
-        ids = get_json("https://hacker-news.firebaseio.com/v0/beststories.json")[:15]
-        candidates = []
-        keywords = re.compile(r"\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics|software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|startup|business|chip|gpu|nvidia|hardware)\b", re.I)
-        for i, story_id in enumerate(ids):
+        ids = get_json("https://hacker-news.firebaseio.com/v0/beststories.json")[:20]
+        keywords = re.compile(
+            r"\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics|software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|startup|business|chip|gpu|nvidia|hardware)\b",
+            re.I
+        )
+        for story_id in ids:
             try:
                 item = get_json(f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json")
                 title = str(item.get("title") or "").strip()
                 if item.get("type") == "story" and title and keywords.search(title):
-                    candidates.append({
+                    sc = min(75.0, float(item.get("score") or 0) / 2.0)
+                    collected.append({
                         "source": "hacker_news",
                         "title": title,
                         "url": item.get("url") or f"https://news.ycombinator.com/item?id={story_id}",
-                        "score": min(75, float(item.get("score") or 0) / 2.0),
+                        "score": sc,
                         "content_fit": 12,
                         "velocity_pct": 0,
                         "source_count": 1,
-                        "opportunity_score": min(75, float(item.get("score") or 0) / 2.0)
+                        "opportunity_score": sc
                     })
-            except Exception:
-                continue
-        if candidates:
-            return candidates, "hn-direct"
+            except Exception as e:
+                errors.append(f"hn:{story_id}:{e}")
     except Exception as e:
-        errors.append(str(e))
-    raise RuntimeError("No usable candidate source found: " + " | ".join(errors[-3:]))
+        errors.append(f"hn-list: {e}")
+
+    if collected:
+        return collected, "mixed"
+    raise RuntimeError("No candidate source found: " + " | ".join(errors[-5:]))
 
 def fa(text: str) -> str:
     return get_display(arabic_reshaper.reshape(str(text)))
