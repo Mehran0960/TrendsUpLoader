@@ -23,6 +23,20 @@ def get_json(url: str):
     with urlopen(req, timeout=20) as r:
         return json.load(r)
 
+def local_content_fit(title: str) -> int:
+    t = str(title or "").lower()
+    patterns = [
+        (r"\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics)\b|هوش مصنوعی|چت.?جی.?پی.?تی|کلود|جمینای|ربات", 12),
+        (r"\b(software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|app|apps)\b|نرم.?افزار|گیت.?هاب|لینوکس|اندروید|آیفون|اپلیکیشن|برنامه.?نویسی", 9),
+        (r"\b(gadget|smartphone|laptop|chip|gpu|nvidia|amd|intel|hardware)\b|گجت|گوشی|لپ.?تاپ|تراشه|پردازنده|سخت.?افزار", 8),
+        (r"\b(startup|business|entrepreneur|ecommerce|retail|market|economy|finance|investing|money)\b|استارت.?آپ|کسب.?و.?کار|کارآفرینی|اقتصاد|مالی|سرمایه.?گذاری|پول", 8),
+    ]
+    best = 0
+    for pattern, weight in patterns:
+        if re.search(pattern, t, re.I):
+            best = max(best, weight)
+    return best
+
 def get_candidate_data():
     errors = []
     for url in (RADAR_URL, RADAR_URL.rsplit("/", 1)[0] + "/status"):
@@ -167,7 +181,8 @@ def main():
     for c in candidates:
         try:
             score = float(c.get("score", 0))
-            fit = float(c.get("content_fit", 0))
+            raw_fit = c.get("content_fit")
+            fit = float(raw_fit) if raw_fit is not None else float(local_content_fit(c.get("title", "")))
             risk = str(c.get("risk_flags") or "").strip()
             source_count = float(c.get("source_count", 1) or 1)
             opportunity = float(c.get("opportunity_score", score) or score)
