@@ -250,25 +250,66 @@ async function saveSignals(env,signals){
   const groups=new Map();
   for(const x of normalized){if(!groups.has(x.source))groups.set(x.source,[]);groups.get(x.source).push(x);}
   const previous=new Map();
+  const existing=new Map();
   for(const [source,items] of groups){
     const keys=Array.from(new Set(items.map(x=>String(x.trend_key??x.title??""))));
+    if(!keys.length)continue;
     const qs=keys.map(()=>"?").join(",");
     const params=[source,...keys];
-    const r=await env.DB.prepare("SELECT source,trend_key,signal_value FROM signals WHERE source=? AND trend_key IN ("+qs+") ORDER BY last_seen_at DESC").bind(...params).all();
+    const r=await env.DB.prepare("SELECT source,external_id,trend_key,signal_value,title,url,published_at,category,risk_flags,score,content_fit,previous_value,velocity_pct FROM signals WHERE source=? AND trend_key IN ("+qs+")").bind(...params).all();
     for(const row of (r.results||[])){
+      const ek=source+"::"+String(row.external_id??"");
+      existing.set(ek,row);
       const k=source+"::"+String(row.trend_key??"");
       if(!previous.has(k))previous.set(k,Number(row.signal_value||0));
     }
   }
+
   const stmts=[];
+  const observationCutoff=new Date(Date.now()-3600000).toISOString();
+
   for(const x of normalized){
+    const ek=x.source+"::"+String(x.external_id);
     const prev=previous.get(x.source+"::"+String(x.trend_key??x.title??""))||0;
     const velocity=prev>0?((x.signal_value-prev)/Math.abs(prev))*100:0;
-    const safe={source:String(x.source??"unknown"),external_id:String(x.external_id??x.title??"unknown"),trend_key:String(x.trend_key??x.title??""),title:String(x.title??"untitled"),url:x.url??null,published_at:x.published_at??t,signal_value:Number(x.signal_value??0),category:x.category??null,risk_flags:x.risk_flags??null,previous_value:prev,velocity_pct:velocity,content_fit:Number(x.content_fit??contentFit(x.title??""))};
+    const safe={
+      source:String(x.source??"unknown"),
+      external_id:String(x.external_id??x.title??"unknown"),
+      trend_key:String(x.trend_key??x.title??""),
+      title:String(x.title??"untitled"),
+      url:x.url??null,
+      published_at:x.published_at??t,
+      signal_value:Number(x.signal_value??0),
+      category:x.category??null,
+      risk_flags:x.risk_flags??null,
+      previous_value:prev,
+      velocity_pct:velocity,
+      content_fit:Number(x.content_fit??contentFit(x.title??""))
+    };
     const s=score(safe);
-    stmts.push(env.DB.prepare("INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct,score,content_fit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(source,external_id) DO UPDATE SET trend_key=excluded.trend_key,title=excluded.title,url=excluded.url,published_at=excluded.published_at,last_seen_at=excluded.last_seen_at,previous_value=excluded.previous_value,signal_value=excluded.signal_value,category=excluded.category,risk_flags=excluded.risk_flags,velocity_pct=excluded.velocity_pct,score=excluded.score,content_fit=excluded.content_fit").bind(safe.source,safe.external_id,safe.trend_key,safe.title,safe.url,safe.published_at,t,t,safe.signal_value,safe.category,safe.risk_flags,safe.previous_value,safe.velocity_pct,s,safe.content_fit));
-    stmts.push(env.DB.prepare("INSERT INTO observations(source,external_id,trend_key,observed_at,signal_value,score,risk_flags) VALUES(?,?,?,?,?,?,?)").bind(safe.source,safe.external_id,safe.trend_key,t,safe.signal_value,s,safe.risk_flags));
+    const old=existing.get(ek);
+    const changed=!old ||
+      String(old.trend_key??"")!==safe.trend_key ||
+      String(old.title??"")!==safe.title ||
+      String(old.url??"")!==String(safe.url??"") ||
+      String(old.published_at??"")!==String(safe.published_at??"") ||
+      String(old.category??"")!==String(safe.category??"") ||
+      String(old.risk_flags??"")!==String(safe.risk_flags??"") ||
+      Number(old.signal_value??0)!==safe.signal_value ||
+      Number(old.previous_value??0)!==safe.previous_value ||
+      Number(old.velocity_pct??0)!==safe.velocity_pct ||
+      Number(old.score??0)!==s ||
+      Number(old.content_fit??0)!==safe.content_fit;
+
+    if(!old){
+      stmts.push(env.DB.prepare("INSERT INTO signals(source,external_id,trend_key,title,url,published_at,first_seen_at,last_seen_at,signal_value,category,risk_flags,previous_value,velocity_pct,score,content_fit) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(safe.source,safe.external_id,safe.trend_key,safe.title,safe.url,safe.published_at,t,t,safe.signal_value,safe.category,safe.risk_flags,safe.previous_value,safe.velocity_pct,s,safe.content_fit));
+    }else if(changed){
+      stmts.push(env.DB.prepare("UPDATE signals SET trend_key=?,title=?,url=?,published_at=?,last_seen_at=?,signal_value=?,category=?,risk_flags=?,previous_value=?,velocity_pct=?,score=?,content_fit=? WHERE source=? AND external_id=?").bind(safe.trend_key,safe.title,safe.url,safe.published_at,t,safe.signal_value,safe.category,safe.risk_flags,safe.previous_value,safe.velocity_pct,s,safe.content_fit,safe.source,safe.external_id));
+    }
+
+    stmts.push(env.DB.prepare("INSERT INTO observations(source,external_id,trend_key,observed_at,signal_value,score,risk_flags) SELECT ?,?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM observations WHERE source=? AND external_id=? AND observed_at>?)").bind(safe.source,safe.external_id,safe.trend_key,t,safe.signal_value,s,safe.risk_flags,safe.source,safe.external_id,observationCutoff));
   }
+
   for(let i=0;i<stmts.length;i+=10)await env.DB.batch(stmts.slice(i,i+10));
 }
 function withTimeout(promise,ms,label){
