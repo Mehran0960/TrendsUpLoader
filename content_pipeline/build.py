@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# automated zero-cost content pipeline
 import json
 import os
 import re
