@@ -33,6 +33,12 @@ jobs:
           path: .voices
           key: piper-fa-gyro-linux-v2
 
+      - name: Cache Argos Persian model
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/argos-translate
+          key: argos-en-fa-v1
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -41,7 +47,24 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install piper-tts pillow arabic-reshaper python-bidi
+          pip install piper-tts pillow arabic-reshaper python-bidi argostranslate
+
+      - name: Install Argos English to Persian model
+        env:
+          ARGOS_DEVICE_TYPE: cpu
+          ARGOS_PACKAGES_DIR: ~/.local/share/argos-translate/packages
+        run: |
+          python - <<'PY'
+          import argostranslate.package as package
+          packages = list(package.get_installed_packages())
+          if not any(x.from_code == "en" and x.to_code == "fa" for x in packages):
+              package.update_package_index()
+              available = [x for x in package.get_available_packages() if x.from_code == "en" and x.to_code == "fa"]
+              if not available:
+                  raise SystemExit("Argos en->fa model not found")
+              available[0].install()
+          print("Argos en->fa model ready")
+          PY
 
       - name: Build automated Persian video
         env:
@@ -49,6 +72,7 @@ jobs:
         run: python content_pipeline/build.py
 
       - name: Publish to Telegram when configured
+        if: ${{ hashFiles('out/**/video.mp4') != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
