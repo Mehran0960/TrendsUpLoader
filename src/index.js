@@ -2,7 +2,8 @@ const JSON_HEADERS={"content-type":"application/json; charset=UTF-8","cache-cont
 const GEOS=["US","IR"],HN_TOP=10;
 const RSS_FEEDS=[
   {source:"ars_technica",url:"https://feeds.arstechnica.com/arstechnica/index",category:"technology"},
-  {source:"techcrunch",url:"https://techcrunch.com/feed/",category:"business"}
+  {source:"techcrunch",url:"https://techcrunch.com/feed/",category:"business"},
+  {source:"register_ai",url:"https://api.theregister.com/api/v1/article?limit=25&orderBy=published&query=tag%3A%22ai%20and%20ml%22&remapper=rss&site_id=2",category:"technology"}
 ];
 const RISK_RULES=[
   [/\b(porn|xxx|sex|onlyfans)\b|پورن|سکس|مستهجن|فحشا/i,"adult"],
