@@ -38,8 +38,22 @@ def local_content_fit(title: str) -> float:
         (8, ("chip", "gpu", "nvidia", "processor", "hardware", "semiconductor")),
         (8, ("startup", "business", "economy", "finance", "market", "investing", "money")),
         (7, ("security", "vulnerability", "malware", "cybersecurity", "hack")),
-        (5, ("gadget", "device", "app", "technology", "tech")),
+        (5, ("gadget", "smartphone", "iphone", "android", "app")),
     ]
+    # Generic words such as "tech" must not turn sports/entertainment/search queries into tech candidates.
+    if not any(
+        w in t for w in (
+            "ai", "artificial intelligence", "llm", "chatgpt", "claude", "gemini",
+            "openai", "anthropic", "agent", "robot", "robotics",
+            "software", "github", "coding", "developer", "programming", "browser",
+            "linux", "android", "iphone", "apple", "google", "microsoft",
+            "chip", "gpu", "nvidia", "processor", "hardware", "semiconductor",
+            "startup", "business", "economy", "finance", "market", "investing", "money",
+            "security", "vulnerability", "malware", "cybersecurity", "hack",
+            "gadget", "smartphone", "app",
+        )
+    ):
+        return 0.0
     score = 0.0
     for points, words in groups:
         if any(w in t for w in words):
@@ -112,7 +126,17 @@ def fetch_source_context(url: str):
         if not desc:
             title_m = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
             desc = re.sub(r"\s+", " ", unescape(title_m.group(1))).strip() if title_m else ""
-        return {"description": desc[:900]}
+        paragraphs = []
+        for m in re.findall(r"<p[^>]*>(.*?)</p>", raw, re.I | re.S):
+            txt = re.sub(r"<[^>]+>", " ", m)
+            txt = re.sub(r"\s+", " ", unescape(txt)).strip()
+            if len(txt) >= 60:
+                paragraphs.append(txt)
+        body_excerpt = " ".join(paragraphs[:5])[:2600]
+        return {
+            "description": desc[:900],
+            "body_excerpt": body_excerpt,
+        }
     except Exception:
         return {}
 
@@ -799,35 +823,89 @@ CURATED_STORIES = {
     }
 }
 
+def looks_mostly_english(text: str) -> bool:
+    letters = re.findall(r"[A-Za-z\u0600-\u06FF]", str(text or ""))
+    if not letters:
+        return False
+    latin = sum(1 for ch in letters if "A" <= ch <= "Z" or "a" <= ch <= "z")
+    return latin / len(letters) > 0.60
+
+def translate_to_persian(text: str) -> str:
+    text = re.sub(r"\s+", " ", str(text or "")).strip()
+    if not text or not looks_mostly_english(text):
+        return text
+    import argostranslate.translate
+    return re.sub(r"\s+", " ", argostranslate.translate.translate(text, "en", "fa")).strip()
+
 def build_safe_script(title, source, context):
     desc = re.sub(r"\s+", " ", str(context.get("description") or "")).strip(" .")
-    if desc:
-        return f"{title}. {desc}. برای جزئیات بیشتر، بهتره متن منبع اصلی هم بررسی بشه."
-    return f"{title}. برای جزئیات بیشتر، باید متن منبع اصلی رو بررسی کرد."
+    body = re.sub(r"\s+", " ", str(context.get("body_excerpt") or "")).strip(" .")
+    material = body or desc
+    if not material:
+        raise ValueError("Source context is too thin for a publishable script")
+
+    translated_title = translate_to_persian(title)
+    translated_material = translate_to_persian(material[:2600])
+    sentences = split_sentences(translated_material)
+    sentences = [s.strip() for s in sentences if len(s.strip()) >= 25]
+    selected = sentences[:5]
+    if len(" ".join(selected)) < 180:
+        selected = [translated_material[:700]]
+    script = f"{translated_title}. " + " ".join(selected)
+    return translated_title, re.sub(r"\s+", " ", script).strip(" .")
+
+def script_quality_ok(display_title: str, script: str, curated: bool, source_url: str) -> bool:
+    text_all = f"{display_title}. {script}"
+    persian = len(re.findall(r"[\u0600-\u06FF]", text_all))
+    alpha = len(re.findall(r"[A-Za-z\u0600-\u06FF]", text_all))
+    ratio = persian / max(alpha, 1)
+    sentence_count = len([s for s in split_sentences(script) if len(s.strip()) >= 18])
+    approx_seconds = len(script) / 11.0
+    forbidden = (
+        "باید متن منبع اصلی رو بررسی کرد",
+        "برای جزئیات بیشتر، بهتره متن منبع اصلی",
+        "امتیاز داخلی",
+        "رادار",
+        "فرایند تولید",
+        "فرآیند تولید",
+    )
+    if any(x.lower() in text_all.lower() for x in forbidden):
+        return False
+    if not curated and not source_url:
+        return False
+    if len(script) < 180 or sentence_count < 3:
+        return False
+    if approx_seconds < 18:
+        return False
+    if ratio < 0.45:
+        return False
+    return True
 
 def generate_audience_script(title, source, context):
-    fallback = build_safe_script(title, source, context)
     writer_url = os.environ.get("CONTENT_WRITER_URL", "").strip()
-    if not writer_url:
-        return title, fallback, "template"
-    try:
-        data = post_json(writer_url, {
-            "title": title,
-            "description": str(context.get("description") or "")[:1600],
-            "source": source,
-        })
-        raw = re.sub(r"\s+", " ", str(data.get("text") or "")).strip()
-        marker_title, marker_script = "", raw
-        m = re.search(r"TITLE\s*:\s*(.*?)\s*SCRIPT\s*:\s*(.*)$", raw, re.I)
-        if m:
-            marker_title = m.group(1).strip(" |-:")
-            marker_script = m.group(2).strip()
-        forbidden = ("رادار", "امتیاز", "الگوریتم", "فرایند تولید", "فرآیند تولید", "velocity", "score")
-        if not data.get("ok") or len(marker_script) < 80 or any(x.lower() in marker_script.lower() for x in forbidden):
-            return title, fallback, "template"
-        return marker_title or title, marker_script[:1600], "ai"
-    except Exception:
-        return title, fallback, "template"
+    if writer_url:
+        try:
+            data = post_json(writer_url, {
+                "title": title,
+                "description": str(context.get("description") or "")[:1600],
+                "body_excerpt": str(context.get("body_excerpt") or "")[:2600],
+                "source": source,
+            })
+            raw = re.sub(r"\s+", " ", str(data.get("text") or "")).strip()
+            marker_title, marker_script = "", raw
+            m = re.search(r"TITLE\s*:\s*(.*?)\s*SCRIPT\s*:\s*(.*)$", raw, re.I)
+            if m:
+                marker_title = m.group(1).strip(" |-:")
+                marker_script = m.group(2).strip()
+            forbidden = ("رادار", "امتیاز", "الگوریتم", "فرایند تولید", "فرآیند تولید", "velocity", "score")
+            if data.get("ok") and len(marker_script) >= 180 and not any(x.lower() in marker_script.lower() for x in forbidden):
+                return marker_title or title, marker_script[:1600], "ai"
+        except Exception:
+            pass
+
+    display_title = translate_to_persian(title)
+    script = build_safe_script(title, source, context)[1]
+    return display_title, script, "argos_template"
 
 def run(cmd):
     subprocess.run(cmd, check=True)
@@ -1001,45 +1079,75 @@ def main():
         candidate_source = "visual_test"
     else:
         candidates, candidate_source = get_candidate_data()
-    usable = []
-    fallback = []
+    ranked = []
     for c in candidates:
         try:
+            title_probe = str(c.get("title") or "")
             score = float(c.get("score", 0))
             raw_fit = c.get("content_fit")
-            fit = float(raw_fit) if raw_fit is not None else float(local_content_fit(c.get("title", "")))
+            fit = float(raw_fit) if raw_fit is not None else float(local_content_fit(title_probe))
             risk = str(c.get("risk_flags") or "").strip()
             source_count = float(c.get("source_count", 1) or 1)
             opportunity = float(c.get("opportunity_score", score) or score)
-            if risk:
+            source_url = str(c.get("url") or "").strip()
+            if risk or fit < 5 or score < 20 or not source_url:
                 continue
-            primary_value = opportunity + min(source_count, 3) * 5
-            if fit >= 5 and score >= 50:
-                usable.append((primary_value, c))
-            elif fit >= 5 and score >= 20:
-                fallback.append((primary_value, c))
+            priority = opportunity + min(source_count, 3) * 5
+            strict = score >= 50
+            ranked.append((1 if strict else 0, priority, c))
         except Exception:
             pass
 
-    if usable:
-        usable.sort(key=lambda x: x[0], reverse=True)
-        _, c = usable[0]
-        selection_mode = "radar_strict"
-    elif fallback:
-        fallback.sort(key=lambda x: x[0], reverse=True)
-        _, c = fallback[0]
-        selection_mode = "safe_fallback"
-    else:
-        raise RuntimeError("No usable candidate found: no safe candidate met minimum fallback thresholds")
+    ranked.sort(key=lambda x: (x[0], x[1]), reverse=True)
 
+    chosen = None
+    selection_mode = None
+    context = {}
+    display_title = script = script_mode = ""
+    selection_errors = []
 
+    for _, _, candidate in ranked[:10]:
+        candidate_title = re.sub(r"\s+", " ", str(candidate.get("title") or "موضوع جدید")).strip()
+        candidate_source = str(candidate.get("source") or candidate_source or "radar")
+        candidate_url = str(candidate.get("url") or "").strip()
+        candidate_context = fetch_source_context(candidate_url)
+        try:
+            candidate_curated = CURATED_STORIES.get(candidate_title)
+            if candidate_curated:
+                dt = candidate_curated["title_fa"]
+                sc = candidate_curated["script"]
+                sm = "curated"
+            else:
+                dt, sc, sm = generate_audience_script(candidate_title, candidate_source, candidate_context)
+            if not script_quality_ok(dt, sc, bool(candidate_curated), candidate_url):
+                selection_errors.append(candidate_title + ": script quality gate")
+                continue
+            chosen = candidate
+            context = candidate_context
+            display_title, script, script_mode = dt, sc, sm
+            selection_mode = "curated" if candidate_curated else ("radar_strict" if float(candidate.get("score", 0)) >= 50 else "safe_fallback")
+            break
+        except Exception as exc:
+            selection_errors.append(candidate_title + ": " + str(exc))
 
+    if not chosen:
+        (OUT / "skip.json").write_text(json.dumps({
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "status": "skipped",
+            "reason": "No publishable candidate passed source/script quality gates",
+            "checked": selection_errors[:10],
+        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(json.dumps({"status": "skipped", "reason": "no_publishable_candidate", "checked": selection_errors[:10]}, ensure_ascii=False))
+        return
+
+    c = chosen
     title = re.sub(r"\s+", " ", str(c.get("title") or "موضوع جدید")).strip()
     source = str(c.get("source") or candidate_source or "radar")
     score = float(c.get("score", 0))
-    fit = float(c.get("content_fit", 0))
+    raw_fit = c.get("content_fit")
+    fit = float(raw_fit) if raw_fit is not None else float(local_content_fit(title))
     iran = c.get("iran_interest_similarity")
-    context = fetch_source_context(c.get("url"))
+
 
     video_dir = Path("out") / "commons_video"
     openverse_dir = Path("out") / "openverse"
@@ -1050,13 +1158,6 @@ def main():
         visual_assets = download_commons_visuals(title, commons_dir, limit=3)
 
     curated = CURATED_STORIES.get(title)
-    if curated:
-        display_title = curated["title_fa"]
-        script = curated["script"]
-        script_mode = "curated"
-    else:
-        display_title, script, script_mode = generate_audience_script(title, source, context)
-
     sentences = split_sentences(script)
     sentences = sentences[:6] if len(sentences) > 1 else sentences
     if not sentences:
@@ -1139,8 +1240,10 @@ def main():
         "visual_mode": "topic_gated_commons_broll_then_openverse_real_images_then_motion_fallback",
         "video_assets": [m for _,m in video_assets],
         "visual_assets": [m for _,m in visual_assets],
-        "quality_gate": "passed_topic_relevance",
+        "quality_gate": "passed_publish",
         "selection_mode": selection_mode,
+        "script_quality": "passed",
+
         "segments": segment_meta,
     }
     (base / "metadata.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
