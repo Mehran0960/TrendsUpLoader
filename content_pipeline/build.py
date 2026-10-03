@@ -12,7 +12,7 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from html import unescape
 
-from PIL import Image, ImageDraw, ImageFont, features
+from PIL import Image, ImageDraw, ImageFont, ImageOps, features
 import arabic_reshaper
 from bidi.algorithm import get_display
 
@@ -22,6 +22,100 @@ VOICE_DIR = Path(".voices")
 WIDTH, HEIGHT = 720, 1280
 FPS = 30
 PIPER_VOICE = os.environ.get("PIPER_VOICE", "fa_IR-gyro-medium").strip() or "fa_IR-gyro-medium"
+
+def get_bytes(url: str):
+    req = Request(url, headers={"User-Agent": "trend-radar-content-pipeline/3.0"})
+    with urlopen(req, timeout=20) as r:
+        return r.read()
+
+def search_commons_visual(title: str):
+    """Find a reusable Wikimedia Commons image and return attribution metadata."""
+    queries = []
+    clean = re.sub(r"[^A-Za-z0-9À-ÿ\u0600-\u06FF ]+", " ", title).strip()
+    if clean:
+        queries.append(clean)
+    low = title.lower()
+    if "linux" in low or "kernel" in low or "security" in low or "vulner" in low:
+        queries += ["Linux kernel", "Linux server", "computer security"]
+    elif any(k in low for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt")):
+        queries += ["artificial intelligence", "AI computer", "machine learning"]
+    elif any(k in low for k in ("chip", "gpu", "nvidia", "processor", "hardware")):
+        queries += ["computer chip", "GPU", "semiconductor"]
+    elif any(k in low for k in ("finance", "economy", "market", "money", "investing")):
+        queries += ["financial market", "stock market", "economy chart"]
+    elif any(k in low for k in ("software", "github", "browser", "app", "code")):
+        queries += ["software development", "computer code", "web browser"]
+
+    allowed = ("CC BY", "CC BY-SA", "CC0", "Public domain", "PD")
+    seen = set()
+    for q in queries[:5]:
+        try:
+            import urllib.parse
+            params = {
+                "action": "query",
+                "format": "json",
+                "list": "search",
+                "srnamespace": "6",
+                "srsearch": q,
+                "srlimit": "8",
+            }
+            api = "https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode(params)
+            data = get_json(api)
+            titles = [x.get("title") for x in data.get("query",{}).get("search",[]) if x.get("title")]
+            if not titles:
+                continue
+            params2 = {
+                "action": "query",
+                "format": "json",
+                "prop": "imageinfo",
+                "iiprop": "url|extmetadata",
+                "iiurlwidth": "1200",
+                "titles": "|".join(titles),
+            }
+            api2 = "https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode(params2)
+            data2 = get_json(api2)
+            for page in data2.get("query",{}).get("pages",{}).values():
+                if page.get("missing") is not None:
+                    continue
+                info = (page.get("imageinfo") or [{}])[0]
+                thumb = info.get("thumburl") or info.get("url")
+                if not thumb or thumb in seen:
+                    continue
+                seen.add(thumb)
+                ext = info.get("extmetadata") or {}
+                license_name = str((ext.get("LicenseShortName") or {}).get("value","")).strip()
+                artist = re.sub("<[^>]+>", "", str((ext.get("Artist") or {}).get("value",""))).strip()
+                desc = re.sub("<[^>]+>", "", str((ext.get("ImageDescription") or {}).get("value",""))).strip()
+                if not any(a.lower() in license_name.lower() for a in allowed):
+                    continue
+                return {
+                    "url": thumb,
+                    "page_url": "https://commons.wikimedia.org/wiki/" + urllib.parse.quote(page.get("title","").replace(" ","_")),
+                    "title": page.get("title",""),
+                    "license": license_name or "unspecified",
+                    "artist": artist[:240],
+                    "description": desc[:300],
+                }
+        except Exception:
+            continue
+    return None
+
+def download_commons_visual(title: str, out_path: Path):
+    meta = search_commons_visual(title)
+    if not meta:
+        return None
+    try:
+        out_path.write_bytes(get_bytes(meta["url"]))
+        with Image.open(out_path) as im:
+            if im.width < 500 or im.height < 300:
+                raise ValueError("Commons image too small")
+        return meta
+    except Exception:
+        try:
+            out_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+        return None
 
 def get_json(url: str):
     req = Request(url, headers={"User-Agent": "trend-radar-content-pipeline/2.0"})
@@ -306,25 +400,41 @@ def draw_glow_circle(d, center, r, fill, outline):
         # Solid approximation keeps the renderer dependency-free.
         d.ellipse((cx-rr,cy-rr,cx+rr,cy+rr), outline=outline, width=max(1,7-k))
 
-def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: str, number: int):
+def paste_cover(base_img, image_path, region=(55,250,665,880), darkness=0.20):
+    x1,y1,x2,y2 = region
+    target_w, target_h = x2-x1, y2-y1
+    with Image.open(image_path) as src:
+        src = src.convert("RGB")
+        fitted = ImageOps.fit(src, (target_w, target_h), method=Image.Resampling.LANCZOS, centering=(0.5,0.5))
+    base_img.paste(fitted, (x1,y1))
+    d = ImageDraw.Draw(base_img)
+    d.rounded_rectangle(region, radius=28, outline=(105,135,165), width=3)
+    d.rounded_rectangle((x1,y1,x2,y2), radius=28, fill=(5,9,18, int(255*darkness))) if False else None
+    # Bottom readability gradient using translucent overlay.
+    overlay = Image.new("RGBA", (target_w,target_h), (0,0,0,0))
+    od = ImageDraw.Draw(overlay)
+    for yy in range(target_h):
+        alpha = int(115 * (yy/target_h))
+        od.line((0,yy,target_w,yy), fill=(0,0,0,alpha))
+    base_img.paste(overlay, (x1,y1), overlay)
+
+def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: str, number: int, real_image_path=None):
     img = Image.new("RGB", (WIDTH, HEIGHT), (7, 12, 25))
     d = ImageDraw.Draw(img)
-    # Deep atmospheric backdrop.
     for y in range(HEIGHT):
         t=y/HEIGHT
         d.line((0,y,WIDTH,y), fill=(7, int(13+18*t), int(27+35*t)))
     draw_particles(d, title + str(number))
 
-    # Compact header: don't repeat a huge title block on every shot.
     d.rounded_rectangle((42,42,678,142), radius=24, fill=(14,22,40), outline=(64,88,118), width=2)
     draw_rtl_block(d, title, 62, font(30, bold=True), 570, fill=(247,249,255), align="center", spacing=6)
 
     d.rounded_rectangle((48,168,255,218), radius=16, fill=(24,38,61), outline=(65,92,125), width=2)
     d.text((68,181), fa(f"{number:02d} • {label}"), font=font(22, bold=True), fill=(205,225,244), **rtl_kwargs())
 
-    # Image-first central composition.
-    if visual_kind == "shield":
-        # Isometric server + shield + attack path.
+    if real_image_path and real_image_path.exists():
+        paste_cover(img, real_image_path)
+    elif visual_kind == "shield":
         d.rounded_rectangle((92,330,430,700), radius=34, fill=(18,31,50), outline=(74,108,145), width=3)
         for yy in (390,470,550,630):
             d.rounded_rectangle((135,yy,390,yy+52), radius=14, fill=(27,48,74), outline=(69,96,124), width=2)
@@ -336,26 +446,30 @@ def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: s
         d.ellipse((425,338,450,363), fill=(230,100,105))
         d.ellipse((425,398,450,423), fill=(230,100,105))
     elif visual_kind == "security_cards":
-        # Three-dimensional impact map rather than flat cards.
         nodes=[(180,390),(360,300),(540,390),(170,610),(360,720),(550,610),(360,510)]
         for a,b in ((0,6),(1,6),(2,6),(3,6),(4,6),(5,6)):
             d.line((*nodes[a],*nodes[b]), fill=(61,94,132), width=6)
-        for i,(x,y) in enumerate(nodes[:-1]):
+        for x,y in nodes[:-1]:
             d.ellipse((x-52,y-52,x+52,y+52), fill=(25,52,83), outline=(95,138,186), width=4)
             draw_shield(d,(x,y),34,warning=True)
         d.ellipse((308,458,412,562), fill=(44,78,122), outline=(155,198,230), width=5)
         draw_shield(d,(360,510),52,warning=True)
     elif visual_kind == "package":
-        # Large software package with version and update arrow.
-        d.polygon([(135,400),(360,500),(585,400),(585,650),(360,770),(135,650)],
-                  fill=(26,47,69), outline=(92,124,160))
+        d.polygon([(135,400),(360,500),(585,400),(585,650),(360,770),(135,650)], fill=(26,47,69), outline=(92,124,160))
         d.polygon([(135,400),(360,300),(585,400),(360,500)], fill=(40,67,92), outline=(100,132,165))
         d.line((360,500,360,770), fill=(92,124,160), width=4)
-        d.polygon([(360,340),(315,410),(345,410),(345,475),(375,475),(375,410),(405,410)],
-                  fill=(118,218,165))
+        d.polygon([(360,340),(315,410),(345,410),(345,475),(375,475),(375,410),(405,410)], fill=(118,218,165))
         draw_rtl_block(d, "نسخه به‌روزشده", 810, font(38, bold=True), 500, fill=(238,247,252), align="center")
         d.rounded_rectangle((192,860,528,930), radius=18, fill=(15,26,42), outline=(78,104,135), width=2)
         d.text((214,876), "6.12.111-1", font=font(34, bold=True), fill=(208,230,242))
+    elif visual_kind == "document":
+        d.rounded_rectangle((170,290,550,760), radius=28, fill=(232,237,244), outline=(112,135,158), width=4)
+        d.polygon([(458,290),(550,382),(458,382)], fill=(190,201,215))
+        for i,w in enumerate((275,315,240,292,220)):
+            d.rounded_rectangle((215,445+i*52,215+w,461+i*52), radius=8, fill=(97,116,138))
+        d.ellipse((380,610,520,750), outline=(42,82,125), width=16)
+        d.line((492,720,600,828), fill=(42,82,125), width=20)
+        d.ellipse((432,662,468,698), outline=(95,155,205), width=7)
     elif visual_kind == "ai_network":
         draw_agent(d)
     elif visual_kind == "ai_chat":
@@ -384,27 +498,15 @@ def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: s
         d.rounded_rectangle((90,520,630,735), radius=24, fill=(24,43,62), outline=(84,118,150), width=3)
         for x,h in ((135,100),(230,160),(325,210),(420,145),(515,190)):
             d.rounded_rectangle((x,735-h,x+58,735), radius=10, fill=(70,125,165))
-    elif visual_kind == "finance_chart":
+    elif visual_kind in ("finance_chart","finance_signal"):
         draw_finance_chart(d)
     elif visual_kind == "finance_market":
         draw_data_flow(d)
     elif visual_kind == "finance_people":
         draw_human_machine(d)
-    elif visual_kind == "finance_signal":
-        draw_finance_chart(d)
-    elif visual_kind == "document":
-        # Official notice + magnifier / verification motif.
-        d.rounded_rectangle((170,290,550,760), radius=28, fill=(232,237,244), outline=(112,135,158), width=4)
-        d.polygon([(458,290),(550,382),(458,382)], fill=(190,201,215))
-        for i,w in enumerate((275,315,240,292,220)):
-            d.rounded_rectangle((215,445+i*52,215+w,461+i*52), radius=8, fill=(97,116,138))
-        d.ellipse((380,610,520,750), outline=(42,82,125), width=16)
-        d.line((492,720,600,828), fill=(42,82,125), width=20)
-        d.ellipse((432,662,468,698), outline=(95,155,205), width=7)
     else:
         draw_generic_visual(d, title)
 
-    # Short subtitle strip; the picture stays dominant.
     d.rounded_rectangle((34,955,686,1220), radius=28, fill=(5,9,18), outline=(73,98,126), width=2)
     draw_rtl_block(d, caption, 992, font(32, bold=True), 570, fill=(248,249,250), align="center", spacing=9)
     img.save(path)
@@ -631,6 +733,9 @@ def main():
     iran = c.get("iran_interest_similarity")
     context = fetch_source_context(c.get("url"))
 
+    commons_path = Path("out") / "commons_visual.jpg"
+    commons_meta = download_commons_visual(title, commons_path)
+
     curated = CURATED_STORIES.get(title)
     if curated:
         display_title = curated["title_fa"]
@@ -666,7 +771,7 @@ def main():
         duration = wav_seconds(wav)
 
         img = base / f"scene{i}.png"
-        make_visual(img, display_title, sentence, labels[i-1], visual_seq[i-1], i)
+        make_visual(img, display_title, sentence, labels[i-1], visual_seq[i-1], i, commons_path if commons_meta else None)
 
         seg = base / f"segment{i}.mp4"
         make_segment_video(img, wav, seg, duration)
@@ -680,6 +785,10 @@ def main():
 
     mp4 = base / "video.mp4"
     concat_segments(segment_files, mp4)
+
+    if commons_meta:
+        attribution = f'Image: {commons_meta["title"]} — {commons_meta["artist"] or "author not stated"} — {commons_meta["license"]}. Source: {commons_meta["page_url"]}'
+        (base / "attribution.txt").write_text(attribution, encoding="utf-8")
 
     meta = {
         "generated_at": ts,
@@ -702,7 +811,8 @@ def main():
         "cost": 0,
         "human_content_creation_required": False,
         "caption_sync": "sentence_exact",
-        "visual_mode": "original_topic_illustrations",
+        "visual_mode": "commons_real_image_with_original_fallback",
+        "commons_visual": commons_meta,
         "quality_gate": "passed",
         "segments": segment_meta,
     }
