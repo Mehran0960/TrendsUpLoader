@@ -25,6 +25,16 @@ def get_json(url: str):
     with urlopen(req, timeout=20) as r:
         return json.load(r)
 
+def post_json(url: str, payload: dict):
+    req = Request(
+        url,
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={"User-Agent": "trend-radar-content-pipeline/1.0", "Content-Type": "application/json"},
+        method="POST",
+    )
+    with urlopen(req, timeout=25) as r:
+        return json.load(r)
+
 def local_content_fit(title: str) -> int:
     t = str(title or "").lower()
     patterns = [
@@ -176,6 +186,21 @@ def build_safe_script(title, source, context):
         "این خبر فعلاً بر اساس عنوان منبع روایت می‌شود؛ برای جزئیات بیشتر باید متن منبع اصلی بررسی شود. "
         f"منبع: {source.replace('_', ' ')}."
     )
+
+def generate_audience_script(title, source, context):
+    fallback = build_safe_script(title, source, context)
+    writer_url = os.environ.get("CONTENT_WRITER_URL", "").strip()
+    if not writer_url:
+        return fallback, "template"
+    try:
+        data = post_json(writer_url, {"title": title, "description": str(context.get("description") or "")[:1600], "source": source})
+        text = re.sub(r"\s+", " ", str(data.get("text") or "")).strip()
+        forbidden = ("رادار", "امتیاز", "الگوریتم", "فرایند تولید", "فرآیند تولید")
+        if not data.get("ok") or len(text) < 80 or any(x in text for x in forbidden):
+            return fallback, "template"
+        return text[:1600], "ai"
+    except Exception:
+        return fallback, "template"
 def run(cmd):
     subprocess.run(cmd, check=True)
 
@@ -274,6 +299,7 @@ def main():
         "source": source,
         "source_url": c.get("url"),
         "source_context": context,
+        "script_mode": script_mode,
         "score_internal": score,
         "content_fit_internal": fit,
         "iran_interest_similarity_internal": iran,
