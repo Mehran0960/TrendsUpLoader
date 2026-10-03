@@ -244,6 +244,88 @@ def download_openverse_visuals(title: str, out_dir: Path, limit=4):
             p.unlink(missing_ok=True)
     return out
 
+def search_commons_videos(title: str, limit=3):
+    """Find small, relevant, openly licensed video files on Wikimedia Commons."""
+    import urllib.parse
+    low = title.lower()
+    qs = []
+    if "linux" in low or "kernel" in low or "security" in low or "vulner" in low:
+        qs = ["computer security", "Linux", "cybersecurity"]
+    elif any(k in low for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt", "claude")):
+        qs = ["artificial intelligence", "AI robot", "machine learning"]
+    elif any(k in low for k in ("chip", "gpu", "nvidia", "processor", "hardware")):
+        qs = ["computer chip", "semiconductor", "GPU"]
+    elif any(k in low for k in ("software", "github", "browser", "app", "code")):
+        qs = ["software development", "computer programming", "Linux desktop"]
+    elif any(k in low for k in ("finance", "economy", "market", "money", "investing", "business")):
+        qs = ["stock market", "financial market", "business technology"]
+    else:
+        qs = [re.sub(r"[^A-Za-z0-9\\u0600-\\u06FF ]+", " ", title).strip()]
+
+    candidates=[]; seen=set()
+    allowed=("CC BY","CC BY-SA","CC0","Public domain","PD")
+    for q in qs[:4]:
+        try:
+            params={"action":"query","format":"json","list":"search","srnamespace":"6","srsearch":q,"srlimit":"15"}
+            data=get_json("https://commons.wikimedia.org/w/api.php?"+urllib.parse.urlencode(params))
+            titles=[x.get("title") for x in data.get("query",{}).get("search",[]) if x.get("title")]
+            if not titles: continue
+            params2={"action":"query","format":"json","prop":"imageinfo","iiprop":"url|mime|size|extmetadata|commonmetadata","titles":"|".join(titles)}
+            data2=get_json("https://commons.wikimedia.org/w/api.php?"+urllib.parse.urlencode(params2))
+            for page in data2.get("query",{}).get("pages",{}).values():
+                info=(page.get("imageinfo") or [{}])[0]
+                mime=str(info.get("mime") or "")
+                if not mime.startswith("video/"):
+                    continue
+                size=int(info.get("size") or 0)
+                if size<=0 or size>40*1024*1024:
+                    continue
+                ext=info.get("extmetadata") or {}
+                lic=str((ext.get("LicenseShortName") or {}).get("value","")).strip()
+                if not any(a.lower() in lic.lower() for a in allowed):
+                    continue
+                title2=page.get("title","")
+                desc=re.sub("<[^>]+>"," ",str((ext.get("ImageDescription") or {}).get("value","")))
+                rel=commons_relevance(title,title2,desc)
+                if rel<2: continue
+                url=info.get("url")
+                if not url or url in seen: continue
+                seen.add(url)
+                common=info.get("commonmetadata") or {}
+                duration=0.0
+                rawdur=str((ext.get("Duration") or {}).get("value","") or common.get("Duration") or "")
+                m=re.search(r"(\\d+(?:\\.\\d+)?)",rawdur)
+                if m: duration=float(m.group(1))
+                width=int(info.get("width") or 0); height=int(info.get("height") or 0)
+                if width<640 or height<360: continue
+                page_url="https://commons.wikimedia.org/wiki/"+urllib.parse.quote(title2.replace(" ","_"))
+                candidates.append({
+                    "url":url,"page_url":page_url,"title":title2,
+                    "license":lic or "unspecified",
+                    "license_url":str((ext.get("LicenseUrl") or {}).get("value","")),
+                    "artist":re.sub("<[^>]+>"," ",str((ext.get("Artist") or {}).get("value",""))).strip()[:240],
+                    "description":re.sub(r"\\s+"," ",desc).strip()[:300],
+                    "relevance":rel,"size":size,"width":width,"height":height,
+                    "duration_seconds":duration,
+                })
+        except Exception:
+            continue
+    candidates.sort(key=lambda x:(x["relevance"], -x["size"]), reverse=True)
+    return candidates[:limit]
+
+def download_commons_videos(title: str, out_dir: Path, limit=3):
+    metas=search_commons_videos(title, limit=limit)
+    out=[]; out_dir.mkdir(exist_ok=True)
+    for i,meta in enumerate(metas,1):
+        ext=".webm" if "webm" in meta["url"].lower() or "webm" in meta["license"].lower() else ".mp4"
+        p=out_dir/f"commons_video_{i}{ext}"
+        try:
+            p.write_bytes(get_bytes(meta["url"]))
+            out.append((p,meta))
+        except Exception:
+            p.unlink(missing_ok=True)
+    return out
+
 def search_commons_visuals(title: str, limit=3):
     """Find several strongly relevant reusable Commons images."""
     import urllib.parse
@@ -688,6 +770,19 @@ def wav_seconds(path: Path) -> float:
     with wave.open(str(path), "rb") as wf:
         return wf.getnframes() / float(wf.getframerate() or 1)
 
+def make_broll_segment(video_path: Path, wav: Path, out: Path, duration: float, start_seconds: float):
+    start=max(0.0,start_seconds)
+    run([
+        "ffmpeg","-y",
+        "-ss",f"{start:.2f}","-i",str(video_path),
+        "-i",str(wav),
+        "-t",f"{duration:.3f}",
+        "-vf",f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,crop={WIDTH}:{HEIGHT},setsar=1,fps={FPS}",
+        "-map","0:v:0","-map","1:a:0","-an","-r",str(FPS),
+        "-c:v","libx264","-pix_fmt","yuv420p","-c:a","aac","-b:a","128k",
+        "-shortest","-movflags","+faststart",str(out)
+    ])
+
 def make_segment_video(img: Path, wav: Path, out: Path, duration: float):
     run([
         "ffmpeg","-y",
@@ -842,8 +937,10 @@ def main():
     iran = c.get("iran_interest_similarity")
     context = fetch_source_context(c.get("url"))
 
+    video_dir = Path("out") / "commons_video"
     openverse_dir = Path("out") / "openverse"
     commons_dir = Path("out") / "commons"
+    video_assets = download_commons_videos(title, video_dir, limit=3)
     visual_assets = download_openverse_visuals(title, openverse_dir, limit=4)
     if not visual_assets:
         visual_assets = download_commons_visuals(title, commons_dir, limit=3)
@@ -887,7 +984,14 @@ def main():
         make_visual(img, display_title, sentence, labels[i-1], visual_seq[i-1], i, real_asset)
 
         seg = base / f"segment{i}.mp4"
-        make_segment_video(img, wav, seg, duration)
+        if video_assets:
+            vpath, vmeta = video_assets[(i-1) % len(video_assets)]
+            start=max(0.0, float(i-1)*4.0)
+            if vmeta.get("duration_seconds",0) > 0:
+                start = min(start, max(0.0, float(vmeta["duration_seconds"])-duration-0.1))
+            make_broll_segment(vpath, wav, seg, duration, start)
+        else:
+            make_segment_video(img, wav, seg, duration)
         segment_files.append(seg)
         segment_meta.append({
             "index": i,
@@ -928,7 +1032,8 @@ def main():
         "cost": 0,
         "human_content_creation_required": False,
         "caption_sync": "sentence_exact",
-        "visual_mode": "openverse_real_images_with_commons_fallback",
+        "visual_mode": "commons_broll_then_openverse_real_images_then_commons_fallback",
+        "video_assets": [m for _,m in video_assets],
         "visual_assets": [m for _,m in visual_assets],
         "quality_gate": "passed",
         "segments": segment_meta,
