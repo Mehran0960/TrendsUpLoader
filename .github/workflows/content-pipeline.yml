@@ -1,4 +1,5 @@
 name: Zero-Cost Content Pipeline
+# V3 validation: sentence-synced captions and topic-aware original visuals
 
 on:
   push:
