@@ -1,11 +1,14 @@
-name = "trend-radar-mvp"
+name = "trend-radar"
 main = "src/index.js"
 compatibility_date = "2026-10-02"
 
 [triggers]
 crons = ["*/15 * * * *"]
 
+[ai]
+binding = "AI"
+
 [[d1_databases]]
 binding = "DB"
-database_name = "trend-radar-db"
-database_id = "286bcdfd-a4f3-4e34-b85a-9f1271aacfbc"
+database_name = "trend-radar-core"
+database_id = "39ebabd1-35b5-4304-af67-ad92b0baed01"
