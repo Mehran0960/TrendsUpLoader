@@ -23,6 +23,29 @@ WIDTH, HEIGHT = 720, 1280
 FPS = 30
 PIPER_VOICE = os.environ.get("PIPER_VOICE", "fa_IR-gyro-medium").strip() or "fa_IR-gyro-medium"
 
+def content_key(candidate: dict) -> str:
+    """Stable fingerprint for deduplication across scheduled runs."""
+    explicit = str(candidate.get("external_id") or "").strip()
+    if explicit:
+        return f"{candidate.get('source','')}:{explicit}"
+    url = str(candidate.get("url") or "").strip()
+    title = re.sub(r"\s+", " ", str(candidate.get("title") or "")).strip().lower()
+    return f"{candidate.get('source','')}:{url or title}"
+
+def load_published_state() -> set:
+    path = Path(os.environ.get("CONTENT_STATE_DIR", "content_state")) / "posted.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return set(str(x) for x in data.get("keys", []))
+    except Exception:
+        return set()
+
+def save_published_state(keys: set):
+    path = Path(os.environ.get("CONTENT_STATE_DIR", "content_state")) / "posted.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"version": 1, "keys": sorted(keys)[-500:]}
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
 def get_json(url: str):
     req = Request(url, headers={"User-Agent": "trend-radar-content-pipeline/2.0"})
     with urlopen(req, timeout=20) as r:
@@ -1079,10 +1102,14 @@ def main():
         candidate_source = "visual_test"
     else:
         candidates, candidate_source = get_candidate_data()
+    posted_keys = load_published_state()
     ranked = []
     for c in candidates:
         try:
             title_probe = str(c.get("title") or "")
+            candidate_key = content_key(c)
+            if candidate_key in posted_keys:
+                continue
             score = float(c.get("score", 0))
             raw_fit = c.get("content_fit")
             fit = float(raw_fit) if raw_fit is not None else float(local_content_fit(title_probe))
@@ -1243,6 +1270,7 @@ def main():
         "quality_gate": "passed_publish",
         "selection_mode": selection_mode,
         "script_quality": "passed",
+        "content_key": content_key(c),
 
         "segments": segment_meta,
     }
