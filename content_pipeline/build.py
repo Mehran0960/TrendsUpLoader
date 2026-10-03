@@ -109,6 +109,9 @@ def fetch_source_context(url: str):
             raw = r.read(180000).decode("utf-8", errors="ignore")
         m = re.search(r"<meta[^>]+name=[\\"']description[\\"'][^>]+content=[\\"']([^\\"']+)", raw, re.I)
         desc = re.sub(r"\s+", " ", unescape(m.group(1))).strip() if m else ""
+        if not desc:
+            title_m = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
+            desc = re.sub(r"\s+", " ", unescape(title_m.group(1))).strip() if title_m else ""
         return {"description": desc[:700]}
     except Exception:
         return {}
