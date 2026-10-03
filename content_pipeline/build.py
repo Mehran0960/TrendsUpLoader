@@ -266,7 +266,7 @@ def search_commons_videos(title: str, limit=3):
     allowed=("CC BY","CC BY-SA","CC0","Public domain","PD")
     for q in qs[:4]:
         try:
-            params={"action":"query","format":"json","list":"search","srnamespace":"6","srsearch":q,"srlimit":"15"}
+            params={"action":"query","format":"json","list":"search","srnamespace":"6","srsearch":q + " filetype:video filesize:<40000","srwhat":"text","srlimit":"30"}
             data=get_json("https://commons.wikimedia.org/w/api.php?"+urllib.parse.urlencode(params))
             titles=[x.get("title") for x in data.get("query",{}).get("search",[]) if x.get("title")]
             if not titles: continue
