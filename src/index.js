@@ -109,6 +109,7 @@ async function enrichSemantics(env,signals){
     .sort((a,b)=>Number(b.signal_value||0)-Number(a.signal_value||0))
     .slice(0,30);
   if(!fresh.length)return {embedded:0,clusters:0};
+
   const currentKeys=new Set(fresh.map(x=>String(x.source)+"::"+String(x.external_id)));
   const existing=await env.DB.prepare("SELECT id,source,external_id,title,embedding_json,semantic_cluster FROM signals WHERE embedding_json IS NOT NULL ORDER BY last_seen_at DESC LIMIT 120").all();
   const refs=[];
@@ -119,35 +120,68 @@ async function enrichSemantics(env,signals){
       if(Array.isArray(v)&&v.length)refs.push({id:Number(row.id),source:String(row.source),title:String(row.title||""),embedding:v,cluster:row.semantic_cluster||null});
     }catch(_){}
   }
-  const resp=await env.AI.run("@cf/baai/bge-m3",{text:fresh.map(x=>String(x.title||""))});
+
+  const irRows=await env.DB.prepare("SELECT id,source,external_id,title,embedding_json,semantic_cluster FROM signals WHERE source='google_trends_ir' ORDER BY last_seen_at DESC LIMIT 40").all();
+  const iranNeeds=[];
+  const iranPool=[];
+  const embeddedIrKeys=new Set();
+
+  for(const row of (irRows.results||[])){
+    if(!usefulIranTrendTitle(row.title))continue;
+    const key=String(row.source)+"::"+String(row.external_id);
+    if(currentKeys.has(key))continue;
+    try{
+      const v=JSON.parse(row.embedding_json);
+      if(Array.isArray(v)&&v.length){
+        iranPool.push({title:String(row.title||""),embedding:v});
+        embeddedIrKeys.add(key);
+        refs.push({id:Number(row.id),source:String(row.source),title:String(row.title||""),embedding:v,cluster:row.semantic_cluster||null});
+        continue;
+      }
+    }catch(_){}
+    if(iranNeeds.length<20)iranNeeds.push(row);
+  }
+
+  const aiInputs=[...fresh.map(x=>({kind:"fresh",item:x})),...iranNeeds.map(x=>({kind:"iran",item:x}))];
+  const resp=await env.AI.run("@cf/baai/bge-m3",{text:aiInputs.map(x=>String(x.item.title||""))});
   const vectors=Array.isArray(resp?.data)?resp.data:[];
-  const iranPool=refs
-    .filter(r=>r.source==="google_trends_ir"&&usefulIranTrendTitle(r.title))
-    .map(r=>({title:r.title,embedding:r.embedding}));
-  for(let i=0;i<fresh.length;i++){
-    const x=fresh[i],v=vectors[i];
-    if(Array.isArray(v)&&v.length&&String(x.source)==="google_trends_ir"&&usefulIranTrendTitle(x.title)){
-      iranPool.push({title:String(x.title||""),embedding:v});
+
+  const freshVectors=new Map();
+  const irVectors=[];
+  for(let i=0;i<aiInputs.length;i++){
+    const item=aiInputs[i],v=vectors[i];
+    if(!Array.isArray(v)||!v.length)continue;
+    if(item.kind==="fresh")freshVectors.set(String(item.item.source)+"::"+String(item.item.external_id),v);
+    else{
+      const key=String(item.item.source)+"::"+String(item.item.external_id);
+      irVectors.push({row:item.item,v,key});
+      iranPool.push({title:String(item.item.title||""),embedding:v});
+      refs.push({id:Number(item.item.id),source:"google_trends_ir",title:String(item.item.title||""),embedding:v,cluster:item.item.semantic_cluster||null});
     }
   }
+
   let embedded=0;
   const updates=[];
-  for(let i=0;i<fresh.length;i++){
-    const x=fresh[i],v=vectors[i];
-    if(!Array.isArray(v)||!v.length)continue;
+  for(const x of fresh){
+    const key=String(x.source)+"::"+String(x.external_id);
+    const v=freshVectors.get(key);
+    if(!v)continue;
+
     let best=null;
     for(const ref of refs){
       if(ref.source===String(x.source))continue;
       const sim=cosine(v,ref.embedding);
       if(!best||sim>best.sim)best={sim,ref};
     }
+
     let cluster=null,similarity=0;
     if(best&&best.sim>=0.78){
       cluster=best.ref.cluster||("sem-"+best.ref.id);
       similarity=best.sim;
     }else{
-      cluster="sem-"+hashString(String(x.source)+"::"+String(x.external_id));
+      cluster="sem-"+hashString(key);
     }
+
     let iranSimilarity=0,iranMatch=null;
     if(String(x.source)!=="google_trends_ir"){
       let bestIran=null;
@@ -160,13 +194,20 @@ async function enrichSemantics(env,signals){
         iranMatch=bestIran.ref.title||null;
       }
     }
+
     updates.push(env.DB.prepare("UPDATE signals SET embedding_json=?,semantic_cluster=?,semantic_similarity=?,iran_interest_similarity=?,iran_interest_match=? WHERE source=? AND external_id=?").bind(JSON.stringify(v),cluster,similarity,iranSimilarity,iranMatch,String(x.source),String(x.external_id)));
-    refs.push({id:0,source:String(x.source),title:String(x.title||""),embedding:v,cluster});
+    refs.push({id:Number(x.id||0),source:String(x.source),title:String(x.title||""),embedding:v,cluster});
     embedded++;
   }
+
+  for(const item of irVectors){
+    updates.push(env.DB.prepare("UPDATE signals SET embedding_json=? WHERE source=? AND external_id=?").bind(JSON.stringify(item.v),String(item.row.source),String(item.row.external_id)));
+  }
+
   for(let i=0;i<updates.length;i+=10)await env.DB.batch(updates.slice(i,i+10));
-  return {embedded,clusters:embedded};
+  return {embedded,clusters:embedded,iran_anchors:iranPool.length};
 }
+
 async function saveSignals(env,signals){
   const t=now(),normalized=signals.map(x=>({...x,source:String(x?.source??"unknown"),external_id:String(x?.external_id??x?.title??"unknown")}));
   const groups=new Map();
