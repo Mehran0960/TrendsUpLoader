@@ -40,7 +40,7 @@ jobs:
       # Standard-output validation run
       - name: Smoke test Persian AI writer
         env:
-          CONTENT_WRITER_URL: https://trend-content-writer.m-hoseyni-6966.workers.dev
+          CONTENT_WRITER_URL: https://trend-radar.m-hoseyni-6966.workers.dev/write
         run: |
           python - <<'PY'
           import json, os, urllib.request
