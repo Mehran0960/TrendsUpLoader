@@ -1,10 +1,6 @@
 name: Visual Quality Validation
 
 on:
-  push:
-    paths:
-      - "content_pipeline/build.py"
-      - ".github/workflows/visual-quality.yml"
   workflow_dispatch:
 
 jobs:

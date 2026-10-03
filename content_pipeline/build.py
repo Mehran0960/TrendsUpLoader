@@ -245,17 +245,7 @@ def download_openverse_visuals(title: str, out_dir: Path, limit=4):
     return out
 
 CURATED_BROLL = {
-    "security": [{
-        "url": "https://upload.wikimedia.org/wikipedia/commons/7/70/Seguridad_en_Internet.webm",
-        "page_url": "https://commons.wikimedia.org/wiki/File:Seguridad_en_Internet.webm",
-        "title": "Seguridad en Internet.webm",
-        "license": "CC BY 3.0",
-        "license_url": "https://creativecommons.org/licenses/by/3.0/",
-        "artist": "Universitat Oberta de Catalunya",
-        "description": "Internet security explainer video.",
-        "width": 640, "height": 360, "size": 23820000, "duration_seconds": 302.946,
-        "relevance": 5,
-    }],
+    "security": [],
     "ai": [{
         "url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Robot_package_handling.webm",
         "page_url": "https://commons.wikimedia.org/wiki/File:Robot_Exhibit.webm",
@@ -331,7 +321,9 @@ def search_commons_videos(title: str, limit=3):
                 title2=page.get("title","")
                 desc=re.sub("<[^>]+>"," ",str((ext.get("ImageDescription") or {}).get("value","")))
                 rel=commons_relevance(title,title2,desc)
-                if rel<2: continue
+                meta_probe = {"title": title2, "description": desc}
+                if not broll_topic_gate(title, meta_probe): continue
+                if rel<3: continue
                 url=info.get("url")
                 if not url or url in seen: continue
                 seen.add(url)
@@ -357,7 +349,42 @@ def search_commons_videos(title: str, limit=3):
     candidates.sort(key=lambda x:(x["relevance"], -x["size"]), reverse=True)
     if candidates:
         return candidates[:limit]
-    return CURATED_BROLL.get(category, [])[:limit]
+    curated = CURATED_BROLL.get(category, [])
+    return [m for m in curated if broll_topic_gate(title, m)][:limit]
+
+
+def broll_topic_gate(title: str, meta: dict):
+    """Reject generic footage unless its metadata clearly matches the story topic."""
+    topic = str(title or "").lower()
+    corpus = " ".join([
+        str(meta.get("title") or ""),
+        str(meta.get("description") or ""),
+    ]).lower()
+
+    def has_any(words):
+        return any(w in corpus for w in words)
+
+    if any(k in topic for k in ("linux", "kernel", "debian")):
+        linux_ok = has_any(("linux", "kernel", "debian"))
+        security_ok = has_any(("security", "cyber", "vulner", "malware"))
+        return linux_ok and (not any(k in topic for k in ("security", "vulner", "cyber", "malware")) or security_ok)
+
+    if any(k in topic for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt", "claude", "robot")):
+        return has_any(("artificial intelligence", "machine learning", "ai", "robot", "neural", "llm", "agent"))
+
+    if any(k in topic for k in ("chip", "gpu", "nvidia", "processor", "hardware", "semiconductor")):
+        return has_any(("chip", "gpu", "nvidia", "processor", "hardware", "semiconductor"))
+
+    if any(k in topic for k in ("software", "github", "browser", "app", "code", "programming")):
+        return has_any(("software", "github", "browser", "code", "programming", "linux"))
+
+    if any(k in topic for k in ("finance", "economy", "market", "money", "investing", "business", "startup")):
+        return has_any(("finance", "market", "stock", "economy", "money", "business", "startup"))
+
+    if any(k in topic for k in ("security", "cyber", "vulner", "malware", "hack")):
+        return has_any(("security", "cyber", "vulner", "malware", "hack"))
+
+    return False
 
 def download_commons_videos(title: str, out_dir: Path, limit=3):
     metas=search_commons_videos(title, limit=limit)
@@ -986,7 +1013,7 @@ def main():
     video_dir = Path("out") / "commons_video"
     openverse_dir = Path("out") / "openverse"
     commons_dir = Path("out") / "commons"
-    video_assets = download_commons_videos(title, video_dir, limit=3)
+    video_assets = download_commons_videos(title, video_dir, limit=2)
     visual_assets = download_openverse_visuals(title, openverse_dir, limit=4)
     if not visual_assets:
         visual_assets = download_commons_visuals(title, commons_dir, limit=3)
@@ -1078,10 +1105,10 @@ def main():
         "cost": 0,
         "human_content_creation_required": False,
         "caption_sync": "sentence_exact",
-        "visual_mode": "commons_broll_then_openverse_real_images_then_commons_fallback",
+        "visual_mode": "topic_gated_commons_broll_then_openverse_real_images_then_motion_fallback",
         "video_assets": [m for _,m in video_assets],
         "visual_assets": [m for _,m in visual_assets],
-        "quality_gate": "passed",
+        "quality_gate": "passed_topic_relevance",
         "segments": segment_meta,
     }
     (base / "metadata.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")

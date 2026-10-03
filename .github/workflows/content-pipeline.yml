@@ -1,6 +1,10 @@
 name: Zero-Cost Content Pipeline
 # V3 validation: sentence-synced captions and topic-aware original visuals
 
+concurrency:
+  group: trend-radar-content
+  cancel-in-progress: false
+
 on:
   push:
     paths:
@@ -26,7 +30,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .voices
-          key: piper-fa-amir-linux-v1
+          key: piper-fa-gyro-linux-v2
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -42,6 +46,12 @@ jobs:
         env:
           RADAR_URL: https://trend-radar.m-hoseyni-6966.workers.dev/candidates
         run: python content_pipeline/build.py
+
+      - name: Publish to Telegram when configured
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python content_pipeline/publish_telegram.py
 
       - name: Upload generated content
         uses: actions/upload-artifact@v4
