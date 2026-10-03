@@ -28,207 +28,105 @@ def get_bytes(url: str):
     with urlopen(req, timeout=20) as r:
         return r.read()
 
-def search_commons_visual(title: str):
-    """Find a reusable Wikimedia Commons image and return attribution metadata."""
-    queries = []
+def commons_queries(title: str):
+    low = title.lower()
+    qs = []
     clean = re.sub(r"[^A-Za-z0-9À-ÿ\u0600-\u06FF ]+", " ", title).strip()
     if clean:
-        queries.append(clean)
-    low = title.lower()
+        qs.append(clean)
     if "linux" in low or "kernel" in low or "security" in low or "vulner" in low:
-        queries += ["Linux kernel", "Linux server", "computer security"]
-    elif any(k in low for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt")):
-        queries += ["artificial intelligence", "AI computer", "machine learning"]
+        qs += ["Linux kernel", "Debian Linux", "computer security"]
+    elif any(k in low for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt", "claude")):
+        qs += ["artificial intelligence", "AI computer", "machine learning"]
     elif any(k in low for k in ("chip", "gpu", "nvidia", "processor", "hardware")):
-        queries += ["computer chip", "GPU", "semiconductor"]
+        qs += ["computer chip", "GPU", "semiconductor"]
     elif any(k in low for k in ("finance", "economy", "market", "money", "investing")):
-        queries += ["financial market", "stock market", "economy chart"]
+        qs += ["financial market", "stock market", "economy chart"]
     elif any(k in low for k in ("software", "github", "browser", "app", "code")):
-        queries += ["software development", "computer code", "web browser"]
+        qs += ["software development", "computer code", "web browser"]
+    return list(dict.fromkeys(qs))
 
-    allowed = ("CC BY", "CC BY-SA", "CC0", "Public domain", "PD")
+def commons_relevance(title: str, file_title: str, description: str):
+    corpus = (file_title + " " + description).lower()
+    topic = title.lower()
+    terms = []
+    if any(k in topic for k in ("linux", "kernel", "security", "vulner")):
+        terms = ["linux", "kernel", "debian", "security", "cyber", "server"]
+    elif any(k in topic for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt")):
+        terms = ["artificial intelligence", "machine learning", "ai", "robot", "neural"]
+    elif any(k in topic for k in ("chip", "gpu", "nvidia", "processor", "hardware")):
+        terms = ["chip", "gpu", "processor", "semiconductor", "hardware"]
+    elif any(k in topic for k in ("finance", "economy", "market", "money", "investing")):
+        terms = ["finance", "market", "stock", "economy", "money", "bank"]
+    elif any(k in topic for k in ("software", "github", "browser", "app", "code")):
+        terms = ["software", "github", "browser", "computer", "code", "programming"]
+    else:
+        terms = [x for x in re.findall(r"[a-z]{4,}", topic) if x not in {"have","been","this","that","with","from"}]
+    return sum(2 if x in file_title.lower() else 1 for x in terms if x in corpus)
+
+def search_commons_visuals(title: str, limit=3):
+    """Find several strongly relevant reusable Commons images."""
+    import urllib.parse
+    candidates = []
     seen = set()
-    for q in queries[:5]:
+    allowed = ("CC BY", "CC BY-SA", "CC0", "Public domain", "PD")
+    for q in commons_queries(title)[:5]:
         try:
-            import urllib.parse
-            params = {
-                "action": "query",
-                "format": "json",
-                "list": "search",
-                "srnamespace": "6",
-                "srsearch": q,
-                "srlimit": "8",
-            }
-            api = "https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode(params)
-            data = get_json(api)
-            titles = [x.get("title") for x in data.get("query",{}).get("search",[]) if x.get("title")]
-            if not titles:
-                continue
-            params2 = {
-                "action": "query",
-                "format": "json",
-                "prop": "imageinfo",
-                "iiprop": "url|extmetadata",
-                "iiurlwidth": "1200",
-                "titles": "|".join(titles),
-            }
-            api2 = "https://commons.wikimedia.org/w/api.php?" + urllib.parse.urlencode(params2)
-            data2 = get_json(api2)
+            params={"action":"query","format":"json","list":"search","srnamespace":"6","srsearch":q,"srlimit":"12"}
+            api="https://commons.wikimedia.org/w/api.php?"+urllib.parse.urlencode(params)
+            data=get_json(api)
+            titles=[x.get("title") for x in data.get("query",{}).get("search",[]) if x.get("title")]
+            if not titles: continue
+            params2={"action":"query","format":"json","prop":"imageinfo","iiprop":"url|mime|size|extmetadata","iiurlwidth":"1400","titles":"|".join(titles)}
+            api2="https://commons.wikimedia.org/w/api.php?"+urllib.parse.urlencode(params2)
+            data2=get_json(api2)
             for page in data2.get("query",{}).get("pages",{}).values():
-                if page.get("missing") is not None:
+                info=(page.get("imageinfo") or [{}])[0]
+                mime=str(info.get("mime") or "")
+                if not mime.startswith("image/") or mime in ("image/svg+xml",):
+                    # SVG can be useful, but keep it out of the first automated visual pass.
                     continue
-                info = (page.get("imageinfo") or [{}])[0]
-                thumb = info.get("thumburl") or info.get("url")
-                if not thumb or thumb in seen:
-                    continue
+                ext=info.get("extmetadata") or {}
+                lic=str((ext.get("LicenseShortName") or {}).get("value","")).strip()
+                if not any(a.lower() in lic.lower() for a in allowed): continue
+                title2=page.get("title","")
+                desc=re.sub("<[^>]+>"," ",str((ext.get("ImageDescription") or {}).get("value","")))
+                rel=commons_relevance(title,title2,desc)
+                if rel<2: continue
+                thumb=info.get("thumburl") or info.get("url")
+                if not thumb or thumb in seen: continue
                 seen.add(thumb)
-                ext = info.get("extmetadata") or {}
-                license_name = str((ext.get("LicenseShortName") or {}).get("value","")).strip()
-                artist = re.sub("<[^>]+>", "", str((ext.get("Artist") or {}).get("value",""))).strip()
-                desc = re.sub("<[^>]+>", "", str((ext.get("ImageDescription") or {}).get("value",""))).strip()
-                if not any(a.lower() in license_name.lower() for a in allowed):
-                    continue
-                return {
-                    "url": thumb,
-                    "page_url": "https://commons.wikimedia.org/wiki/" + urllib.parse.quote(page.get("title","").replace(" ","_")),
-                    "title": page.get("title",""),
-                    "license": license_name or "unspecified",
-                    "artist": artist[:240],
-                    "description": desc[:300],
-                }
+                width=int(info.get("width") or 0); height=int(info.get("height") or 0)
+                if width<700 or height<400: continue
+                page_url="https://commons.wikimedia.org/wiki/"+urllib.parse.quote(title2.replace(" ","_"))
+                candidates.append({
+                    "url":thumb,"page_url":page_url,"title":title2,
+                    "license":lic or "unspecified",
+                    "artist":re.sub("<[^>]+>"," ",str((ext.get("Artist") or {}).get("value",""))).strip()[:240],
+                    "description":re.sub(r"\s+"," ",desc).strip()[:300],
+                    "relevance":rel,"width":width,"height":height,
+                })
         except Exception:
             continue
-    return None
+    candidates.sort(key=lambda x:(x["relevance"], min(x["width"]*x["height"], 5000000)), reverse=True)
+    return candidates[:limit]
 
-def download_commons_visual(title: str, out_path: Path):
-    meta = search_commons_visual(title)
-    if not meta:
-        return None
-    try:
-        out_path.write_bytes(get_bytes(meta["url"]))
-        with Image.open(out_path) as im:
-            if im.width < 500 or im.height < 300:
-                raise ValueError("Commons image too small")
-        return meta
-    except Exception:
+def download_commons_visuals(title: str, out_dir: Path, limit=3):
+    metas=search_commons_visuals(title, limit=limit)
+    out=[]
+    out_dir.mkdir(exist_ok=True)
+    for i,meta in enumerate(metas,1):
+        p=out_dir/f"commons_{i}.jpg"
         try:
-            out_path.unlink(missing_ok=True)
+            p.write_bytes(get_bytes(meta["url"]))
+            with Image.open(p) as im:
+                if im.width<700 or im.height<400:
+                    raise ValueError("small image")
+            out.append((p,meta))
         except Exception:
-            pass
-        return None
+            p.unlink(missing_ok=True)
+    return out
 
-def get_json(url: str):
-    req = Request(url, headers={"User-Agent": "trend-radar-content-pipeline/2.0"})
-    with urlopen(req, timeout=20) as r:
-        return json.load(r)
-
-def post_json(url: str, payload: dict):
-    req = Request(
-        url,
-        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-        headers={"User-Agent": "trend-radar-content-pipeline/2.0", "Content-Type": "application/json"},
-        method="POST",
-    )
-    with urlopen(req, timeout=25) as r:
-        return json.load(r)
-
-def local_content_fit(title: str) -> int:
-    t = str(title or "").lower()
-    patterns = [
-        (r"\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics)\b|هوش.?مصنوعی|چت.?جی.?پی.?تی|کلود|جمینای|ربات", 12),
-        (r"\b(software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|app|apps)\b|نرم.?افزار|گیت.?هاب|لینوکس|اندروید|آیفون|اپل|اپلیکیشن|برنامه.?نویسی|مرورگر", 9),
-        (r"\b(gadget|smartphone|laptop|chip|gpu|nvidia|amd|intel|hardware)\b|گجت|گوشی|لپ.?تاپ|تراشه|پردازنده|سخت.?افزار", 8),
-        (r"\b(startup|business|entrepreneur|ecommerce|retail|market|economy|finance|investing|money)\b|استارت.?آپ|کسب.?و.?کار|کارآفرینی|اقتصاد|مالی|سرمایه.?گذاری|پول", 8),
-        (r"\b(security|vulnerability|malware|linux kernel|cybersecurity|hack)\b|امنیت|آسیب.?پذیری|بدافزار|هسته.?ی? لینوکس|هک|امنیت.?سایبری", 10),
-    ]
-    best = 0
-    for pattern, weight in patterns:
-        if re.search(pattern, t, re.I):
-            best = max(best, weight)
-    return best
-
-def get_candidate_data():
-    collected, errors = [], []
-    for url, mode in (
-        (RADAR_URL, "radar"),
-        (RADAR_URL.rsplit("/", 1)[0] + "/status", "status"),
-    ):
-        try:
-            data = get_json(url)
-            items = data.get("candidates" if mode == "radar" else "top") if isinstance(data, dict) else None
-            if isinstance(items, list):
-                collected.extend(items)
-        except Exception as e:
-            errors.append(f"{mode}: {e}")
-
-    try:
-        ids = get_json("https://hacker-news.firebaseio.com/v0/beststories.json")[:20]
-        keywords = re.compile(
-            r"\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics|software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|startup|business|chip|gpu|nvidia|hardware|security|vulnerability|malware|cybersecurity|hack)\b",
-            re.I
-        )
-        for story_id in ids:
-            try:
-                item = get_json(f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json")
-                title = str(item.get("title") or "").strip()
-                if item.get("type") == "story" and title and keywords.search(title):
-                    sc = min(75.0, float(item.get("score") or 0) / 2.0)
-                    collected.append({
-                        "source": "hacker_news",
-                        "title": title,
-                        "url": item.get("url") or f"https://news.ycombinator.com/item?id={story_id}",
-                        "score": sc,
-                        "content_fit": local_content_fit(title),
-                        "velocity_pct": 0,
-                        "source_count": 1,
-                        "opportunity_score": sc,
-                    })
-            except Exception as e:
-                errors.append(f"hn:{story_id}:{e}")
-    except Exception as e:
-        errors.append(f"hn-list: {e}")
-
-    if collected:
-        return collected, "mixed"
-    raise RuntimeError("No candidate source found: " + " | ".join(errors[-5:]))
-
-def fetch_source_context(url: str):
-    if not url or not str(url).startswith(("http://", "https://")):
-        return {}
-    try:
-        req = Request(str(url), headers={"User-Agent": "Mozilla/5.0 (compatible; TrendRadarBot/2.0)"})
-        with urlopen(req, timeout=10) as r:
-            raw = r.read(220000).decode("utf-8", errors="ignore")
-        desc = ""
-        for pat in (
-            r'<meta[^>]+(?:name|property)=["\']description["\'][^>]+content=["\']([^"\']+)["\']',
-            r'<meta[^>]+(?:property|name)=["\']og:description["\'][^>]+content=["\']([^"\']+)["\']',
-            r'<meta[^>]+(?:property|name)=["\']twitter:description["\'][^>]+content=["\']([^"\']+)["\']',
-        ):
-            m = re.search(pat, raw, re.I)
-            if m:
-                desc = re.sub(r"\s+", " ", unescape(m.group(1))).strip()
-                break
-        if not desc:
-            title_m = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
-            desc = re.sub(r"\s+", " ", unescape(title_m.group(1))).strip() if title_m else ""
-        return {"description": desc[:900]}
-    except Exception:
-        return {}
-
-def font(size: int, bold=False):
-    paths = (
-        "/usr/share/fonts/truetype/noto/NotoSansArabic-Bold.ttf",
-        "/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    )
-    if not bold:
-        paths = paths[1:] + paths[:1]
-    for p in paths:
-        if Path(p).exists():
-            return ImageFont.truetype(p, size)
-    return ImageFont.load_default()
 
 def fa(text: str) -> str:
     raw = str(text)
@@ -733,8 +631,8 @@ def main():
     iran = c.get("iran_interest_similarity")
     context = fetch_source_context(c.get("url"))
 
-    commons_path = Path("out") / "commons_visual.jpg"
-    commons_meta = download_commons_visual(title, commons_path)
+    commons_dir = Path("out") / "commons"
+    commons_assets = download_commons_visuals(title, commons_dir, limit=3)
 
     curated = CURATED_STORIES.get(title)
     if curated:
@@ -771,7 +669,8 @@ def main():
         duration = wav_seconds(wav)
 
         img = base / f"scene{i}.png"
-        make_visual(img, display_title, sentence, labels[i-1], visual_seq[i-1], i, commons_path if commons_meta else None)
+        real_asset = commons_assets[(i-1) % len(commons_assets)][0] if commons_assets else None
+        make_visual(img, display_title, sentence, labels[i-1], visual_seq[i-1], i, real_asset)
 
         seg = base / f"segment{i}.mp4"
         make_segment_video(img, wav, seg, duration)
@@ -786,9 +685,13 @@ def main():
     mp4 = base / "video.mp4"
     concat_segments(segment_files, mp4)
 
-    if commons_meta:
-        attribution = f'Image: {commons_meta["title"]} — {commons_meta["artist"] or "author not stated"} — {commons_meta["license"]}. Source: {commons_meta["page_url"]}'
-        (base / "attribution.txt").write_text(attribution, encoding="utf-8")
+    if commons_assets:
+        attribution_lines = []
+        for _,m in commons_assets:
+            attribution_lines.append(
+                f'Image: {m["title"]} — {m["artist"] or "author not stated"} — {m["license"]}. Source: {m["page_url"]}'
+            )
+        (base / "attribution.txt").write_text("\n".join(attribution_lines), encoding="utf-8")
 
     meta = {
         "generated_at": ts,
@@ -812,7 +715,7 @@ def main():
         "human_content_creation_required": False,
         "caption_sync": "sentence_exact",
         "visual_mode": "commons_real_image_with_original_fallback",
-        "commons_visual": commons_meta,
+        "commons_visuals": [m for _,m in commons_assets],
         "quality_gate": "passed",
         "segments": segment_meta,
     }
