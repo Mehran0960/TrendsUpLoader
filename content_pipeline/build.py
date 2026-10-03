@@ -140,6 +140,110 @@ def commons_relevance(title: str, file_title: str, description: str):
         terms = [x for x in re.findall(r"[a-z]{4,}", topic) if x not in {"have","been","this","that","with","from"}]
     return sum(2 if x in file_title.lower() else 1 for x in terms if x in corpus)
 
+def openverse_queries(title: str):
+    low = title.lower()
+    if "linux" in low or "kernel" in low or "security" in low or "vulner" in low:
+        return ["Linux server", "computer security", "cybersecurity", "Linux computer"]
+    if any(k in low for k in ("ai", "artificial intelligence", "llm", "agent", "chatgpt", "claude")):
+        return ["artificial intelligence", "AI computer", "machine learning", "AI robot"]
+    if any(k in low for k in ("chip", "gpu", "nvidia", "processor", "hardware")):
+        return ["computer chip", "GPU", "semiconductor", "computer hardware"]
+    if any(k in low for k in ("finance", "economy", "market", "money", "investing", "startup", "business")):
+        return ["financial market", "stock market", "economy", "business technology"]
+    if any(k in low for k in ("software", "github", "browser", "app", "code")):
+        return ["software development", "computer code", "web browser", "programming"]
+    clean = re.sub(r"[^A-Za-z0-9\u0600-\u06FF ]+", " ", title).strip()
+    return [clean] if clean else ["technology"]
+
+def openverse_relevance(title: str, item: dict):
+    corpus = " ".join([
+        str(item.get("title") or ""),
+        str(item.get("description") or ""),
+        " ".join(str(x.get("name") or x) if isinstance(x, dict) else str(x) for x in (item.get("tags") or [])),
+    ]).lower()
+    topic = title.lower()
+    groups = {
+        "security": ["security","cybersecurity","linux","kernel","server","computer"],
+        "ai": ["artificial intelligence","machine learning","ai","robot","computer"],
+        "hardware": ["chip","gpu","processor","semiconductor","hardware","computer"],
+        "finance": ["finance","market","stock","economy","money","business"],
+        "software": ["software","code","programming","browser","github","computer"],
+    }
+    terms=[]
+    for group, vals in groups.items():
+        if any(v in topic for v in vals):
+            terms += vals
+    if not terms:
+        terms=[w for w in re.findall(r"[a-z]{4,}",topic) if w not in {"have","been","this","that","with","from"}]
+    return sum(2 if x in str(item.get("title") or "").lower() else 1 for x in terms if x in corpus)
+
+def search_openverse_visuals(title: str, limit=4):
+    import urllib.parse
+    found=[]
+    seen=set()
+    for q in openverse_queries(title)[:4]:
+        try:
+            params=urllib.parse.urlencode({
+                "q": q,
+                "page_size": 20,
+                "license_type": "commercial",
+                "size": "large",
+                "aspect_ratio": "wide",
+                "mature": "false",
+            })
+            data=get_json("https://api.openverse.org/v1/images/?"+params)
+            for item in data.get("results", []):
+                url=item.get("url") or ""
+                thumb=item.get("thumbnail") or ""
+                lic=str(item.get("license") or "").lower()
+                if not url or not thumb or url in seen:
+                    continue
+                if lic not in {"cc0","by","by-sa","pdm","publicdomain"}:
+                    continue
+                if item.get("is_sensitive"):
+                    continue
+                w=int(item.get("width") or 0); h=int(item.get("height") or 0)
+                if w < 900 or h < 500:
+                    continue
+                rel=openverse_relevance(title,item)
+                if rel < 2:
+                    continue
+                seen.add(url)
+                found.append({
+                    "url":url,
+                    "thumbnail":thumb,
+                    "page_url":item.get("foreign_landing_url") or item.get("detail_url") or "",
+                    "title":str(item.get("title") or item.get("originalTitle") or ""),
+                    "license":str(item.get("license") or ""),
+                    "license_version":str(item.get("license_version") or ""),
+                    "license_url":str(item.get("license_url") or ""),
+                    "artist":str(item.get("creator") or ""),
+                    "provider":str(item.get("providerName") or item.get("provider") or ""),
+                    "description":str(item.get("description") or "")[:400],
+                    "relevance":rel,
+                    "width":w,"height":h,
+                })
+        except Exception:
+            continue
+    found.sort(key=lambda x:(x["relevance"], min(x["width"]*x["height"], 9000000)), reverse=True)
+    return found[:limit]
+
+def download_openverse_visuals(title: str, out_dir: Path, limit=4):
+    metas=search_openverse_visuals(title, limit=limit)
+    out=[]
+    out_dir.mkdir(exist_ok=True)
+    for i,meta in enumerate(metas,1):
+        p=out_dir/f"openverse_{i}.jpg"
+        try:
+            p.write_bytes(get_bytes(meta["url"]))
+            with Image.open(p) as im:
+                if im.width < 900 or im.height < 500:
+                    raise ValueError("small image")
+            out.append((p,meta))
+        except Exception:
+            p.unlink(missing_ok=True)
+    return out
+
 def search_commons_visuals(title: str, limit=3):
     """Find several strongly relevant reusable Commons images."""
     import urllib.parse
@@ -735,8 +839,11 @@ def main():
     iran = c.get("iran_interest_similarity")
     context = fetch_source_context(c.get("url"))
 
+    openverse_dir = Path("out") / "openverse"
     commons_dir = Path("out") / "commons"
-    commons_assets = download_commons_visuals(title, commons_dir, limit=3)
+    visual_assets = download_openverse_visuals(title, openverse_dir, limit=4)
+    if not visual_assets:
+        visual_assets = download_commons_visuals(title, commons_dir, limit=3)
 
     curated = CURATED_STORIES.get(title)
     if curated:
@@ -773,7 +880,7 @@ def main():
         duration = wav_seconds(wav)
 
         img = base / f"scene{i}.png"
-        real_asset = commons_assets[(i-1) % len(commons_assets)][0] if commons_assets else None
+        real_asset = visual_assets[(i-1) % len(visual_assets)][0] if visual_assets else None
         make_visual(img, display_title, sentence, labels[i-1], visual_seq[i-1], i, real_asset)
 
         seg = base / f"segment{i}.mp4"
@@ -789,9 +896,9 @@ def main():
     mp4 = base / "video.mp4"
     concat_segments(segment_files, mp4)
 
-    if commons_assets:
+    if visual_assets:
         attribution_lines = []
-        for _,m in commons_assets:
+        for _,m in visual_assets:
             attribution_lines.append(
                 f'Image: {m["title"]} — {m["artist"] or "author not stated"} — {m["license"]}. Source: {m["page_url"]}'
             )
@@ -818,8 +925,8 @@ def main():
         "cost": 0,
         "human_content_creation_required": False,
         "caption_sync": "sentence_exact",
-        "visual_mode": "commons_real_image_with_original_fallback",
-        "commons_visuals": [m for _,m in commons_assets],
+        "visual_mode": "openverse_real_images_with_commons_fallback",
+        "visual_assets": [m for _,m in visual_assets],
         "quality_gate": "passed",
         "segments": segment_meta,
     }
