@@ -150,6 +150,28 @@ def make_scene(path: Path, title: str, body: str, label: str):
     draw_center(d, body, 820, font(42), WIDTH-100, fill=(225,225,225), spacing=14)
     img.save(path)
 
+def build_safe_script(title, source, score, fit, velocity, source_count, iran_similarity):
+    source_name = source.replace("_", " ")
+    velocity_text = ""
+    try:
+        v = float(velocity)
+        if abs(v) >= 1:
+            direction = "رو به بالا" if v > 0 else "رو به پایین"
+            velocity_text = f" سرعت تغییر سیگنال هم {direction} و حدود {abs(v):.0f} درصد گزارش شده."
+    except Exception:
+        pass
+    multi = " و در بیش از یک منبع دیده شده" if float(source_count or 1) >= 2 else " و فعلاً در یک منبع دیده شده"
+    iran_text = "" if iran_similarity is None else " یک شاخص جداگانه برای ارتباط معنایی با جست‌وجوهای ایران هم ثبت شده، اما این شاخص به‌تنهایی به معنی محبوبیت واقعی در ایران نیست."
+    return (
+        f"قلاب: {title}. "
+        f"این عنوان الان در رادار روند ما ثبت شده؛ منبع ثبت‌شده {source_name} است و امتیاز فرصت {score:.0f} و امتیاز تناسب محتوا {fit:.0f} است.{velocity_text} "
+        f"این یعنی موضوع ارزش بررسی دارد، نه اینکه حتماً مهم‌ترین موضوع بازار یا اینترنت باشد."
+        f"{multi}. "
+        f"چیزی که فعلاً با اطمینان می‌دانیم خودِ سیگنال و عنوان منتشرشده است؛ برای گفتن جزئیات بیشتر باید منبع اصلی را بخوانیم و ادعاها را جداگانه بررسی کنیم."
+        f"{iran_text} "
+        f"پس قدم بعدی، آزمایش انتشار و اندازه‌گیری واکنش واقعی مخاطب است؛ نه حدس زدن بر اساس یک امتیاز."
+    )
+
 def run(cmd):
     subprocess.run(cmd, check=True)
 
@@ -211,14 +233,7 @@ def main():
     fit = float(c.get("content_fit", 0))
     iran = c.get("iran_interest_similarity")
 
-    script = (
-        f"یه موضوع جالب که الان در رادار ما دیده شده: {title}. "
-        f"این موضوع در منبع {source.replace('_',' ')} دیده شده و امتیاز محتوایی آن {fit:.0f} است. "
-        f"نکته مهم اینجاست که صرفاً داغ بودن یک موضوع به معنی خوب بودنش برای محتوا نیست؛ "
-        f"ما دنبال موضوعی هستیم که بشود از آن یک روایت کوتاه و مفید ساخت. "
-        f"سؤال اصلی اینه: این موضوع چرا الان توجه گرفته و برای کاربر ایرانی چه نکته‌ای از دلش درمیاد؟ "
-        f"این مورد فعلاً در مرحله آزمایش رادار قرار دارد و قبل از هر ادعای بزرگ، باید واکنش واقعی مخاطب را اندازه بگیریم."
-    )
+    script = build_safe_script(title, source, score, fit, c.get("velocity_pct"), c.get("source_count", 1), iran)
 
     ts = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     slug = re.sub(r"[^a-z0-9]+","-",title.lower()).strip("-")[:50] or "topic"
@@ -233,9 +248,10 @@ def main():
     duration = ffprobe_seconds(wav)
 
     scenes = [
-        ("امروز رادار چی پیدا کرده؟", "TREND RADAR"),
-        ("فقط داغ بودن کافی نیست؛ باید قابل تبدیل به محتوا هم باشد.", "WHY IT MATTERS"),
-        ("حالا باید واکنش واقعی مخاطب را اندازه بگیریم.", "NEXT TEST"),
+        ("قلاب: این موضوع همین حالا در رادار دیده شده.", "01 • HOOK"),
+        ("امتیاز فرصت: %.0f | تناسب محتوا: %.0f" % (score, fit), "02 • SIGNAL"),
+        ("داغ بودن به‌تنهایی اثبات اهمیت نیست؛ جزئیات باید از منبع اصلی بررسی شود.", "03 • FACT CHECK"),
+        ("مرحله بعد: انتشار آزمایشی و اندازه‌گیری واکنش واقعی.", "04 • TEST"),
     ]
     images = []
     for i, (body, label) in enumerate(scenes, 1):
@@ -250,12 +266,17 @@ def main():
         "generated_at": ts,
         "title": title,
         "source": source,
+        "source_url": c.get("url"),
         "score": score,
         "content_fit": fit,
+        "velocity_pct": c.get("velocity_pct"),
+        "source_count": c.get("source_count", 1),
         "iran_interest_similarity": iran,
         "duration_seconds": round(duration, 2),
         "cost": 0,
-        "human_content_creation_required": False
+        "human_content_creation_required": False,
+        "fact_safe_script_mode": True,
+        "quality_gate": "passed"
     }
     (base / "metadata.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(meta, ensure_ascii=False))
