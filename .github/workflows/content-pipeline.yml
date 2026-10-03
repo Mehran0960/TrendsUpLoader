@@ -7,10 +7,6 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  push:
-    paths:
-      - "content_pipeline/**"
-      - ".github/workflows/content-pipeline.yml"
   workflow_dispatch:
   schedule:
     - cron: "17 */6 * * *"
@@ -23,6 +19,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Restore published-topic state
+        uses: actions/cache@v4
+        with:
+          path: content_state
+          key: published-topic-state-${{ github.run_id }}
+          restore-keys: |
+            published-topic-state-
 
       - name: Install FFmpeg
         run: sudo apt-get install -y ffmpeg
@@ -76,6 +80,30 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python content_pipeline/publish_telegram.py
+
+      - name: Update published-topic state after Telegram publish
+        if: ${{ success() && hashFiles('out/**/publish.json') != '' }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          state = Path("content_state")
+          state.mkdir(exist_ok=True)
+          posted = state / "posted.json"
+          try:
+              data = json.loads(posted.read_text(encoding="utf-8"))
+          except Exception:
+              data = {"version": 1, "keys": []}
+          keys = set(str(x) for x in data.get("keys", []))
+          for p in Path("out").glob("**/publish.json"):
+              meta_path = p.parent / "metadata.json"
+              if meta_path.exists():
+                  meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                  key = str(meta.get("content_key") or "").strip()
+                  if key:
+                      keys.add(key)
+          posted.write_text(json.dumps({"version": 1, "keys": sorted(keys)[-500:]}, ensure_ascii=False, indent=2), encoding="utf-8")
+          print("Published topic state updated")
 
       - name: Upload generated content
         uses: actions/upload-artifact@v4
