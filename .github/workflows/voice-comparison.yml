@@ -1,0 +1,36 @@
+name: Persian Voice Comparison
+
+on:
+  push:
+    paths:
+      - "voice_samples/**"
+      - ".github/workflows/voice-comparison.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Cache Piper voices
+        uses: actions/cache@v4
+        with:
+          path: .voices
+          key: piper-fa-all-v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install piper-tts pillow
+      - name: Build comparison
+        run: python voice_samples/compare.py
+      - name: Upload samples
+        uses: actions/upload-artifact@v4
+        with:
+          name: persian-voice-comparison
+          path: voice_out/
+          retention-days: 7
