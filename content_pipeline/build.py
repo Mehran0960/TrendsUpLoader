@@ -289,26 +289,89 @@ def draw_generic_visual(d, title: str):
     d.line((250,675,470,675), fill=(95,125,160), width=8)
     return "generic"
 
+def draw_particles(d, seed):
+    s = sum(ord(x) for x in seed)
+    for i in range(26):
+        x = 55 + ((s * (i+7) * 37) % 610)
+        y = 245 + ((s * (i+11) * 53) % 590)
+        r = 1 + (i % 3)
+        d.ellipse((x-r,y-r,x+r,y+r), fill=(55,78,112))
+
+def draw_glow_circle(d, center, r, fill, outline):
+    cx, cy = center
+    for k in range(6,0,-1):
+        rr = r + k*14
+        alpha = max(18, 80-k*8)
+        # Solid approximation keeps the renderer dependency-free.
+        d.ellipse((cx-rr,cy-rr,cx+rr,cy+rr), outline=outline, width=max(1,7-k))
+
 def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: str, number: int):
-    img = base_canvas(title)
+    img = Image.new("RGB", (WIDTH, HEIGHT), (7, 12, 25))
     d = ImageDraw.Draw(img)
+    # Deep atmospheric backdrop.
+    for y in range(HEIGHT):
+        t=y/HEIGHT
+        d.line((0,y,WIDTH,y), fill=(7, int(13+18*t), int(27+35*t)))
+    draw_particles(d, title + str(number))
+
+    # Compact header: don't repeat a huge title block on every shot.
+    d.rounded_rectangle((42,42,678,142), radius=24, fill=(14,22,40), outline=(64,88,118), width=2)
+    draw_rtl_block(d, title, 62, font(30, bold=True), 570, fill=(247,249,255), align="center", spacing=6)
+
+    d.rounded_rectangle((48,168,255,218), radius=16, fill=(24,38,61), outline=(65,92,125), width=2)
+    d.text((68,181), fa(f"{number:02d} • {label}"), font=font(22, bold=True), fill=(205,225,244), **rtl_kwargs())
+
+    # Image-first central composition.
     if visual_kind == "shield":
-        draw_terminal(d)
-        draw_shield(d, (525,500), 115, warning=True)
+        # Isometric server + shield + attack path.
+        d.rounded_rectangle((92,330,430,700), radius=34, fill=(18,31,50), outline=(74,108,145), width=3)
+        for yy in (390,470,550,630):
+            d.rounded_rectangle((135,yy,390,yy+52), radius=14, fill=(27,48,74), outline=(69,96,124), width=2)
+            d.ellipse((160,yy+18,176,yy+34), fill=(95,180,230))
+            d.line((205,yy+26,345,yy+26), fill=(90,120,150), width=6)
+        draw_shield(d, (525,470), 145, warning=True)
+        d.line((438,350,510,410), fill=(205,90,100), width=9)
+        d.line((438,410,500,470), fill=(205,90,100), width=9)
+        d.ellipse((425,338,450,363), fill=(230,100,105))
+        d.ellipse((425,398,450,423), fill=(230,100,105))
     elif visual_kind == "security_cards":
-        draw_vulnerability_cards(d)
+        # Three-dimensional impact map rather than flat cards.
+        nodes=[(180,390),(360,300),(540,390),(170,610),(360,720),(550,610),(360,510)]
+        for a,b in ((0,6),(1,6),(2,6),(3,6),(4,6),(5,6)):
+            d.line((*nodes[a],*nodes[b]), fill=(61,94,132), width=6)
+        for i,(x,y) in enumerate(nodes[:-1]):
+            d.ellipse((x-52,y-52,x+52,y+52), fill=(25,52,83), outline=(95,138,186), width=4)
+            draw_shield(d,(x,y),34,warning=True)
+        d.ellipse((308,458,412,562), fill=(44,78,122), outline=(155,198,230), width=5)
+        draw_shield(d,(360,510),52,warning=True)
     elif visual_kind == "package":
-        draw_package(d)
+        # Large software package with version and update arrow.
+        d.polygon([(135,400),(360,500),(585,400),(585,650),(360,770),(135,650)],
+                  fill=(26,47,69), outline=(92,124,160))
+        d.polygon([(135,400),(360,300),(585,400),(360,500)], fill=(40,67,92), outline=(100,132,165))
+        d.line((360,500,360,770), fill=(92,124,160), width=4)
+        d.polygon([(360,340),(315,410),(345,410),(345,475),(375,475),(375,410),(405,410)],
+                  fill=(118,218,165))
+        draw_rtl_block(d, "نسخه به‌روزشده", 810, font(38, bold=True), 500, fill=(238,247,252), align="center")
+        d.rounded_rectangle((192,860,528,930), radius=18, fill=(15,26,42), outline=(78,104,135), width=2)
+        d.text((214,876), "6.12.111-1", font=font(34, bold=True), fill=(208,230,242))
     elif visual_kind == "document":
-        draw_document(d)
+        # Official notice + magnifier / verification motif.
+        d.rounded_rectangle((170,290,550,760), radius=28, fill=(232,237,244), outline=(112,135,158), width=4)
+        d.polygon([(458,290),(550,382),(458,382)], fill=(190,201,215))
+        for i,w in enumerate((275,315,240,292,220)):
+            d.rounded_rectangle((215,445+i*52,215+w,461+i*52), radius=8, fill=(97,116,138))
+        d.ellipse((380,610,520,750), outline=(42,82,125), width=16)
+        d.line((492,720,600,828), fill=(42,82,125), width=20)
+        d.ellipse((432,662,468,698), outline=(95,155,205), width=7)
     else:
         draw_generic_visual(d, title)
 
-    d.rounded_rectangle((48,190,255,242), radius=16, fill=(27,39,60))
-    d.text((66,200), fa(f"{number:02d} • {label}"), font=font(24, bold=True), fill=(190,215,235), **rtl_kwargs())
-    d.rounded_rectangle((40,885,680,1195), radius=30, fill=(5,9,18), outline=(85,105,130), width=2)
-    draw_rtl_block(d, caption, 925, font(34, bold=True), 565, fill=(248,248,248), align="center", spacing=10)
+    # Short subtitle strip; the picture stays dominant.
+    d.rounded_rectangle((34,955,686,1220), radius=28, fill=(5,9,18), outline=(73,98,126), width=2)
+    draw_rtl_block(d, caption, 992, font(32, bold=True), 570, fill=(248,249,250), align="center", spacing=9)
     img.save(path)
+
 
 def split_sentences(text: str):
     clean = re.sub(r"\s+", " ", str(text)).strip()
@@ -363,11 +426,29 @@ def generate_audience_script(title, source, context):
 def run(cmd):
     subprocess.run(cmd, check=True)
 
+TTS_REPLACEMENTS = {
+    "هسته لینوکس": "هستهٔ لینُکس",
+    "لینوکس": "لینُکس",
+    "دبیان": "دِبیان",
+    "تریکسی": "تریکسی",
+    "آسیب‌پذیری": "آسیب‌پذیری",
+    "6.12.111-1": "شش ممیز دوازده ممیز صد و یازده، خط یک",
+    "DSA-6528-1": "دی اس ای، شش هزار و پانصد و بیست و هشت، خط یک",
+}
+
+def prepare_tts(text: str) -> str:
+    out = str(text)
+    for src, dst in TTS_REPLACEMENTS.items():
+        out = out.replace(src, dst)
+    out = re.sub(r"([.!؟])\s*", r"\1  ", out)
+    return out
+
 def piper_voice(text: str, wav: Path):
     VOICE_DIR.mkdir(exist_ok=True)
     run([sys.executable, "-m", "piper.download_voices", "fa_IR-amir-medium", "--data-dir", str(VOICE_DIR)])
+    tts_text = prepare_tts(text)
     run([sys.executable, "-m", "piper", "-m", "fa_IR-amir-medium", "--data-dir", str(VOICE_DIR),
-         "-f", str(wav), "--", text])
+         "-f", str(wav), "--", tts_text])
 
 def wav_seconds(path: Path) -> float:
     with wave.open(str(path), "rb") as wf:
