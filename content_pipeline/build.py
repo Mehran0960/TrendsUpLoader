@@ -680,7 +680,21 @@ def draw_finance_chart(d):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    candidates, candidate_source = get_candidate_data()
+    test_title = os.environ.get("CONTENT_TEST_TITLE", "").strip()
+    if test_title:
+        candidates = [{
+            "source": "visual_test",
+            "title": test_title,
+            "url": "https://lwn.net/Articles/1097401/",
+            "score": 75.0,
+            "content_fit": 10.0,
+            "velocity_pct": 0,
+            "source_count": 1,
+            "opportunity_score": 75.0,
+        }]
+        candidate_source = "visual_test"
+    else:
+        candidates, candidate_source = get_candidate_data()
     usable = []
     for c in candidates:
         try:
