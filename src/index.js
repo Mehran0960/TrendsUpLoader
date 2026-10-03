@@ -27,6 +27,17 @@ const IR_NOISE_RULES=[
   /^.+\s+vs\.?\s+.+$/i
 ];
 const IR_SINGLE_USEFUL=/آیفون|اپل|گوگل|مایکروسافت|اندروید|تلگرام|اینستاگرام|واتساپ|هوش|ربات|تکنولوژی|فناوری|لینوکس|گیت.?هاب|چت.?جی.?پی.?تی|جمینای/i;
+const OUT_OF_SCOPE_RULES=[
+  [/\b(soccer|football|basketball|baseball|hockey|tennis|golf|cricket|rugby|volleyball|nba|nfl|nhl|mlb|fifa|match|score|vs|versus|tournament|championship|league)\b|فوتبال|بسکتبال|والیبال|تنیس|گلف|هاکی|کریکت|مسابقه|نتیجه|جام|لیگ|قهرمانی/i,-15],
+  [/\b(actor|actress|singer|celebrity|celebrity|model|tv show|movie|film|netflix|grammy|oscar)\b|بازیگر|خواننده|سلبریتی|فیلم|سریال|نتفلیکس|اسکار|گرمی/i,-15],
+  [/\b(cancer|diabetes|pregnancy|weight loss|symptom|disease|virus|vaccine|hospital|doctor|medical|medicine|drug|treatment)\b|سرطان|دیابت|بارداری|لاغری|علائم|بیماری|ویروس|واکسن|بیمارستان|پزشک|پزشکی|دارو|درمان/i,-15],
+  [/\b(stock price|share price|match prediction|lottery|horoscope|astrology)\b|فال|طالع.?بینی|لاتاری/i,-15]
+];
+function outOfScopeFit(title){
+  let fit=0;
+  for(const [re,weight] of OUT_OF_SCOPE_RULES)if(re.test(title))fit+=weight;
+  return Math.max(-15,Math.min(0,fit));
+}
 function usefulIranTrendTitle(title){
   const t=String(title||"").trim();
   if(!t||IR_NOISE_RULES.some(re=>re.test(t)))return false;
@@ -56,6 +67,7 @@ function riskFlags(title){return RISK_RULES.filter(([re])=>re.test(title)).map((
 function contentFit(title){
   let fit=0;
   for(const [re,weight] of CONTENT_RULES)if(re.test(title))fit+=weight;
+  fit+=outOfScopeFit(title);
   return Math.max(-15,Math.min(15,fit));
 }
 function score(x){
@@ -405,6 +417,6 @@ export default {async fetch(request,env){
   if(request.method==="GET"&&u.pathname==="/health"){let db="ok";try{await env.DB.prepare("SELECT 1").first();}catch(_){db="error";}return new Response(JSON.stringify({ok:db==="ok",db}),{headers:JSON_HEADERS});}
   if(request.method==="GET"&&u.pathname==="/status"){try{const a=await env.DB.prepare("SELECT COUNT(*) n FROM signals").first(),b=await env.DB.prepare("SELECT COUNT(*) n FROM runs").first(),c=await env.DB.prepare("SELECT source,title,score,velocity_pct,risk_flags,last_seen_at FROM signals ORDER BY score DESC,last_seen_at DESC LIMIT 20").all();return new Response(JSON.stringify({ok:true,signals:a?.n||0,runs:b?.n||0,top:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
   if(request.method==="GET"&&u.pathname==="/metrics"){try{const r=await env.DB.prepare("SELECT (SELECT COUNT(*) FROM observations) observations,(SELECT COUNT(DISTINCT source||':'||external_id) FROM signals) entities,COALESCE(AVG(CASE WHEN velocity_pct>0 THEN velocity_pct END),0) avg_positive_velocity,(SELECT COUNT(*) FROM signals WHERE risk_flags IS NOT NULL AND risk_flags<>'') risk_marked,(SELECT COUNT(*) FROM signals WHERE content_fit>0) positive_content_fit,(SELECT COUNT(*) FROM signals WHERE content_fit<0) negative_content_fit,(SELECT COUNT(*) FROM signals WHERE embedding_json IS NOT NULL) semantic_embedded,(SELECT COUNT(DISTINCT semantic_cluster) FROM signals WHERE semantic_cluster IS NOT NULL) semantic_clusters,(SELECT COUNT(*) FROM signals WHERE iran_interest_similarity>0) iran_interest_linked,COALESCE(AVG(CASE WHEN iran_interest_similarity>0 THEN iran_interest_similarity END),0) avg_iran_interest_similarity FROM signals").first();return new Response(JSON.stringify(r||{}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
-  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,ROUND(s.semantic_similarity,3) semantic_similarity,ROUND(s.iran_interest_similarity,3) iran_interest_similarity,s.iran_interest_match,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL) source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=-5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
+  if(request.method==="GET"&&u.pathname==="/candidates"){try{const c=await env.DB.prepare("SELECT s.source,s.title,s.url,ROUND(s.score,2) score,ROUND(s.velocity_pct,2) velocity_pct,ROUND(s.content_fit,2) content_fit,ROUND(s.semantic_similarity,3) semantic_similarity,ROUND(s.iran_interest_similarity,3) iran_interest_similarity,s.iran_interest_match,s.risk_flags,s.category,s.last_seen_at,(SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL) source_count,ROUND(MIN(100,s.score+CASE WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s.semantic_cluster IS NOT NULL)>=3 THEN 15 WHEN (SELECT COUNT(DISTINCT s2.source) FROM signals s2 WHERE s2.semantic_cluster=s.semantic_cluster AND s2.semantic_cluster IS NOT NULL)=2 THEN 8 ELSE 0 END),2) opportunity_score FROM signals s WHERE (s.risk_flags IS NULL OR s.risk_flags='') AND s.content_fit>=5 AND s.score>=45 ORDER BY opportunity_score DESC,source_count DESC,s.last_seen_at DESC LIMIT 30").all();return new Response(JSON.stringify({ok:true,candidates:c?.results||[]}),{headers:JSON_HEADERS});}catch(e){return new Response(JSON.stringify({ok:false,error:String(e)}),{status:500,headers:JSON_HEADERS});}}
     return new Response(JSON.stringify({error:"not_found"}),{status:404,headers:JSON_HEADERS});
 },async scheduled(controller,env){return await runOnce(env,controller);}};
