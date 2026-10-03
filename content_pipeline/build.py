@@ -23,6 +23,82 @@ WIDTH, HEIGHT = 720, 1280
 FPS = 30
 PIPER_VOICE = os.environ.get("PIPER_VOICE", "fa_IR-gyro-medium").strip() or "fa_IR-gyro-medium"
 
+def get_json(url: str):
+    req = Request(url, headers={"User-Agent": "trend-radar-content-pipeline/2.0"})
+    with urlopen(req, timeout=20) as r:
+        return json.load(r)
+
+
+def get_candidate_data():
+    collected, errors = [], []
+    for url, mode in (
+        (RADAR_URL, "radar"),
+        (RADAR_URL.rsplit("/", 1)[0] + "/status", "status"),
+    ):
+        try:
+            data = get_json(url)
+            items = data.get("candidates" if mode == "radar" else "top") if isinstance(data, dict) else None
+            if isinstance(items, list):
+                collected.extend(items)
+        except Exception as e:
+            errors.append(f"{mode}: {e}")
+
+    try:
+        ids = get_json("https://hacker-news.firebaseio.com/v0/beststories.json")[:20]
+        keywords = re.compile(
+            r"\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics|software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|startup|business|chip|gpu|nvidia|hardware|security|vulnerability|malware|cybersecurity|hack)\b",
+            re.I
+        )
+        for story_id in ids:
+            try:
+                item = get_json(f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json")
+                title = str(item.get("title") or "").strip()
+                if item.get("type") == "story" and title and keywords.search(title):
+                    sc = min(75.0, float(item.get("score") or 0) / 2.0)
+                    collected.append({
+                        "source": "hacker_news",
+                        "title": title,
+                        "url": item.get("url") or f"https://news.ycombinator.com/item?id={story_id}",
+                        "score": sc,
+                        "content_fit": local_content_fit(title),
+                        "velocity_pct": 0,
+                        "source_count": 1,
+                        "opportunity_score": sc,
+                    })
+            except Exception as e:
+                errors.append(f"hn:{story_id}:{e}")
+    except Exception as e:
+        errors.append(f"hn-list: {e}")
+
+    if collected:
+        return collected, "mixed"
+    raise RuntimeError("No candidate source found: " + " | ".join(errors[-5:]))
+
+
+def fetch_source_context(url: str):
+    if not url or not str(url).startswith(("http://", "https://")):
+        return {}
+    try:
+        req = Request(str(url), headers={"User-Agent": "Mozilla/5.0 (compatible; TrendRadarBot/2.0)"})
+        with urlopen(req, timeout=10) as r:
+            raw = r.read(220000).decode("utf-8", errors="ignore")
+        desc = ""
+        for pat in (
+            r'<meta[^>]+(?:name|property)=["\']description["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+(?:property|name)=["\']og:description["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+(?:property|name)=["\']twitter:description["\'][^>]+content=["\']([^"\']+)["\']',
+        ):
+            m = re.search(pat, raw, re.I)
+            if m:
+                desc = re.sub(r"\s+", " ", unescape(m.group(1))).strip()
+                break
+        if not desc:
+            title_m = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
+            desc = re.sub(r"\s+", " ", unescape(title_m.group(1))).strip() if title_m else ""
+        return {"description": desc[:900]}
+    except Exception:
+        return {}
+
 def get_bytes(url: str):
     req = Request(url, headers={"User-Agent": "trend-radar-content-pipeline/3.0"})
     with urlopen(req, timeout=20) as r:
