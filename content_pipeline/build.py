@@ -23,6 +23,48 @@ def get_json(url: str):
     with urlopen(req, timeout=20) as r:
         return json.load(r)
 
+def get_candidate_data():
+    errors = []
+    for url in (RADAR_URL, RADAR_URL.rsplit("/", 1)[0] + "/status"):
+        try:
+            data = get_json(url)
+            candidates = data.get("candidates") if isinstance(data, dict) else None
+            if isinstance(candidates, list) and candidates:
+                return candidates, "radar"
+            top = data.get("top") if isinstance(data, dict) else None
+            if isinstance(top, list) and top:
+                return top, "status"
+        except Exception as e:
+            errors.append(str(e))
+
+    # Zero-cost direct fallback: public Hacker News API.
+    try:
+        ids = get_json("https://hacker-news.firebaseio.com/v0/beststories.json")[:15]
+        candidates = []
+        keywords = re.compile(r"\b(ai|artificial intelligence|llm|chatgpt|claude|gemini|openai|anthropic|agent|agents|robot|robotics|software|github|linux|android|iphone|apple|google|microsoft|coding|developer|programming|browser|startup|business|chip|gpu|nvidia|hardware)\b", re.I)
+        for i, story_id in enumerate(ids):
+            try:
+                item = get_json(f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json")
+                title = str(item.get("title") or "").strip()
+                if item.get("type") == "story" and title and keywords.search(title):
+                    candidates.append({
+                        "source": "hacker_news",
+                        "title": title,
+                        "url": item.get("url") or f"https://news.ycombinator.com/item?id={story_id}",
+                        "score": min(75, float(item.get("score") or 0) / 2.0),
+                        "content_fit": 12,
+                        "velocity_pct": 0,
+                        "source_count": 1,
+                        "opportunity_score": min(75, float(item.get("score") or 0) / 2.0)
+                    })
+            except Exception:
+                continue
+        if candidates:
+            return candidates, "hn-direct"
+    except Exception as e:
+        errors.append(str(e))
+    raise RuntimeError("No usable candidate source found: " + " | ".join(errors[-3:]))
+
 def fa(text: str) -> str:
     return get_display(arabic_reshaper.reshape(str(text)))
 
@@ -120,8 +162,7 @@ def make_video(images, wav, mp4, duration):
 
 def main():
     OUT.mkdir(exist_ok=True)
-    data = get_json(RADAR_URL)
-    candidates = data.get("candidates", [])
+    candidates, candidate_source = get_candidate_data()
     usable = []
     for c in candidates:
         try:
@@ -141,7 +182,7 @@ def main():
     _, c = usable[0]
 
     title = re.sub(r"\s+", " ", str(c.get("title") or "موضوع جدید")).strip()
-    source = str(c.get("source") or "radar")
+    source = str(c.get("source") or candidate_source or "radar")
     score = float(c.get("score", 0))
     fit = float(c.get("content_fit", 0))
     iran = c.get("iran_interest_similarity")
