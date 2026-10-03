@@ -107,7 +107,7 @@ def fetch_source_context(url: str):
         req = Request(str(url), headers={"User-Agent": "Mozilla/5.0 (compatible; TrendRadarBot/1.0)"})
         with urlopen(req, timeout=10) as r:
             raw = r.read(180000).decode("utf-8", errors="ignore")
-        m = re.search(r"<meta[^>]+(?:name|property)=[\'\\"](?:description|og:description|twitter:description)[\'\\"][^>]+content=[\'\\"]([^\'\\"]+)", raw, re.I)
+        m = re.search(r'''<meta[^>]+(?:name|property)=["'](?:description|og:description|twitter:description)["'][^>]+content=["']([^"']+)["']''', raw, re.I)
         desc = re.sub(r"\s+", " ", unescape(m.group(1))).strip() if m else ""
         if not desc:
             title_m = re.search(r"<title[^>]*>(.*?)</title>", raw, re.I | re.S)
