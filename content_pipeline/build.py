@@ -9,6 +9,7 @@ import wave
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import Request, urlopen
+from html import unescape
 
 from PIL import Image, ImageDraw, ImageFont
 import arabic_reshaper
@@ -89,6 +90,18 @@ def get_candidate_data():
         return collected, "mixed"
     raise RuntimeError("No candidate source found: " + " | ".join(errors[-5:]))
 
+def fetch_source_context(url: str):
+    if not url or not str(url).startswith(("http://", "https://")):
+        return {}
+    try:
+        req = Request(str(url), headers={"User-Agent": "Mozilla/5.0 (compatible; TrendRadarBot/1.0)"})
+        with urlopen(req, timeout=10) as r:
+            raw = r.read(180000).decode("utf-8", errors="ignore")
+        m = re.search(r'<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)', raw, re.I)
+        desc = re.sub(r"\s+", " ", unescape(m.group(1))).strip() if m else ""
+        return {"description": desc[:700]}
+    except Exception:
+        return {}
 def fa(text: str) -> str:
     return get_display(arabic_reshaper.reshape(str(text)))
 
