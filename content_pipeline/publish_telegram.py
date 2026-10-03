@@ -13,7 +13,8 @@ MAX_CAPTION = 1024
 def find_latest():
     videos = sorted(Path("out").glob("**/video.mp4"), key=lambda p: p.stat().st_mtime, reverse=True)
     if not videos:
-        raise RuntimeError("No generated video found under out/")
+        print("Telegram publish skipped: no video was generated.")
+        return None
     video = videos[0]
     meta_path = video.parent / "metadata.json"
     meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
@@ -54,7 +55,10 @@ def main():
         print("Telegram publish skipped: secrets are not configured.")
         return 0
 
-    video, meta = find_latest()
+    found = find_latest()
+    if found is None:
+        return 0
+    video, meta = found
     size = video.stat().st_size
     if size > 50 * 1024 * 1024:
         raise RuntimeError(f"Video is {size} bytes; Telegram bot limit is 50 MB.")
