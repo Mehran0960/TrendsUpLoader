@@ -30,6 +30,16 @@ SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
 random.seed(SEED * 7919)
 
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
+PIXABAY_API = "https://pixabay.com/api/videos/"
+PIXABAY_KEY = os.environ.get("PIXABAY_API_KEY", "").strip()
+PIXABAY_CACHE = Path("attention_api_cache")
+PIXABAY_QUERIES = {
+    "animals": ["funny cat", "funny dog", "cute animal"],
+    "human_funny": ["funny people", "funny fail", "funny reaction"],
+    "beauty_style": ["woman dance", "woman fashion", "woman performance"],
+    "talent": ["woman singing", "dance performance", "female drummer"],
+    "wow": ["amazing skill", "acrobatics", "trick performance"],
+}
 ALLOWED_LICENSE = ("cc0", "public domain", "public domain mark")
 BLOCK_TERMS = re.compile(
     r"\b(child|children|minor|teen|schoolgirl|schoolboy|explicit|pornographic|gore)\b",
@@ -136,6 +146,115 @@ def api_get(params):
     )
     with urlopen(req, timeout=35) as r:
         return json.loads(r.read().decode("utf-8", errors="replace"))
+
+def discover_pixabay(category, limit=15):
+    if not PIXABAY_KEY:
+        return []
+
+    PIXABAY_CACHE.mkdir(parents=True, exist_ok=True)
+    results = []
+    for query in PIXABAY_QUERIES.get(category, [])[:2]:
+        cache_file = PIXABAY_CACHE / (
+            hashlib.sha1((category + "|" + query).encode("utf-8")).hexdigest()[:18] + ".json"
+        )
+        data = None
+        if cache_file.exists():
+            age = __import__("time").time() - cache_file.stat().st_mtime
+            if age <= 24 * 3600:
+                try:
+                    data = json.loads(cache_file.read_text(encoding="utf-8"))
+                except Exception:
+                    data = None
+
+        if data is None:
+            try:
+                params = {
+                    "key": PIXABAY_KEY,
+                    "q": query,
+                    "lang": "en",
+                    "order": "popular",
+                    "safesearch": "true",
+                    "per_page": min(limit, 20),
+                    "min_width": 720,
+                }
+                data = api_get_pixabay(params)
+                cache_file.write_text(
+                    json.dumps(data, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+            except Exception as exc:
+                print("Pixabay discovery failed:", category, query, exc)
+                continue
+
+        for hit in data.get("hits", []) or []:
+            video_id = str(hit.get("id") or "").strip()
+            streams = hit.get("videos") or {}
+            medium = streams.get("medium") or streams.get("small") or {}
+            url = str(medium.get("url") or "").strip()
+            duration = float(hit.get("duration") or 0)
+            width = int(medium.get("width") or 0)
+            height = int(medium.get("height") or 0)
+            if not video_id or not url or duration < 4.0 or min(width, height) < 480:
+                continue
+
+            tags = str(hit.get("tags") or "")
+            combined = (tags + " " + str(hit.get("pageURL") or "")).lower()
+            if BLOCK_TERMS.search(combined) or "logo" in combined or "celebrity" in combined:
+                continue
+
+            views = max(0, int(hit.get("views") or 0))
+            downloads = max(0, int(hit.get("downloads") or 0))
+            likes = max(0, int(hit.get("likes") or 0))
+            comments = max(0, int(hit.get("comments") or 0))
+            popularity = (
+                2.0 * __import__("math").log1p(views)
+                + 1.4 * __import__("math").log1p(downloads)
+                + 4.0 * __import__("math").log1p(likes)
+                + 2.5 * __import__("math").log1p(comments)
+            )
+
+            page_url = str(hit.get("pageURL") or f"https://pixabay.com/videos/id-{video_id}/")
+            sid = "pixabay:" + video_id
+            results.append({
+                "id": sid,
+                "provider": "pixabay",
+                "filename": f"pixabay_{video_id}.mp4",
+                "page": page_url,
+                "download_url": url,
+                "license": "Pixabay Content License",
+                "author": str(hit.get("user") or ""),
+                "title": str(tags.split(",")[0].strip() or "Pixabay video"),
+                "description": tags,
+                "category": category,
+                "attention_raw": popularity,
+                "pixabay_views": views,
+                "pixabay_downloads": downloads,
+                "pixabay_likes": likes,
+                "pixabay_comments": comments,
+                "energy": 4 if category in ("human_funny", "talent", "wow") else 3,
+                "duration_total": duration,
+                "min_width": 480,
+            })
+
+    # Convert raw engagement into a within-query rank score.
+    if not results:
+        return []
+    results.sort(key=lambda x: float(x.get("attention_raw") or 0), reverse=True)
+    n = len(results)
+    for idx, item in enumerate(results):
+        percentile = 1.0 if n == 1 else 1.0 - (idx / (n - 1)) * 0.45
+        item["attention_score"] = round(65 + 34 * percentile, 2)
+    return results[:limit]
+
+
+def api_get_pixabay(params):
+    req = Request(
+        PIXABAY_API + "?" + urllib.parse.urlencode(params),
+        headers={"User-Agent": "attention-remix-engine/3.0"},
+    )
+    with urlopen(req, timeout=35) as r:
+        return json.loads(r.read().decode("utf-8", errors="replace"))
+
 
 def discover_sources():
     found = {}
@@ -278,7 +397,7 @@ def visual_score(path):
 def download_source(src):
     CACHE.mkdir(parents=True, exist_ok=True)
     safe_id = re.sub(r"[^a-zA-Z0-9_-]+","_",str(src["id"]))
-    suffix = Path(str(src.get("filename") or ".webm")).suffix or ".webm"
+    suffix = Path(str(src.get("filename") or ".webm")).suffix or ".mp4"
     dest = CACHE / (safe_id + suffix)
     if dest.exists() and dest.stat().st_size > 100_000:
         return dest
@@ -422,11 +541,12 @@ def choose_experiment(counts):
 def combo_key(sources):
     return "attention:"+"|".join(sorted(str(x["id"]) for x in sources))
 
-def select_sources(pool, state):
+def select_sources(pool, state, forced_experiment=None):
     counts=state.get("experiment_counts",{})
     untested=min(counts.get(name,0) for name,_ in EXPERIMENTS)
     options=[x for x in EXPERIMENTS if counts.get(x[0],0)==untested]
-    experiment,targets=random.choice(options)
+    experiment=forced_experiment or random.choice(options)[0]
+    targets=next(t for name,t in EXPERIMENTS if name==experiment)
     history=state.get("keys",set())
 
     candidates=list(pool)
@@ -510,10 +630,44 @@ def main():
     run_dir=OUT/("attention_"+str(SEED))
     run_dir.mkdir(parents=True,exist_ok=True)
 
-    discovered=discover_sources()
-    pool={x["id"]:x for x in STATIC_SOURCES}
-    for x in discovered:
-        pool[x["id"]]=x
+    if not PIXABAY_KEY:
+        (run_dir/"skip.json").write_text(
+            json.dumps(
+                {"reason":"PIXABAY_API_KEY_MISSING","message":"Add the free Pixabay API key as a GitHub Actions secret named PIXABAY_API_KEY."},
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8"
+        )
+        print("Attention build skipped: Pixabay API key missing.")
+        return 0
+
+    state=load_state()
+    # Discover only the categories relevant to this experiment, then choose from
+    # the popularity-ranked, license-usable pool. Commons remains legacy fallback
+    # data but is not used for the new experiment.
+    counts=state.get("experiment_counts",{})
+    least=min(counts.get(name,0) for name,_ in EXPERIMENTS)
+    candidates_exp=[x for x in EXPERIMENTS if counts.get(x[0],0)==least]
+    experiment,targets=random.choice(candidates_exp)
+
+    pool={}
+    for category in targets:
+        for x in discover_pixabay(category, limit=15):
+            pool[x["id"]]=x
+    if len(pool)<3:
+        (run_dir/"skip.json").write_text(
+            json.dumps(
+                {"reason":"not_enough_pixabay_candidates","experiment":experiment,"candidate_count":len(pool)},
+                ensure_ascii=False,
+                indent=2,
+            ),
+            encoding="utf-8"
+        )
+        print("Attention build skipped: not enough Pixabay candidates.")
+        return 0
+
+    selected=select_sources(list(pool.values()), {"experiment_counts":{experiment:least},"keys":state["keys"]}, forced_experiment=experiment)
 
     state=load_state()
     selected,experiment=select_sources(list(pool.values()),state)
@@ -546,7 +700,7 @@ def main():
     info,problems=validate(final,meta)
 
     metadata={
-        "content_type":"attention_remix","experiment":experiment,
+        "content_type":"attention_remix","experiment":experiment,"source_provider":"pixabay",
         "quality_gate":"passed_publish" if not problems else "failed",
         "script_quality":"passed",
         "display_title_fa":str(meta[0]["title"]),
@@ -556,7 +710,7 @@ def main():
         "combined_scores":[x.get("combined_score") for x in meta],
         "combination_key":combo_key([x[0] for x in selected]),
         "originality":{"voice":"none","original_persian_captions":True,"new_edit_structure":True,"new_vertical_reframing":True,"subject_preserving_background":True},
-        "sources":meta,"validation_problems":problems,
+        "sources":meta,"validation_problems":problems,"source_market_signals":[{"id":x.get("id"),"views":x.get("pixabay_views"),"downloads":x.get("pixabay_downloads"),"likes":x.get("pixabay_likes"),"comments":x.get("pixabay_comments")} for x in meta],
         "actual_categories":[str(x.get("category")) for x in meta]
     }
     (run_dir/"metadata.json").write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding="utf-8")
