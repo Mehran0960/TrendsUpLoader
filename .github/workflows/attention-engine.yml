@@ -7,7 +7,7 @@ concurrency:
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 */12 * * *'
+    - cron: '17 */8 * * *'
   push:
     paths:
       - ".github/workflows/attention-engine.yml"
@@ -55,7 +55,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python content_pipeline/publish_attention_telegram.py
 
-      - name: Persist published attention combination
+      - name: Persist published attention experiment state
         if: ${{ success() && hashFiles('out/**/publish.json') != '' }}
         run: |
           python - <<'PY'
@@ -66,14 +66,18 @@ jobs:
           try:
               data=json.loads(p.read_text(encoding='utf-8'))
           except Exception:
-              data={'version':1,'keys':[]}
+              data={'version':1,'keys':[],'experiment_counts':{}}
           keys=[str(x) for x in data.get('keys',[])]
+          counts={str(k):int(v) for k,v in (data.get('experiment_counts') or {}).items()}
           for m in Path('out').glob('**/metadata.json'):
               meta=json.loads(m.read_text(encoding='utf-8'))
               key=str(meta.get('combination_key') or '').strip()
+              exp=str(meta.get('experiment') or '').strip()
               if key and key not in keys:
                   keys.append(key)
-          p.write_text(json.dumps({'version':1,'keys':keys[-100:]},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              if exp:
+                  counts[exp]=counts.get(exp,0)+1
+          p.write_text(json.dumps({'version':1,'keys':keys[-100:],'experiment_counts':counts},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
