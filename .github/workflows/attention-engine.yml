@@ -18,6 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set API cache date
+        id: date
+        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore Pixabay API cache
+        uses: actions/cache@v4
+        with:
+          path: attention_api_cache
+          key: pixabay-api-v1-${{ steps.date.outputs.day }}
       - name: Restore attention source cache
         uses: actions/cache@v4
         with:
@@ -42,6 +51,8 @@ jobs:
       - name: Validate Python syntax
         run: python -m py_compile content_pipeline/attention_engine.py content_pipeline/publish_attention_telegram.py
       - name: Build attention remix
+        env:
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: python content_pipeline/attention_engine.py
 
       - name: Publish validated attention video to Telegram
