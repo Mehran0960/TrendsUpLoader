@@ -1,0 +1,57 @@
+name: Comedy Remix Prototype
+
+concurrency:
+  group: comedy-remix
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache comedy source clips
+        uses: actions/cache@v4
+        with:
+          path: comedy_sources
+          key: comedy-sources-v1
+
+      - name: Install FFmpeg and Arabic fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-extra
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pillow arabic-reshaper python-bidi
+
+      - name: Build Persian comedy remix
+        run: python content_pipeline/comedy_pipeline.py
+
+      - name: Publish validated comedy video to Telegram
+        if: \${{ hashFiles('out/**/video.mp4') != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: \${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: \${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python content_pipeline/publish_comedy_telegram.py
+
+      - name: Upload comedy artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: comedy-remix
+          path: out/
+          if-no-files-found: error
+          retention-days: 7
