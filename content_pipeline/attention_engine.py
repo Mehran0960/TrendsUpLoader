@@ -24,7 +24,7 @@ OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
 WIDTH, HEIGHT, FPS = 720, 1280, 30
-MIN_TOTAL, MAX_TOTAL = 18.0, 24.0
+MIN_TOTAL, MAX_TOTAL = 18.0, 22.5
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
 random.seed(SEED * 7919)
@@ -291,9 +291,9 @@ def caption_png(text, out_path, big=False):
 def clip_source(src, info):
     item = dict(src)
     total = float(info["duration"])
-    if total < 4.75:
+    if total < 4.0:
         raise RuntimeError(f"Source too short: {src['id']} {total:.2f}s")
-    clip_dur = 4.5
+    clip_dur = 3.8
     max_start = max(0.0,total-clip_dur-0.05)
     if max_start <= 0.05:
         start=0.0
@@ -333,15 +333,28 @@ def concat(parts, final_path):
 def load_state():
     try:
         data=json.loads(STATE_PATH.read_text(encoding="utf-8"))
-        return {str(x) for x in data.get("keys",[])}
+        if isinstance(data,dict):
+            return {
+                "keys": {str(x) for x in data.get("keys",[])},
+                "experiment_counts": {str(k): int(v) for k,v in (data.get("experiment_counts") or {}).items()},
+            }
     except Exception:
-        return set()
+        pass
+    return {"keys":set(),"experiment_counts":{}}
+
+def choose_experiment(counts):
+    # Exploration first: choose the least-tested experiment, randomizing ties.
+    min_count=min(counts.get(name,0) for name,_ in EXPERIMENTS)
+    names=[name for name,_ in EXPERIMENTS if counts.get(name,0)==min_count]
+    return random.choice(names)
 
 def combo_key(sources):
     return "attention:"+"|".join(sorted(str(x["id"]) for x in sources))
 
-def select_sources(pool, history):
-    experiment, targets=random.choice(EXPERIMENTS)
+def select_sources(pool, state):
+    experiment_name=choose_experiment(state["experiment_counts"])
+    experiment, targets=next((name,targets) for name,targets in EXPERIMENTS if name==experiment_name)
+    history=state["keys"]
     pool=list(pool)
     random.shuffle(pool)
     pool.sort(key=lambda x:float(x.get("attention_score") or 0)+random.random()*14,reverse=True)
@@ -370,18 +383,18 @@ def select_sources(pool, history):
         fill_category(category,int(need))
 
     for category in ("animals","human_funny","beauty_style","talent","wow"):
-        if len(selected)>=4:
+        if len(selected)>=5:
             break
-        fill_category(category,4-len(selected))
+        fill_category(category,5-len(selected))
 
-    if len(selected)<4:
+    if len(selected)<5:
         return [],experiment
 
     key=combo_key([x[0] for x in selected])
     if key in history:
         return [],experiment
     selected.sort(key=lambda x:int(x[0].get("energy",2)))
-    return selected,experiment
+    return selected[:5],experiment
 
 def validate(path, sources):
     info=probe(path)
@@ -407,10 +420,11 @@ def main():
     for x in discovered:
         pool[x["id"]]=x
 
-    selected,experiment=select_sources(list(pool.values()),load_state())
+    state=load_state()
+    selected,experiment=select_sources(list(pool.values()),state)
     if len(selected)<4:
         (run_dir/"skip.json").write_text(
-            json.dumps({"reason":"not_enough_valid_sources","experiment":experiment},ensure_ascii=False,indent=2),
+            json.dumps({"reason":"not_enough_valid_sources","experiment":experiment,"history_count":len(state["keys"])},ensure_ascii=False,indent=2),
             encoding="utf-8"
         )
         return 0
@@ -445,7 +459,8 @@ def main():
         "content_key":"attention:"+"-".join(x["id"] for x in meta),
         "combination_key":combo_key([x[0] for x in selected]),
         "originality":{"voice":"none","original_persian_captions":True,"new_edit_structure":True,"new_vertical_reframing":True},
-        "sources":meta,"validation_problems":problems
+        "sources":meta,"validation_problems":problems,
+        "actual_categories":[str(x.get("category")) for x in meta]
     }
     (run_dir/"metadata.json").write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding="utf-8")
 
