@@ -63,9 +63,10 @@ jobs:
           try:
               data=json.loads(p.read_text(encoding='utf-8'))
           except Exception:
-              data={'version':1,'keys':[],'experiment_counts':{}}
+              data={'version':1,'keys':[],'experiment_counts':{},'runs':[]}
           keys=[str(x) for x in data.get('keys',[])]
           counts={str(k):int(v) for k,v in (data.get('experiment_counts') or {}).items()}
+          runs=list(data.get('runs') or [])
           for m in Path('out').glob('**/metadata.json'):
               meta=json.loads(m.read_text(encoding='utf-8'))
               key=str(meta.get('combination_key') or '').strip()
@@ -74,7 +75,11 @@ jobs:
                   keys.append(key)
               if exp:
                   counts[exp]=counts.get(exp,0)+1
-          p.write_text(json.dumps({'version':1,'keys':keys[-100:],'experiment_counts':counts},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              pub_path=m.parent/'publish.json'
+              if pub_path.exists():
+                  pub=json.loads(pub_path.read_text(encoding='utf-8'))
+                  runs.append({'message_id':pub.get('message_id'),'experiment':exp,'categories':pub.get('categories') or [],'member_count':pub.get('member_count'),'published_at':pub.get('published_at'),'combination_key':key})
+          p.write_text(json.dumps({'version':1,'keys':keys[-100:],'experiment_counts':counts,'runs':runs[-100:]},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
