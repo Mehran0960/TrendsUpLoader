@@ -8,11 +8,6 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '17 */8 * * *'
-  push:
-    paths:
-      - ".github/workflows/attention-engine.yml"
-      - "content_pipeline/attention_engine.py"
-      - "content_pipeline/publish_attention_telegram.py"
 
 jobs:
   build:
@@ -45,6 +40,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install pillow arabic-reshaper python-bidi
 
+      - name: Validate Python syntax
+        run: python -m py_compile content_pipeline/attention_engine.py content_pipeline/publish_attention_telegram.py
       - name: Build attention remix
         run: python content_pipeline/attention_engine.py
 
