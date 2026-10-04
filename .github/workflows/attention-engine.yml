@@ -16,7 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     timeout-minutes: 18
     steps:
       - name: Checkout
@@ -52,6 +52,36 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python content_pipeline/publish_attention_telegram.py
+
+      - name: Persist published attention combination
+        if: ${{ success() && hashFiles('out/**/publish.json') != '' }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('attention_state/posted.json')
+          p.parent.mkdir(exist_ok=True)
+          try:
+              data=json.loads(p.read_text(encoding='utf-8'))
+          except Exception:
+              data={'version':1,'keys':[]}
+          keys=[str(x) for x in data.get('keys',[])]
+          for m in Path('out').glob('**/metadata.json'):
+              meta=json.loads(m.read_text(encoding='utf-8'))
+              key=str(meta.get('combination_key') or '').strip()
+              if key and key not in keys:
+                  keys.append(key)
+          p.write_text(json.dumps({'version':1,'keys':keys[-100:]},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add attention_state/posted.json
+          if git diff --cached --quiet; then
+            echo 'No attention state change.'
+          else
+            git commit -m 'Record attention experiment state'
+            git push
+          fi
 
       - name: Upload attention artifact
         uses: actions/upload-artifact@v4
