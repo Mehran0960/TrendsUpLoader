@@ -272,21 +272,31 @@ def fit_lines(draw, text, font, max_width):
     return lines
 
 def caption_png(text, out_path, big=False):
-    img = Image.new("RGBA",(680,230 if big else 185),(0,0,0,0))
+    img = Image.new("RGBA",(700,250 if big else 205),(0,0,0,0))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(find_font(), 50 if big else 44)
-    lines = fit_lines(draw,text,font,615)
-    line_h = 60 if big else 54
-    h = min(img.height, max(1,len(lines))*line_h + 40)
-    draw.rounded_rectangle((8,8,672,h-8),radius=28,fill=(0,0,0,205))
-    y = (h - len(lines)*line_h)/2 - 2
-    for line in lines[:3]:
+    font = ImageFont.truetype(find_font(), 54 if big else 46)
+    lines = fit_lines(draw,text,font,650)
+    line_h = 62 if big else 56
+    total_h = max(1,len(lines))*line_h
+    y = (img.height-total_h)/2 - 4
+
+    for index,line in enumerate(lines[:3]):
         s=shape_fa(line)
-        box=draw.textbbox((0,0),s,font=font)
+        box=draw.textbbox((0,0),s,font=font,stroke_width=0)
         tw=box[2]-box[0]
-        draw.text(((680-tw)/2,y),s,font=font,fill=(255,255,255,255))
+        x=(img.width-tw)/2
+        draw.text(
+            (x+2,y+3),s,font=font,
+            fill=(0,0,0,215),stroke_width=5,stroke_fill=(0,0,0,215)
+        )
+        fill=(255,255,255,255)
+        draw.text(
+            (x,y),s,font=font,fill=fill,
+            stroke_width=3,stroke_fill=(0,0,0,255)
+        )
         y += line_h
-    img.crop((0,0,680,h)).save(out_path)
+
+    img.save(out_path)
 
 def clip_source(src, info):
     item = dict(src)
@@ -307,12 +317,17 @@ def clip_source(src, info):
 
 def render_scene(src_path, src, cap_path, out_path):
     info=probe(src_path)
-    vf=f"scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,crop={WIDTH}:{HEIGHT},setsar=1,fps={FPS},format=yuv420p"
-    vf += ",zoompan=z='min(zoom+0.0007,1.03)':d=1:s=720x1280:fps=30"
+    vf=(
+        f"[0:v]split=2[bg][fg];"
+        f"[bg]scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,crop={WIDTH}:{HEIGHT},boxblur=18:2[bg2];"
+        f"[fg]scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=decrease[fg2];"
+        f"[bg2][fg2]overlay=(W-w)/2:(H-h)/2,setsar=1,fps={FPS},format=yuv420p[v]"
+    )
+
     base=["ffmpeg","-y","-ss",str(src["start"]),"-t",str(src["duration"]),"-i",str(src_path),"-loop","1","-i",str(cap_path)]
     if info["has_audio"]:
         cmd=base+[
-            "-filter_complex",f"[0:v]{vf}[v];[1:v]format=rgba[cap];[v][cap]overlay=20:850:shortest=1[vout]",
+            "-filter_complex",f"{vf};[1:v]format=rgba[cap];[v][cap]overlay=10:900:shortest=1[vout]",
             "-map","[vout]","-map","0:a:0","-c:v","libx264","-preset","veryfast","-crf","26",
             "-c:a","aac","-b:a","96k","-ar","44100","-t",str(src["duration"]),"-movflags","+faststart",str(out_path)
         ]
@@ -458,7 +473,7 @@ def main():
         "duration_seconds":round(info["duration"],3),"width":info["width"],"height":info["height"],
         "content_key":"attention:"+"-".join(x["id"] for x in meta),
         "combination_key":combo_key([x[0] for x in selected]),
-        "originality":{"voice":"none","original_persian_captions":True,"new_edit_structure":True,"new_vertical_reframing":True},
+        "originality":{"voice":"none","original_persian_captions":True,"new_edit_structure":True,"new_vertical_reframing":True,"subject_preserving_background":True},
         "sources":meta,"validation_problems":problems,
         "actual_categories":[str(x.get("category")) for x in meta]
     }
