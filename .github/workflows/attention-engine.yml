@@ -2,19 +2,15 @@ name: Attention Remix Engine
 
 concurrency:
   group: attention-remix
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '17 */8 * * *'
-  push:
-    paths:
-      - '.github/workflows/attention-engine.yml'
 
 jobs:
   build:
-    if: ${{ github.event_name != 'push' || github.event.head_commit.message == 'Run attention smoke test' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
