@@ -6,6 +6,8 @@ concurrency:
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 */12 * * *'
   push:
     paths:
       - ".github/workflows/attention-engine.yml"
