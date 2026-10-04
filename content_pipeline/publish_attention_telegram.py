@@ -3,6 +3,7 @@
 import json
 import os
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -33,7 +34,33 @@ def main():
         result=json.loads(resp.read().decode('utf-8','replace'))
     if not result.get("ok"):
         raise RuntimeError(json.dumps(result,ensure_ascii=False))
-    print(json.dumps({'message_id':(result.get('result') or {}).get('message_id'),'experiment':meta.get('experiment')},ensure_ascii=False))
+    member_count = None
+    try:
+        count_req = Request(
+            f"https://api.telegram.org/bot{token}/getChatMemberCount?chat_id={chat_id}",
+            headers={"User-Agent":"attention-remix-publisher/2.1"},
+        )
+        with urlopen(count_req, timeout=30) as resp:
+            count_result=json.loads(resp.read().decode("utf-8","replace"))
+        if count_result.get("ok"):
+            member_count=int(count_result.get("result"))
+    except Exception as exc:
+        print("Member count unavailable:", exc)
+
+    publish = {
+        "message_id": (result.get("result") or {}).get("message_id"),
+        "experiment": meta.get("experiment"),
+        "categories": meta.get("actual_categories") or [x.get("category") for x in meta.get("sources",[])],
+        "published_at": datetime.now(timezone.utc).isoformat(),
+        "member_count": member_count,
+        "content_key": meta.get("content_key"),
+        "combination_key": meta.get("combination_key"),
+    }
+    (video.parent/"publish.json").write_text(
+        json.dumps(publish,ensure_ascii=False,indent=2),
+        encoding="utf-8"
+    )
+    print(json.dumps(publish,ensure_ascii=False))
     return 0
 
 if __name__=='__main__':
