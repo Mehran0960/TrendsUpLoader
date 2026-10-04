@@ -383,7 +383,7 @@ def select_sources(pool, history):
     selected.sort(key=lambda x:int(x[0].get("energy",2)))
     return selected,experiment
 
-def validate(path):
+def validate(path, sources):
     info=probe(path)
     problems=[]
     if info["width"]!=WIDTH or info["height"]!=HEIGHT:
@@ -392,6 +392,9 @@ def validate(path):
         problems.append(f"duration={info['duration']:.2f}")
     if path.stat().st_size > 50*1024*1024:
         problems.append("file_too_large")
+    scores=[float(x.get("attention_score") or 0) for x in sources]
+    if scores and sum(scores)/len(scores) < 74:
+        problems.append("attention_score_floor")
     return info,problems
 
 def main():
@@ -431,7 +434,7 @@ def main():
 
     final=run_dir/"video.mp4"
     concat(parts,final)
-    info,problems=validate(final)
+    info,problems=validate(final,meta)
 
     metadata={
         "content_type":"attention_remix","experiment":experiment,
