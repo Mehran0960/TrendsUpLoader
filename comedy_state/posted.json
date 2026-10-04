@@ -1,4 +1,6 @@
 {
   "version": 1,
-  "keys": []
+  "keys": [
+    "animal:cat_jumpscare|curious_bird|doge_warning|husky_howl"
+  ]
 }
