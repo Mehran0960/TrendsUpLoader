@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Automated Persian comedy remix prototype.
+# Smoke-triggered animal-first build; publication is gated by validation.
 V1 deliberately avoids TTS and social-media scraping:
 - source pool is limited to CC0/public-domain Commons files
 - several short moments are cut and reframed into 9:16
@@ -293,7 +294,7 @@ def render_scene(src_path, src, caption_png, out_path):
     else:
         args = base_args + [
             "-f", "lavfi", "-t", str(dur), "-i", "anullsrc=channel_layout=stereo:sample_rate=44100",
-            "-filter_complex", f"[0:v]{video_filter}[v];[1:v]format=rgba[cap];[v][cap]overlay=20:80:shortest=1[vout]",
+            "-filter_complex", f"[0:v]{video_filter}[v];[1:v]format=rgba[cap];[v][cap]overlay=20:850:shortest=1[vout]",
             "-map", "[vout]", "-map", "2:a:0",
             "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
             "-c:a", "aac", "-b:a", "96k", "-ar", "44100",
