@@ -1,4 +1,4 @@
-name: Comedy Remix Prototype
+name: Legacy Comedy Remix (PAUSED)
 
 concurrency:
   group: comedy-remix
@@ -6,17 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - ".github/workflows/comedy-remix.yml"
-      - "content_pipeline/comedy_pipeline.py"
-      - "content_pipeline/publish_comedy_telegram.py"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     timeout-minutes: 15
     steps:
       - name: Checkout
