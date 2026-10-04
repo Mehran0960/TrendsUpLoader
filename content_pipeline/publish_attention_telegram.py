@@ -26,8 +26,8 @@ def main():
     chunks=[]
     fields={'chat_id':chat_id,'caption':str(meta.get('display_title_fa') or '🔥 یه ترکیب غیرمنتظره')}
     for key,value in fields.items():
-        chunks.extend([f'--{boundary}\\r\\n'.encode(),f'Content-Disposition: form-data; name="{key}"\\r\\n\\r\\n'.encode(),str(value).encode('utf-8'),b'\\r\\n'])
-    chunks.extend([f'--{boundary}\\r\\n'.encode(),b'Content-Disposition: form-data; name="video"; filename="video.mp4"\\r\\n',b'Content-Type: video/mp4\\r\\n\\r\\n',video.read_bytes(),b'\\r\\n',f'--{boundary}--\\r\\n'.encode()])
+        chunks.extend([f'--{boundary}\r\n'.encode(),f'Content-Disposition: form-data; name="{key}"\r\n\r\n'.encode(),str(value).encode('utf-8'),b'\r\n'])
+    chunks.extend([f'--{boundary}\r\n'.encode(),b'Content-Disposition: form-data; name="video"; filename="video.mp4"\r\n',b'Content-Type: video/mp4\r\n\r\n',video.read_bytes(),b'\r\n',f'--{boundary}--\r\n'.encode()])
     req=Request(f'https://api.telegram.org/bot{token}/sendVideo',data=b''.join(chunks),method='POST',headers={'Content-Type':f'multipart/form-data; boundary={boundary}'})
     with urlopen(req,timeout=90) as resp:
         result=json.loads(resp.read().decode('utf-8','replace'))
