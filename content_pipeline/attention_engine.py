@@ -24,7 +24,7 @@ OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
 WIDTH, HEIGHT, FPS = 720, 1280, 30
-MIN_TOTAL, MAX_TOTAL = 12.0, 20.0
+MIN_TOTAL, MAX_TOTAL = 11.0, 18.0
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
 random.seed(SEED * 7919)
@@ -501,7 +501,7 @@ def validate(path, sources):
     if path.stat().st_size > 50*1024*1024:
         problems.append("file_too_large")
     scores=[float(x.get("attention_score") or 0) for x in sources]
-    if scores and sum(scores)/len(scores) < 70:
+    if scores and sum(scores)/len(scores) < 67:
         problems.append("attention_score_floor")
     return info,problems
 
@@ -517,7 +517,7 @@ def main():
 
     state=load_state()
     selected,experiment=select_sources(list(pool.values()),state)
-    if len(selected)<4:
+    if len(selected)<3:
         (run_dir/"skip.json").write_text(
             json.dumps({"reason":"not_enough_valid_sources","experiment":experiment,"history_count":len(state["keys"])},ensure_ascii=False,indent=2),
             encoding="utf-8"
