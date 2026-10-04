@@ -24,7 +24,7 @@ OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
 WIDTH, HEIGHT, FPS = 720, 1280, 30
-MIN_TOTAL, MAX_TOTAL = 18.0, 22.5
+MIN_TOTAL, MAX_TOTAL = 12.0, 20.0
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
 random.seed(SEED * 7919)
@@ -82,12 +82,12 @@ CAPTIONS = {
 }
 
 EXPERIMENTS = [
-    ("animal_stack", {"animals": 4}),
-    ("human_chaos", {"human_funny": 4}),
-    ("beauty_talent", {"beauty_style": 2, "talent": 2}),
-    ("wow_stack", {"wow": 4}),
-    ("mixed_attention", {"animals": 1, "human_funny": 1, "beauty_style": 1, "wow": 1}),
-    ("mixed_human", {"beauty_style": 1, "talent": 1, "human_funny": 1, "wow": 1}),
+    ("animal_chaos", {"animals": 3}),
+    ("human_fails", {"human_funny": 3}),
+    ("beauty_style", {"beauty_style": 2, "talent": 1}),
+    ("talent_show", {"talent": 3}),
+    ("wow_moments", {"wow": 3}),
+    ("mixed_fun", {"animals": 2, "human_funny": 1}),
 ]
 
 # Small vetted fallback pool; dynamic discovery is preferred.
@@ -218,6 +218,63 @@ def discover_sources():
     print("Discovered attention sources:", len(results))
     return results[:60]
 
+def visual_score(path):
+    try:
+        import cv2
+    except Exception:
+        return {"score": 0.0, "best_start": 0.0, "best_duration": 3.8}
+
+    cap=cv2.VideoCapture(str(path))
+    fps=float(cap.get(cv2.CAP_PROP_FPS) or 25.0)
+    total=int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    duration=total/fps if fps>0 else 0.0
+    if duration < 3.9:
+        return {"score": 0.0, "best_start": 0.0, "best_duration": max(0.0,duration)}
+
+    samples=[]
+    frame_index=0
+    sample_step=max(1,int(round(fps/3.0)))  # ~3 samples/sec
+    prev=None
+
+    while True:
+        ok,frame=cap.read()
+        if not ok:
+            break
+        if frame_index % sample_step != 0:
+            frame_index += 1
+            continue
+        small=cv2.resize(frame,(192,108),interpolation=cv2.INTER_AREA)
+        gray=cv2.cvtColor(small,cv2.COLOR_BGR2GRAY)
+        motion=0.0 if prev is None else float(cv2.absdiff(gray,prev).mean())/255.0
+        sharp=float(cv2.Laplacian(gray,cv2.CV_64F).var())
+        contrast=float(gray.std())/128.0
+        samples.append((frame_index/fps,motion,min(sharp/180.0,1.0),min(contrast,1.0)))
+        prev=gray
+        frame_index += 1
+
+    cap.release()
+    if len(samples)<8:
+        return {"score":0.0,"best_start":0.0,"best_duration":min(3.8,duration)}
+
+    window=12
+    best=None
+    for i in range(0,len(samples)-window+1):
+        chunk=samples[i:i+window]
+        motion=sum(x[1] for x in chunk)/window
+        sharp=sum(x[2] for x in chunk)/window
+        contrast=sum(x[3] for x in chunk)/window
+        score=100.0*(0.50*motion+0.32*sharp+0.18*contrast)
+        start=chunk[0][0]
+        if best is None or score>best[0]:
+            best=(score,start)
+
+    return {
+        "score":round(min(best[0],99.0),2),
+        "best_start":round(best[1],3),
+        "best_duration":3.8
+    }
+
+
 def download_source(src):
     CACHE.mkdir(parents=True, exist_ok=True)
     safe_id = re.sub(r"[^a-zA-Z0-9_-]+","_",str(src["id"]))
@@ -298,22 +355,21 @@ def caption_png(text, out_path, big=False):
 
     img.save(out_path)
 
-def clip_source(src, info):
-    item = dict(src)
-    total = float(info["duration"])
+def clip_source(src, info, visual):
+    item=dict(src)
+    total=float(info["duration"])
     if total < 4.0:
         raise RuntimeError(f"Source too short: {src['id']} {total:.2f}s")
-    clip_dur = 3.8
-    max_start = max(0.0,total-clip_dur-0.05)
-    if max_start <= 0.05:
-        start=0.0
-    elif src.get("category") in ("animals","human_funny"):
-        start=random.uniform(0,min(max_start,total*0.62))
-    else:
-        start=random.uniform(0,min(max_start,total*0.48))
+
+    clip_dur=min(3.8,max(3.2,total-0.35))
+    max_start=max(0.0,total-clip_dur-0.05)
+    best_start=float(visual.get("best_start") or 0.0)
+    start=min(best_start,max_start)
     item["start"]=round(start,3)
-    item["duration"]=clip_dur
+    item["duration"]=round(clip_dur,3)
+    item["visual_score"]=float(visual.get("score") or 0.0)
     return item
+
 
 def render_scene(src_path, src, cap_path, out_path):
     info=probe(src_path)
@@ -367,49 +423,73 @@ def combo_key(sources):
     return "attention:"+"|".join(sorted(str(x["id"]) for x in sources))
 
 def select_sources(pool, state):
-    experiment_name=choose_experiment(state["experiment_counts"])
-    experiment, targets=next((name,targets) for name,targets in EXPERIMENTS if name==experiment_name)
-    history=state["keys"]
-    pool=list(pool)
-    random.shuffle(pool)
-    pool.sort(key=lambda x:float(x.get("attention_score") or 0)+random.random()*14,reverse=True)
+    counts=state.get("experiment_counts",{})
+    untested=min(counts.get(name,0) for name,_ in EXPERIMENTS)
+    options=[x for x in EXPERIMENTS if counts.get(x[0],0)==untested]
+    experiment,targets=random.choice(options)
+    history=state.get("keys",set())
+
+    candidates=list(pool)
+    random.shuffle(candidates)
+    candidates.sort(
+        key=lambda x:float(x.get("attention_score") or 0)+random.random()*8,
+        reverse=True,
+    )
+
     selected=[]
     used=set()
 
     def fill_category(category, need):
         nonlocal selected
-        for src in [x for x in pool if x.get("category")==category and x.get("id") not in used]:
-            if need <= 0:
-                break
+        choices=[x for x in candidates if x.get("category")==category and x.get("id") not in used]
+        scored=[]
+        for src in choices[:18]:
             try:
                 path=download_source(src)
                 info=probe(path)
-                if info["width"] < int(src.get("min_width",480)):
+                if info["width"]<int(src.get("min_width",480)):
                     continue
-                prepared=clip_source(src,info)
-                selected.append((prepared,path,info))
-                used.add(src["id"])
-                need -= 1
-                print("SELECT",experiment,category,prepared["id"])
+                visual=visual_score(path)
+                total_score=0.58*float(visual["score"])+0.42*float(src.get("attention_score") or 0)
+                if visual["score"]<26:
+                    continue
+                scored.append((total_score,src,path,info,visual))
             except Exception as exc:
                 print("REJECT",src.get("id"),exc)
+
+        scored.sort(key=lambda x:x[0],reverse=True)
+        for total_score,src,path,info,visual in scored[:need]:
+            prepared=clip_source(src,info,visual)
+            prepared["combined_score"]=round(total_score,2)
+            selected.append((prepared,path,info))
+            used.add(src["id"])
+            print("SELECT",experiment,category,prepared["id"],prepared["combined_score"],prepared["visual_score"])
 
     for category,need in targets.items():
         fill_category(category,int(need))
 
-    for category in ("animals","human_funny","beauty_style","talent","wow"):
-        if len(selected)>=5:
+    # For sparse experiments, use only semantically adjacent buckets.
+    fallback={
+        "animal_chaos":["animals","human_funny"],
+        "human_fails":["human_funny","animals"],
+        "beauty_style":["beauty_style","talent"],
+        "talent_show":["talent","beauty_style","wow"],
+        "wow_moments":["wow","animals","human_funny"],
+        "mixed_fun":["animals","human_funny","wow"],
+    }
+    for category in fallback.get(experiment,["animals","human_funny","wow"]):
+        if len(selected)>=3:
             break
-        fill_category(category,5-len(selected))
+        fill_category(category,3-len(selected))
 
-    if len(selected)<5:
+    if len(selected)<3:
         return [],experiment
-
-    key=combo_key([x[0] for x in selected])
+    chosen=sorted(selected,key=lambda x:float(x[0].get("combined_score") or 0),reverse=True)[:3]
+    key=combo_key([x[0] for x in chosen])
     if key in history:
         return [],experiment
-    selected.sort(key=lambda x:int(x[0].get("energy",2)))
-    return selected[:5],experiment
+    return chosen,experiment
+
 
 def validate(path, sources):
     info=probe(path)
@@ -421,7 +501,7 @@ def validate(path, sources):
     if path.stat().st_size > 50*1024*1024:
         problems.append("file_too_large")
     scores=[float(x.get("attention_score") or 0) for x in sources]
-    if scores and sum(scores)/len(scores) < 74:
+    if scores and sum(scores)/len(scores) < 70:
         problems.append("attention_score_floor")
     return info,problems
 
@@ -457,7 +537,7 @@ def main():
         meta.append({
             "id":src["id"],"title":src["title"],"author":src.get("author",""),
             "license":src.get("license",""),"page":src["page"],"filename":src["filename"],
-            "category":src.get("category"),"attention_score":src.get("attention_score"),
+            "category":src.get("category"),"attention_score":src.get("attention_score"),"visual_score":src.get("visual_score"),"combined_score":src.get("combined_score"),
             "start":src["start"],"duration":src["duration"]
         })
 
@@ -472,6 +552,8 @@ def main():
         "display_title_fa":str(meta[0]["title"]),
         "duration_seconds":round(info["duration"],3),"width":info["width"],"height":info["height"],
         "content_key":"attention:"+"-".join(x["id"] for x in meta),
+        "visual_scores":[x.get("visual_score") for x in meta],
+        "combined_scores":[x.get("combined_score") for x in meta],
         "combination_key":combo_key([x[0] for x in selected]),
         "originality":{"voice":"none","original_persian_captions":True,"new_edit_structure":True,"new_vertical_reframing":True,"subject_preserving_background":True},
         "sources":meta,"validation_problems":problems,
