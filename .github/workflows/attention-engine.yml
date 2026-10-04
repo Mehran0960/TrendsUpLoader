@@ -1,0 +1,62 @@
+name: Attention Remix Engine
+
+concurrency:
+  group: attention-remix
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/attention-engine.yml"
+      - "content_pipeline/attention_engine.py"
+      - "content_pipeline/publish_attention_telegram.py"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore attention source cache
+        uses: actions/cache@v4
+        with:
+          path: attention_sources
+          key: attention-sources-v2
+
+      - name: Install FFmpeg and Arabic fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-extra
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pillow arabic-reshaper python-bidi
+
+      - name: Build attention remix
+        run: python content_pipeline/attention_engine.py
+
+      - name: Publish validated attention video to Telegram
+        if: ${{ hashFiles('out/**/video.mp4') != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python content_pipeline/publish_attention_telegram.py
+
+      - name: Upload attention artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: attention-remix
+          path: out/
+          if-no-files-found: error
+          retention-days: 7
