@@ -6,13 +6,18 @@ concurrency:
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/comedy-remix.yml"
+      - "content_pipeline/comedy_pipeline.py"
+      - "content_pipeline/publish_comedy_telegram.py"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-    timeout-minutes: 12
+      contents: write
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,6 +53,45 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python content_pipeline/publish_comedy_telegram.py
 
+      - name: Persist published comedy combination
+        if: ${{ success() && hashFiles('out/**/publish.json') != '' }}
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          state_path = Path('comedy_state/posted.json')
+          state_path.parent.mkdir(exist_ok=True)
+          try:
+              data = json.loads(state_path.read_text(encoding='utf-8'))
+          except Exception:
+              data = {'version': 1, 'keys': []}
+
+          keys = [str(x) for x in data.get('keys', [])]
+          for publish_path in Path('out').glob('**/publish.json'):
+              meta_path = publish_path.parent / 'metadata.json'
+              if not meta_path.exists():
+                  continue
+              meta = json.loads(meta_path.read_text(encoding='utf-8'))
+              key = str(meta.get('combination_key') or '').strip()
+              if key:
+                  keys = [x for x in keys if x != key]
+                  keys.append(key)
+
+          state_path.write_text(
+              json.dumps({'version': 1, 'keys': keys[-40:]}, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add comedy_state/posted.json
+          if git diff --cached --quiet; then
+            echo 'No comedy state change.'
+          else
+            git commit -m 'Record published comedy combination'
+            git push
+          fi
       - name: Upload comedy artifact
         uses: actions/upload-artifact@v4
         with:

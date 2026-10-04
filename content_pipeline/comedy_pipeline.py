@@ -12,6 +12,7 @@ import os
 import random
 import re
 import subprocess
+import itertools
 import sys
 import urllib.parse
 from pathlib import Path
@@ -39,7 +40,7 @@ SOURCES = [
         "title": "Cat runs toward the camera",
         "start": 1.0,
         "duration": 4.6,
-        "caption": "فقط اومدم یه نگاهی بندازم…",
+        "caption": "من فقط اومدم بگم سلام…\nنزدیک‌تر 😐😂",
     },
     {
         "id": "husky_howl",
@@ -50,7 +51,7 @@ SOURCES = [
         "title": "Howling Husky Dog",
         "start": 4.0,
         "duration": 5.8,
-        "caption": "وقتی گفتن: «فقط یه کم حرف بزن» 😂",
+        "caption": "وقتی هنوز چیزی نگفتی…\nولی طرف تصمیم گرفته سخنرانی کنه 😂",
     },
     {
         "id": "doge_warning",
@@ -61,18 +62,7 @@ SOURCES = [
         "title": "Beware of the dog",
         "start": 0.8,
         "duration": 4.7,
-        "caption": "روی تابلو نوشته بود «مراقب سگ»…\nبقیه‌ش رو خودت تصور کن 😭",
-    },
-    {
-        "id": "stray_cat",
-        "filename": "Stray cat from Istambul.webm",
-        "page": "https://commons.wikimedia.org/wiki/File:Stray_cat_from_Istambul.webm",
-        "license": "CC0",
-        "author": "ErikaGuetti",
-        "title": "Stray cat from Istanbul",
-        "start": 1.1,
-        "duration": 4.4,
-        "caption": "من: امروز خیلی آرومم.\nهمچنین من ۳ ثانیه بعد:",
+        "caption": "روی در نوشته بود «مراقب سگ»…\nولی نگفته بود کِی! 😭",
     },
     {
         "id": "cat_pigeon",
@@ -83,22 +73,69 @@ SOURCES = [
         "title": "Cat fails to catch a pigeon",
         "start": 3.0,
         "duration": 4.8,
-        "caption": "نقشه: شکار حرفه‌ای\nاجرا: افتضاح 😂",
+        "caption": "نقشه: شکار حرفه‌ای\nواقعیت: یک جورایی… نه 😂",
         "min_width": 640,
+    },
+    {
+        "id": "sophy_cat",
+        "filename": "Sophy the Cat is Really High On A Ledge.webm",
+        "page": "https://commons.wikimedia.org/wiki/File:Sophy_the_Cat_is_Really_High_On_A_Ledge.webm",
+        "license": "CC0",
+        "author": "PseudoSkull",
+        "title": "Sophy the Cat on a ledge",
+        "start": 0.6,
+        "duration": 4.8,
+        "caption": "وقتی با اعتمادبه‌نفس می‌ری بالا…\nو وسط راه تازه می‌فهمی چرا نه 😭",
+        "min_width": 720,
+    },
+    {
+        "id": "curious_bird",
+        "filename": "Curious Little Bird Looking at a Camera.webm",
+        "page": "https://commons.wikimedia.org/wiki/File:Curious_Little_Bird_Looking_at_a_Camera.webm",
+        "license": "CC0",
+        "author": "jlaswilson",
+        "title": "Curious little bird looking at a camera",
+        "start": 6.0,
+        "duration": 4.8,
+        "caption": "این دیگه چیه؟ 👀\nبذار یه کم زل بزنم ببینم…",
+        "min_width": 720,
+    },
+    {
+        "id": "colorful_bird",
+        "filename": "Cute Colorful Bird on Walking on Ledge.webm",
+        "page": "https://commons.wikimedia.org/wiki/File:Cute_Colorful_Bird_on_Walking_on_Ledge.webm",
+        "license": "CC0",
+        "author": "Yourusernamewillbepublic2",
+        "title": "Cute colorful bird walking on a ledge",
+        "start": 2.0,
+        "duration": 4.8,
+        "caption": "بچه‌ها من فقط داشتم رد می‌شدم…\nچرا همه دارن نگام می‌کنن؟ 😂",
+        "min_width": 720,
+    },
+    {
+        "id": "ocicat_wheel",
+        "filename": "Ocicat on Cat Wheel.webm",
+        "page": "https://commons.wikimedia.org/wiki/File:Ocicat_on_Cat_Wheel.webm",
+        "license": "CC0",
+        "author": "Oldperson",
+        "title": "Ocicat running on a cat wheel",
+        "start": 8.0,
+        "duration": 4.8,
+        "caption": "من: از فردا ورزش می‌کنم.\nمن از فردا: همین الان 😭",
+        "min_width": 720,
     },
 ]
 
 HOOKS = [
-    ("امروز فقط قرار بود یه روز عادی باشه… 😐", 1.1),
-    ("وقتی همه‌چیز طبق برنامه پیش می‌ره… 😂", 1.0),
-    ("۳ ثانیه قبل از اینکه اوضاع خراب بشه:", 1.05),
+    ("حیوانات امروز تصمیم گرفتن کاملاً غیرقابل‌پیش‌بینی باشن 😂", 1.0),
+    ("وقتی حیوان خونگی‌ت یه شخصیت فرعی نیست…\nقهرمان اصلیه 😂", 1.0),
+    ("همه‌چی عادی بود… تا اینا وارد صحنه شدن 😭", 1.0),
 ]
 ENDS = [
-    ("خب… حداقل تلاشش رو کرد 😂", 1.0),
-    ("من دیگه دخالت نمی‌کنم 😭", 0.9),
-    ("این قسمت رو دوباره ببین 😂", 1.0),
+    ("این یکی رو برای اون رفیقت بفرست 😂", 1.0),
+    ("اگه خندیدی، تقصیر خودش بود 😭", 0.95),
+    ("قسمت بعدی حیوانات؟ 👀😂", 0.9),
 ]
-
 
 def sh(cmd, **kwargs):
     print("+", " ".join(cmd))
@@ -247,7 +284,7 @@ def render_scene(src_path, src, caption_png, out_path):
     ]
     if has_sound(src_path):
         args = base_args + [
-            "-filter_complex", f"[0:v]{video_filter}[v];[1:v]format=rgba[cap];[v][cap]overlay=20:80:shortest=1[vout]",
+            "-filter_complex", f"[0:v]{video_filter}[v];[1:v]format=rgba[cap];[v][cap]overlay=20:850:shortest=1[vout]",
             "-map", "[vout]", "-map", "0:a:0",
             "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
             "-c:a", "aac", "-b:a", "96k", "-ar", "44100",
@@ -311,6 +348,20 @@ def validate(final_path, sources_used):
     return info, problems
 
 
+STATE_PATH = Path("comedy_state/posted.json")
+
+
+def load_published_combinations():
+    try:
+        data = json.loads(STATE_PATH.read_text(encoding="utf-8"))
+        return {str(x) for x in data.get("keys", [])}
+    except Exception:
+        return set()
+
+
+def combination_key(sources):
+    return "animal:" + "|".join(sorted(str(src["id"]) for src in sources))
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     run_dir = OUT / ("comedy_" + str(int(os.environ.get("GITHUB_RUN_ID", "1"))))
@@ -319,30 +370,49 @@ def main():
     hook_text, hook_sec = random.choice(HOOKS)
     end_text, end_sec = random.choice(ENDS)
 
-    candidates = SOURCES[:]
-    random.shuffle(candidates)
-    selected = []
-    downloaded = []
-    # Use 4 scenes where possible; require distinct source IDs.
-    for src in candidates:
-        try:
-            p = download_source(src)
-            info = probe(p)
-            if info["width"] < int(src.get("min_width", 720)):
-                print("Skip low-res source:", src["id"], info)
-                continue
-            if info["duration"] < src["start"] + src["duration"] + 0.2:
-                print("Skip too-short source:", src["id"], info)
-                continue
-            selected.append((src, p))
-            if len(selected) >= 4:
-                break
-        except Exception as exc:
-            print("Source failed:", src["id"], exc)
+    history = load_published_combinations()
 
-    if len(selected) < 3:
+    # Pick a fresh 4-clip combination, not merely a fresh hook.
+    # With 8 sources this gives 70 possible 4-clip combinations.
+    combos = []
+    for combo in itertools.combinations(SOURCES, 4):
+        key = combination_key(combo)
+        if key not in history:
+            combos.append(combo)
+    random.shuffle(combos)
+
+    selected = []
+    for combo in combos:
+        trial = []
+        ok = True
+        for src in combo:
+            try:
+                p = download_source(src)
+                info = probe(p)
+                if info["width"] < int(src.get("min_width", 720)):
+                    print("Skip low-res source:", src["id"], info)
+                    ok = False
+                    break
+                if info["duration"] < src["start"] + src["duration"] + 0.2:
+                    print("Skip too-short source:", src["id"], info)
+                    ok = False
+                    break
+                trial.append((src, p))
+            except Exception as exc:
+                print("Source failed:", src["id"], exc)
+                ok = False
+                break
+        if ok and len(trial) == 4:
+            selected = trial
+            break
+
+    if len(selected) < 4:
         (run_dir / "skip.json").write_text(
-            json.dumps({"reason": "not_enough_valid_sources", "selected": [x[0]["id"] for x in selected]}, ensure_ascii=False, indent=2),
+            json.dumps(
+                {"reason": "not_enough_valid_sources", "selected": [x[0]["id"] for x in selected]},
+                ensure_ascii=False,
+                indent=2,
+            ),
             encoding="utf-8",
         )
         print("Comedy build skipped:", [x[0]["id"] for x in selected])
@@ -390,6 +460,7 @@ def main():
         "width": info["width"],
         "height": info["height"],
         "content_key": "comedy:" + "-".join(s["id"] for s in sources_meta) + ":" + hook_text,
+        "combination_key": combination_key([s for s, _ in selected]),
         "originality": {
             "voice": "none",
             "original_persian_captions": True,
@@ -404,7 +475,7 @@ def main():
 
     attribution = [
         "All source media below were selected from Wikimedia Commons pages that explicitly state CC0.",
-        "This output is an original edit: reordered/cut scenes, vertical reframing, Persian captions and title cards.",
+        "This output is an original edit: four short animal scenes, original Persian captions, vertical reframing and title cards.",
         "",
     ]
     for s in sources_meta:
