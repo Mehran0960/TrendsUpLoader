@@ -334,7 +334,7 @@ def render_scene(src_path, src, cap_path, out_path):
     else:
         cmd=base+[
             "-f","lavfi","-t",str(src["duration"]),"-i","anullsrc=channel_layout=stereo:sample_rate=44100",
-            "-filter_complex",f"[0:v]{vf}[v];[1:v]format=rgba[cap];[v][cap]overlay=20:850:shortest=1[vout]",
+            "-filter_complex",f"{vf};[1:v]format=rgba[cap];[v][cap]overlay=10:900:shortest=1[vout]",
             "-map","[vout]","-map","2:a:0","-c:v","libx264","-preset","veryfast","-crf","26",
             "-c:a","aac","-b:a","96k","-ar","44100","-t",str(src["duration"]),"-movflags","+faststart",str(out_path)
         ]
