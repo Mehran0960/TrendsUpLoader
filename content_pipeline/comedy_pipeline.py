@@ -34,6 +34,7 @@ random.seed(int(os.environ.get("GITHUB_RUN_ID", "1")))
 SOURCES = [
     {
         "id": "cat_jumpscare",
+        "energy": 4,
         "filename": "Cat Jumpscare.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Cat_Jumpscare.webm",
         "license": "CC0",
@@ -45,6 +46,7 @@ SOURCES = [
     },
     {
         "id": "husky_howl",
+        "energy": 3,
         "filename": "Howling Husky Dog.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Howling_Husky_Dog.webm",
         "license": "CC0",
@@ -56,6 +58,7 @@ SOURCES = [
     },
     {
         "id": "doge_warning",
+        "energy": 3,
         "filename": "Cuidado con el Perro, Gran Plaza Mazatlán, 20 de junio de 2026.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Cuidado_con_el_Perro,_Gran_Plaza_Mazatlán,_20_de_junio_de_2026.webm",
         "license": "CC0",
@@ -67,6 +70,7 @@ SOURCES = [
     },
     {
         "id": "cat_pigeon",
+        "energy": 4,
         "filename": "Cat chasing a pigeon.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Cat_chasing_a_pigeon.webm",
         "license": "CC0",
@@ -79,6 +83,7 @@ SOURCES = [
     },
     {
         "id": "sophy_cat",
+        "energy": 3,
         "filename": "Sophy the Cat is Really High On A Ledge.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Sophy_the_Cat_is_Really_High_On_A_Ledge.webm",
         "license": "CC0",
@@ -91,6 +96,7 @@ SOURCES = [
     },
     {
         "id": "curious_bird",
+        "energy": 1,
         "filename": "Curious Little Bird Looking at a Camera.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Curious_Little_Bird_Looking_at_a_Camera.webm",
         "license": "CC0",
@@ -103,6 +109,7 @@ SOURCES = [
     },
     {
         "id": "colorful_bird",
+        "energy": 2,
         "filename": "Cute Colorful Bird on Walking on Ledge.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Cute_Colorful_Bird_on_Walking_on_Ledge.webm",
         "license": "CC0",
@@ -115,6 +122,7 @@ SOURCES = [
     },
     {
         "id": "ocicat_wheel",
+        "energy": 2,
         "filename": "Ocicat on Cat Wheel.webm",
         "page": "https://commons.wikimedia.org/wiki/File:Ocicat_on_Cat_Wheel.webm",
         "license": "CC0",
@@ -368,9 +376,6 @@ def main():
     run_dir = OUT / ("comedy_" + str(int(os.environ.get("GITHUB_RUN_ID", "1"))))
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    hook_text, hook_sec = random.choice(HOOKS)
-    end_text, end_sec = random.choice(ENDS)
-
     history = load_published_combinations()
 
     # Pick a fresh 4-clip combination, not merely a fresh hook.
@@ -407,6 +412,9 @@ def main():
             selected = trial
             break
 
+    # Escalate from calmer to more surprising moments for a stronger mobile rhythm.
+    selected.sort(key=lambda item: int(item[0].get("energy", 2)))
+
     if len(selected) < 4:
         (run_dir / "skip.json").write_text(
             json.dumps(
@@ -419,19 +427,22 @@ def main():
         print("Comedy build skipped:", [x[0]["id"] for x in selected])
         return 0
 
+    # No black title cards: the first frame is already a real animal moment.
+    # This keeps the video moving immediately on mobile.
     parts = []
-    # Hook
-    hook_mp4 = run_dir / "00_hook.mp4"
-    render_title_card(hook_text, hook_sec, hook_mp4)
-    parts.append(hook_mp4)
 
     sources_meta = []
     for idx, (src, source_path) in enumerate(selected, start=1):
         cap_png = run_dir / f"{idx:02d}_caption.png"
         scene_mp4 = run_dir / f"{idx:02d}_scene.mp4"
-        make_caption_png(src["caption"], cap_png)
+
+        # The first scene's caption functions as the hook; every later scene
+        # has its own original Persian punchline.
+        caption = src["caption"]
+        make_caption_png(caption, cap_png, big=(idx == 1))
         render_scene(source_path, src, cap_png, scene_mp4)
         parts.append(scene_mp4)
+
         sources_meta.append({
             "id": src["id"],
             "title": src["title"],
@@ -443,10 +454,6 @@ def main():
             "duration": src["duration"],
         })
 
-    end_mp4 = run_dir / "99_end.mp4"
-    render_title_card(end_text, end_sec, end_mp4)
-    parts.append(end_mp4)
-
     final_path = run_dir / "video.mp4"
     concat(parts, final_path)
     info, problems = validate(final_path, sources_meta)
@@ -455,19 +462,19 @@ def main():
         "content_type": "comedy_remix",
         "quality_gate": "passed_publish" if not problems else "failed",
         "script_quality": "passed",
-        "display_title_fa": hook_text,
-        "caption": " | ".join([hook_text] + [s["id"] for s in sources_meta]),
+        "display_title_fa": str(sources_meta[0].get("caption") or "😂 حیوانات غیرقابل‌پیش‌بینی"),
+        "caption": " | ".join([str(s["id"]) for s in sources_meta]),
         "duration_seconds": round(info["duration"], 3),
         "width": info["width"],
         "height": info["height"],
-        "content_key": "comedy:" + "-".join(s["id"] for s in sources_meta) + ":" + hook_text,
+        "content_key": "comedy:" + "-".join(s["id"] for s in sources_meta),
         "combination_key": combination_key([s for s, _ in selected]),
         "originality": {
             "voice": "none",
             "original_persian_captions": True,
             "new_edit_structure": True,
             "new_vertical_reframing": True,
-            "synthetic_title_cards": True,
+            "synthetic_title_cards": False,
         },
         "sources": sources_meta,
         "validation_problems": problems,
@@ -476,7 +483,7 @@ def main():
 
     attribution = [
         "All source media below were selected from Wikimedia Commons pages that explicitly state CC0.",
-        "This output is an original edit: four short animal scenes, original Persian captions, vertical reframing and title cards.",
+        "This output is an original edit: four short animal scenes, original Persian captions, vertical reframing and fast-cut sequencing.",
         "",
     ]
     for s in sources_meta:
