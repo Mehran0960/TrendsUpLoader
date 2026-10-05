@@ -54,6 +54,7 @@ jobs:
         env:
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: python content_pipeline/attention_engine.py
 
       - name: Publish validated attention video to Telegram
