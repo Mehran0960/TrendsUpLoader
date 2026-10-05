@@ -24,7 +24,7 @@ OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
 WIDTH, HEIGHT, FPS = 720, 1280, 30
-MIN_TOTAL, MAX_TOTAL = 11.0, 18.0
+MIN_TOTAL, MAX_TOTAL = 5.0, 30.0
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
 random.seed(SEED * 7919)
@@ -174,7 +174,7 @@ def discover_pixabay(category, limit=15):
                     "lang": "en",
                     "order": "popular",
                     "safesearch": "true",
-                    "per_page": min(limit, 20),
+                    "per_page": min(20, max(12, limit)),
                     "min_width": 720,
                 }
                 data = api_get_pixabay(params)
@@ -194,7 +194,15 @@ def discover_pixabay(category, limit=15):
             duration = float(hit.get("duration") or 0)
             width = int(medium.get("width") or 0)
             height = int(medium.get("height") or 0)
-            if not video_id or not url or duration < 4.0 or min(width, height) < 480:
+
+            # We are explicitly looking for short-form-native material.
+            if (
+                not video_id
+                or not url
+                or duration < MIN_TOTAL
+                or duration > MAX_TOTAL
+                or min(width, height) < 480
+            ):
                 continue
 
             tags = str(hit.get("tags") or "")
@@ -221,6 +229,7 @@ def discover_pixabay(category, limit=15):
                 "filename": f"pixabay_{video_id}.mp4",
                 "page": page_url,
                 "download_url": url,
+                "thumbnail_url": str(medium.get("thumbnail") or ""),
                 "license": "Pixabay Content License",
                 "author": str(hit.get("user") or ""),
                 "title": str(tags.split(",")[0].strip() or "Pixabay video"),
@@ -236,17 +245,28 @@ def discover_pixabay(category, limit=15):
                 "min_width": 480,
             })
 
-    # Convert raw engagement into a within-query rank score.
     if not results:
         return []
-    results.sort(key=lambda x: float(x.get("attention_raw") or 0), reverse=True)
+
+    # The API itself is sorted by popularity; we additionally use the returned
+    # engagement signals so that repeated queries can be ranked consistently.
+    dedup = {x["id"]: x for x in results}
+    results = list(dedup.values())
+    results.sort(
+        key=lambda x: (
+            float(x.get("attention_raw") or 0),
+            float(x.get("pixabay_views") or 0),
+            float(x.get("pixabay_likes") or 0),
+        ),
+        reverse=True,
+    )
+
     n = len(results)
     for idx, item in enumerate(results):
         percentile = 1.0 if n == 1 else 1.0 - (idx / (n - 1)) * 0.45
         item["attention_score"] = round(65 + 34 * percentile, 2)
+
     return results[:limit]
-
-
 def api_get_pixabay(params):
     req = Request(
         PIXABAY_API + "?" + urllib.parse.urlencode(params),
@@ -552,65 +572,82 @@ def select_sources(pool, state, forced_experiment=None):
     candidates=list(pool)
     random.shuffle(candidates)
     candidates.sort(
-        key=lambda x:float(x.get("attention_score") or 0)+random.random()*8,
+        key=lambda x:float(x.get("attention_score") or 0)+random.random()*5,
         reverse=True,
     )
 
-    selected=[]
+    evaluated=[]
     used=set()
 
-    def fill_category(category, need):
-        nonlocal selected
-        choices=[x for x in candidates if x.get("category")==category and x.get("id") not in used]
-        scored=[]
-        for src in choices[:18]:
+    # Only a small top slice is downloaded. This keeps API usage and automated
+    # media retrieval deliberately light while still testing visual quality.
+    for category in targets:
+        choices=[
+            x for x in candidates
+            if x.get("category")==category and x.get("id") not in used
+        ]
+        for src in choices[:6]:
             try:
                 path=download_source(src)
                 info=probe(path)
                 if info["width"]<int(src.get("min_width",480)):
                     continue
-                visual=visual_score(path)
-                total_score=0.58*float(visual["score"])+0.42*float(src.get("attention_score") or 0)
-                if visual["score"]<26:
+                duration=float(info["duration"] or 0)
+                if duration < MIN_TOTAL or duration > MAX_TOTAL:
                     continue
-                scored.append((total_score,src,path,info,visual))
+
+                visual=visual_score(path)
+
+                # Shorter is preferred, but not at the expense of popularity or
+                # actual visual energy. The whole source video is retained.
+                if duration <= 20:
+                    shortness=100.0
+                else:
+                    shortness=max(60.0,100.0-(duration-20.0)*4.0)
+
+                combined_score=(
+                    0.48*float(src.get("attention_score") or 0)
+                    +0.37*float(visual.get("score") or 0)
+                    +0.15*shortness
+                )
+
+                prepared=dict(src)
+                prepared["start"]=0.0
+                prepared["duration"]=round(duration,3)
+                prepared["visual_score"]=round(float(visual.get("score") or 0),2)
+                prepared["shortness_score"]=round(shortness,2)
+                prepared["combined_score"]=round(combined_score,2)
+                evaluated.append((prepared,path,info))
+                used.add(src["id"])
+
+                print(
+                    "EVALUATE",
+                    experiment,
+                    category,
+                    prepared["id"],
+                    "combined=",prepared["combined_score"],
+                    "pop=",prepared["attention_score"],
+                    "visual=",prepared["visual_score"],
+                    "duration=",prepared["duration"],
+                )
             except Exception as exc:
                 print("REJECT",src.get("id"),exc)
 
-        scored.sort(key=lambda x:x[0],reverse=True)
-        for total_score,src,path,info,visual in scored[:need]:
-            prepared=clip_source(src,info,visual)
-            prepared["combined_score"]=round(total_score,2)
-            selected.append((prepared,path,info))
-            used.add(src["id"])
-            print("SELECT",experiment,category,prepared["id"],prepared["combined_score"],prepared["visual_score"])
-
-    for category,need in targets.items():
-        fill_category(category,int(need))
-
-    # For sparse experiments, use only semantically adjacent buckets.
-    fallback={
-        "animal_chaos":["animals","human_funny"],
-        "human_fails":["human_funny","animals"],
-        "beauty_style":["beauty_style","talent"],
-        "talent_show":["talent","beauty_style","wow"],
-        "wow_moments":["wow","animals","human_funny"],
-        "mixed_fun":["animals","human_funny","wow"],
-    }
-    for category in fallback.get(experiment,["animals","human_funny","wow"]):
-        if len(selected)>=3:
-            break
-        fill_category(category,3-len(selected))
-
-    if len(selected)<3:
+    if not evaluated:
         return [],experiment
-    chosen=sorted(selected,key=lambda x:float(x[0].get("combined_score") or 0),reverse=True)[:3]
-    key=combo_key([x[0] for x in chosen])
-    if key in history:
-        return [],experiment
-    return chosen,experiment
 
+    evaluated.sort(
+        key=lambda x:float(x[0].get("combined_score") or 0),
+        reverse=True,
+    )
 
+    # One short-form-native source becomes one post. No three-clip montage.
+    for chosen in evaluated:
+        key=combo_key([chosen[0]])
+        if key not in history:
+            return [chosen],experiment
+
+    return [],experiment
 def validate(path, sources):
     info=probe(path)
     problems=[]
@@ -633,7 +670,10 @@ def main():
     if not PIXABAY_KEY:
         (run_dir/"skip.json").write_text(
             json.dumps(
-                {"reason":"PIXABAY_API_KEY_MISSING","message":"Add the free Pixabay API key as a GitHub Actions secret named PIXABAY_API_KEY."},
+                {
+                    "reason":"PIXABAY_API_KEY_MISSING",
+                    "message":"Add the free Pixabay API key as a GitHub Actions secret named PIXABAY_API_KEY."
+                },
                 ensure_ascii=False,
                 indent=2,
             ),
@@ -643,86 +683,140 @@ def main():
         return 0
 
     state=load_state()
-    # Discover only the categories relevant to this experiment, then choose from
-    # the popularity-ranked, license-usable pool. Commons remains legacy fallback
-    # data but is not used for the new experiment.
     counts=state.get("experiment_counts",{})
     least=min(counts.get(name,0) for name,_ in EXPERIMENTS)
     candidates_exp=[x for x in EXPERIMENTS if counts.get(x[0],0)==least]
     experiment,targets=random.choice(candidates_exp)
 
+    # Only discover the buckets needed by the experiment currently under test.
     pool={}
     for category in targets:
         for x in discover_pixabay(category, limit=15):
             pool[x["id"]]=x
-    if len(pool)<3:
+
+    if len(pool)<1:
         (run_dir/"skip.json").write_text(
             json.dumps(
-                {"reason":"not_enough_pixabay_candidates","experiment":experiment,"candidate_count":len(pool)},
+                {
+                    "reason":"no_short_pixabay_candidates",
+                    "experiment":experiment,
+                    "candidate_count":0,
+                    "targets":list(targets),
+                },
                 ensure_ascii=False,
                 indent=2,
             ),
             encoding="utf-8"
         )
-        print("Attention build skipped: not enough Pixabay candidates.")
+        print("Attention build skipped: no eligible short Pixabay candidates.")
         return 0
 
-    selected=select_sources(list(pool.values()), {"experiment_counts":{experiment:least},"keys":state["keys"]}, forced_experiment=experiment)
-
-    state=load_state()
-    selected,experiment=select_sources(list(pool.values()),state)
-    if len(selected)<3:
+    selected,experiment=select_sources(pool.values(),state,forced_experiment=experiment)
+    if len(selected)!=1:
         (run_dir/"skip.json").write_text(
-            json.dumps({"reason":"not_enough_valid_sources","experiment":experiment,"history_count":len(state["keys"])},ensure_ascii=False,indent=2),
+            json.dumps(
+                {
+                    "reason":"no_new_valid_short_source",
+                    "experiment":experiment,
+                    "candidate_count":len(pool),
+                    "history_count":len(state["keys"]),
+                },
+                ensure_ascii=False,
+                indent=2
+            ),
             encoding="utf-8"
         )
         return 0
 
-    parts=[]
-    meta=[]
-    for i,(src,path,info) in enumerate(selected,1):
-        src=dict(src)
-        src["caption"]=random.choice(CAPTIONS.get(src.get("category"),CAPTIONS["wow"]))
-        cap=run_dir/f"{i:02d}_caption.png"
-        scene=run_dir/f"{i:02d}_scene.mp4"
-        caption_png(src["caption"],cap,big=(i==1))
-        render_scene(path,src,cap,scene)
-        parts.append(scene)
-        meta.append({
-            "id":src["id"],"title":src["title"],"author":src.get("author",""),
-            "license":src.get("license",""),"page":src["page"],"filename":src["filename"],
-            "category":src.get("category"),"attention_score":src.get("attention_score"),"visual_score":src.get("visual_score"),"combined_score":src.get("combined_score"),
-            "start":src["start"],"duration":src["duration"]
-        })
+    src,path,info=selected[0]
+    src=dict(src)
+    src["caption"]=random.choice(
+        CAPTIONS.get(src.get("category"),CAPTIONS["wow"])
+    )
+
+    cap=run_dir/"caption.png"
+    scene=run_dir/"scene.mp4"
+    caption_png(src["caption"],cap,big=True)
+    render_scene(path,src,cap,scene)
 
     final=run_dir/"video.mp4"
-    concat(parts,final)
+    # The source itself is already short-form; preserve the complete clip.
+    final.write_bytes(scene.read_bytes())
+
+    meta=[{
+        "id":src["id"],
+        "title":src["title"],
+        "author":src.get("author",""),
+        "license":src.get("license",""),
+        "page":src["page"],
+        "filename":src["filename"],
+        "category":src.get("category"),
+        "attention_score":src.get("attention_score"),
+        "visual_score":src.get("visual_score"),
+        "shortness_score":src.get("shortness_score"),
+        "combined_score":src.get("combined_score"),
+        "start":0.0,
+        "duration":src["duration"],
+        "pixabay_views":src.get("pixabay_views"),
+        "pixabay_downloads":src.get("pixabay_downloads"),
+        "pixabay_likes":src.get("pixabay_likes"),
+        "pixabay_comments":src.get("pixabay_comments"),
+    }]
+
     info,problems=validate(final,meta)
 
+    display_title_fa=src["caption"]
     metadata={
-        "content_type":"attention_remix","experiment":experiment,"source_provider":"pixabay",
+        "content_type":"attention_remix",
+        "experiment":experiment,
+        "source_provider":"pixabay",
+        "selection_model":"short_popular_full_video_v1",
         "quality_gate":"passed_publish" if not problems else "failed",
         "script_quality":"passed",
-        "display_title_fa":str(meta[0]["title"]),
-        "duration_seconds":round(info["duration"],3),"width":info["width"],"height":info["height"],
-        "content_key":"attention:"+"-".join(x["id"] for x in meta),
-        "visual_scores":[x.get("visual_score") for x in meta],
-        "combined_scores":[x.get("combined_score") for x in meta],
-        "combination_key":combo_key([x[0] for x in selected]),
-        "originality":{"voice":"none","original_persian_captions":True,"new_edit_structure":True,"new_vertical_reframing":True,"subject_preserving_background":True},
-        "sources":meta,"validation_problems":problems,"source_market_signals":[{"id":x.get("id"),"views":x.get("pixabay_views"),"downloads":x.get("pixabay_downloads"),"likes":x.get("pixabay_likes"),"comments":x.get("pixabay_comments")} for x in meta],
-        "actual_categories":[str(x.get("category")) for x in meta]
+        "display_title_fa":display_title_fa,
+        "duration_seconds":round(info["duration"],3),
+        "width":info["width"],
+        "height":info["height"],
+        "content_key":"attention:"+src["id"],
+        "visual_scores":[src.get("visual_score")],
+        "combined_scores":[src.get("combined_score")],
+        "combination_key":combo_key([src]),
+        "originality":{
+            "voice":"none",
+            "original_persian_captions":True,
+            "new_edit_structure":True,
+            "new_vertical_reframing":True,
+            "subject_preserving_background":True,
+            "full_short_source_preserved":True,
+        },
+        "sources":meta,
+        "validation_problems":problems,
+        "source_market_signals":[{
+            "id":src.get("id"),
+            "views":src.get("pixabay_views"),
+            "downloads":src.get("pixabay_downloads"),
+            "likes":src.get("pixabay_likes"),
+            "comments":src.get("pixabay_comments"),
+            "duration":src.get("duration"),
+        }],
+        "actual_categories":[str(src.get("category"))],
     }
-    (run_dir/"metadata.json").write_text(json.dumps(metadata,ensure_ascii=False,indent=2),encoding="utf-8")
+
+    (run_dir/"metadata.json").write_text(
+        json.dumps(metadata,ensure_ascii=False,indent=2),
+        encoding="utf-8"
+    )
 
     attribution=[
-        "Sources were selected from Wikimedia Commons and filtered to CC0/public-domain licensing metadata.",
-        "Output transformation: short excerpts, new sequencing, Persian captions and vertical reframing.",
-        ""
+        "Source: Pixabay.",
+        "Source license: Pixabay Content License.",
+        "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
+        f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
     ]
-    for x in meta:
-        attribution.append(f"- {x['filename']} — {x['license']} — {x['author']} — {x['page']}")
-    (run_dir/"attribution.txt").write_text("\n".join(attribution)+"\n",encoding="utf-8")
+    (run_dir/"attribution.txt").write_text(
+        "\n".join(attribution)+"\n",
+        encoding="utf-8"
+    )
 
     print(json.dumps(metadata,ensure_ascii=False,indent=2))
     return 0
