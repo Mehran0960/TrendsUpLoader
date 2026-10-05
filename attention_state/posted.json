@@ -1,4 +1,21 @@
 {
   "version": 1,
-  "keys": []
+  "keys": [
+    "attention:pixabay:1630"
+  ],
+  "experiment_counts": {
+    "talent_show": 1
+  },
+  "runs": [
+    {
+      "message_id": 25,
+      "experiment": "talent_show",
+      "categories": [
+        "talent"
+      ],
+      "member_count": 2,
+      "published_at": "2026-10-05T09:40:37.859659+00:00",
+      "combination_key": "attention:pixabay:1630"
+    }
+  ]
 }
