@@ -35,7 +35,8 @@ random.seed(SEED * 7919)
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
 PIXABAY_API = "https://pixabay.com/api/videos/"
 PIXABAY_KEY = os.environ.get("PIXABAY_API_KEY", "").strip()
-YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
+YOUTUBE_SEARCH_API = "https://www.googleapis.com/youtube/v3/search"
+YOUTUBE_VIDEOS_API = "https://www.googleapis.com/youtube/v3/videos"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 PEXELS_API = "https://api.pexels.com/v1"
 PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "").strip()
@@ -918,31 +919,42 @@ def select_sources(pool, state, forced_experiment=None):
     history=state.get("keys",set())
 
     candidates=list(pool)
-    random.shuffle(candidates)
 
     evaluated=[]
     used=set()
 
-    # Rank by source semantics before downloading. This prevents a generic,
-    # highly-downloaded stock clip from beating a genuinely relevant one.
+    # Give each provider a real chance. The old ranking could let six Pixabay
+    # candidates consume the whole shortlist before Pexels was ever tested.
     for category in targets:
-        choices=[
-            x for x in candidates
-            if x.get("category")==category and x.get("id") not in used
-        ]
+        choices=[x for x in candidates if x.get("category")==category]
+        by_provider={}
         for src in choices:
-            src["_relevance_score"]=source_relevance_score(src)
+            provider=str(src.get("provider") or "unknown")
+            by_provider.setdefault(provider,[]).append(src)
 
-        choices.sort(
-            key=lambda x: (
-                0.65*float(x.get("_relevance_score") or 0)
-                +0.35*float(x.get("attention_score") or 0)
-            ),
-            reverse=True,
-        )
+        shortlist=[]
+        for provider, items in by_provider.items():
+            for src in items:
+                src["_pre_score"]=(
+                    0.55*float(src.get("attention_score") or 0)
+                    +0.45*float(src.get("relevance_score") or source_relevance_score(src))
+                )
+            items.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
+            shortlist.extend(items[:3])
 
-        # Download only a small elite shortlist.
-        for src in choices[:6]:
+        shortlist.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
+
+        # Download at most two from each provider/category.
+        provider_taken={}
+        for src in shortlist:
+            provider=str(src.get("provider") or "unknown")
+            if provider_taken.get(provider,0)>=2:
+                continue
+            provider_taken[provider]=provider_taken.get(provider,0)+1
+
+            if src.get("id") in used:
+                continue
+
             try:
                 path=download_source(src)
                 info=probe(path)
@@ -955,19 +967,22 @@ def select_sources(pool, state, forced_experiment=None):
 
                 visual=visual_score(path)
                 visual_score_value=float(visual.get("score") or 0)
-                relevance=float(src.get("_relevance_score") or source_relevance_score(src))
+                relevance=float(
+                    src.get("relevance_score")
+                    or source_relevance_score(src)
+                )
                 orient=orientation_score(info["width"],info["height"])
                 shortness=duration_score(duration)
 
-                # Hard floors first: popularity is never allowed to rescue
-                # a visually weak or semantically irrelevant source.
                 if visual_score_value < MIN_VISUAL_SCORE:
                     print("REJECT quality floor",src["id"],
+                          "provider=",provider,
                           "visual=",round(visual_score_value,2),
                           "relevance=",round(relevance,2))
                     continue
                 if relevance < MIN_RELEVANCE_SCORE:
                     print("REJECT relevance floor",src["id"],
+                          "provider=",provider,
                           "visual=",round(visual_score_value,2),
                           "relevance=",round(relevance,2))
                     continue
@@ -981,7 +996,7 @@ def select_sources(pool, state, forced_experiment=None):
                 )
 
                 prepared=dict(src)
-                prepared.pop("_relevance_score",None)
+                prepared.pop("_pre_score",None)
                 prepared["start"]=0.0
                 prepared["duration"]=round(duration,3)
                 prepared["visual_score"]=round(visual_score_value,2)
@@ -995,6 +1010,7 @@ def select_sources(pool, state, forced_experiment=None):
 
                 print(
                     "EVALUATE",experiment,category,prepared["id"],
+                    "provider=",provider,
                     "combined=",prepared["combined_score"],
                     "pop=",prepared["attention_score"],
                     "visual=",prepared["visual_score"],
@@ -1003,7 +1019,7 @@ def select_sources(pool, state, forced_experiment=None):
                     "duration=",prepared["duration"],
                 )
             except Exception as exc:
-                print("REJECT",src.get("id"),exc)
+                print("REJECT",src.get("id"),"provider=",provider,exc)
 
     if not evaluated:
         return [],experiment
