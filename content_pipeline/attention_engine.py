@@ -35,7 +35,10 @@ random.seed(SEED * 7919)
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
 PIXABAY_API = "https://pixabay.com/api/videos/"
 PIXABAY_KEY = os.environ.get("PIXABAY_API_KEY", "").strip()
+YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
+YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 PIXABAY_CACHE = Path("attention_api_cache")
+YOUTUBE_CACHE = Path("attention_api_cache/youtube")
 PIXABAY_QUERIES = {
     "animals": ["funny cat", "funny dog", "cute animal"],
     "human_funny": ["funny people", "funny fail", "funny reaction"],
@@ -43,6 +46,20 @@ PIXABAY_QUERIES = {
     "talent": ["woman singing", "dance performance", "female drummer"],
     "wow": ["amazing skill", "acrobatics", "trick performance"],
 }
+YOUTUBE_QUERIES = {
+    "animals": ["funny cat", "funny dog"],
+    "human_funny": ["funny people", "funny fail"],
+    "beauty_style": ["woman dance", "woman fashion"],
+    "talent": ["woman singing", "dance performance"],
+    "wow": ["amazing skill", "trick performance"],
+}
+YOUTUBE_STOPWORDS = {
+    "the","and","that","this","with","from","for","you","your","are","was","were",
+    "have","has","had","how","what","when","where","why","just","very","really",
+    "video","short","official","music","people","woman","women","funny","fail",
+    "dance","performance","amazing","skill","trick","cat","dog"
+}
+
 ALLOWED_LICENSE = ("cc0", "public domain", "public domain mark")
 BLOCK_TERMS = re.compile(
     r"\b(child|children|minor|teen|schoolgirl|schoolboy|explicit|pornographic|gore)\b",
@@ -151,13 +168,166 @@ def api_get(params):
     with urlopen(req, timeout=35) as r:
         return json.loads(r.read().decode("utf-8", errors="replace"))
 
-def discover_pixabay(category, limit=15):
+def youtube_api_get(params):
+    req = Request(
+        YOUTUBE_API + "?" + urllib.parse.urlencode(params),
+        headers={"User-Agent": "attention-remix-engine/youtube-trend/1.0"},
+    )
+    with urlopen(req, timeout=35) as r:
+        return json.loads(r.read().decode("utf-8", errors="replace"))
+
+
+def parse_iso_duration(value):
+    match = re.fullmatch(
+        r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?",
+        str(value or "")
+    )
+    if not match:
+        return 0.0
+    hours = float(match.group(1) or 0)
+    minutes = float(match.group(2) or 0)
+    seconds = float(match.group(3) or 0)
+    return hours * 3600.0 + minutes * 60.0 + seconds
+
+
+def discover_youtube(category, limit=8):
+    if not YOUTUBE_KEY:
+        print("YouTube trend discovery skipped: API key missing.")
+        return []
+
+    results = []
+    for query in YOUTUBE_QUERIES.get(category, [])[:1]:
+        cache_file = YOUTUBE_CACHE / (
+            hashlib.sha1((category + "|" + query).encode("utf-8")).hexdigest()[:18] + ".json"
+        )
+        YOUTUBE_CACHE.mkdir(parents=True, exist_ok=True)
+        data = None
+        if cache_file.exists():
+            age = __import__("time").time() - cache_file.stat().st_mtime
+            if age <= 24 * 3600:
+                try:
+                    data = json.loads(cache_file.read_text(encoding="utf-8"))
+                except Exception:
+                    data = None
+
+        if data is None:
+            try:
+                data = youtube_api_get({
+                    "key": YOUTUBE_KEY,
+                    "part": "snippet",
+                    "q": query,
+                    "type": "video",
+                    "order": "viewCount",
+                    "videoDuration": "short",
+                    "safeSearch": "strict",
+                    "maxResults": min(limit, 10),
+                })
+                cache_file.write_text(
+                    json.dumps(data, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+            except Exception as exc:
+                print("YouTube search failed:", category, query, exc)
+                continue
+
+        ids = [
+            str(x.get("id", {}).get("videoId") or "").strip()
+            for x in (data.get("items") or [])
+        ]
+        ids = [x for x in ids if x]
+        if not ids:
+            continue
+
+        try:
+            details = youtube_api_get({
+                "key": YOUTUBE_KEY,
+                "part": "snippet,contentDetails,statistics",
+                "id": ",".join(ids[:50]),
+            })
+        except Exception as exc:
+            print("YouTube details failed:", category, exc)
+            continue
+
+        for item in details.get("items", []) or []:
+            video_id = str(item.get("id") or "").strip()
+            snippet = item.get("snippet") or {}
+            content = item.get("contentDetails") or {}
+            stats = item.get("statistics") or {}
+            duration = parse_iso_duration(content.get("duration"))
+            if not video_id or duration < 5.0 or duration > 45.0:
+                continue
+
+            title = str(snippet.get("title") or "").strip()
+            description = str(snippet.get("description") or "").strip()
+            published_at = str(snippet.get("publishedAt") or "").strip()
+            views = max(0, int(stats.get("viewCount") or 0))
+            likes = max(0, int(stats.get("likeCount") or 0))
+            comments = max(0, int(stats.get("commentCount") or 0))
+
+            age_days = 3650.0
+            try:
+                from datetime import datetime, timezone
+                dt = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
+                age_days = max(0.25, (datetime.now(timezone.utc) - dt).total_seconds() / 86400.0)
+            except Exception:
+                pass
+
+            velocity = views / age_days
+            social_score = (
+                2.2 * __import__("math").log1p(views)
+                + 4.0 * __import__("math").log1p(likes)
+                + 2.6 * __import__("math").log1p(comments)
+                + 3.5 * __import__("math").log1p(velocity)
+            )
+
+            results.append({
+                "provider": "youtube",
+                "id": "youtube:" + video_id,
+                "video_id": video_id,
+                "title": title,
+                "description": description[:500],
+                "published_at": published_at,
+                "duration": duration,
+                "views": views,
+                "likes": likes,
+                "comments": comments,
+                "velocity": round(velocity, 2),
+                "social_raw": social_score,
+                "query": query,
+                "category": category,
+                "url": "https://www.youtube.com/watch?v=" + video_id,
+            })
+
+    results.sort(key=lambda x: float(x.get("social_raw") or 0), reverse=True)
+    return results[:limit]
+
+
+def derive_trend_queries(youtube_results, category, max_queries=1):
+    phrases = []
+    for item in youtube_results:
+        title = str(item.get("title") or "")
+        words = re.findall(r"[A-Za-z][A-Za-z'-]{2,}", title.lower())
+        useful = [w for w in words if w not in YOUTUBE_STOPWORDS]
+        if useful:
+            phrase = " ".join(useful[:3])
+            if phrase and phrase not in phrases:
+                phrases.append(phrase)
+        if len(phrases) >= max_queries:
+            break
+    return phrases
+
+
+def discover_pixabay(category, limit=15, trend_queries=None):
     if not PIXABAY_KEY:
         return []
 
     PIXABAY_CACHE.mkdir(parents=True, exist_ok=True)
     results = []
-    for query in PIXABAY_QUERIES.get(category, [])[:2]:
+    queries = list(PIXABAY_QUERIES.get(category, [])[:1])
+    for tq in (trend_queries or [])[:1]:
+        if tq and tq not in queries:
+            queries.append(tq)
+    for query in queries:
         cache_file = PIXABAY_CACHE / (
             hashlib.sha1((category + "|" + query).encode("utf-8")).hexdigest()[:18] + ".json"
         )
@@ -777,10 +947,23 @@ def main():
     candidates_exp=[x for x in EXPERIMENTS if counts.get(x[0],0)==least]
     experiment,targets=random.choice(candidates_exp)
 
-    # Only discover the buckets needed by the experiment currently under test.
+    # First discover actual short-form demand signals from YouTube.
+    # YouTube is used for metadata/trend intelligence only; its media is never downloaded.
+    youtube_signals = []
+    trend_queries_by_category = {}
+    for category in targets:
+        yt = discover_youtube(category, limit=8)
+        youtube_signals.extend(yt)
+        trend_queries_by_category[category] = derive_trend_queries(yt, category, max_queries=1)
+
+    # Then look for licensed short videos on Pixabay that match the social-demand signal.
     pool={}
     for category in targets:
-        for x in discover_pixabay(category, limit=15):
+        for x in discover_pixabay(
+            category,
+            limit=15,
+            trend_queries=trend_queries_by_category.get(category),
+        ):
             pool[x["id"]]=x
 
     if len(pool)<1:
@@ -888,6 +1071,8 @@ def main():
             "comments":src.get("pixabay_comments"),
             "duration":src.get("duration"),
         }],
+        "youtube_trend_signals":youtube_signals[:12],
+        "trend_queries_by_category":trend_queries_by_category,
         "actual_categories":[str(src.get("category"))],
     }
 
