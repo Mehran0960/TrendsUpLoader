@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Attention Remix Engine.
+"""Viral Radar + Licensed Acquisition Engine.
 
-Goal: build a reusable audience asset, not merely chase platform payouts.
-Sources are discovered from Wikimedia Commons and restricted to CC0/public-domain
-media. The engine tests multiple attention drivers with the same edit grammar.
+Goal: discover what people are actually watching, then acquire only media that
+comes from a source with a usable redistribution license/API. Discovery and
+acquisition are deliberately separated: platform popularity is a demand signal,
+not permission to re-upload.
 """
 import hashlib
 import html
@@ -23,11 +24,14 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
+ENGINE_VERSION = "viral_radar_licensed_acquisition_v3"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL, MAX_TOTAL = 5.0, 30.0
 MIN_VISUAL_SCORE = 50.0
 MIN_RELEVANCE_SCORE = 65.0
+MIN_DEMAND_SCORE = 50.0
 MIN_COMBINED_SCORE = 76.0
+MAX_YOUTUBE_SIGNAL_AGE_DAYS = 30
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
 random.seed(SEED * 7919)
@@ -189,9 +193,9 @@ def discover_pexels(category, trend_queries=None, limit=12):
 
     PEXELS_CACHE.mkdir(parents=True, exist_ok=True)
     results = []
-    queries = [str(q) for q in (trend_queries or [])[:1] if q]
+    queries = [str(q) for q in (trend_queries or [])[:3] if q]
     if not queries:
-        queries = [str(x) for x in PIXABAY_QUERIES.get(category, [])[:1]]
+        queries = [str(x) for x in PIXABAY_QUERIES.get(category, [])[:2]]
 
     for query in queries:
         cache_file = PEXELS_CACHE / (hashlib.sha1((category + "|search|" + query).encode("utf-8")).hexdigest()[:18] + ".json")
@@ -316,17 +320,28 @@ def parse_iso_duration(value):
     return hours * 3600.0 + minutes * 60.0 + seconds
 
 
-def discover_youtube(category, limit=8):
+def discover_youtube(category, limit=12):
+    """Discover recent high-demand short-form signals from YouTube only.
+
+    YouTube media is never downloaded. The API is used as a trend/demand radar.
+    """
     if not YOUTUBE_KEY:
         print("YouTube trend discovery skipped: API key missing.")
         return []
 
     results = []
-    for query in YOUTUBE_QUERIES.get(category, [])[:1]:
+    YOUTUBE_CACHE.mkdir(parents=True, exist_ok=True)
+    queries = [str(q) for q in YOUTUBE_QUERIES.get(category, [])[:3] if q]
+
+    from datetime import datetime, timedelta, timezone
+    recent_cutoff = (
+        datetime.now(timezone.utc) - timedelta(days=MAX_YOUTUBE_SIGNAL_AGE_DAYS)
+    ).isoformat().replace("+00:00", "Z")
+
+    for query in queries:
         cache_file = YOUTUBE_CACHE / (
             hashlib.sha1((category + "|" + query).encode("utf-8")).hexdigest()[:18] + ".json"
         )
-        YOUTUBE_CACHE.mkdir(parents=True, exist_ok=True)
         data = None
         if cache_file.exists():
             age = __import__("time").time() - cache_file.stat().st_mtime
@@ -338,10 +353,6 @@ def discover_youtube(category, limit=8):
 
         if data is None:
             try:
-                from datetime import datetime, timedelta, timezone
-                recent_cutoff = (
-                    datetime.now(timezone.utc) - timedelta(days=90)
-                ).isoformat().replace("+00:00", "Z")
                 data = youtube_api_get("/search", {
                     "key": YOUTUBE_KEY,
                     "part": "snippet",
@@ -353,10 +364,7 @@ def discover_youtube(category, limit=8):
                     "publishedAfter": recent_cutoff,
                     "maxResults": min(limit, 10),
                 })
-                cache_file.write_text(
-                    json.dumps(data, ensure_ascii=False),
-                    encoding="utf-8",
-                )
+                cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
             except Exception as exc:
                 print("YouTube search failed:", category, query, exc)
                 continue
@@ -376,7 +384,7 @@ def discover_youtube(category, limit=8):
                 "id": ",".join(ids[:50]),
             })
         except Exception as exc:
-            print("YouTube details failed:", category, exc)
+            print("YouTube details failed:", category, query, exc)
             continue
 
         for item in details.get("items", []) or []:
@@ -385,7 +393,7 @@ def discover_youtube(category, limit=8):
             content = item.get("contentDetails") or {}
             stats = item.get("statistics") or {}
             duration = parse_iso_duration(content.get("duration"))
-            if not video_id or duration < 5.0 or duration > 45.0:
+            if not video_id or duration < MIN_TOTAL or duration > 60.0:
                 continue
 
             title = str(snippet.get("title") or "").strip()
@@ -395,20 +403,23 @@ def discover_youtube(category, limit=8):
             likes = max(0, int(stats.get("likeCount") or 0))
             comments = max(0, int(stats.get("commentCount") or 0))
 
-            age_days = 3650.0
+            age_days = float(MAX_YOUTUBE_SIGNAL_AGE_DAYS)
             try:
-                from datetime import datetime, timezone
                 dt = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
                 age_days = max(0.25, (datetime.now(timezone.utc) - dt).total_seconds() / 86400.0)
             except Exception:
                 pass
 
             velocity = views / age_days
-            social_score = (
-                1.8 * __import__("math").log1p(views)
-                + 3.8 * __import__("math").log1p(likes)
-                + 2.4 * __import__("math").log1p(comments)
-                + 4.2 * __import__("math").log1p(velocity)
+            like_rate = likes / max(1, views)
+            comment_rate = comments / max(1, views)
+            social_raw = (
+                2.0 * __import__("math").log1p(views)
+                + 5.0 * __import__("math").log1p(likes)
+                + 3.5 * __import__("math").log1p(comments)
+                + 5.0 * __import__("math").log1p(velocity)
+                + 120.0 * min(like_rate, 0.08)
+                + 220.0 * min(comment_rate, 0.02)
             )
 
             results.append({
@@ -423,31 +434,59 @@ def discover_youtube(category, limit=8):
                 "likes": likes,
                 "comments": comments,
                 "velocity": round(velocity, 2),
-                "social_raw": social_score,
+                "like_rate": round(like_rate, 6),
+                "comment_rate": round(comment_rate, 6),
+                "social_raw": social_raw,
                 "query": query,
                 "category": category,
                 "url": "https://www.youtube.com/watch?v=" + video_id,
+                "discovery_only": True,
+                "media_downloaded": False,
             })
 
     results.sort(key=lambda x: float(x.get("social_raw") or 0), reverse=True)
-    print("YouTube discovery complete:", category, "signals=", len(results))
+    n = len(results)
+    for idx, item in enumerate(results):
+        pct = 1.0 if n <= 1 else 1.0 - (idx / (n - 1)) * 0.55
+        freshness = 100.0
+        try:
+            from datetime import datetime, timezone
+            dt = datetime.fromisoformat(str(item.get("published_at","")).replace("Z","+00:00"))
+            age = max(0.0, (datetime.now(timezone.utc) - dt).total_seconds() / 86400.0)
+            freshness = max(35.0, 100.0 - (age / MAX_YOUTUBE_SIGNAL_AGE_DAYS) * 65.0)
+        except Exception:
+            pass
+        item["demand_score"] = round(55.0 + 40.0 * pct * 0.72 + 8.0 * (freshness / 100.0), 2)
+
+    print("YouTube viral radar complete:", category, "signals=", len(results))
     return results[:limit]
 
 
-def derive_trend_queries(youtube_results, category, max_queries=1):
+def derive_trend_queries(youtube_results, category, max_queries=3):
+    """Turn the strongest demand signals into acquisition queries."""
     phrases = []
+    category_fallbacks = [str(x) for x in YOUTUBE_QUERIES.get(category, [])[:2]]
+
     for item in youtube_results:
         title = str(item.get("title") or "")
-        words = re.findall(r"[A-Za-z][A-Za-z'-]{2,}", title.lower())
-        useful = [w for w in words if w not in YOUTUBE_STOPWORDS]
-        if useful:
-            phrase = " ".join(useful[:3])
-            if phrase and phrase not in phrases:
-                phrases.append(phrase)
+        words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", title.lower())
+        useful = [w for w in words if w not in YOUTUBE_STOPWORDS and len(w) >= 3]
+        if not useful:
+            continue
+        for width in (4, 3, 2):
+            if len(useful) >= width:
+                phrase = " ".join(useful[:width])
+                if len(phrase) >= 7 and phrase not in phrases:
+                    phrases.append(phrase)
+                    break
         if len(phrases) >= max_queries:
             break
-    return phrases
 
+    for fallback in category_fallbacks:
+        if fallback not in phrases and len(phrases) < max_queries:
+            phrases.append(fallback)
+
+    return phrases[:max_queries]
 
 def discover_pixabay(category, limit=15, trend_queries=None):
     if not PIXABAY_KEY:
@@ -455,8 +494,8 @@ def discover_pixabay(category, limit=15, trend_queries=None):
 
     PIXABAY_CACHE.mkdir(parents=True, exist_ok=True)
     results = []
-    queries = list(PIXABAY_QUERIES.get(category, [])[:1])
-    for tq in (trend_queries or [])[:1]:
+    queries = list(PIXABAY_QUERIES.get(category, [])[:2])
+    for tq in (trend_queries or [])[:3]:
         if tq and tq not in queries:
             queries.append(tq)
     for query in queries:
@@ -663,6 +702,31 @@ def discover_sources():
     print("Discovered attention sources:", len(results))
     return results[:60]
 
+def trend_match_score(src, trend_queries=None):
+    """Estimate how strongly an acquired clip matches the discovered demand signal."""
+    queries = [str(q).strip().lower() for q in (trend_queries or []) if q]
+    if not queries:
+        return 50.0
+
+    blob = (
+        str(src.get("title") or "") + " " +
+        str(src.get("description") or "") + " " +
+        str(src.get("search_query") or "")
+    ).lower()
+
+    best = 0.0
+    for query in queries:
+        qwords = [w for w in re.findall(r"[a-z0-9'-]{3,}", query) if w not in YOUTUBE_STOPWORDS]
+        if not qwords:
+            continue
+        hits = sum(1 for w in qwords if w in blob)
+        coverage = hits / len(qwords)
+        exact_bonus = 0.18 if query in blob else 0.0
+        best = max(best, min(1.0, coverage + exact_bonus))
+
+    return round(45.0 + 50.0 * best, 2)
+
+
 def source_relevance_score(src):
     category = str(src.get("category") or "")
     text_blob = (
@@ -683,41 +747,10 @@ def source_relevance_score(src):
 
     hits = sum(1 for word in keywords if word in text_blob)
     if hits == 0:
-        # Pexels Popular is an editorial popularity feed without media tags;
-        # do not pretend it has strong semantic evidence, but keep it eligible
-        # for visual screening rather than discarding it outright.
         if str(src.get("provider") or "") == "pexels" and src.get("popular_rank"):
             return 70.0
         return 35.0
     return min(100.0, 55.0 + 10.0 * hits)
-
-
-def duration_score(duration):
-    duration = float(duration or 0)
-    if duration <= 12.0:
-        return 100.0
-    if duration <= 15.0:
-        return 97.0
-    if duration <= 20.0:
-        return 90.0
-    if duration <= 25.0:
-        return 78.0
-    return 65.0
-
-
-def orientation_score(width, height):
-    width = float(width or 0)
-    height = float(height or 0)
-    if width <= 0 or height <= 0:
-        return 50.0
-    ratio = height / width
-    if ratio >= 1.15:
-        return 100.0
-    if ratio >= 0.95:
-        return 92.0
-    if ratio >= 0.75:
-        return 82.0
-    return 68.0
 
 def visual_score(path):
     try:
@@ -950,8 +983,9 @@ def select_sources(pool, state, forced_experiment=None):
         for provider, items in by_provider.items():
             for src in items:
                 src["_pre_score"]=(
-                    0.55*float(src.get("attention_score") or 0)
-                    +0.45*float(src.get("relevance_score") or source_relevance_score(src))
+                    0.40*float(src.get("attention_score") or 0)
+                    +0.25*float(src.get("relevance_score") or source_relevance_score(src))
+                    +0.35*float(src.get("trend_match_score") or 50.0)
                 )
             items.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
             shortlist.extend(items[:3])
@@ -985,6 +1019,7 @@ def select_sources(pool, state, forced_experiment=None):
                     src.get("relevance_score")
                     or source_relevance_score(src)
                 )
+                demand=float(src.get("trend_match_score") or 50.0)
                 orient=orientation_score(info["width"],info["height"])
                 shortness=duration_score(duration)
 
@@ -1000,13 +1035,20 @@ def select_sources(pool, state, forced_experiment=None):
                           "visual=",round(visual_score_value,2),
                           "relevance=",round(relevance,2))
                     continue
+                if demand < MIN_DEMAND_SCORE:
+                    print("REJECT demand-match floor",src["id"],
+                          "provider=",provider,
+                          "demand=",round(demand,2),
+                          "relevance=",round(relevance,2))
+                    continue
 
                 combined_score=(
-                    0.35*float(src.get("attention_score") or 0)
-                    +0.30*visual_score_value
-                    +0.20*relevance
-                    +0.10*orient
-                    +0.05*shortness
+                    0.28*demand
+                    +0.28*visual_score_value
+                    +0.18*relevance
+                    +0.16*float(src.get("attention_score") or 0)
+                    +0.06*orient
+                    +0.04*shortness
                 )
 
                 prepared=dict(src)
@@ -1015,6 +1057,7 @@ def select_sources(pool, state, forced_experiment=None):
                 prepared["duration"]=round(duration,3)
                 prepared["visual_score"]=round(visual_score_value,2)
                 prepared["relevance_score"]=round(relevance,2)
+                prepared["trend_match_score"]=round(demand,2)
                 prepared["orientation_score"]=round(orient,2)
                 prepared["shortness_score"]=round(shortness,2)
                 prepared["combined_score"]=round(combined_score,2)
@@ -1029,6 +1072,7 @@ def select_sources(pool, state, forced_experiment=None):
                     "pop=",prepared["attention_score"],
                     "visual=",prepared["visual_score"],
                     "relevance=",prepared["relevance_score"],
+                    "demand_match=",prepared["trend_match_score"],
                     "orientation=",prepared["orientation_score"],
                     "duration=",prepared["duration"],
                 )
@@ -1078,19 +1122,19 @@ def main():
     run_dir=OUT/("attention_"+str(SEED))
     run_dir.mkdir(parents=True,exist_ok=True)
 
-    if not PIXABAY_KEY:
+    if not PIXABAY_KEY and not PEXELS_KEY:
         (run_dir/"skip.json").write_text(
             json.dumps(
                 {
-                    "reason":"PIXABAY_API_KEY_MISSING",
-                    "message":"Add the free Pixabay API key as a GitHub Actions secret named PIXABAY_API_KEY."
+                    "reason":"LICENSED_ACQUISITION_KEYS_MISSING",
+                    "message":"At least one licensed acquisition API key is required: PIXABAY_API_KEY or PEXELS_API_KEY."
                 },
                 ensure_ascii=False,
                 indent=2,
             ),
             encoding="utf-8"
         )
-        print("Attention build skipped: Pixabay API key missing.")
+        print("Viral radar skipped: no licensed acquisition API key.")
         return 0
 
     state=load_state()
@@ -1106,7 +1150,7 @@ def main():
     for category in targets:
         yt = discover_youtube(category, limit=8)
         youtube_signals.extend(yt)
-        trend_queries_by_category[category] = derive_trend_queries(yt, category, max_queries=1)
+        trend_queries_by_category[category] = derive_trend_queries(yt, category, max_queries=3)
 
     # Then look for licensed short videos on Pixabay that match the social-demand signal.
     pool={}
@@ -1126,11 +1170,39 @@ def main():
         for x in pexels_items:
             pool[x["id"]]=x
 
+    # Attach cross-platform demand signals to every licensed acquisition candidate.
+    for item in pool.values():
+        item["trend_match_score"] = trend_match_score(
+            item,
+            trend_queries_by_category.get(str(item.get("category") or ""), []),
+        )
+
+    (run_dir/"radar.json").write_text(
+        json.dumps({
+            "engine_version": ENGINE_VERSION,
+            "discovery_platforms": ["youtube"],
+            "acquisition_platforms": ["pixabay", "pexels"],
+            "experiment": experiment,
+            "trend_queries_by_category": trend_queries_by_category,
+            "top_demand_signals": sorted(
+                youtube_signals,
+                key=lambda x: float(x.get("demand_score") or 0),
+                reverse=True,
+            )[:20],
+            "licensed_candidate_count": len(pool),
+            "licensed_candidates_by_provider": {
+                p: sum(1 for x in pool.values() if x.get("provider") == p)
+                for p in sorted(set(str(x.get("provider") or "") for x in pool.values()))
+            },
+        }, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
     if len(pool)<1:
         (run_dir/"skip.json").write_text(
             json.dumps(
                 {
-                    "reason":"no_short_pixabay_candidates",
+                    "reason":"no_licensed_short_candidates",
                     "experiment":experiment,
                     "candidate_count":0,
                     "targets":list(targets),
@@ -1187,6 +1259,7 @@ def main():
         "visual_score":src.get("visual_score"),
         "shortness_score":src.get("shortness_score"),
         "combined_score":src.get("combined_score"),
+        "trend_match_score":src.get("trend_match_score"),
         "start":0.0,
         "duration":src["duration"],
         "pixabay_views":src.get("pixabay_views"),
@@ -1199,10 +1272,13 @@ def main():
 
     display_title_fa=src["caption"]
     metadata={
-        "content_type":"attention_remix",
+        "content_type":"viral_radar_licensed_acquisition",
+        "engine_version":ENGINE_VERSION,
         "experiment":experiment,
-        "source_provider":"pixabay",
-        "selection_model":"short_popular_full_video_v1",
+        "source_provider":str(src.get("provider") or ""),
+        "selection_model":ENGINE_VERSION,
+        "discovery_platforms":["youtube"],
+        "acquisition_platforms":["pixabay","pexels"],
         "quality_gate":"passed_publish" if not problems else "failed",
         "script_quality":"passed",
         "display_title_fa":display_title_fa,
@@ -1234,6 +1310,8 @@ def main():
         "youtube_trend_signals":youtube_signals[:12],
         "trend_queries_by_category":trend_queries_by_category,
         "actual_categories":[str(src.get("category"))],
+        "licensed_acquisition_only":True,
+        "youtube_media_downloaded":False,
     }
 
     (run_dir/"metadata.json").write_text(
