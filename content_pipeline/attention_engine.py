@@ -37,8 +37,11 @@ PIXABAY_API = "https://pixabay.com/api/videos/"
 PIXABAY_KEY = os.environ.get("PIXABAY_API_KEY", "").strip()
 YOUTUBE_API = "https://www.googleapis.com/youtube/v3"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
+PEXELS_API = "https://api.pexels.com/v1"
+PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "").strip()
 PIXABAY_CACHE = Path("attention_api_cache")
 YOUTUBE_CACHE = Path("attention_api_cache/youtube")
+PEXELS_CACHE = Path("attention_api_cache/pexels")
 PIXABAY_QUERIES = {
     "animals": ["funny cat", "funny dog", "cute animal"],
     "human_funny": ["funny people", "funny fail", "funny reaction"],
@@ -167,6 +170,120 @@ def api_get(params):
     )
     with urlopen(req, timeout=35) as r:
         return json.loads(r.read().decode("utf-8", errors="replace"))
+
+def pexels_api_get(endpoint, params=None):
+    url = PEXELS_API + endpoint
+    if params:
+        url += "?" + urllib.parse.urlencode(params)
+    req = Request(url, headers={"Authorization": PEXELS_KEY, "User-Agent": "attention-remix-engine/pexels/1.0"})
+    with urlopen(req, timeout=35) as r:
+        return json.loads(r.read().decode("utf-8", errors="replace"))
+
+
+def discover_pexels(category, trend_queries=None, limit=12):
+    if not PEXELS_KEY:
+        print("Pexels discovery skipped: API key missing.")
+        return []
+
+    PEXELS_CACHE.mkdir(parents=True, exist_ok=True)
+    results = []
+    queries = [str(q) for q in (trend_queries or [])[:1] if q]
+    if not queries:
+        queries = [str(x) for x in PIXABAY_QUERIES.get(category, [])[:1]]
+
+    for query in queries:
+        cache_file = PEXELS_CACHE / (hashlib.sha1((category + "|search|" + query).encode("utf-8")).hexdigest()[:18] + ".json")
+        data = None
+        if cache_file.exists() and __import__("time").time() - cache_file.stat().st_mtime <= 24 * 3600:
+            try:
+                data = json.loads(cache_file.read_text(encoding="utf-8"))
+            except Exception:
+                data = None
+        if data is None:
+            try:
+                data = pexels_api_get("/videos/search", {"query": query, "orientation": "portrait", "size": "medium", "per_page": min(limit, 20)})
+                cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            except Exception as exc:
+                print("Pexels search failed:", category, query, exc)
+                continue
+
+        for video in data.get("videos", []) or []:
+            video_id = str(video.get("id") or "").strip()
+            duration = float(video.get("duration") or 0)
+            if not video_id or duration < MIN_TOTAL or duration > MAX_TOTAL:
+                continue
+            files = video.get("video_files") or []
+            usable = [x for x in files if str(x.get("link") or "").strip() and int(x.get("width") or 0) >= 480]
+            if not usable:
+                continue
+            best_file = max(usable, key=lambda x: int(x.get("width") or 0))
+            results.append({
+                "id": "pexels:" + video_id,
+                "provider": "pexels",
+                "filename": f"pexels_{video_id}.mp4",
+                "page": str(video.get("url") or ""),
+                "download_url": str(best_file.get("link") or ""),
+                "license": "Pexels license",
+                "author": str((video.get("user") or {}).get("name") or ""),
+                "title": "Pexels search",
+                "description": query,
+                "category": category,
+                "attention_score": 82.0,
+                "duration_total": duration,
+                "min_width": 480,
+                "width": int(best_file.get("width") or 0),
+                "height": int(best_file.get("height") or 0),
+                "search_query": query,
+            })
+
+    cache_file = PEXELS_CACHE / (hashlib.sha1((category + "|popular").encode("utf-8")).hexdigest()[:18] + ".json")
+    data = None
+    if cache_file.exists() and __import__("time").time() - cache_file.stat().st_mtime <= 24 * 3600:
+        try:
+            data = json.loads(cache_file.read_text(encoding="utf-8"))
+        except Exception:
+            data = None
+    if data is None:
+        try:
+            data = pexels_api_get("/videos/popular", {"min_duration": int(MIN_TOTAL), "max_duration": int(MAX_TOTAL), "min_height": 720, "per_page": min(limit, 20)})
+            cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        except Exception as exc:
+            print("Pexels popular feed failed:", exc)
+            data = None
+
+    for rank, video in enumerate((data or {}).get("videos", []) or []):
+        video_id = str(video.get("id") or "").strip()
+        duration = float(video.get("duration") or 0)
+        if not video_id or duration < MIN_TOTAL or duration > MAX_TOTAL:
+            continue
+        files = video.get("video_files") or []
+        usable = [x for x in files if str(x.get("link") or "").strip() and int(x.get("width") or 0) >= 480]
+        if not usable:
+            continue
+        best_file = max(usable, key=lambda x: int(x.get("width") or 0))
+        results.append({
+            "id": "pexels:" + video_id,
+            "provider": "pexels",
+            "filename": f"pexels_{video_id}.mp4",
+            "page": str(video.get("url") or ""),
+            "download_url": str(best_file.get("link") or ""),
+            "license": "Pexels license",
+            "author": str((video.get("user") or {}).get("name") or ""),
+            "title": "Pexels Popular",
+            "description": "",
+            "category": category,
+            "attention_score": max(80.0, 96.0 - rank),
+            "duration_total": duration,
+            "min_width": 480,
+            "width": int(best_file.get("width") or 0),
+            "height": int(best_file.get("height") or 0),
+            "popular_rank": rank + 1,
+        })
+
+    dedup = {}
+    for item in results:
+        dedup[item["id"]] = item
+    return list(dedup.values())[:limit]
 
 def youtube_api_get(params):
     req = Request(
@@ -963,6 +1080,12 @@ def main():
             category,
             limit=15,
             trend_queries=trend_queries_by_category.get(category),
+        ):
+            pool[x["id"]]=x
+        for x in discover_pexels(
+            category,
+            trend_queries=trend_queries_by_category.get(category),
+            limit=12,
         ):
             pool[x["id"]]=x
 
