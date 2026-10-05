@@ -37,6 +37,7 @@ PIXABAY_API = "https://pixabay.com/api/videos/"
 PIXABAY_KEY = os.environ.get("PIXABAY_API_KEY", "").strip()
 YOUTUBE_SEARCH_API = "https://www.googleapis.com/youtube/v3/search"
 YOUTUBE_VIDEOS_API = "https://www.googleapis.com/youtube/v3/videos"
+YOUTUBE_APIS = ["https://www.googleapis.com/youtube/v3"]
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 PEXELS_API = "https://api.pexels.com/v1"
 PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "").strip()
