@@ -287,12 +287,19 @@ def discover_pexels(category, trend_queries=None, limit=12):
     return list(dedup.values())[:limit]
 
 def youtube_api_get(endpoint, params):
-    req = Request(
-        YOUTUBE_API + endpoint + "?" + urllib.parse.urlencode(params),
-        headers={"User-Agent": "attention-remix-engine/youtube-trend/1.1"},
-    )
-    with urlopen(req, timeout=35) as r:
-        return json.loads(r.read().decode("utf-8", errors="replace"))
+    last_error = None
+    for base in YOUTUBE_APIS:
+        try:
+            req = Request(
+                base + endpoint + "?" + urllib.parse.urlencode(params),
+                headers={"User-Agent": "attention-remix-engine/youtube-trend/1.2"},
+            )
+            with urlopen(req, timeout=35) as r:
+                return json.loads(r.read().decode("utf-8", errors="replace"))
+        except Exception as exc:
+            last_error = exc
+            print("YouTube endpoint failed:", base + endpoint, type(exc).__name__, exc)
+    raise last_error or RuntimeError("YouTube API request failed")
 
 
 def parse_iso_duration(value):
@@ -330,6 +337,10 @@ def discover_youtube(category, limit=8):
 
         if data is None:
             try:
+                from datetime import datetime, timedelta, timezone
+                recent_cutoff = (
+                    datetime.now(timezone.utc) - timedelta(days=90)
+                ).isoformat().replace("+00:00", "Z")
                 data = youtube_api_get("/search", {
                     "key": YOUTUBE_KEY,
                     "part": "snippet",
@@ -338,6 +349,7 @@ def discover_youtube(category, limit=8):
                     "order": "viewCount",
                     "videoDuration": "short",
                     "safeSearch": "strict",
+                    "publishedAfter": recent_cutoff,
                     "maxResults": min(limit, 10),
                 })
                 cache_file.write_text(
@@ -417,6 +429,7 @@ def discover_youtube(category, limit=8):
             })
 
     results.sort(key=lambda x: float(x.get("social_raw") or 0), reverse=True)
+    print("YouTube discovery complete:", category, "signals=", len(results))
     return results[:limit]
 
 
@@ -1103,11 +1116,13 @@ def main():
             trend_queries=trend_queries_by_category.get(category),
         ):
             pool[x["id"]]=x
-        for x in discover_pexels(
+        pexels_items = discover_pexels(
             category,
             trend_queries=trend_queries_by_category.get(category),
             limit=12,
-        ):
+        )
+        print("Pexels discovery complete:", category, "candidates=", len(pexels_items))
+        for x in pexels_items:
             pool[x["id"]]=x
 
     if len(pool)<1:
