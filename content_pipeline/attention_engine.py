@@ -285,10 +285,10 @@ def discover_pexels(category, trend_queries=None, limit=12):
         dedup[item["id"]] = item
     return list(dedup.values())[:limit]
 
-def youtube_api_get(params):
+def youtube_api_get(endpoint, params):
     req = Request(
-        YOUTUBE_API + "?" + urllib.parse.urlencode(params),
-        headers={"User-Agent": "attention-remix-engine/youtube-trend/1.0"},
+        YOUTUBE_API + endpoint + "?" + urllib.parse.urlencode(params),
+        headers={"User-Agent": "attention-remix-engine/youtube-trend/1.1"},
     )
     with urlopen(req, timeout=35) as r:
         return json.loads(r.read().decode("utf-8", errors="replace"))
@@ -329,7 +329,7 @@ def discover_youtube(category, limit=8):
 
         if data is None:
             try:
-                data = youtube_api_get({
+                data = youtube_api_get("/search", {
                     "key": YOUTUBE_KEY,
                     "part": "snippet",
                     "q": query,
@@ -356,7 +356,7 @@ def discover_youtube(category, limit=8):
             continue
 
         try:
-            details = youtube_api_get({
+            details = youtube_api_get("/videos", {
                 "key": YOUTUBE_KEY,
                 "part": "snippet,contentDetails,statistics",
                 "id": ",".join(ids[:50]),
@@ -391,10 +391,10 @@ def discover_youtube(category, limit=8):
 
             velocity = views / age_days
             social_score = (
-                2.2 * __import__("math").log1p(views)
-                + 4.0 * __import__("math").log1p(likes)
-                + 2.6 * __import__("math").log1p(comments)
-                + 3.5 * __import__("math").log1p(velocity)
+                1.8 * __import__("math").log1p(views)
+                + 3.8 * __import__("math").log1p(likes)
+                + 2.4 * __import__("math").log1p(comments)
+                + 4.2 * __import__("math").log1p(velocity)
             )
 
             results.append({
