@@ -567,11 +567,12 @@ def clip_source(src, info, visual):
 
 def render_scene(src_path, src, cap_path, out_path):
     info=probe(src_path)
+    # Fill the vertical canvas with the source itself. This avoids the
+    # large blurred bands that previously made landscape clips look like
+    # a padded presentation instead of native short-form content.
     vf=(
-        f"[0:v]split=2[bg][fg];"
-        f"[bg]scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,crop={WIDTH}:{HEIGHT},boxblur=18:2[bg2];"
-        f"[fg]scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=decrease[fg2];"
-        f"[bg2][fg2]overlay=(W-w)/2:(H-h)/2,setsar=1,fps={FPS},format=yuv420p[v]"
+        f"[0:v]scale={WIDTH}:{HEIGHT}:force_original_aspect_ratio=increase,"
+        f"crop={WIDTH}:{HEIGHT},setsar=1,fps={FPS},format=yuv420p[v]"
     )
 
     base=["ffmpeg","-y","-ss",str(src["start"]),"-t",str(src["duration"]),"-i",str(src_path),"-loop","1","-i",str(cap_path)]
