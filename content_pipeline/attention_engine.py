@@ -25,6 +25,9 @@ CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL, MAX_TOTAL = 5.0, 30.0
+MIN_VISUAL_SCORE = 50.0
+MIN_RELEVANCE_SCORE = 65.0
+MIN_COMBINED_SCORE = 76.0
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
 random.seed(SEED * 7919)
@@ -60,36 +63,37 @@ DISCOVERY = {
 
 CAPTIONS = {
     "animals": [
-        "این موجودات اصلاً با منطق ما کار نمی‌کنن 😂",
-        "فقط سه ثانیه نگاه کن… بعد قضاوت کن 😭",
-        "وقتی حیوان خونگی‌ت از تو شخصیت بیشتری داره 😂",
-        "این پایان اصلاً قابل پیش‌بینی نبود 👀",
+        "این موجودات اصلاً با منطق ما کار نمی‌کنن",
+        "فقط سه ثانیه نگاه کن… بعد قضاوت کن",
+        "وقتی حیوان خونگی‌ت از تو شخصیت بیشتری داره",
+        "این پایان اصلاً قابل پیش‌بینی نبود",
     ],
     "human_funny": [
-        "همه‌چی خوب بود… تا اینجا 😭",
-        "با اعتمادبه‌نفس شروع شد، با فاجعه تموم شد 😂",
-        "این دقیقاً همون لحظه‌ایه که نباید دوربین روشن باشه 😅",
-        "برنامه: عالی. اجرا: خب… 😂",
+        "همه‌چی خوب بود… تا اینجا",
+        "با اعتمادبه‌نفس شروع شد، با فاجعه تموم شد",
+        "این دقیقاً همون لحظه‌ایه که نباید دوربین روشن باشه",
+        "برنامه: عالی. اجرا: خب…",
     ],
     "beauty_style": [
-        "وقتی فقط اومدی بدرخشی… و موفق هم شدی ✨",
-        "این ورود، زیادی اعتمادبه‌نفس داشت 😏",
-        "همین یه لحظه برای متوقف کردن اسکرول کافیه 👀",
+        "وقتی فقط اومدی بدرخشی… و موفق هم شدی",
+        "این ورود، زیادی اعتمادبه‌نفس داشت",
+        "همین یه لحظه برای متوقف کردن اسکرول کافیه",
         "بعضی‌ها اصلاً نیازی به معرفی ندارن…",
     ],
     "talent": [
-        "صبر کن… این اجرا واقعیه؟ 😳",
-        "اینجا دیگه فقط «خوب» نیست 🔥",
-        "دو ثانیه اول رو از دست نده 👀",
-        "این اجرا یه چیز دیگه‌ست 😮",
+        "صبر کن… این اجرا واقعیه؟",
+        "اینجا دیگه فقط «خوب» نیست",
+        "دو ثانیه اول رو از دست نده",
+        "این اجرا یه چیز دیگه‌ست",
     ],
     "wow": [
-        "اول نگاه کن، بعد بگو چطوری؟ 😳",
-        "این حرکت مغز آدمو چند ثانیه قفل می‌کنه 🤯",
-        "چند بار دیدمش و هنوز نفهمیدم 😭",
-        "صبر کن ببین آخرش چی می‌شه 👀",
+        "اول نگاه کن، بعد بگو چطوری؟",
+        "این حرکت مغز آدمو چند ثانیه قفل می‌کنه",
+        "چند بار دیدمش و هنوز نفهمیدم",
+        "صبر کن ببین آخرش چی می‌شه",
     ],
 }
+
 
 EXPERIMENTS = [
     ("animal_chaos", {"animals": 3}),
@@ -357,6 +361,57 @@ def discover_sources():
     print("Discovered attention sources:", len(results))
     return results[:60]
 
+def source_relevance_score(src):
+    category = str(src.get("category") or "")
+    text_blob = (
+        str(src.get("title") or "") + " " +
+        str(src.get("description") or "")
+    ).lower()
+
+    keywords = {
+        "animals": ["cat","dog","kitten","puppy","animal","pet","monkey","bird","horse","funny"],
+        "human_funny": ["funny","fail","reaction","prank","laugh","awkward","silly","people","person"],
+        "beauty_style": ["woman","women","fashion","beauty","model","dance","style","makeup","performance"],
+        "talent": ["sing","singer","singing","vocal","music","drum","drummer","guitar","dance","performance"],
+        "wow": ["amazing","skill","trick","acrobat","acrobatics","stunt","jump","flip","magic","performance"],
+    }.get(category, [])
+
+    if not keywords:
+        return 50.0
+
+    hits = sum(1 for word in keywords if word in text_blob)
+    if hits == 0:
+        return 35.0
+    return min(100.0, 55.0 + 10.0 * hits)
+
+
+def duration_score(duration):
+    duration = float(duration or 0)
+    if duration <= 12.0:
+        return 100.0
+    if duration <= 15.0:
+        return 97.0
+    if duration <= 20.0:
+        return 90.0
+    if duration <= 25.0:
+        return 78.0
+    return 65.0
+
+
+def orientation_score(width, height):
+    width = float(width or 0)
+    height = float(height or 0)
+    if width <= 0 or height <= 0:
+        return 50.0
+    ratio = height / width
+    if ratio >= 1.15:
+        return 100.0
+    if ratio >= 0.95:
+        return 92.0
+    if ratio >= 0.75:
+        return 82.0
+    return 68.0
+
 def visual_score(path):
     try:
         import cv2
@@ -571,63 +626,87 @@ def select_sources(pool, state, forced_experiment=None):
 
     candidates=list(pool)
     random.shuffle(candidates)
-    candidates.sort(
-        key=lambda x:float(x.get("attention_score") or 0)+random.random()*5,
-        reverse=True,
-    )
 
     evaluated=[]
     used=set()
 
-    # Only a small top slice is downloaded. This keeps API usage and automated
-    # media retrieval deliberately light while still testing visual quality.
+    # Rank by source semantics before downloading. This prevents a generic,
+    # highly-downloaded stock clip from beating a genuinely relevant one.
     for category in targets:
         choices=[
             x for x in candidates
             if x.get("category")==category and x.get("id") not in used
         ]
+        for src in choices:
+            src["_relevance_score"]=source_relevance_score(src)
+
+        choices.sort(
+            key=lambda x: (
+                0.65*float(x.get("_relevance_score") or 0)
+                +0.35*float(x.get("attention_score") or 0)
+            ),
+            reverse=True,
+        )
+
+        # Download only a small elite shortlist.
         for src in choices[:6]:
             try:
                 path=download_source(src)
                 info=probe(path)
                 if info["width"]<int(src.get("min_width",480)):
                     continue
+
                 duration=float(info["duration"] or 0)
                 if duration < MIN_TOTAL or duration > MAX_TOTAL:
                     continue
 
                 visual=visual_score(path)
+                visual_score_value=float(visual.get("score") or 0)
+                relevance=float(src.get("_relevance_score") or source_relevance_score(src))
+                orient=orientation_score(info["width"],info["height"])
+                shortness=duration_score(duration)
 
-                # Shorter is preferred, but not at the expense of popularity or
-                # actual visual energy. The whole source video is retained.
-                if duration <= 20:
-                    shortness=100.0
-                else:
-                    shortness=max(60.0,100.0-(duration-20.0)*4.0)
+                # Hard floors first: popularity is never allowed to rescue
+                # a visually weak or semantically irrelevant source.
+                if visual_score_value < MIN_VISUAL_SCORE:
+                    print("REJECT quality floor",src["id"],
+                          "visual=",round(visual_score_value,2),
+                          "relevance=",round(relevance,2))
+                    continue
+                if relevance < MIN_RELEVANCE_SCORE:
+                    print("REJECT relevance floor",src["id"],
+                          "visual=",round(visual_score_value,2),
+                          "relevance=",round(relevance,2))
+                    continue
 
                 combined_score=(
-                    0.48*float(src.get("attention_score") or 0)
-                    +0.37*float(visual.get("score") or 0)
-                    +0.15*shortness
+                    0.35*float(src.get("attention_score") or 0)
+                    +0.30*visual_score_value
+                    +0.20*relevance
+                    +0.10*orient
+                    +0.05*shortness
                 )
 
                 prepared=dict(src)
+                prepared.pop("_relevance_score",None)
                 prepared["start"]=0.0
                 prepared["duration"]=round(duration,3)
-                prepared["visual_score"]=round(float(visual.get("score") or 0),2)
+                prepared["visual_score"]=round(visual_score_value,2)
+                prepared["relevance_score"]=round(relevance,2)
+                prepared["orientation_score"]=round(orient,2)
                 prepared["shortness_score"]=round(shortness,2)
                 prepared["combined_score"]=round(combined_score,2)
+
                 evaluated.append((prepared,path,info))
                 used.add(src["id"])
 
                 print(
-                    "EVALUATE",
-                    experiment,
-                    category,
-                    prepared["id"],
+                    "EVALUATE",experiment,category,prepared["id"],
                     "combined=",prepared["combined_score"],
                     "pop=",prepared["attention_score"],
                     "visual=",prepared["visual_score"],
+                    "relevance=",prepared["relevance_score"],
+                    "orientation=",prepared["orientation_score"],
                     "duration=",prepared["duration"],
                 )
             except Exception as exc:
@@ -641,13 +720,16 @@ def select_sources(pool, state, forced_experiment=None):
         reverse=True,
     )
 
-    # One short-form-native source becomes one post. No three-clip montage.
     for chosen in evaluated:
         key=combo_key([chosen[0]])
-        if key not in history:
+        if (
+            key not in history
+            and float(chosen[0].get("combined_score") or 0) >= MIN_COMBINED_SCORE
+        ):
             return [chosen],experiment
 
     return [],experiment
+
 def validate(path, sources):
     info=probe(path)
     problems=[]
@@ -657,10 +739,16 @@ def validate(path, sources):
         problems.append(f"duration={info['duration']:.2f}")
     if path.stat().st_size > 50*1024*1024:
         problems.append("file_too_large")
-    scores=[float(x.get("attention_score") or 0) for x in sources]
-    if scores and sum(scores)/len(scores) < 67:
-        problems.append("attention_score_floor")
+
+    for x in sources:
+        if float(x.get("visual_score") or 0) < MIN_VISUAL_SCORE:
+            problems.append("visual_score_floor")
+        if float(x.get("relevance_score") or 0) < MIN_RELEVANCE_SCORE:
+            problems.append("relevance_score_floor")
+        if float(x.get("combined_score") or 0) < MIN_COMBINED_SCORE:
+            problems.append("combined_score_floor")
     return info,problems
+
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
