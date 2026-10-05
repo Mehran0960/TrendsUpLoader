@@ -21,8 +21,8 @@ def main():
     meta=json.loads((video.parent/'metadata.json').read_text(encoding='utf-8'))
     if meta.get("content_type")!="attention_remix" or meta.get("quality_gate")!="passed_publish":
         raise RuntimeError("Refusing unvalidated attention content.")
-    if float(meta.get("duration_seconds") or 0)<11:
-        raise RuntimeError("Refusing short attention content.")
+    if float(meta.get("duration_seconds") or 0)<5:
+        raise RuntimeError("Refusing attention content shorter than 5 seconds.")
     boundary='----Attention'+uuid.uuid4().hex
     chunks=[]
     fields={'chat_id':chat_id,'caption':str(meta.get('display_title_fa') or '🔥 یه ترکیب غیرمنتظره')}
