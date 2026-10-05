@@ -668,6 +668,11 @@ def source_relevance_score(src):
 
     hits = sum(1 for word in keywords if word in text_blob)
     if hits == 0:
+        # Pexels Popular is an editorial popularity feed without media tags;
+        # do not pretend it has strong semantic evidence, but keep it eligible
+        # for visual screening rather than discarding it outright.
+        if str(src.get("provider") or "") == "pexels" and src.get("popular_rank"):
+            return 70.0
         return 35.0
     return min(100.0, 55.0 + 10.0 * hits)
 
@@ -1204,12 +1209,21 @@ def main():
         encoding="utf-8"
     )
 
-    attribution=[
-        "Source: Pixabay.",
-        "Source license: Pixabay Content License.",
-        "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
-        f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
-    ]
+    if src.get("provider") == "pexels":
+        attribution = [
+            "Source: Pexels.",
+            "Source license: Pexels license.",
+            "Attribution: Pexels asks API users to show a prominent link to Pexels and credit the creator when possible.",
+            "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
+            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+        ]
+    else:
+        attribution = [
+            "Source: Pixabay.",
+            "Source license: Pixabay Content License.",
+            "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
+            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+        ]
     (run_dir/"attribution.txt").write_text(
         "\n".join(attribution)+"\n",
         encoding="utf-8"
