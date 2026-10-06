@@ -6,7 +6,10 @@ concurrency:
 
 on:
   workflow_dispatch:
-  # schedule paused while source-quality/virality model is rebuilt
+  push:
+    paths:
+      - ".attention_trigger"
+  # temporary trigger for global radar validation
 
 jobs:
   build:
