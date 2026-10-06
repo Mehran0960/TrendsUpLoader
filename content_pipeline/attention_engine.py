@@ -1722,13 +1722,10 @@ def main():
     youtube_signals.extend(global_youtube_signals)
     web_signals = []
     trend_queries_by_category = {}
-    # Start with all categories represented by the global radar; if the
-    # radar is empty, fall back to the least-tested experiment.
-    local_probe = []
-    for category in DISCOVERY:
-        local_probe.extend(discover_youtube(category, limit=6))
+    # Let the global chart radar choose the category first. Local search is
+    # only run for the winning category, keeping API cost bounded.
     opportunity_category, opportunity_score, _ = choose_opportunity_category(
-        global_youtube_signals, local_probe
+        global_youtube_signals, []
     )
 
     if opportunity_category:
@@ -1740,7 +1737,9 @@ def main():
         candidates_exp=[x for x in EXPERIMENTS if counts.get(x[0],0)==least]
         experiment,targets=random.choice(candidates_exp)
 
+    local_probe = []
     for category in targets:
+        local_probe.extend(discover_youtube(category, limit=10))
         yt = [x for x in local_probe if x.get("category") == category]
         global_cat = [x for x in global_youtube_signals if x.get("category") == category][:30]
         category_signals = sorted(
