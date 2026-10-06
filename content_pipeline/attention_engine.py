@@ -48,6 +48,7 @@ PEXELS_KEY = os.environ.get("PEXELS_API_KEY", "").strip()
 PIXABAY_CACHE = Path("attention_api_cache")
 YOUTUBE_CACHE = Path("attention_api_cache/youtube")
 PEXELS_CACHE = Path("attention_api_cache/pexels")
+GDELT_CACHE = Path("attention_api_cache/gdelt")
 PIXABAY_QUERIES = {
     "animals": ["funny cat", "funny dog", "cute animal"],
     "human_funny": ["funny people", "funny fail", "funny reaction"],
@@ -460,6 +461,85 @@ def discover_youtube(category, limit=12):
 
     print("YouTube viral radar complete:", category, "signals=", len(results))
     return results[:limit]
+
+
+def discover_gdelt(category, seed_queries=None, limit=10):
+    """Use GDELT as a broad-web attention signal, not as a media source.
+
+    GDELT's timeline/article APIs expose recent news coverage volume and the
+    articles driving spikes. This adds a second, independent web signal without
+    scraping social platforms or downloading third-party media.
+    """
+    GDELT_CACHE.mkdir(parents=True, exist_ok=True)
+    queries = [str(q).strip() for q in (seed_queries or []) if q][:3]
+    if not queries:
+        queries = [str(q) for q in DISCOVERY.get(category, [])[:2]]
+
+    from datetime import datetime, timezone, timedelta
+    signals = []
+
+    for query in queries:
+        key = hashlib.sha1((category + "|" + query + "|3d").encode("utf-8")).hexdigest()[:18]
+        cache_file = GDELT_CACHE / (key + ".json")
+        data = None
+        if cache_file.exists() and __import__("time").time() - cache_file.stat().st_mtime <= 6 * 3600:
+            try:
+                data = json.loads(cache_file.read_text(encoding="utf-8"))
+            except Exception:
+                data = None
+
+        if data is None:
+            try:
+                params = urllib.parse.urlencode({
+                    "query": '"' + query.replace('"', '') + '"',
+                    "mode": "artlist",
+                    "format": "json",
+                    "timespan": "3d",
+                    "maxrecords": 20,
+                })
+                req = Request(
+                    "https://api.gdeltproject.org/api/v2/doc/doc?" + params,
+                    headers={"User-Agent": "attention-remix-engine/gdelt-radar/1.0"},
+                )
+                with urlopen(req, timeout=35) as resp:
+                    raw = resp.read().decode("utf-8", errors="replace")
+                data = json.loads(raw)
+                cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+            except Exception as exc:
+                print("GDELT discovery failed:", category, query, exc)
+                continue
+
+        articles = data.get("articles") or data.get("data") or []
+        if isinstance(articles, dict):
+            articles = articles.get("articles") or []
+        if not isinstance(articles, list):
+            articles = []
+
+        # Article presence is a broad-web attention signal, while duplicate
+        # headlines/domains are collapsed so one publisher cannot dominate.
+        seen_titles = set()
+        for rank, article in enumerate(articles[:limit]):
+            title = str(article.get("title") or "").strip()
+            url = str(article.get("url") or "").strip()
+            domain = str(article.get("domain") or article.get("sourcecountry") or "").strip()
+            if not title or title.lower() in seen_titles:
+                continue
+            seen_titles.add(title.lower())
+            signals.append({
+                "provider": "gdelt",
+                "category": category,
+                "query": query,
+                "rank": rank + 1,
+                "title": title,
+                "url": url,
+                "domain": domain,
+                "published_at": str(article.get("seendate") or article.get("socialimage") or ""),
+                "web_attention_score": round(max(45.0, 94.0 - rank * 4.0), 2),
+            })
+
+    # Prefer distinctive article phrases as acquisition seeds.
+    signals.sort(key=lambda x: float(x.get("web_attention_score") or 0), reverse=True)
+    return signals[:limit]
 
 
 def derive_trend_queries(youtube_results, category, max_queries=3):
@@ -1146,11 +1226,29 @@ def main():
     # First discover actual short-form demand signals from YouTube.
     # YouTube is used for metadata/trend intelligence only; its media is never downloaded.
     youtube_signals = []
+    web_signals = []
     trend_queries_by_category = {}
     for category in targets:
-        yt = discover_youtube(category, limit=8)
+        yt = discover_youtube(category, limit=10)
         youtube_signals.extend(yt)
-        trend_queries_by_category[category] = derive_trend_queries(yt, category, max_queries=3)
+        yt_queries = derive_trend_queries(yt, category, max_queries=3)
+
+        gdelt = discover_gdelt(category, seed_queries=yt_queries, limit=10)
+        web_signals.extend(gdelt)
+
+        combined_queries = list(yt_queries)
+        for item in gdelt:
+            title = str(item.get("title") or "")
+            words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", title.lower())
+            useful = [w for w in words if w not in YOUTUBE_STOPWORDS]
+            if len(useful) >= 2:
+                phrase = " ".join(useful[:4])
+                if phrase not in combined_queries:
+                    combined_queries.append(phrase)
+            if len(combined_queries) >= 5:
+                break
+
+        trend_queries_by_category[category] = combined_queries[:5]
 
     # Then look for licensed short videos on Pixabay that match the social-demand signal.
     pool={}
@@ -1170,11 +1268,24 @@ def main():
         for x in pexels_items:
             pool[x["id"]]=x
 
-    # Attach cross-platform demand signals to every licensed acquisition candidate.
+    # Attach cross-platform web demand signals to every licensed acquisition candidate.
     for item in pool.values():
-        item["trend_match_score"] = trend_match_score(
-            item,
-            trend_queries_by_category.get(str(item.get("category") or ""), []),
+        cat = str(item.get("category") or "")
+        queries = trend_queries_by_category.get(cat, [])
+        item["trend_match_score"] = trend_match_score(item, queries)
+
+        # A recent web spike can strengthen demand only when the candidate
+        # actually matches the discovered topic; it cannot override quality.
+        web_match = trend_match_score(item, [
+            str(x.get("title") or "")
+            for x in web_signals
+            if str(x.get("category") or "") == cat
+        ][:5])
+        item["web_signal_score"] = round(web_match, 2)
+        item["cross_web_score"] = round(
+            0.55 * float(item.get("trend_match_score") or 50.0)
+            + 0.45 * float(item.get("web_signal_score") or 50.0),
+            2,
         )
 
     (run_dir/"radar.json").write_text(
@@ -1184,6 +1295,12 @@ def main():
             "acquisition_platforms": ["pixabay", "pexels"],
             "experiment": experiment,
             "trend_queries_by_category": trend_queries_by_category,
+            "web_signal_count": len(web_signals),
+            "top_web_signals": sorted(
+                web_signals,
+                key=lambda x: float(x.get("web_attention_score") or 0),
+                reverse=True,
+            )[:20],
             "top_demand_signals": sorted(
                 youtube_signals,
                 key=lambda x: float(x.get("demand_score") or 0),
@@ -1308,9 +1425,11 @@ def main():
             "duration":src.get("duration"),
         }],
         "youtube_trend_signals":youtube_signals[:12],
+        "web_attention_signals":web_signals[:20],
         "trend_queries_by_category":trend_queries_by_category,
         "actual_categories":[str(src.get("category"))],
         "licensed_acquisition_only":True,
+        "web_discovery_only_signals":True,
         "youtube_media_downloaded":False,
     }
 
