@@ -437,41 +437,28 @@ def parse_iso_duration(value):
 
 
 def infer_viral_category(video_category_id, title, description=""):
-    """Map YouTube chart categories and language cues to our acquisition lanes."""
+    """Infer our content lane from semantic cues first; category IDs are fallback."""
     blob=(str(title or "")+" "+str(description or "")).lower()
 
-    if str(video_category_id)=="15":
-        return "animals"
-    if str(video_category_id)=="17":
-        return "sports"
-    if str(video_category_id)=="19":
-        return "travel"
-
     keyword_map=[
-        ("animals", ["cat","dog","puppy","kitten","animal","pet","monkey","bird","horse"]),
-        ("sports", ["football","soccer","basketball","tennis","goal","match","nba","fifa","ufc","sport"]),
-        ("food", ["food","cooking","recipe","chef","kitchen","street food","cake","dessert"]),
-        ("cars", ["car","cars","automotive","drift","racing","vehicle","supercar"]),
-        ("satisfying", ["satisfying","restoration","restore","cleaning","before after","oddly"]),
-        ("travel", ["travel","trip","destination","vacation","hotel","beach","mountain"]),
-        ("tech", ["iphone","android","ai","robot","gadget","technology","tech","computer","phone"]),
-        ("talent", ["singing","singer","vocal","drummer","guitar","piano","performance"]),
-        ("beauty_style", ["fashion","makeup","beauty","style","model","dance","outfit"]),
-        ("human_funny", ["funny","fail","prank","reaction","awkward","comedy","laugh"]),
+        ("animals", ["cat","kitten","dog","puppy","animal","pet","monkey","bird","toucan","horse","panda","rabbit"]),
+        ("sports", ["football","soccer","basketball","tennis","goal","match","nba","fifa","ufc","sport","skateboard","surf"]),
+        ("food", ["food","cooking","recipe","chef","kitchen","street food","cake","dessert","pizza","sushi"]),
+        ("cars", ["car","cars","automotive","drift","racing","vehicle","supercar","truck","motorcycle"]),
+        ("satisfying", ["satisfying","restoration","restore","cleaning","before after","oddly","polishing"]),
+        ("travel", ["travel","trip","destination","vacation","hotel","beach","mountain","island","landscape"]),
+        ("tech", ["technology","tech","iphone","android","ai","robot","gadget","computer","phone","apple","samsung"]),
+        ("talent", ["singing","singer","vocal","drummer","drumming","guitar","piano","talent","performer"]),
+        ("beauty_style", ["fashion","beauty","model","dance","style","makeup","outfit","dress","glam","clothing"]),
+        ("human_funny", ["funny","fail","prank","reaction","awkward","comedy","laugh","silly","meme"]),
+        ("wow", ["amazing","skill","trick","acrobat","acrobatics","stunt","magic","flip","jump"]),
     ]
     for category,words in keyword_map:
-        if any(w in blob for w in words):
+        if any(re.search(r"\\b"+re.escape(w)+r"\\b", blob) for w in words):
             return category
 
-    if str(video_category_id)=="26":
-        return "beauty_style"
-    if str(video_category_id)=="28":
-        return "tech"
-    if str(video_category_id)=="23":
-        return "human_funny"
-    if str(video_category_id)=="24":
-        return "wow"
-    return "wow"
+    fallback_map={"15":"animals","17":"sports","28":"tech"}
+    return fallback_map.get(str(video_category_id), "other")
 
 
 def discover_youtube_global_charts(limit_per_bucket=8):
@@ -1970,6 +1957,7 @@ def main():
         "provider":src.get("provider"),
         "attention_score":src.get("attention_score"),
         "visual_score":src.get("visual_score"),
+        "relevance_score":src.get("relevance_score"),
         "shortness_score":src.get("shortness_score"),
         "combined_score":src.get("combined_score"),
         "trend_match_score":src.get("trend_match_score"),
