@@ -76,6 +76,50 @@ YOUTUBE_QUERIES = {
     "travel": ["amazing travel", "beautiful destination", "travel moment"],
     "tech": ["cool technology", "amazing gadget", "tech demo"],
 }
+CATEGORY_ANCHORS = {
+    "animals": ["cat","kitten","dog","puppy","animal","pet","monkey","bird","toucan","horse","panda","rabbit"],
+    "human_funny": ["funny","fail","prank","reaction","awkward","comedy","laugh","silly","meme"],
+    "beauty_style": ["woman","women","fashion","beauty","model","dance","style","makeup","outfit","dress","glam"],
+    "talent": ["singing","singer","vocal","drummer","drumming","guitar","piano","talent","performer","performance"],
+    "wow": ["amazing","skill","trick","acrobat","acrobatics","stunt","magic","flip","jump"],
+    "sports": ["football","soccer","basketball","tennis","goal","match","sport","skateboard","surf","ufc","nba"],
+    "food": ["food","cooking","recipe","chef","kitchen","street","cake","dessert","pizza","sushi"],
+    "cars": ["car","cars","automotive","drift","racing","vehicle","supercar","truck","motorcycle"],
+    "satisfying": ["satisfying","restoration","restore","cleaning","polish","before","after","oddly"],
+    "travel": ["travel","trip","destination","vacation","hotel","beach","mountain","island","landscape"],
+    "tech": ["technology","tech","iphone","android","ai","robot","gadget","computer","phone","apple","samsung"],
+}
+
+
+def extract_category_query(title, category):
+    words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", str(title or "").lower())
+    if not words:
+        return None
+
+    anchors = set(CATEGORY_ANCHORS.get(category, []))
+    anchor_positions = [i for i,w in enumerate(words) if w in anchors]
+    if not anchor_positions:
+        return None
+
+    # Prefer one category anchor plus the nearest distinctive non-stopwords.
+    pos = anchor_positions[0]
+    candidates = []
+    for i,w in enumerate(words):
+        if w in YOUTUBE_STOPWORDS or w in anchors or len(w) < 3:
+            continue
+        distance = abs(i-pos)
+        candidates.append((distance,i,w))
+    candidates.sort()
+
+    phrase_words = [words[pos]]
+    for _,_,word in candidates[:2]:
+        if word not in phrase_words:
+            phrase_words.append(word)
+
+    phrase = " ".join(phrase_words[:3]).strip()
+    return phrase if len(phrase) >= 7 else None
+
+
 YOUTUBE_STOPWORDS = {
     "the","and","that","this","with","from","for","you","your","are","was","were",
     "have","has","had","how","what","when","where","why","just","very","really",
@@ -889,29 +933,23 @@ def discover_gdelt(category, seed_queries=None, limit=10):
 
 
 def derive_trend_queries(youtube_results, category, max_queries=4):
-    """Turn the strongest demand signals into concise acquisition queries."""
+    """Extract clean topic phrases only from titles that support this category."""
     phrases = []
     category_fallbacks = [str(x) for x in YOUTUBE_QUERIES.get(category, [])[:3]]
 
     ranked = sorted(
         list(youtube_results or []),
-        key=lambda x: float(x.get("demand_score") or 0),
+        key=lambda x: float(x.get("demand_score") or x.get("web_attention_score") or 0),
         reverse=True,
     )
 
     for item in ranked:
-        title = str(item.get("title") or "")
-        words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", title.lower())
-        useful = [w for w in words if w not in YOUTUBE_STOPWORDS and len(w) >= 3]
-        if len(useful) < 2:
+        item_category = str(item.get("category") or "")
+        if item_category and item_category != category:
             continue
-
-        for width in (3, 2):
-            if len(useful) >= width:
-                phrase = " ".join(useful[:width])
-                if len(phrase) >= 8 and phrase not in phrases:
-                    phrases.append(phrase)
-                    break
+        phrase = extract_category_query(str(item.get("title") or ""), category)
+        if phrase and phrase not in phrases:
+            phrases.append(phrase)
         if len(phrases) >= max_queries:
             break
 
@@ -1763,16 +1801,10 @@ def main():
 
         combined_queries = list(yt_queries)
         active_web = gdelt if gdelt else google_news
-        for item in active_web:
-            title = str(item.get("title") or "")
-            words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", title.lower())
-            useful = [w for w in words if w not in YOUTUBE_STOPWORDS]
-            if len(useful) >= 2:
-                phrase = " ".join(useful[:4])
-                if phrase not in combined_queries:
-                    combined_queries.append(phrase)
-            if len(combined_queries) >= 5:
-                break
+        web_phrases = derive_trend_queries(active_web, category, max_queries=2)
+        for phrase in web_phrases:
+            if phrase not in combined_queries and len(combined_queries) < 5:
+                combined_queries.append(phrase)
 
         trend_queries_by_category[category] = combined_queries[:5]
 
