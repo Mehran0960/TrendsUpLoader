@@ -1174,7 +1174,7 @@ def select_sources(pool, state, forced_experiment=None):
                     +0.35*float(src.get("cross_web_score") or src.get("trend_match_score") or 50.0)
                 )
             items.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
-            shortlist.extend(items[:3])
+            shortlist.extend(items[:8])
 
         shortlist.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
 
