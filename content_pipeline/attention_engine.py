@@ -1130,10 +1130,17 @@ def trend_match_score(src, trend_queries=None):
         return 50.0
 
     provider = str(src.get("provider") or "")
+    page_slug = re.sub(r"[-_/]+", " ", str(src.get("page") or ""))
+    description = str(src.get("description") or "")
+    # Pexels search results currently use description to retain the query that
+    # produced them; that query must never count as semantic evidence.
+    if provider == "pexels" and src.get("search_query"):
+        description = ""
     blob = (
         str(src.get("title") or "") + " " +
-        str(src.get("description") or "") + " " +
-        str(src.get("tags") or "")
+        description + " " +
+        str(src.get("tags") or "") + " " +
+        page_slug
     ).lower()
 
     best = 0.0
@@ -1163,9 +1170,14 @@ def trend_match_score(src, trend_queries=None):
 
 def source_relevance_score(src):
     category = str(src.get("category") or "")
+    page_slug = re.sub(r"[-_/]+", " ", str(src.get("page") or ""))
+    description = str(src.get("description") or "")
+    if str(src.get("provider") or "") == "pexels" and src.get("search_query"):
+        description = ""
     text_blob = (
         str(src.get("title") or "") + " " +
-        str(src.get("description") or "")
+        description + " " +
+        page_slug
     ).lower()
 
     keywords = {
