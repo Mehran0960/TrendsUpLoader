@@ -355,6 +355,174 @@ def parse_iso_duration(value):
     return hours * 3600.0 + minutes * 60.0 + seconds
 
 
+def infer_viral_category(video_category_id, title, description=""):
+    """Map YouTube chart categories and language cues to our acquisition lanes."""
+    blob=(str(title or "")+" "+str(description or "")).lower()
+
+    if str(video_category_id)=="15":
+        return "animals"
+    if str(video_category_id)=="17":
+        return "sports"
+    if str(video_category_id)=="19":
+        return "travel"
+
+    keyword_map=[
+        ("animals", ["cat","dog","puppy","kitten","animal","pet","monkey","bird","horse"]),
+        ("sports", ["football","soccer","basketball","tennis","goal","match","nba","fifa","ufc","sport"]),
+        ("food", ["food","cooking","recipe","chef","kitchen","street food","cake","dessert"]),
+        ("cars", ["car","cars","automotive","drift","racing","vehicle","supercar"]),
+        ("satisfying", ["satisfying","restoration","restore","cleaning","before after","oddly"]),
+        ("travel", ["travel","trip","destination","vacation","hotel","beach","mountain"]),
+        ("tech", ["iphone","android","ai","robot","gadget","technology","tech","computer","phone"]),
+        ("talent", ["singing","singer","vocal","drummer","guitar","piano","performance"]),
+        ("beauty_style", ["fashion","makeup","beauty","style","model","dance","outfit"]),
+        ("human_funny", ["funny","fail","prank","reaction","awkward","comedy","laugh"]),
+    ]
+    for category,words in keyword_map:
+        if any(w in blob for w in words):
+            return category
+
+    if str(video_category_id)=="26":
+        return "beauty_style"
+    if str(video_category_id)=="28":
+        return "tech"
+    if str(video_category_id)=="23":
+        return "human_funny"
+    if str(video_category_id)=="24":
+        return "wow"
+    return "wow"
+
+
+def discover_youtube_global_charts(limit_per_bucket=8):
+    """Read current official YouTube mostPopular charts across regions/categories.
+
+    This is demand intelligence only. No YouTube audiovisual media is downloaded.
+    """
+    if not YOUTUBE_KEY:
+        print("YouTube global chart radar skipped: API key missing.")
+        return []
+
+    cache_dir=YOUTUBE_CACHE / "global_charts"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    raw_results=[]
+
+    for region in YOUTUBE_REGION_CODES:
+        for category_id in YOUTUBE_CHART_CATEGORY_IDS:
+            cache_file=cache_dir / (
+                hashlib.sha1((region+"|"+category_id).encode("utf-8")).hexdigest()[:18]+".json"
+            )
+            data=None
+            if cache_file.exists() and __import__("time").time()-cache_file.stat().st_mtime <= 24*3600:
+                try:
+                    data=json.loads(cache_file.read_text(encoding="utf-8"))
+                except Exception:
+                    data=None
+
+            if data is None:
+                try:
+                    data=youtube_api_get("/videos", {
+                        "key":YOUTUBE_KEY,
+                        "part":"snippet,contentDetails,statistics",
+                        "chart":"mostPopular",
+                        "regionCode":region,
+                        "videoCategoryId":category_id,
+                        "maxResults":min(limit_per_bucket,50),
+                    })
+                    cache_file.write_text(json.dumps(data,ensure_ascii=False),encoding="utf-8")
+                except Exception as exc:
+                    print("YouTube global chart failed:",region,category_id,exc)
+                    continue
+
+            for rank,item in enumerate((data.get("items") or [])[:limit_per_bucket],start=1):
+                video_id=str(item.get("id") or "").strip()
+                snippet=item.get("snippet") or {}
+                stats=item.get("statistics") or {}
+                content=item.get("contentDetails") or {}
+                duration=parse_iso_duration(content.get("duration"))
+                if not video_id or duration < MIN_TOTAL:
+                    continue
+
+                title=str(snippet.get("title") or "").strip()
+                description=str(snippet.get("description") or "").strip()
+                published_at=str(snippet.get("publishedAt") or "").strip()
+                views=max(0,int(stats.get("viewCount") or 0))
+                likes=max(0,int(stats.get("likeCount") or 0))
+                comments=max(0,int(stats.get("commentCount") or 0))
+                like_rate=likes/max(1,views)
+                comment_rate=comments/max(1,views)
+                age_days=float(MAX_YOUTUBE_SIGNAL_AGE_DAYS)
+                try:
+                    from datetime import datetime, timezone
+                    dt=datetime.fromisoformat(published_at.replace("Z","+00:00"))
+                    age_days=max(0.125,(datetime.now(timezone.utc)-dt).total_seconds()/86400.0)
+                except Exception:
+                    pass
+
+                raw_results.append({
+                    "provider":"youtube_global_chart",
+                    "id":"youtube:"+video_id,
+                    "video_id":video_id,
+                    "title":title,
+                    "description":description[:500],
+                    "published_at":published_at,
+                    "duration":duration,
+                    "views":views,
+                    "likes":likes,
+                    "comments":comments,
+                    "like_rate":round(like_rate,6),
+                    "comment_rate":round(comment_rate,6),
+                    "velocity":round(views/max(age_days,0.125),2),
+                    "chart_rank":rank,
+                    "chart_region":region,
+                    "chart_category_id":category_id,
+                    "category":infer_viral_category(category_id,title,description),
+                    "url":"https://www.youtube.com/watch?v="+video_id,
+                    "discovery_only":True,
+                    "media_downloaded":False,
+                })
+
+    # Collapse the same video seen across multiple regions/charts and reward
+    # both high rank and cross-region recurrence.
+    grouped={}
+    for item in raw_results:
+        key=item["id"]
+        g=grouped.setdefault(key,{"item":item,"regions":set(),"ranks":[]})
+        g["regions"].add(item["chart_region"])
+        g["ranks"].append(int(item["chart_rank"]))
+        if int(item["chart_rank"]) < int(g["item"].get("chart_rank",999)):
+            g["item"]=item
+
+    results=[]
+    from datetime import datetime, timezone
+    for g in grouped.values():
+        item=dict(g["item"])
+        region_count=len(g["regions"])
+        avg_rank=sum(g["ranks"])/len(g["ranks"])
+        rank_score=max(0.0,min(1.0,(51.0-avg_rank)/50.0))
+        cross_region=min(1.0,region_count/4.0)
+        freshness=0.5
+        try:
+            dt=datetime.fromisoformat(str(item.get("published_at","")).replace("Z","+00:00"))
+            age=max(0.0,(datetime.now(timezone.utc)-dt).total_seconds()/86400.0)
+            freshness=max(0.0,1.0-min(age/MAX_YOUTUBE_SIGNAL_AGE_DAYS,1.0))
+        except Exception:
+            pass
+        engagement=min(1.0,
+            3.5*min(float(item.get("like_rate") or 0),0.08)
+            +4.0*min(float(item.get("comment_rate") or 0),0.02)
+        )
+        score=50.0+30.0*rank_score+12.0*cross_region+5.0*freshness+3.0*engagement
+        item["chart_regions"]=sorted(g["regions"])
+        item["chart_region_count"]=region_count
+        item["chart_avg_rank"]=round(avg_rank,2)
+        item["demand_score"]=round(min(100.0,score),2)
+        results.append(item)
+
+    results.sort(key=lambda x:float(x.get("demand_score") or 0),reverse=True)
+    print("YouTube global chart radar complete:", "signals=",len(results))
+    return results[:120]
+
+
 def discover_youtube(category, limit=16):
     """Discover both established and emerging short-form demand signals."""
     if not YOUTUBE_KEY:
