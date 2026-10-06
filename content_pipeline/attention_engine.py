@@ -1225,12 +1225,9 @@ def select_sources(pool, state, forced_experiment=None):
     history=state.get("keys",set())
 
     candidates=list(pool)
-
     evaluated=[]
     used=set()
 
-    # Give each provider a real chance. The old ranking could let six Pixabay
-    # candidates consume the whole shortlist before Pexels was ever tested.
     for category in targets:
         choices=[x for x in candidates if x.get("category")==category]
         by_provider={}
@@ -1251,11 +1248,14 @@ def select_sources(pool, state, forced_experiment=None):
 
         shortlist.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
 
-        # Download at most two from each provider/category.
+        # Wider evaluation: allow a real search of the candidate pool.
+        provider_limits={"pixabay":5,"pexels":5,"commons":4}
         provider_taken={}
+
         for src in shortlist:
             provider=str(src.get("provider") or "unknown")
-            if provider_taken.get(provider,0)>=2:
+            limit=provider_limits.get(provider,4)
+            if provider_taken.get(provider,0)>=limit:
                 continue
             provider_taken[provider]=provider_taken.get(provider,0)+1
 
@@ -1274,30 +1274,24 @@ def select_sources(pool, state, forced_experiment=None):
 
                 visual=visual_score(path)
                 visual_score_value=float(visual.get("score") or 0)
-                relevance=float(
-                    src.get("relevance_score")
-                    or source_relevance_score(src)
-                )
+                relevance=float(src.get("relevance_score") or source_relevance_score(src))
                 demand=float(src.get("cross_web_score") or src.get("trend_match_score") or 50.0)
                 orient=orientation_score(info["width"],info["height"])
                 shortness=duration_score(duration)
 
                 if visual_score_value < MIN_VISUAL_SCORE:
                     print("REJECT quality floor",src["id"],
-                          "provider=",provider,
-                          "visual=",round(visual_score_value,2),
+                          "provider=",provider,"visual=",round(visual_score_value,2),
                           "relevance=",round(relevance,2))
                     continue
                 if relevance < MIN_RELEVANCE_SCORE:
                     print("REJECT relevance floor",src["id"],
-                          "provider=",provider,
-                          "visual=",round(visual_score_value,2),
+                          "provider=",provider,"visual=",round(visual_score_value,2),
                           "relevance=",round(relevance,2))
                     continue
                 if demand < MIN_DEMAND_SCORE:
                     print("REJECT demand-match floor",src["id"],
-                          "provider=",provider,
-                          "demand=",round(demand,2),
+                          "provider=",provider,"demand=",round(demand,2),
                           "relevance=",round(relevance,2))
                     continue
 
@@ -1316,7 +1310,8 @@ def select_sources(pool, state, forced_experiment=None):
                 prepared["duration"]=round(duration,3)
                 prepared["visual_score"]=round(visual_score_value,2)
                 prepared["relevance_score"]=round(relevance,2)
-                prepared["trend_match_score"]=round(demand,2)
+                prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
+                prepared["cross_web_score"]=round(demand,2)
                 prepared["orientation_score"]=round(orient,2)
                 prepared["shortness_score"]=round(shortness,2)
                 prepared["combined_score"]=round(combined_score,2)
@@ -1328,11 +1323,10 @@ def select_sources(pool, state, forced_experiment=None):
                     "EVALUATE",experiment,category,prepared["id"],
                     "provider=",provider,
                     "combined=",prepared["combined_score"],
-                    "pop=",prepared["attention_score"],
+                    "pop=",prepared.get("attention_score"),
                     "visual=",prepared["visual_score"],
                     "relevance=",prepared["relevance_score"],
-                    "demand_match=",prepared["trend_match_score"],
-                    "orientation=",prepared["orientation_score"],
+                    "demand_match=",prepared["cross_web_score"],
                     "duration=",prepared["duration"],
                 )
             except Exception as exc:
@@ -1341,11 +1335,9 @@ def select_sources(pool, state, forced_experiment=None):
     if not evaluated:
         return [],experiment
 
-    evaluated.sort(
-        key=lambda x:float(x[0].get("combined_score") or 0),
-        reverse=True,
-    )
+    evaluated.sort(key=lambda x:float(x[0].get("combined_score") or 0),reverse=True)
 
+    # Primary mode: publish a single complete short source when it is strong enough.
     for chosen in evaluated:
         key=combo_key([chosen[0]])
         if (
@@ -1353,6 +1345,66 @@ def select_sources(pool, state, forced_experiment=None):
             and float(chosen[0].get("combined_score") or 0) >= MIN_COMBINED_SCORE
         ):
             return [chosen],experiment
+
+    # Fallback mode: create a compact "3 moments" style package, but only from
+    # individually screened complete short videos. Never use arbitrary crops of
+    # long videos, and require meaningful diversity where available.
+    bundle_candidates=[
+        x for x in evaluated
+        if float(x[0].get("combined_score") or 0) >= 70.0
+        and float(x[0].get("visual_score") or 0) >= MIN_VISUAL_SCORE
+        and float(x[0].get("relevance_score") or 0) >= MIN_RELEVANCE_SCORE
+        and float(x[0].get("cross_web_score") or 50.0) >= MIN_DEMAND_SCORE
+    ]
+
+    bundles=[]
+    max_candidates=min(len(bundle_candidates),12)
+    for n in (2,3):
+        for combo in itertools.combinations(bundle_candidates[:max_candidates],n):
+            total_duration=sum(float(x[0].get("duration") or 0) for x in combo)
+            if not MIN_TOTAL <= total_duration <= MAX_TOTAL:
+                continue
+
+            ids=[x[0]["id"] for x in combo]
+            key=combo_key([x[0] for x in combo])
+            if key in history:
+                continue
+
+            providers=[str(x[0].get("provider") or "") for x in combo]
+            categories=[str(x[0].get("category") or "") for x in combo]
+            provider_diversity=len(set(providers))/len(providers)
+            category_diversity=len(set(categories))/len(categories)
+            avg_score=sum(float(x[0].get("combined_score") or 0) for x in combo)/n
+            min_score=min(float(x[0].get("combined_score") or 0) for x in combo)
+            duration_fit=100.0 - abs(19.0-total_duration)*2.2
+            duration_fit=max(40.0,min(100.0,duration_fit))
+
+            bundle_score=(
+                0.58*avg_score
+                +0.10*min_score
+                +0.12*(100.0*provider_diversity)
+                +0.08*(100.0*category_diversity)
+                +0.12*duration_fit
+            )
+
+            bundles.append((bundle_score,list(combo),key,total_duration))
+
+    if not bundles:
+        return [],experiment
+
+    bundles.sort(key=lambda x:x[0],reverse=True)
+    best_score,best_bundle,best_key,total_duration=bundles[0]
+
+    if best_score >= 72.0:
+        print(
+            "BUNDLE FALLBACK",
+            experiment,
+            "score=",round(best_score,2),
+            "clips=",len(best_bundle),
+            "duration=",round(total_duration,2),
+            "ids=","|".join(x[0]["id"] for x in best_bundle),
+        )
+        return best_bundle,experiment
 
     return [],experiment
 
@@ -1371,7 +1423,8 @@ def validate(path, sources):
             problems.append("visual_score_floor")
         if float(x.get("relevance_score") or 0) < MIN_RELEVANCE_SCORE:
             problems.append("relevance_score_floor")
-        if float(x.get("combined_score") or 0) < MIN_COMBINED_SCORE:
+        combined_floor = 70.0 if len(sources) > 1 else MIN_COMBINED_SCORE
+        if float(x.get("combined_score") or 0) < combined_floor:
             problems.append("combined_score_floor")
     return info,problems
 
@@ -1541,11 +1594,11 @@ def main():
         return 0
 
     selected,experiment=select_sources(pool.values(),state,forced_experiment=experiment)
-    if len(selected)!=1:
+    if not selected:
         (run_dir/"skip.json").write_text(
             json.dumps(
                 {
-                    "reason":"no_new_valid_short_source",
+                    "reason":"no_new_valid_short_source_or_bundle",
                     "experiment":experiment,
                     "candidate_count":len(pool),
                     "history_count":len(state["keys"]),
@@ -1557,85 +1610,103 @@ def main():
         )
         return 0
 
-    src,path,info=selected[0]
-    src=dict(src)
-    src["caption"]=random.choice(
-        CAPTIONS.get(src.get("category"),CAPTIONS["wow"])
-    )
-
-    cap=run_dir/"caption.png"
-    scene=run_dir/"scene.mp4"
-    caption_png(src["caption"],cap,big=True)
-    render_scene(path,src,cap,scene)
+    rendered_scenes=[]
+    enriched=[]
+    for idx,(raw_src,path,info) in enumerate(selected, start=1):
+        src=dict(raw_src)
+        src["caption"]=random.choice(
+            CAPTIONS.get(src.get("category"),CAPTIONS["wow"])
+        )
+        cap=run_dir/(f"caption_{idx}.png")
+        scene=run_dir/(f"scene_{idx}.mp4")
+        caption_png(src["caption"],cap,big=True)
+        render_scene(path,src,cap,scene)
+        rendered_scenes.append(scene)
+        enriched.append(src)
 
     final=run_dir/"video.mp4"
-    # The source itself is already short-form; preserve the complete clip.
-    final.write_bytes(scene.read_bytes())
+    if len(rendered_scenes)==1:
+        final.write_bytes(rendered_scenes[0].read_bytes())
+    else:
+        concat(rendered_scenes,final)
 
-    meta=[{
-        "id":src["id"],
-        "title":src["title"],
-        "author":src.get("author",""),
-        "license":src.get("license",""),
-        "page":src["page"],
-        "filename":src["filename"],
-        "category":src.get("category"),
-        "attention_score":src.get("attention_score"),
-        "visual_score":src.get("visual_score"),
-        "shortness_score":src.get("shortness_score"),
-        "combined_score":src.get("combined_score"),
-        "trend_match_score":src.get("trend_match_score"),
-        "start":0.0,
-        "duration":src["duration"],
-        "pixabay_views":src.get("pixabay_views"),
-        "pixabay_downloads":src.get("pixabay_downloads"),
-        "pixabay_likes":src.get("pixabay_likes"),
-        "pixabay_comments":src.get("pixabay_comments"),
-    }]
+    meta=[]
+    for src in enriched:
+        meta.append({
+            "id":src["id"],
+            "title":src["title"],
+            "author":src.get("author",""),
+            "license":src.get("license",""),
+            "page":src["page"],
+            "filename":src["filename"],
+            "category":src.get("category"),
+            "provider":src.get("provider"),
+            "attention_score":src.get("attention_score"),
+            "visual_score":src.get("visual_score"),
+            "shortness_score":src.get("shortness_score"),
+            "combined_score":src.get("combined_score"),
+            "trend_match_score":src.get("trend_match_score"),
+            "cross_web_score":src.get("cross_web_score"),
+            "start":0.0,
+            "duration":src["duration"],
+        })
 
     info,problems=validate(final,meta)
 
-    display_title_fa=src["caption"]
+    display_title_fa=(
+        enriched[0]["caption"]
+        if len(enriched)==1
+        else "سه لحظه که ارزش دیدن داشت"
+    )
+    providers=sorted(set(str(x.get("provider") or "") for x in enriched))
     metadata={
         "content_type":"viral_radar_licensed_acquisition",
         "engine_version":ENGINE_VERSION,
         "experiment":experiment,
-        "source_provider":str(src.get("provider") or ""),
-        "selection_model":ENGINE_VERSION,
-        "discovery_platforms":["youtube"],
-        "acquisition_platforms":["pixabay","pexels"],
+        "source_provider":providers[0] if len(providers)==1 else "multi_source_bundle",
+        "selection_model":(
+            ENGINE_VERSION if len(enriched)==1
+            else ENGINE_VERSION+"_bundle_fallback"
+        ),
+        "discovery_platforms":["youtube","gdelt","google_news_rss"],
+        "acquisition_platforms":["pixabay","pexels","wikimedia_commons"],
         "quality_gate":"passed_publish" if not problems else "failed",
         "script_quality":"passed",
         "display_title_fa":display_title_fa,
+        "clip_count":len(enriched),
         "duration_seconds":round(info["duration"],3),
         "width":info["width"],
         "height":info["height"],
-        "content_key":"attention:"+src["id"],
-        "visual_scores":[src.get("visual_score")],
-        "combined_scores":[src.get("combined_score")],
-        "combination_key":combo_key([src]),
+        "content_key":"attention:"+combo_key(enriched),
+        "visual_scores":[x.get("visual_score") for x in enriched],
+        "combined_scores":[x.get("combined_score") for x in enriched],
+        "combination_key":combo_key(enriched),
         "originality":{
             "voice":"none",
             "original_persian_captions":True,
-            "new_edit_structure":True,
+            "new_edit_structure":len(enriched)>1,
             "new_vertical_reframing":True,
             "subject_preserving_background":True,
             "full_short_source_preserved":True,
+            "bundle_uses_complete_sources":len(enriched)>1,
         },
         "sources":meta,
         "validation_problems":problems,
-        "source_market_signals":[{
-            "id":src.get("id"),
-            "views":src.get("pixabay_views"),
-            "downloads":src.get("pixabay_downloads"),
-            "likes":src.get("pixabay_likes"),
-            "comments":src.get("pixabay_comments"),
-            "duration":src.get("duration"),
-        }],
-        "youtube_trend_signals":youtube_signals[:12],
-        "web_attention_signals":web_signals[:20],
+        "source_market_signals":[
+            {
+                "id":src.get("id"),
+                "views":src.get("pixabay_views"),
+                "downloads":src.get("pixabay_downloads"),
+                "likes":src.get("pixabay_likes"),
+                "comments":src.get("pixabay_comments"),
+                "duration":src.get("duration"),
+            }
+            for src in enriched
+        ],
+        "youtube_trend_signals":youtube_signals[:20],
+        "web_attention_signals":web_signals[:30],
         "trend_queries_by_category":trend_queries_by_category,
-        "actual_categories":[str(src.get("category"))],
+        "actual_categories":sorted(set(str(x.get("category")) for x in enriched)),
         "licensed_acquisition_only":True,
         "web_discovery_only_signals":True,
         "youtube_media_downloaded":False,
@@ -1646,28 +1717,30 @@ def main():
         encoding="utf-8"
     )
 
-    if src.get("provider") == "pexels":
-        attribution = [
-            "Source: Pexels.",
-            "Source license: Pexels license.",
-            "Attribution: Pexels asks API users to show a prominent link to Pexels and credit the creator when possible.",
-            "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
-            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
-        ]
-    elif src.get("provider") == "commons":
-        attribution = [
-            "Source: Wikimedia Commons.",
-            f"Source license: {src.get('license')}.",
-            "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
-            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
-        ]
-    else:
-        attribution = [
-            "Source: Pixabay.",
-            "Source license: Pixabay Content License.",
-            "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
-            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
-        ]
+    attribution=[]
+    for src in enriched:
+        if src.get("provider") == "pexels":
+            attribution.extend([
+                "Source: Pexels.",
+                "Source license: Pexels license.",
+                "Attribution: Pexels asks API users to show a prominent link to Pexels and credit the creator when possible.",
+                f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+            ])
+        elif src.get("provider") == "commons":
+            attribution.extend([
+                "Source: Wikimedia Commons.",
+                f"Source license: {src.get('license')}.",
+                f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+            ])
+        else:
+            attribution.extend([
+                "Source: Pixabay.",
+                "Source license: Pixabay Content License.",
+                f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+            ])
+    attribution.append(
+        "Transformation: complete licensed short-form sources retained, re-framed vertically, given original Persian captions, and concatenated only when bundle fallback was selected."
+    )
     (run_dir/"attribution.txt").write_text(
         "\n".join(attribution)+"\n",
         encoding="utf-8"
