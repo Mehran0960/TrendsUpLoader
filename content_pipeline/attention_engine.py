@@ -8,7 +8,6 @@ not permission to re-upload.
 """
 import hashlib
 import html
-import itertools
 import json
 import os
 import random
@@ -25,9 +24,10 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_licensed_acquisition_v3"
+ENGINE_VERSION = "viral_radar_single_video_v4"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
-MIN_TOTAL, MAX_TOTAL = 5.0, 30.0
+MIN_TOTAL = 1.0
+MAX_TOTAL = None
 MIN_VISUAL_SCORE = 50.0
 MIN_RELEVANCE_SCORE = 65.0
 MIN_DEMAND_SCORE = 50.0
@@ -218,7 +218,7 @@ def discover_pexels(category, trend_queries=None, limit=12):
         for video in data.get("videos", []) or []:
             video_id = str(video.get("id") or "").strip()
             duration = float(video.get("duration") or 0)
-            if not video_id or duration < MIN_TOTAL or duration > MAX_TOTAL:
+            if not video_id or duration < MIN_TOTAL:
                 continue
             files = video.get("video_files") or []
             usable = [x for x in files if str(x.get("link") or "").strip() and int(x.get("width") or 0) >= 480]
@@ -721,7 +721,6 @@ def discover_pixabay(category, limit=15, trend_queries=None):
                 not video_id
                 or not url
                 or duration < MIN_TOTAL
-                or duration > MAX_TOTAL
                 or min(width, height) < 480
             ):
                 continue
@@ -965,21 +964,26 @@ def orientation_score(width, height):
 
 
 def duration_score(duration):
-    """Prefer concise clips while keeping the whole source intact."""
+    """Prefer shorter clips, but never reject a longer one."""
     d=float(duration or 0)
     if d <= 0:
         return 0.0
-    if 7.0 <= d <= 18.0:
+    if d <= 8.0:
         return 100.0
-    if 5.0 <= d < 7.0:
-        return 88.0
-    if 18.0 < d <= 24.0:
+    if d <= 15.0:
+        return 96.0
+    if d <= 30.0:
         return 90.0
-    if 24.0 < d <= 30.0:
-        return 78.0
-    if 30.0 < d <= 45.0:
+    if d <= 60.0:
+        return 82.0
+    if d <= 120.0:
+        return 72.0
+    if d <= 180.0:
         return 62.0
-    return 45.0
+    if d <= 300.0:
+        return 50.0
+    return 38.0
+
 
 
 def visual_score(path):
@@ -992,12 +996,12 @@ def visual_score(path):
     fps=float(cap.get(cv2.CAP_PROP_FPS) or 25.0)
     total=int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
     duration=total/fps if fps>0 else 0.0
-    if duration < 3.9:
-        return {"score": 0.0, "best_start": 0.0, "best_duration": max(0.0,duration)}
+    if duration < MIN_TOTAL:
+        return {"score": 0.0, "best_start": 0.0, "best_duration": duration}
 
     samples=[]
     frame_index=0
-    sample_step=max(1,int(round(fps/3.0)))
+    sample_step=max(1,int(round(fps/4.0)))
     prev=None
 
     while True:
@@ -1013,10 +1017,8 @@ def visual_score(path):
         motion=0.0 if prev is None else float(cv2.absdiff(gray,prev).mean())/255.0
         sharp=min(float(cv2.Laplacian(gray,cv2.CV_64F).var())/180.0,1.0)
         contrast=min(float(gray.std())/64.0,1.0)
-
         edges=cv2.Canny(gray,60,150)
-        edge_density=float((edges>0).mean())
-        edge_score=min(edge_density/0.18,1.0)
+        edge_score=min(float((edges>0).mean())/0.18,1.0)
 
         hsv=cv2.cvtColor(small,cv2.COLOR_BGR2HSV)
         saturation=min(float(hsv[:,:,1].mean())/128.0,1.0)
@@ -1024,30 +1026,28 @@ def visual_score(path):
         lighting_score=max(0.0,1.0-abs(brightness-0.58)/0.58)
 
         samples.append((
-            frame_index/fps,
-            motion,
-            sharp,
-            contrast,
-            edge_score,
-            saturation,
-            lighting_score,
+            frame_index/fps,motion,sharp,contrast,edge_score,saturation,lighting_score
         ))
         prev=gray
         frame_index += 1
 
     cap.release()
-    if len(samples)<8:
-        return {"score":0.0,"best_start":0.0,"best_duration":min(3.8,duration)}
+    if not samples:
+        return {"score":0.0,"best_start":0.0,"best_duration":duration}
 
-    window=max(8,min(18,int(round(3.8*3.0))))
+    # Adapt the window to the source length. Very short clips are evaluated
+    # over their entire available duration.
+    target_samples=max(2,int(round(min(3.8,max(0.6,duration))*4.0)))
+    window=min(len(samples),max(2,target_samples))
+    if window < 2:
+        window=len(samples)
+
     best=None
     for i in range(0,len(samples)-window+1):
         chunk=samples[i:i+window]
         vals=[sum(x[j] for x in chunk)/window for j in range(1,7)]
         motion,sharp,contrast,edge,saturation,lighting=vals
 
-        # Better balance between action and visual clarity. Static but striking
-        # frames can now survive; genuinely dull frames still score poorly.
         score=100.0*(
             0.22*min(motion*1.8,1.0)
             +0.20*sharp
@@ -1063,7 +1063,7 @@ def visual_score(path):
     return {
         "score":round(min(best[0],99.0),2),
         "best_start":round(best[1],3),
-        "best_duration":min(3.8,duration)
+        "best_duration":round(min(3.8,duration),3)
     }
 
 
@@ -1239,22 +1239,21 @@ def select_sources(pool, state, forced_experiment=None):
         for provider, items in by_provider.items():
             for src in items:
                 src["_pre_score"]=(
-                    0.40*float(src.get("attention_score") or 0)
-                    +0.25*float(src.get("relevance_score") or source_relevance_score(src))
+                    0.38*float(src.get("attention_score") or 0)
+                    +0.27*float(src.get("relevance_score") or source_relevance_score(src))
                     +0.35*float(src.get("cross_web_score") or src.get("trend_match_score") or 50.0)
                 )
             items.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
-            shortlist.extend(items[:8])
+            shortlist.extend(items[:10])
 
         shortlist.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
 
-        # Wider evaluation: allow a real search of the candidate pool.
-        provider_limits={"pixabay":5,"pexels":5,"commons":4}
+        provider_limits={"pixabay":6,"pexels":6,"commons":5}
         provider_taken={}
 
         for src in shortlist:
             provider=str(src.get("provider") or "unknown")
-            limit=provider_limits.get(provider,4)
+            limit=provider_limits.get(provider,5)
             if provider_taken.get(provider,0)>=limit:
                 continue
             provider_taken[provider]=provider_taken.get(provider,0)+1
@@ -1269,7 +1268,7 @@ def select_sources(pool, state, forced_experiment=None):
                     continue
 
                 duration=float(info["duration"] or 0)
-                if duration < MIN_TOTAL or duration > MAX_TOTAL:
+                if duration < MIN_TOTAL:
                     continue
 
                 visual=visual_score(path)
@@ -1296,12 +1295,12 @@ def select_sources(pool, state, forced_experiment=None):
                     continue
 
                 combined_score=(
-                    0.28*demand
-                    +0.28*visual_score_value
+                    0.30*demand
+                    +0.29*visual_score_value
                     +0.18*relevance
-                    +0.16*float(src.get("attention_score") or 0)
-                    +0.06*orient
-                    +0.04*shortness
+                    +0.15*float(src.get("attention_score") or 0)
+                    +0.05*orient
+                    +0.03*shortness
                 )
 
                 prepared=dict(src)
@@ -1337,7 +1336,6 @@ def select_sources(pool, state, forced_experiment=None):
 
     evaluated.sort(key=lambda x:float(x[0].get("combined_score") or 0),reverse=True)
 
-    # Primary mode: publish a single complete short source when it is strong enough.
     for chosen in evaluated:
         key=combo_key([chosen[0]])
         if (
@@ -1346,67 +1344,9 @@ def select_sources(pool, state, forced_experiment=None):
         ):
             return [chosen],experiment
 
-    # Fallback mode: create a compact "3 moments" style package, but only from
-    # individually screened complete short videos. Never use arbitrary crops of
-    # long videos, and require meaningful diversity where available.
-    bundle_candidates=[
-        x for x in evaluated
-        if float(x[0].get("combined_score") or 0) >= 70.0
-        and float(x[0].get("visual_score") or 0) >= MIN_VISUAL_SCORE
-        and float(x[0].get("relevance_score") or 0) >= MIN_RELEVANCE_SCORE
-        and float(x[0].get("cross_web_score") or 50.0) >= MIN_DEMAND_SCORE
-    ]
-
-    bundles=[]
-    max_candidates=min(len(bundle_candidates),12)
-    for n in (2,3):
-        for combo in itertools.combinations(bundle_candidates[:max_candidates],n):
-            total_duration=sum(float(x[0].get("duration") or 0) for x in combo)
-            if not MIN_TOTAL <= total_duration <= MAX_TOTAL:
-                continue
-
-            ids=[x[0]["id"] for x in combo]
-            key=combo_key([x[0] for x in combo])
-            if key in history:
-                continue
-
-            providers=[str(x[0].get("provider") or "") for x in combo]
-            categories=[str(x[0].get("category") or "") for x in combo]
-            provider_diversity=len(set(providers))/len(providers)
-            category_diversity=len(set(categories))/len(categories)
-            avg_score=sum(float(x[0].get("combined_score") or 0) for x in combo)/n
-            min_score=min(float(x[0].get("combined_score") or 0) for x in combo)
-            duration_fit=100.0 - abs(19.0-total_duration)*2.2
-            duration_fit=max(40.0,min(100.0,duration_fit))
-
-            bundle_score=(
-                0.58*avg_score
-                +0.10*min_score
-                +0.12*(100.0*provider_diversity)
-                +0.08*(100.0*category_diversity)
-                +0.12*duration_fit
-            )
-
-            bundles.append((bundle_score,list(combo),key,total_duration))
-
-    if not bundles:
-        return [],experiment
-
-    bundles.sort(key=lambda x:x[0],reverse=True)
-    best_score,best_bundle,best_key,total_duration=bundles[0]
-
-    if best_score >= 72.0:
-        print(
-            "BUNDLE FALLBACK",
-            experiment,
-            "score=",round(best_score,2),
-            "clips=",len(best_bundle),
-            "duration=",round(total_duration,2),
-            "ids=","|".join(x[0]["id"] for x in best_bundle),
-        )
-        return best_bundle,experiment
-
     return [],experiment
+
+
 
 def validate(path, sources):
     info=probe(path)
@@ -1594,11 +1534,11 @@ def main():
         return 0
 
     selected,experiment=select_sources(pool.values(),state,forced_experiment=experiment)
-    if not selected:
+    if len(selected)!=1:
         (run_dir/"skip.json").write_text(
             json.dumps(
                 {
-                    "reason":"no_new_valid_short_source_or_bundle",
+                    "reason":"no_new_valid_single_source",
                     "experiment":experiment,
                     "candidate_count":len(pool),
                     "history_count":len(state["keys"]),
@@ -1610,103 +1550,83 @@ def main():
         )
         return 0
 
-    rendered_scenes=[]
-    enriched=[]
-    for idx,(raw_src,path,info) in enumerate(selected, start=1):
-        src=dict(raw_src)
-        src["caption"]=random.choice(
-            CAPTIONS.get(src.get("category"),CAPTIONS["wow"])
-        )
-        cap=run_dir/(f"caption_{idx}.png")
-        scene=run_dir/(f"scene_{idx}.mp4")
-        caption_png(src["caption"],cap,big=True)
-        render_scene(path,src,cap,scene)
-        rendered_scenes.append(scene)
-        enriched.append(src)
+    src,path,info=selected[0]
+    src=dict(src)
+    src["caption"]=random.choice(
+        CAPTIONS.get(src.get("category"),CAPTIONS["wow"])
+    )
+
+    cap=run_dir/"caption.png"
+    scene=run_dir/"scene.mp4"
+    caption_png(src["caption"],cap,big=True)
+    render_scene(path,src,cap,scene)
 
     final=run_dir/"video.mp4"
-    if len(rendered_scenes)==1:
-        final.write_bytes(rendered_scenes[0].read_bytes())
-    else:
-        concat(rendered_scenes,final)
+    final.write_bytes(scene.read_bytes())
 
-    meta=[]
-    for src in enriched:
-        meta.append({
-            "id":src["id"],
-            "title":src["title"],
-            "author":src.get("author",""),
-            "license":src.get("license",""),
-            "page":src["page"],
-            "filename":src["filename"],
-            "category":src.get("category"),
-            "provider":src.get("provider"),
-            "attention_score":src.get("attention_score"),
-            "visual_score":src.get("visual_score"),
-            "shortness_score":src.get("shortness_score"),
-            "combined_score":src.get("combined_score"),
-            "trend_match_score":src.get("trend_match_score"),
-            "cross_web_score":src.get("cross_web_score"),
-            "start":0.0,
-            "duration":src["duration"],
-        })
+    meta=[{
+        "id":src["id"],
+        "title":src["title"],
+        "author":src.get("author",""),
+        "license":src.get("license",""),
+        "page":src["page"],
+        "filename":src["filename"],
+        "category":src.get("category"),
+        "provider":src.get("provider"),
+        "attention_score":src.get("attention_score"),
+        "visual_score":src.get("visual_score"),
+        "shortness_score":src.get("shortness_score"),
+        "combined_score":src.get("combined_score"),
+        "trend_match_score":src.get("trend_match_score"),
+        "cross_web_score":src.get("cross_web_score"),
+        "start":0.0,
+        "duration":src["duration"],
+    }]
 
     info,problems=validate(final,meta)
 
-    display_title_fa=(
-        enriched[0]["caption"]
-        if len(enriched)==1
-        else "سه لحظه که ارزش دیدن داشت"
-    )
-    providers=sorted(set(str(x.get("provider") or "") for x in enriched))
+    display_title_fa=src["caption"]
     metadata={
-        "content_type":"viral_radar_licensed_acquisition",
+        "content_type":"viral_radar_licensed_single_video",
         "engine_version":ENGINE_VERSION,
         "experiment":experiment,
-        "source_provider":providers[0] if len(providers)==1 else "multi_source_bundle",
-        "selection_model":(
-            ENGINE_VERSION if len(enriched)==1
-            else ENGINE_VERSION+"_bundle_fallback"
-        ),
+        "source_provider":str(src.get("provider") or ""),
+        "selection_model":ENGINE_VERSION,
         "discovery_platforms":["youtube","gdelt","google_news_rss"],
         "acquisition_platforms":["pixabay","pexels","wikimedia_commons"],
         "quality_gate":"passed_publish" if not problems else "failed",
         "script_quality":"passed",
         "display_title_fa":display_title_fa,
-        "clip_count":len(enriched),
+        "clip_count":1,
         "duration_seconds":round(info["duration"],3),
         "width":info["width"],
         "height":info["height"],
-        "content_key":"attention:"+combo_key(enriched),
-        "visual_scores":[x.get("visual_score") for x in enriched],
-        "combined_scores":[x.get("combined_score") for x in enriched],
-        "combination_key":combo_key(enriched),
+        "content_key":"attention:"+src["id"],
+        "visual_scores":[src.get("visual_score")],
+        "combined_scores":[src.get("combined_score")],
+        "combination_key":combo_key([src]),
         "originality":{
             "voice":"none",
             "original_persian_captions":True,
-            "new_edit_structure":len(enriched)>1,
+            "new_edit_structure":False,
             "new_vertical_reframing":True,
             "subject_preserving_background":True,
-            "full_short_source_preserved":True,
-            "bundle_uses_complete_sources":len(enriched)>1,
+            "full_source_preserved":True,
         },
         "sources":meta,
         "validation_problems":problems,
-        "source_market_signals":[
-            {
-                "id":src.get("id"),
-                "views":src.get("pixabay_views"),
-                "downloads":src.get("pixabay_downloads"),
-                "likes":src.get("pixabay_likes"),
-                "comments":src.get("pixabay_comments"),
-                "duration":src.get("duration"),
-            }
-            for src in enriched
-        ],
+        "source_market_signals":[{
+            "id":src.get("id"),
+            "views":src.get("pixabay_views"),
+            "downloads":src.get("pixabay_downloads"),
+            "likes":src.get("pixabay_likes"),
+            "comments":src.get("pixabay_comments"),
+            "duration":src.get("duration"),
+        }],
         "youtube_trend_signals":youtube_signals[:20],
         "web_attention_signals":web_signals[:30],
         "trend_queries_by_category":trend_queries_by_category,
-        "actual_categories":sorted(set(str(x.get("category")) for x in enriched)),
+        "actual_categories":[str(src.get("category"))],
         "licensed_acquisition_only":True,
         "web_discovery_only_signals":True,
         "youtube_media_downloaded":False,
@@ -1717,29 +1637,27 @@ def main():
         encoding="utf-8"
     )
 
-    attribution=[]
-    for src in enriched:
-        if src.get("provider") == "pexels":
-            attribution.extend([
-                "Source: Pexels.",
-                "Source license: Pexels license.",
-                "Attribution: Pexels asks API users to show a prominent link to Pexels and credit the creator when possible.",
-                f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
-            ])
-        elif src.get("provider") == "commons":
-            attribution.extend([
-                "Source: Wikimedia Commons.",
-                f"Source license: {src.get('license')}.",
-                f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
-            ])
-        else:
-            attribution.extend([
-                "Source: Pixabay.",
-                "Source license: Pixabay Content License.",
-                f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
-            ])
+    if src.get("provider") == "pexels":
+        attribution = [
+            "Source: Pexels.",
+            "Source license: Pexels license.",
+            "Attribution: Pexels asks API users to show a prominent link to Pexels and credit the creator when possible.",
+            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+        ]
+    elif src.get("provider") == "commons":
+        attribution = [
+            "Source: Wikimedia Commons.",
+            f"Source license: {src.get('license')}.",
+            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+        ]
+    else:
+        attribution = [
+            "Source: Pixabay.",
+            "Source license: Pixabay Content License.",
+            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+        ]
     attribution.append(
-        "Transformation: complete licensed short-form sources retained, re-framed vertically, given original Persian captions, and concatenated only when bundle fallback was selected."
+        "Transformation: one complete licensed source retained, re-framed vertically, and given an original Persian on-screen caption."
     )
     (run_dir/"attribution.txt").write_text(
         "\n".join(attribution)+"\n",
