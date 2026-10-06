@@ -109,7 +109,7 @@ DISCOVERY = {
 }
 
 YOUTUBE_REGION_CODES = ["US", "GB", "CA", "IN", "BR", "DE", "TR"]
-YOUTUBE_CHART_CATEGORY_IDS = ["15", "17", "23", "24", "26", "28", "19"]
+YOUTUBE_CHART_CATEGORY_IDS = ["15", "17", "23", "24", "26", "28"]
 YOUTUBE_CATEGORY_NAMES = {
     "15": "animals",
     "17": "sports",
@@ -1539,12 +1539,15 @@ def choose_experiment(counts):
 def combo_key(sources):
     return "attention:"+"|".join(sorted(str(x["id"]) for x in sources))
 
-def select_sources(pool, state, forced_experiment=None):
+def select_sources(pool, state, forced_experiment=None, forced_targets=None):
     counts=state.get("experiment_counts",{})
     untested=min(counts.get(name,0) for name,_ in EXPERIMENTS)
     options=[x for x in EXPERIMENTS if counts.get(x[0],0)==untested]
     experiment=forced_experiment or random.choice(options)[0]
-    targets=next(t for name,t in EXPERIMENTS if name==experiment)
+    if forced_targets is not None:
+        targets=forced_targets
+    else:
+        targets=next(t for name,t in EXPERIMENTS if name==experiment)
     history=state.get("keys",set())
 
     candidates=list(pool)
@@ -1887,7 +1890,12 @@ def main():
         print("Attention build skipped: no eligible short Pixabay candidates.")
         return 0
 
-    selected,experiment=select_sources(pool.values(),state,forced_experiment=experiment)
+    selected,experiment=select_sources(
+        pool.values(),
+        state,
+        forced_experiment=experiment,
+        forced_targets=targets,
+    )
     if len(selected)!=1:
         (run_dir/"skip.json").write_text(
             json.dumps(
