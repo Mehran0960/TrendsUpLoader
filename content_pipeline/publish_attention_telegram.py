@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish a validated Attention Remix to Telegram."""
+"""Publish a validated Viral Radar single-video result to Telegram."""
 import json
 import os
 import uuid
@@ -19,10 +19,10 @@ def main():
         return 0
     video=videos[0]
     meta=json.loads((video.parent/'metadata.json').read_text(encoding='utf-8'))
-    if meta.get("content_type")!="attention_remix" or meta.get("quality_gate")!="passed_publish":
+    if meta.get("content_type")!="viral_radar_licensed_single_video" or meta.get("quality_gate")!="passed_publish":
         raise RuntimeError("Refusing unvalidated attention content.")
-    if float(meta.get("duration_seconds") or 0)<5:
-        raise RuntimeError("Refusing attention content shorter than 5 seconds.")
+    if float(meta.get("duration_seconds") or 0)<1:
+        raise RuntimeError("Refusing zero-length attention content.")
     boundary='----Attention'+uuid.uuid4().hex
     chunks=[]
     fields={'chat_id':chat_id,'caption':str(meta.get('display_title_fa') or '🔥 یه ترکیب غیرمنتظره')}
