@@ -148,6 +148,43 @@ CAPTIONS = {
         "چند بار دیدمش و هنوز نفهمیدم",
         "صبر کن ببین آخرش چی می‌شه",
     ],
+,
+sports": [
+        "این صحنه رو باید دوباره ببینی",
+        "اینجا دیگه فقط شانس نیست",
+        "فقط لحظه آخر رو از دست نده",
+        "این حرکت اصلاً عادی نبود",
+    ],
+    "food": [
+        "آخرش دقیقاً همون چیزی شد که فکر می‌کردی؟",
+        "این صحنه برای عاشقان غذا خطرناکه!",
+        "فقط نگاه کن تا آخرش",
+        "این یکی واقعاً اشتها رو باز می‌کنه",
+    ],
+    "cars": [
+        "این تغییر رو باید از نزدیک دید",
+        "صبر کن آخرش ماشین رو ببینی",
+        "این دیگه تیونینگ معمولی نیست",
+        "چند ثانیه بیشتر نگاه کن… ارزشش رو داره",
+    ],
+    "satisfying": [
+        "این یکی عجیب آرامش‌بخشه",
+        "تا آخرش نگاه کن؛ بهترین بخش آخرشه",
+        "چرا این‌قدر رضایت‌بخشه؟",
+        "این صحنه رو نمی‌شه نصفه رها کرد",
+    ],
+    "travel": [
+        "این منظره واقعاً واقعی به نظر نمیاد",
+        "این مقصد رو ببین!",
+        "بعضی جاها انگار برای فیلم ساخته شدن",
+        "صبر کن نمای بعدی رو ببینی",
+    ],
+    "tech": [
+        "این فناوری واقعاً عجیبه",
+        "صبر کن ببین باهاش چه کار می‌کنن",
+        "این دیگه گجت معمولی نیست",
+        "چیزی که می‌بینی احتمالاً آینده‌ست",
+    ],
 }
 
 
@@ -1138,6 +1175,12 @@ def source_relevance_score(src):
         "beauty_style": ["woman","women","fashion","beauty","model","dance","style","makeup","performance"],
         "talent": ["sing","singer","singing","vocal","music","drum","drummer","guitar","dance","performance"],
         "wow": ["amazing","skill","trick","acrobat","acrobatics","stunt","jump","flip","magic","performance"],
+        "sports": ["sport","sports","football","soccer","basketball","tennis","goal","match","nba","fifa","ufc","skateboard","surf"],
+        "food": ["food","cooking","recipe","chef","kitchen","street","cake","dessert","pizza","sushi"],
+        "cars": ["car","cars","automotive","drift","racing","vehicle","supercar","truck","motorcycle"],
+        "satisfying": ["satisfying","restoration","restore","cleaning","polish","before","after","oddly"],
+        "travel": ["travel","trip","destination","vacation","hotel","beach","mountain","island"],
+        "tech": ["technology","tech","iphone","android","ai","robot","gadget","computer","phone"],
     }.get(category, [])
 
     if not keywords:
