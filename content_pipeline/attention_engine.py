@@ -79,8 +79,9 @@ YOUTUBE_QUERIES = {
 YOUTUBE_STOPWORDS = {
     "the","and","that","this","with","from","for","you","your","are","was","were",
     "have","has","had","how","what","when","where","why","just","very","really",
-    "video","short","official","music","people","woman","women","funny","fail",
-    "dance","performance","amazing","skill","trick","cat","dog"
+    "video","videos","short","shorts","official","music","people","woman","women",
+    "funny","dance","performance","amazing","skill","trick","cat","dog","ranking",
+    "top","best","new","today","watch","viral","must","try","2026","update"
 }
 
 ALLOWED_LICENSE = ("cc0", "public domain", "public domain mark")
@@ -887,21 +888,28 @@ def discover_gdelt(category, seed_queries=None, limit=10):
     return signals[:limit]
 
 
-def derive_trend_queries(youtube_results, category, max_queries=3):
-    """Turn the strongest demand signals into acquisition queries."""
+def derive_trend_queries(youtube_results, category, max_queries=4):
+    """Turn the strongest demand signals into concise acquisition queries."""
     phrases = []
-    category_fallbacks = [str(x) for x in YOUTUBE_QUERIES.get(category, [])[:2]]
+    category_fallbacks = [str(x) for x in YOUTUBE_QUERIES.get(category, [])[:3]]
 
-    for item in youtube_results:
+    ranked = sorted(
+        list(youtube_results or []),
+        key=lambda x: float(x.get("demand_score") or 0),
+        reverse=True,
+    )
+
+    for item in ranked:
         title = str(item.get("title") or "")
         words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", title.lower())
         useful = [w for w in words if w not in YOUTUBE_STOPWORDS and len(w) >= 3]
-        if not useful:
+        if len(useful) < 2:
             continue
-        for width in (4, 3, 2):
+
+        for width in (3, 2):
             if len(useful) >= width:
                 phrase = " ".join(useful[:width])
-                if len(phrase) >= 7 and phrase not in phrases:
+                if len(phrase) >= 8 and phrase not in phrases:
                     phrases.append(phrase)
                     break
         if len(phrases) >= max_queries:
@@ -912,6 +920,54 @@ def derive_trend_queries(youtube_results, category, max_queries=3):
             phrases.append(fallback)
 
     return phrases[:max_queries]
+
+
+def choose_opportunity_category(global_signals, local_signals):
+    """Choose the strongest currently observable content lane."""
+    buckets = {}
+    for item in list(global_signals or []) + list(local_signals or []):
+        cat = str(item.get("category") or "")
+        if cat not in DISCOVERY:
+            continue
+        buckets.setdefault(cat, []).append(item)
+
+    scored = []
+    for cat, items in buckets.items():
+        items = sorted(items, key=lambda x: float(x.get("demand_score") or 0), reverse=True)
+        top = items[:5]
+        if not top:
+            continue
+        max_score = float(top[0].get("demand_score") or 0)
+        avg_score = sum(float(x.get("demand_score") or 0) for x in top) / len(top)
+        region_factor = max(
+            float(x.get("chart_region_count") or 0) for x in top
+        ) / 4.0
+        regional = min(1.0, region_factor)
+        support = min(1.0, len(items) / 8.0)
+        score = 0.55*max_score + 0.25*avg_score + 10.0*regional + 10.0*support
+        scored.append((score, cat, len(items), max_score, regional))
+
+    if not scored:
+        return None, 0.0, []
+
+    scored.sort(reverse=True)
+    best = scored[0]
+    print(
+        "Opportunity radar:",
+        [
+            {
+                "category": x[1],
+                "score": round(x[0],2),
+                "signals": x[2],
+                "max_demand": round(x[3],2),
+                "max_region_count": round(x[4]*4.0,2),
+            }
+            for x in scored[:8]
+        ],
+    )
+    return best[1], round(best[0],2), scored
+
+
 
 def discover_pixabay(category, limit=15, trend_queries=None):
     if not PIXABAY_KEY:
