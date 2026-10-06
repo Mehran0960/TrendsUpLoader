@@ -1413,7 +1413,8 @@ def main():
             web_signals.extend(google_news)
 
         combined_queries = list(yt_queries)
-        for item in gdelt:
+        active_web = gdelt if gdelt else google_news
+        for item in active_web:
             title = str(item.get("title") or "")
             words = re.findall(r"[A-Za-z][A-Za-z0-9'-]{2,}", title.lower())
             useful = [w for w in words if w not in YOUTUBE_STOPWORDS]
