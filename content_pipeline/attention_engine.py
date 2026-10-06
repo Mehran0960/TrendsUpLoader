@@ -321,146 +321,160 @@ def parse_iso_duration(value):
     return hours * 3600.0 + minutes * 60.0 + seconds
 
 
-def discover_youtube(category, limit=12):
-    """Discover recent high-demand short-form signals from YouTube only.
-
-    YouTube media is never downloaded. The API is used as a trend/demand radar.
-    """
+def discover_youtube(category, limit=16):
+    """Discover both established and emerging short-form demand signals."""
     if not YOUTUBE_KEY:
         print("YouTube trend discovery skipped: API key missing.")
         return []
 
     results = []
     YOUTUBE_CACHE.mkdir(parents=True, exist_ok=True)
-    queries = [str(q) for q in YOUTUBE_QUERIES.get(category, [])[:3] if q]
 
     from datetime import datetime, timedelta, timezone
     recent_cutoff = (
         datetime.now(timezone.utc) - timedelta(days=MAX_YOUTUBE_SIGNAL_AGE_DAYS)
     ).isoformat().replace("+00:00", "Z")
 
+    queries = [str(q) for q in YOUTUBE_QUERIES.get(category, [])[:3] if q]
+    modes = [("viewCount", 8), ("date", 8)]
+    seen_ids = set()
+
     for query in queries:
-        cache_file = YOUTUBE_CACHE / (
-            hashlib.sha1((category + "|" + query).encode("utf-8")).hexdigest()[:18] + ".json"
-        )
-        data = None
-        if cache_file.exists():
-            age = __import__("time").time() - cache_file.stat().st_mtime
-            if age <= 24 * 3600:
-                try:
-                    data = json.loads(cache_file.read_text(encoding="utf-8"))
-                except Exception:
-                    data = None
-
-        if data is None:
-            try:
-                data = youtube_api_get("/search", {
-                    "key": YOUTUBE_KEY,
-                    "part": "snippet",
-                    "q": query,
-                    "type": "video",
-                    "order": "viewCount",
-                    "videoDuration": "short",
-                    "safeSearch": "strict",
-                    "publishedAfter": recent_cutoff,
-                    "maxResults": min(limit, 10),
-                })
-                cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-            except Exception as exc:
-                print("YouTube search failed:", category, query, exc)
-                continue
-
-        ids = [
-            str(x.get("id", {}).get("videoId") or "").strip()
-            for x in (data.get("items") or [])
-        ]
-        ids = [x for x in ids if x]
-        if not ids:
-            continue
-
-        try:
-            details = youtube_api_get("/videos", {
-                "key": YOUTUBE_KEY,
-                "part": "snippet,contentDetails,statistics",
-                "id": ",".join(ids[:50]),
-            })
-        except Exception as exc:
-            print("YouTube details failed:", category, query, exc)
-            continue
-
-        for item in details.get("items", []) or []:
-            video_id = str(item.get("id") or "").strip()
-            snippet = item.get("snippet") or {}
-            content = item.get("contentDetails") or {}
-            stats = item.get("statistics") or {}
-            duration = parse_iso_duration(content.get("duration"))
-            if not video_id or duration < MIN_TOTAL or duration > 60.0:
-                continue
-
-            title = str(snippet.get("title") or "").strip()
-            description = str(snippet.get("description") or "").strip()
-            published_at = str(snippet.get("publishedAt") or "").strip()
-            views = max(0, int(stats.get("viewCount") or 0))
-            likes = max(0, int(stats.get("likeCount") or 0))
-            comments = max(0, int(stats.get("commentCount") or 0))
-
-            age_days = float(MAX_YOUTUBE_SIGNAL_AGE_DAYS)
-            try:
-                dt = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
-                age_days = max(0.25, (datetime.now(timezone.utc) - dt).total_seconds() / 86400.0)
-            except Exception:
-                pass
-
-            velocity = views / age_days
-            like_rate = likes / max(1, views)
-            comment_rate = comments / max(1, views)
-            social_raw = (
-                2.0 * __import__("math").log1p(views)
-                + 5.0 * __import__("math").log1p(likes)
-                + 3.5 * __import__("math").log1p(comments)
-                + 5.0 * __import__("math").log1p(velocity)
-                + 120.0 * min(like_rate, 0.08)
-                + 220.0 * min(comment_rate, 0.02)
+        for order, mode_limit in modes:
+            cache_file = YOUTUBE_CACHE / (
+                hashlib.sha1((category + "|" + query + "|" + order).encode("utf-8")).hexdigest()[:18] + ".json"
             )
+            data = None
+            if cache_file.exists():
+                age = __import__("time").time() - cache_file.stat().st_mtime
+                if age <= 24 * 3600:
+                    try:
+                        data = json.loads(cache_file.read_text(encoding="utf-8"))
+                    except Exception:
+                        data = None
 
-            results.append({
-                "provider": "youtube",
-                "id": "youtube:" + video_id,
-                "video_id": video_id,
-                "title": title,
-                "description": description[:500],
-                "published_at": published_at,
-                "duration": duration,
-                "views": views,
-                "likes": likes,
-                "comments": comments,
-                "velocity": round(velocity, 2),
-                "like_rate": round(like_rate, 6),
-                "comment_rate": round(comment_rate, 6),
-                "social_raw": social_raw,
-                "query": query,
-                "category": category,
-                "url": "https://www.youtube.com/watch?v=" + video_id,
-                "discovery_only": True,
-                "media_downloaded": False,
-            })
+            if data is None:
+                try:
+                    data = youtube_api_get("/search", {
+                        "key": YOUTUBE_KEY,
+                        "part": "snippet",
+                        "q": query,
+                        "type": "video",
+                        "order": order,
+                        "videoDuration": "short",
+                        "safeSearch": "strict",
+                        "publishedAfter": recent_cutoff,
+                        "maxResults": min(mode_limit, 10),
+                    })
+                    cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+                except Exception as exc:
+                    print("YouTube search failed:", category, query, order, exc)
+                    continue
 
+            ids = [
+                str(x.get("id", {}).get("videoId") or "").strip()
+                for x in (data.get("items") or [])
+            ]
+            ids = [x for x in ids if x and x not in seen_ids]
+            seen_ids.update(ids)
+            if not ids:
+                continue
+
+            try:
+                details = youtube_api_get("/videos", {
+                    "key": YOUTUBE_KEY,
+                    "part": "snippet,contentDetails,statistics",
+                    "id": ",".join(ids[:50]),
+                })
+            except Exception as exc:
+                print("YouTube details failed:", category, query, order, exc)
+                continue
+
+            for item in details.get("items", []) or []:
+                video_id = str(item.get("id") or "").strip()
+                snippet = item.get("snippet") or {}
+                content = item.get("contentDetails") or {}
+                stats = item.get("statistics") or {}
+                duration = parse_iso_duration(content.get("duration"))
+                if not video_id or duration < MIN_TOTAL or duration > 60.0:
+                    continue
+
+                title = str(snippet.get("title") or "").strip()
+                description = str(snippet.get("description") or "").strip()
+                published_at = str(snippet.get("publishedAt") or "").strip()
+                views = max(0, int(stats.get("viewCount") or 0))
+                likes = max(0, int(stats.get("likeCount") or 0))
+                comments = max(0, int(stats.get("commentCount") or 0))
+
+                age_days = float(MAX_YOUTUBE_SIGNAL_AGE_DAYS)
+                try:
+                    dt = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
+                    age_days = max(0.125, (datetime.now(timezone.utc) - dt).total_seconds() / 86400.0)
+                except Exception:
+                    pass
+
+                velocity = views / age_days
+                like_rate = likes / max(1, views)
+                comment_rate = comments / max(1, views)
+
+                social_raw = (
+                    1.6 * __import__("math").log1p(views)
+                    + 4.8 * __import__("math").log1p(likes)
+                    + 3.2 * __import__("math").log1p(comments)
+                    + 6.0 * __import__("math").log1p(velocity)
+                    + 120.0 * min(like_rate, 0.08)
+                    + 220.0 * min(comment_rate, 0.02)
+                )
+
+                results.append({
+                    "provider": "youtube",
+                    "id": "youtube:" + video_id,
+                    "video_id": video_id,
+                    "title": title,
+                    "description": description[:500],
+                    "published_at": published_at,
+                    "duration": duration,
+                    "views": views,
+                    "likes": likes,
+                    "comments": comments,
+                    "velocity": round(velocity, 2),
+                    "like_rate": round(like_rate, 6),
+                    "comment_rate": round(comment_rate, 6),
+                    "social_raw": social_raw,
+                    "query": query,
+                    "order_mode": order,
+                    "category": category,
+                    "url": "https://www.youtube.com/watch?v=" + video_id,
+                    "discovery_only": True,
+                    "media_downloaded": False,
+                })
+
+    # Normalize within this radar batch. Fresh/latest candidates are deliberately
+    # retained alongside large established videos so the radar can catch breakouts.
     results.sort(key=lambda x: float(x.get("social_raw") or 0), reverse=True)
     n = len(results)
     for idx, item in enumerate(results):
         pct = 1.0 if n <= 1 else 1.0 - (idx / (n - 1)) * 0.55
         freshness = 100.0
         try:
-            from datetime import datetime, timezone
             dt = datetime.fromisoformat(str(item.get("published_at","")).replace("Z","+00:00"))
             age = max(0.0, (datetime.now(timezone.utc) - dt).total_seconds() / 86400.0)
-            freshness = max(35.0, 100.0 - (age / MAX_YOUTUBE_SIGNAL_AGE_DAYS) * 65.0)
+            freshness = max(20.0, 100.0 - (age / MAX_YOUTUBE_SIGNAL_AGE_DAYS) * 80.0)
         except Exception:
             pass
-        item["demand_score"] = round(55.0 + 40.0 * pct * 0.72 + 8.0 * (freshness / 100.0), 2)
+
+        velocity_signal = min(
+            100.0,
+            35.0 + 15.0 * __import__("math").log10(max(1.0, float(item.get("velocity") or 0)) + 1.0)
+        )
+        item["demand_score"] = round(
+            50.0 + 28.0 * pct + 12.0 * (freshness / 100.0) + 10.0 * (velocity_signal / 100.0),
+            2,
+        )
 
     print("YouTube viral radar complete:", category, "signals=", len(results))
     return results[:limit]
+
 
 
 def discover_gdelt(category, seed_queries=None, limit=10):
@@ -828,8 +842,8 @@ def source_relevance_score(src):
     ).lower()
 
     keywords = {
-        "animals": ["cat","dog","kitten","puppy","animal","pet","monkey","bird","horse","funny"],
-        "human_funny": ["funny","fail","reaction","prank","laugh","awkward","silly","people","person"],
+        "animals": ["cat","dog","kitten","puppy","animal","pet","monkey","bird","horse","funny","cute"],
+        "human_funny": ["funny","funniest","fail","failure","flop","reaction","prank","laugh","awkward","silly","people","person"],
         "beauty_style": ["woman","women","fashion","beauty","model","dance","style","makeup","performance"],
         "talent": ["sing","singer","singing","vocal","music","drum","drummer","guitar","dance","performance"],
         "wow": ["amazing","skill","trick","acrobat","acrobatics","stunt","jump","flip","magic","performance"],
