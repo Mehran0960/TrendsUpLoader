@@ -253,7 +253,7 @@ def discover_pexels(category, trend_queries=None, limit=12):
             data = None
     if data is None:
         try:
-            data = pexels_api_get("/videos/popular", {"min_duration": int(MIN_TOTAL), "max_duration": int(MAX_TOTAL), "min_height": 720, "per_page": min(limit, 20)})
+            data = pexels_api_get("/videos/popular", {"min_height": 480, "per_page": min(limit, 20)})
             cache_file.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
         except Exception as exc:
             print("Pexels popular feed failed:", exc)
@@ -262,7 +262,7 @@ def discover_pexels(category, trend_queries=None, limit=12):
     for rank, video in enumerate((data or {}).get("videos", []) or []):
         video_id = str(video.get("id") or "").strip()
         duration = float(video.get("duration") or 0)
-        if not video_id or duration < MIN_TOTAL or duration > MAX_TOTAL:
+        if not video_id or duration < MIN_TOTAL:
             continue
         files = video.get("video_files") or []
         usable = [x for x in files if str(x.get("link") or "").strip() and int(x.get("width") or 0) >= 480]
@@ -1353,7 +1353,7 @@ def validate(path, sources):
     problems=[]
     if info["width"]!=WIDTH or info["height"]!=HEIGHT:
         problems.append("wrong_canvas")
-    if not MIN_TOTAL <= info["duration"] <= MAX_TOTAL:
+    if info["duration"] < MIN_TOTAL:
         problems.append(f"duration={info['duration']:.2f}")
     if path.stat().st_size > 50*1024*1024:
         problems.append("file_too_large")
