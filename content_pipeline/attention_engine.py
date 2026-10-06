@@ -710,9 +710,13 @@ def api_get_pixabay(params):
         return json.loads(r.read().decode("utf-8", errors="replace"))
 
 
-def discover_sources():
+def discover_sources(categories=None):
+    """Discover only openly licensed Commons video for the active experiment."""
     found = {}
+    active = set(categories or DISCOVERY.keys())
     for category, queries in DISCOVERY.items():
+        if category not in active:
+            continue
         for query in queries:
             try:
                 data = api_get({
@@ -1297,7 +1301,7 @@ def main():
     # Wikimedia Commons is an additional licensed-acquisition lane. Only
     # CC0/public-domain video is accepted, and its media is handled exactly
     # like Pixabay/Pexels by the same quality gate.
-    commons_pool = discover_sources()
+    commons_pool = discover_sources(targets.keys())
     for x in commons_pool:
         if str(x.get("category") or "") in targets:
             x["provider"] = "commons"
