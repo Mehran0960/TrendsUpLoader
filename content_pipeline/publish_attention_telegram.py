@@ -12,8 +12,16 @@ def main():
     token=os.environ.get("TELEGRAM_BOT_TOKEN","").strip()
     chat_id=os.environ.get("TELEGRAM_CHAT_ID","").strip()
     if not token or not chat_id:
-        print("Publish skipped: Telegram configuration missing.")
-        return 0
+        error={"stage":"configuration","error":"TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is missing"}
+        out_dir=Path("out")
+        candidates=sorted(out_dir.glob("**/metadata.json"),key=lambda x:x.stat().st_mtime,reverse=True)
+        if candidates:
+            target=candidates[0].parent/"publish_error.json"
+        else:
+            out_dir.mkdir(parents=True,exist_ok=True)
+            target=out_dir/"publish_error.json"
+        target.write_text(json.dumps(error,ensure_ascii=False,indent=2),encoding="utf-8")
+        raise RuntimeError(json.dumps(error,ensure_ascii=False))
     videos=sorted(Path("out").glob("**/video.mp4"),key=lambda p:p.stat().st_mtime,reverse=True)
     if not videos:
         print("Publish skipped: no video.")
