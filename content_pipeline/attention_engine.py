@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_single_video_v4"
+ENGINE_VERSION = "viral_radar_global_multiregion_v5"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -1641,12 +1641,16 @@ def main():
     # First discover actual short-form demand signals from YouTube.
     # YouTube is used for metadata/trend intelligence only; its media is never downloaded.
     youtube_signals = []
+    global_youtube_signals = discover_youtube_global_charts(limit_per_bucket=8)
+    youtube_signals.extend(global_youtube_signals)
     web_signals = []
     trend_queries_by_category = {}
     for category in targets:
         yt = discover_youtube(category, limit=10)
+        global_cat = [x for x in global_youtube_signals if x.get("category") == category][:20]
+        category_signals = yt + global_cat
         youtube_signals.extend(yt)
-        yt_queries = derive_trend_queries(yt, category, max_queries=3)
+        yt_queries = derive_trend_queries(category_signals, category, max_queries=4)
 
         gdelt = discover_gdelt(category, seed_queries=yt_queries, limit=10)
         if gdelt:
@@ -1730,10 +1734,16 @@ def main():
     (run_dir/"radar.json").write_text(
         json.dumps({
             "engine_version": ENGINE_VERSION,
-            "discovery_platforms": ["youtube", "gdelt", "google_news_rss"],
+            "discovery_platforms": ["youtube_search", "youtube_global_charts", "gdelt", "google_news_rss"],
             "acquisition_platforms": ["pixabay", "pexels", "wikimedia_commons"],
             "experiment": experiment,
             "trend_queries_by_category": trend_queries_by_category,
+            "global_youtube_signal_count": len(global_youtube_signals),
+            "top_global_youtube_signals": sorted(
+                global_youtube_signals,
+                key=lambda x: float(x.get("demand_score") or 0),
+                reverse=True,
+            )[:40],
             "web_signal_count": len(web_signals),
             "top_web_signals": sorted(
                 web_signals,
@@ -1836,7 +1846,7 @@ def main():
         "experiment":experiment,
         "source_provider":str(src.get("provider") or ""),
         "selection_model":ENGINE_VERSION,
-        "discovery_platforms":["youtube","gdelt","google_news_rss"],
+        "discovery_platforms":["youtube_search","youtube_global_charts","gdelt","google_news_rss"],
         "acquisition_platforms":["pixabay","pexels","wikimedia_commons"],
         "quality_gate":"passed_publish" if not problems else "failed",
         "script_quality":"passed",
