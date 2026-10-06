@@ -1713,22 +1713,41 @@ def main():
         return 0
 
     state=load_state()
-    counts=state.get("experiment_counts",{})
-    least=min(counts.get(name,0) for name,_ in EXPERIMENTS)
-    candidates_exp=[x for x in EXPERIMENTS if counts.get(x[0],0)==least]
-    experiment,targets=random.choice(candidates_exp)
 
-    # First discover actual short-form demand signals from YouTube.
+    # First discover current demand signals. Selection is opportunity-first:
+    # experiments remain a fallback for periods with weak/no radar data.
     # YouTube is used for metadata/trend intelligence only; its media is never downloaded.
     youtube_signals = []
     global_youtube_signals = discover_youtube_global_charts(limit_per_bucket=8)
     youtube_signals.extend(global_youtube_signals)
     web_signals = []
     trend_queries_by_category = {}
+    # Start with all categories represented by the global radar; if the
+    # radar is empty, fall back to the least-tested experiment.
+    local_probe = []
+    for category in DISCOVERY:
+        local_probe.extend(discover_youtube(category, limit=6))
+    opportunity_category, opportunity_score, _ = choose_opportunity_category(
+        global_youtube_signals, local_probe
+    )
+
+    if opportunity_category:
+        experiment = "global_opportunity:" + opportunity_category
+        targets = {opportunity_category: 1}
+    else:
+        counts=state.get("experiment_counts",{})
+        least=min(counts.get(name,0) for name,_ in EXPERIMENTS)
+        candidates_exp=[x for x in EXPERIMENTS if counts.get(x[0],0)==least]
+        experiment,targets=random.choice(candidates_exp)
+
     for category in targets:
-        yt = discover_youtube(category, limit=10)
-        global_cat = [x for x in global_youtube_signals if x.get("category") == category][:20]
-        category_signals = yt + global_cat
+        yt = [x for x in local_probe if x.get("category") == category]
+        global_cat = [x for x in global_youtube_signals if x.get("category") == category][:30]
+        category_signals = sorted(
+            yt + global_cat,
+            key=lambda x: float(x.get("demand_score") or 0),
+            reverse=True,
+        )
         youtube_signals.extend(yt)
         yt_queries = derive_trend_queries(category_signals, category, max_queries=4)
 
@@ -1817,6 +1836,8 @@ def main():
             "discovery_platforms": ["youtube_search", "youtube_global_charts", "gdelt", "google_news_rss"],
             "acquisition_platforms": ["pixabay", "pexels", "wikimedia_commons"],
             "experiment": experiment,
+            "opportunity_category": opportunity_category,
+            "opportunity_score": opportunity_score,
             "trend_queries_by_category": trend_queries_by_category,
             "global_youtube_signal_count": len(global_youtube_signals),
             "top_global_youtube_signals": sorted(
