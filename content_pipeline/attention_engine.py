@@ -1293,6 +1293,18 @@ def main():
 
     # Then look for licensed short videos on Pixabay that match the social-demand signal.
     pool={}
+
+    # Wikimedia Commons is an additional licensed-acquisition lane. Only
+    # CC0/public-domain video is accepted, and its media is handled exactly
+    # like Pixabay/Pexels by the same quality gate.
+    commons_pool = discover_sources()
+    for x in commons_pool:
+        if str(x.get("category") or "") in targets:
+            x["provider"] = "commons"
+            x["attention_score"] = float(x.get("attention_score") or 65.0)
+            x["license_verified"] = True
+            pool[x["id"]] = x
+
     for category in targets:
         for x in discover_pixabay(
             category,
@@ -1340,7 +1352,7 @@ def main():
         json.dumps({
             "engine_version": ENGINE_VERSION,
             "discovery_platforms": ["youtube"],
-            "acquisition_platforms": ["pixabay", "pexels"],
+            "acquisition_platforms": ["pixabay", "pexels", "wikimedia_commons"],
             "experiment": experiment,
             "trend_queries_by_category": trend_queries_by_category,
             "web_signal_count": len(web_signals),
@@ -1362,6 +1374,12 @@ def main():
         }, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
+
+    print("Licensed acquisition pool:", len(pool), {
+        "commons": sum(1 for x in pool.values() if x.get("provider")=="commons"),
+        "pixabay": sum(1 for x in pool.values() if x.get("provider")=="pixabay"),
+        "pexels": sum(1 for x in pool.values() if x.get("provider")=="pexels"),
+    })
 
     if len(pool)<1:
         (run_dir/"skip.json").write_text(
@@ -1491,6 +1509,13 @@ def main():
             "Source: Pexels.",
             "Source license: Pexels license.",
             "Attribution: Pexels asks API users to show a prominent link to Pexels and credit the creator when possible.",
+            "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
+            f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
+        ]
+    elif src.get("provider") == "commons":
+        attribution = [
+            "Source: Wikimedia Commons.",
+            f"Source license: {src.get('license')}.",
             "Transformation: complete short-form clip retained, then re-framed vertically and combined with original Persian on-screen caption.",
             f"- {src['filename']} — {src['license']} — {src['author']} — {src['page']}",
         ]
