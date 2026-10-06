@@ -5,6 +5,7 @@ import os
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 def main():
@@ -29,11 +30,63 @@ def main():
     for key,value in fields.items():
         chunks.extend([f'--{boundary}\r\n'.encode(),f'Content-Disposition: form-data; name="{key}"\r\n\r\n'.encode(),str(value).encode('utf-8'),b'\r\n'])
     chunks.extend([f'--{boundary}\r\n'.encode(),b'Content-Disposition: form-data; name="video"; filename="video.mp4"\r\n',b'Content-Type: video/mp4\r\n\r\n',video.read_bytes(),b'\r\n',f'--{boundary}--\r\n'.encode()])
-    req=Request(f'https://api.telegram.org/bot{token}/sendVideo',data=b''.join(chunks),method='POST',headers={'Content-Type':f'multipart/form-data; boundary={boundary}'})
-    with urlopen(req,timeout=90) as resp:
-        result=json.loads(resp.read().decode('utf-8','replace'))
+    body=b''.join(chunks)
+    request_url=f'https://api.telegram.org/bot{token}/sendVideo'
+    try:
+        req=Request(request_url,data=body,method='POST',headers={
+            'Content-Type':f'multipart/form-data; boundary={boundary}',
+            'Content-Length':str(len(body)),
+            'User-Agent':'attention-remix-publisher/3.0',
+        })
+        with urlopen(req,timeout=90) as resp:
+            result=json.loads(resp.read().decode('utf-8','replace'))
+    except HTTPError as exc:
+        raw=exc.read().decode('utf-8','replace')
+        try:
+            result=json.loads(raw)
+        except Exception:
+            result={'ok':False,'http_status':exc.code,'raw':raw}
+        error={
+            'stage':'sendVideo',
+            'http_status':exc.code,
+            'error':result,
+            'video_bytes':video.stat().st_size,
+            'video_mb':round(video.stat().st_size/1024/1024,2),
+            'duration_seconds':meta.get('duration_seconds'),
+            'content_type':meta.get('content_type'),
+            'quality_gate':meta.get('quality_gate'),
+        }
+        (video.parent/'publish_error.json').write_text(
+            json.dumps(error,ensure_ascii=False,indent=2),
+            encoding='utf-8'
+        )
+        raise RuntimeError(json.dumps(error,ensure_ascii=False))
+    except URLError as exc:
+        error={
+            'stage':'sendVideo',
+            'network_error':str(exc),
+            'video_bytes':video.stat().st_size,
+            'video_mb':round(video.stat().st_size/1024/1024,2),
+            'duration_seconds':meta.get('duration_seconds'),
+        }
+        (video.parent/'publish_error.json').write_text(
+            json.dumps(error,ensure_ascii=False,indent=2),
+            encoding='utf-8'
+        )
+        raise RuntimeError(json.dumps(error,ensure_ascii=False))
     if not result.get("ok"):
-        raise RuntimeError(json.dumps(result,ensure_ascii=False))
+        error={
+            'stage':'sendVideo',
+            'error':result,
+            'video_bytes':video.stat().st_size,
+            'video_mb':round(video.stat().st_size/1024/1024,2),
+            'duration_seconds':meta.get('duration_seconds'),
+        }
+        (video.parent/'publish_error.json').write_text(
+            json.dumps(error,ensure_ascii=False,indent=2),
+            encoding='utf-8'
+        )
+        raise RuntimeError(json.dumps(error,ensure_ascii=False))
     member_count = None
     try:
         count_req = Request(
