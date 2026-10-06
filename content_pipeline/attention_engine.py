@@ -397,7 +397,7 @@ def discover_youtube(category, limit=16):
                 content = item.get("contentDetails") or {}
                 stats = item.get("statistics") or {}
                 duration = parse_iso_duration(content.get("duration"))
-                if not video_id or duration < MIN_TOTAL or duration > 60.0:
+                if not video_id or duration < MIN_TOTAL:
                     continue
 
                 title = str(snippet.get("title") or "").strip()
