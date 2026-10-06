@@ -6,9 +6,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - ".attention_trigger"
   # schedule paused while source-quality/virality model is rebuilt
 
 jobs:
