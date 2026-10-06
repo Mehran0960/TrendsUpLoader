@@ -490,12 +490,21 @@ def discover_gdelt(category, seed_queries=None, limit=10):
 
         if data is None:
             try:
+                cleaned = re.sub(r"[^A-Za-z0-9 ]+", " ", query).strip()
+                terms = [x for x in cleaned.lower().split() if len(x) >= 4][:4]
+                if len(terms) >= 2:
+                    gdelt_query = "(" + " OR ".join(terms) + ")"
+                elif terms:
+                    gdelt_query = terms[0]
+                else:
+                    continue
                 params = urllib.parse.urlencode({
-                    "query": '"' + query.replace('"', '') + '"',
+                    "query": gdelt_query,
                     "mode": "artlist",
                     "format": "json",
                     "timespan": "3d",
-                    "maxrecords": 20,
+                    "sort": "datedesc",
+                    "maxrecords": 25,
                 })
                 req = Request(
                     "https://api.gdeltproject.org/api/v2/doc/doc?" + params,
@@ -831,6 +840,38 @@ def source_relevance_score(src):
             return 70.0
         return 35.0
     return min(100.0, 55.0 + 10.0 * hits)
+
+def orientation_score(width, height):
+    """Score how naturally a source fits vertical short-form framing."""
+    w=float(width or 0)
+    h=float(height or 0)
+    if w <= 0 or h <= 0:
+        return 0.0
+    ratio=w/h
+    if 0.52 <= ratio <= 0.65:
+        return 100.0
+    if ratio < 0.52:
+        return max(82.0, 100.0 - (0.52-ratio)*120.0)
+    return max(35.0, 100.0 - (ratio-0.65)*70.0)
+
+
+def duration_score(duration):
+    """Prefer concise clips while keeping the whole source intact."""
+    d=float(duration or 0)
+    if d <= 0:
+        return 0.0
+    if 7.0 <= d <= 18.0:
+        return 100.0
+    if 5.0 <= d < 7.0:
+        return 88.0
+    if 18.0 < d <= 24.0:
+        return 90.0
+    if 24.0 < d <= 30.0:
+        return 78.0
+    if 30.0 < d <= 45.0:
+        return 62.0
+    return 45.0
+
 
 def visual_score(path):
     try:
@@ -1276,17 +1317,24 @@ def main():
 
         # A recent web spike can strengthen demand only when the candidate
         # actually matches the discovered topic; it cannot override quality.
-        web_match = trend_match_score(item, [
+        related_web = [
             str(x.get("title") or "")
             for x in web_signals
             if str(x.get("category") or "") == cat
-        ][:5])
+        ][:5]
+        web_match = trend_match_score(item, related_web) if related_web else 50.0
         item["web_signal_score"] = round(web_match, 2)
-        item["cross_web_score"] = round(
-            0.55 * float(item.get("trend_match_score") or 50.0)
-            + 0.45 * float(item.get("web_signal_score") or 50.0),
-            2,
-        )
+        if related_web:
+            item["cross_web_score"] = round(
+                0.70 * float(item.get("trend_match_score") or 50.0)
+                + 0.30 * float(item.get("web_signal_score") or 50.0),
+                2,
+            )
+        else:
+            item["cross_web_score"] = round(
+                float(item.get("trend_match_score") or 50.0),
+                2,
+            )
 
     (run_dir/"radar.json").write_text(
         json.dumps({
