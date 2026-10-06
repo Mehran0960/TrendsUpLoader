@@ -107,7 +107,7 @@ DISCOVERY = {
     "tech": ["cool technology", "amazing gadget", "tech demo", "future technology"],
 }
 
-YOUTUBE_REGION_CODES = ["US", "GB", "CA", "AU", "IN", "BR", "DE", "TR", "IR"]
+YOUTUBE_REGION_CODES = ["US", "GB", "CA", "IN", "BR", "DE", "TR"]
 YOUTUBE_CHART_CATEGORY_IDS = ["15", "17", "23", "24", "26", "28", "19"]
 YOUTUBE_CATEGORY_NAMES = {
     "15": "animals",
@@ -433,42 +433,52 @@ def discover_youtube_global_charts(limit_per_bucket=8):
     """Read current official YouTube mostPopular charts across regions/categories.
 
     This is demand intelligence only. No YouTube audiovisual media is downloaded.
+    Requests are parallelized conservatively because videos.list is lightweight.
     """
     if not YOUTUBE_KEY:
         print("YouTube global chart radar skipped: API key missing.")
         return []
 
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from datetime import datetime, timezone
+
     cache_dir=YOUTUBE_CACHE / "global_charts"
     cache_dir.mkdir(parents=True, exist_ok=True)
+
+    def fetch_bucket(region, category_id):
+        cache_file=cache_dir / (
+            hashlib.sha1((region+"|"+category_id).encode("utf-8")).hexdigest()[:18]+".json"
+        )
+        if cache_file.exists() and __import__("time").time()-cache_file.stat().st_mtime <= 24*3600:
+            try:
+                return region, category_id, json.loads(cache_file.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+
+        try:
+            data=youtube_api_get("/videos", {
+                "key":YOUTUBE_KEY,
+                "part":"snippet,contentDetails,statistics",
+                "chart":"mostPopular",
+                "regionCode":region,
+                "videoCategoryId":category_id,
+                "maxResults":min(limit_per_bucket,50),
+            })
+            cache_file.write_text(json.dumps(data,ensure_ascii=False),encoding="utf-8")
+            return region, category_id, data
+        except Exception as exc:
+            print("YouTube global chart failed:",region,category_id,exc)
+            return region, category_id, {"items":[]}
+
     raw_results=[]
-
-    for region in YOUTUBE_REGION_CODES:
-        for category_id in YOUTUBE_CHART_CATEGORY_IDS:
-            cache_file=cache_dir / (
-                hashlib.sha1((region+"|"+category_id).encode("utf-8")).hexdigest()[:18]+".json"
-            )
-            data=None
-            if cache_file.exists() and __import__("time").time()-cache_file.stat().st_mtime <= 24*3600:
-                try:
-                    data=json.loads(cache_file.read_text(encoding="utf-8"))
-                except Exception:
-                    data=None
-
-            if data is None:
-                try:
-                    data=youtube_api_get("/videos", {
-                        "key":YOUTUBE_KEY,
-                        "part":"snippet,contentDetails,statistics",
-                        "chart":"mostPopular",
-                        "regionCode":region,
-                        "videoCategoryId":category_id,
-                        "maxResults":min(limit_per_bucket,50),
-                    })
-                    cache_file.write_text(json.dumps(data,ensure_ascii=False),encoding="utf-8")
-                except Exception as exc:
-                    print("YouTube global chart failed:",region,category_id,exc)
-                    continue
-
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        futures=[
+            executor.submit(fetch_bucket,region,category_id)
+            for region in YOUTUBE_REGION_CODES
+            for category_id in YOUTUBE_CHART_CATEGORY_IDS
+        ]
+        for future in as_completed(futures):
+            region,category_id,data=future.result()
             for rank,item in enumerate((data.get("items") or [])[:limit_per_bucket],start=1):
                 video_id=str(item.get("id") or "").strip()
                 snippet=item.get("snippet") or {}
@@ -488,7 +498,6 @@ def discover_youtube_global_charts(limit_per_bucket=8):
                 comment_rate=comments/max(1,views)
                 age_days=float(MAX_YOUTUBE_SIGNAL_AGE_DAYS)
                 try:
-                    from datetime import datetime, timezone
                     dt=datetime.fromisoformat(published_at.replace("Z","+00:00"))
                     age_days=max(0.125,(datetime.now(timezone.utc)-dt).total_seconds()/86400.0)
                 except Exception:
@@ -517,8 +526,6 @@ def discover_youtube_global_charts(limit_per_bucket=8):
                     "media_downloaded":False,
                 })
 
-    # Collapse the same video seen across multiple regions/charts and reward
-    # both high rank and cross-region recurrence.
     grouped={}
     for item in raw_results:
         key=item["id"]
@@ -529,7 +536,6 @@ def discover_youtube_global_charts(limit_per_bucket=8):
             g["item"]=item
 
     results=[]
-    from datetime import datetime, timezone
     for g in grouped.values():
         item=dict(g["item"])
         region_count=len(g["regions"])
@@ -555,7 +561,13 @@ def discover_youtube_global_charts(limit_per_bucket=8):
         results.append(item)
 
     results.sort(key=lambda x:float(x.get("demand_score") or 0),reverse=True)
-    print("YouTube global chart radar complete:", "signals=",len(results))
+    print(
+        "YouTube global chart radar complete:",
+        "raw=",len(raw_results),
+        "unique=",len(results),
+        "regions=",len(YOUTUBE_REGION_CODES),
+        "buckets=",len(YOUTUBE_REGION_CODES)*len(YOUTUBE_CHART_CATEGORY_IDS),
+    )
     return results[:120]
 
 
