@@ -16,6 +16,7 @@ import re
 import subprocess
 import sys
 import urllib.parse
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -475,6 +476,78 @@ def discover_youtube(category, limit=16):
     print("YouTube viral radar complete:", category, "signals=", len(results))
     return results[:limit]
 
+
+
+def discover_google_news(category, seed_queries=None, limit=12):
+    """Read recent Google News search RSS as a no-key broad-web attention signal."""
+    queries = [str(q).strip() for q in (seed_queries or []) if q][:2]
+    if not queries:
+        queries = [str(q) for q in DISCOVERY.get(category, [])[:2]]
+
+    signals = []
+    for query in queries:
+        cache_key = hashlib.sha1((category + "|" + query + "|google-news").encode("utf-8")).hexdigest()[:18]
+        cache_file = GDELT_CACHE / ("google_" + cache_key + ".xml")
+        raw = None
+
+        if cache_file.exists() and __import__("time").time() - cache_file.stat().st_mtime <= 6 * 3600:
+            try:
+                raw = cache_file.read_text(encoding="utf-8")
+            except Exception:
+                raw = None
+
+        if raw is None:
+            try:
+                params = urllib.parse.urlencode({
+                    "q": query + " when:3d",
+                    "hl": "en-US",
+                    "gl": "US",
+                    "ceid": "US:en",
+                })
+                req = Request(
+                    "https://news.google.com/rss/search?" + params,
+                    headers={"User-Agent": "attention-remix-engine/google-news-radar/1.0"},
+                )
+                with urlopen(req, timeout=25) as resp:
+                    raw = resp.read().decode("utf-8", errors="replace")
+                GDELT_CACHE.mkdir(parents=True, exist_ok=True)
+                cache_file.write_text(raw, encoding="utf-8")
+            except Exception as exc:
+                print("Google News discovery failed:", category, query, exc)
+                continue
+
+        try:
+            root = ET.fromstring(raw)
+        except Exception as exc:
+            print("Google News XML parse failed:", category, query, exc)
+            continue
+
+        seen = set()
+        for rank, item in enumerate(root.findall(".//item")[:limit]):
+            title = str(item.findtext("title") or "").strip()
+            link = str(item.findtext("link") or "").strip()
+            pub = str(item.findtext("pubDate") or "").strip()
+            source_el = item.find("source")
+            source = str(source_el.text or "").strip() if source_el is not None else ""
+            key = title.lower()
+            if not title or key in seen:
+                continue
+            seen.add(key)
+            signals.append({
+                "provider": "google_news_rss",
+                "category": category,
+                "query": query,
+                "rank": rank + 1,
+                "title": title,
+                "url": link,
+                "domain": source,
+                "published_at": pub,
+                "web_attention_score": round(max(42.0, 92.0 - rank * 3.2), 2),
+            })
+
+    signals.sort(key=lambda x: float(x.get("web_attention_score") or 0), reverse=True)
+    print("Google News radar complete:", category, "signals=", len(signals))
+    return signals[:limit]
 
 
 def discover_gdelt(category, seed_queries=None, limit=10):
@@ -1340,7 +1413,11 @@ def main():
         yt_queries = derive_trend_queries(yt, category, max_queries=3)
 
         gdelt = discover_gdelt(category, seed_queries=yt_queries, limit=10)
-        web_signals.extend(gdelt)
+        if gdelt:
+            web_signals.extend(gdelt)
+        else:
+            google_news = discover_google_news(category, seed_queries=yt_queries, limit=12)
+            web_signals.extend(google_news)
 
         combined_queries = list(yt_queries)
         for item in gdelt:
@@ -1416,7 +1493,7 @@ def main():
     (run_dir/"radar.json").write_text(
         json.dumps({
             "engine_version": ENGINE_VERSION,
-            "discovery_platforms": ["youtube"],
+            "discovery_platforms": ["youtube", "gdelt", "google_news_rss"],
             "acquisition_platforms": ["pixabay", "pexels", "wikimedia_commons"],
             "experiment": experiment,
             "trend_queries_by_category": trend_queries_by_category,
