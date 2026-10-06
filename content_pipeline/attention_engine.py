@@ -810,20 +810,29 @@ def discover_sources(categories=None):
     return results[:60]
 
 def trend_match_score(src, trend_queries=None):
-    """Estimate how strongly an acquired clip matches the discovered demand signal."""
+    """Score semantic evidence from the acquired media metadata.
+
+    The query used to retrieve a Pexels result is NOT treated as proof that
+    the resulting clip itself contains that topic; otherwise retrieval would
+    create a circular, inflated score.
+    """
     queries = [str(q).strip().lower() for q in (trend_queries or []) if q]
     if not queries:
         return 50.0
 
+    provider = str(src.get("provider") or "")
     blob = (
         str(src.get("title") or "") + " " +
         str(src.get("description") or "") + " " +
-        str(src.get("search_query") or "")
+        str(src.get("tags") or "")
     ).lower()
 
     best = 0.0
     for query in queries:
-        qwords = [w for w in re.findall(r"[a-z0-9'-]{3,}", query) if w not in YOUTUBE_STOPWORDS]
+        qwords = [
+            w for w in re.findall(r"[a-z0-9'-]{3,}", query)
+            if w not in YOUTUBE_STOPWORDS
+        ]
         if not qwords:
             continue
         hits = sum(1 for w in qwords if w in blob)
@@ -831,7 +840,16 @@ def trend_match_score(src, trend_queries=None):
         exact_bonus = 0.18 if query in blob else 0.0
         best = max(best, min(1.0, coverage + exact_bonus))
 
+    if best <= 0:
+        # Pexels search has already performed semantic retrieval, but its API
+        # currently does not expose detailed video tags/statistics. Give it only
+        # a modest prior rather than pretending the topic was verified in-frame.
+        if provider == "pexels":
+            return 58.0 if src.get("search_query") else 52.0
+        return 35.0
+
     return round(45.0 + 50.0 * best, 2)
+
 
 
 def source_relevance_score(src):
@@ -854,8 +872,8 @@ def source_relevance_score(src):
 
     hits = sum(1 for word in keywords if word in text_blob)
     if hits == 0:
-        if str(src.get("provider") or "") == "pexels" and src.get("popular_rank"):
-            return 70.0
+        if str(src.get("provider") or "") == "pexels":
+            return 68.0 if src.get("search_query") else (70.0 if src.get("popular_rank") else 52.0)
         return 35.0
     return min(100.0, 55.0 + 10.0 * hits)
 
@@ -906,7 +924,7 @@ def visual_score(path):
 
     samples=[]
     frame_index=0
-    sample_step=max(1,int(round(fps/3.0)))  # ~3 samples/sec
+    sample_step=max(1,int(round(fps/3.0)))
     prev=None
 
     while True:
@@ -916,12 +934,31 @@ def visual_score(path):
         if frame_index % sample_step != 0:
             frame_index += 1
             continue
+
         small=cv2.resize(frame,(192,108),interpolation=cv2.INTER_AREA)
         gray=cv2.cvtColor(small,cv2.COLOR_BGR2GRAY)
         motion=0.0 if prev is None else float(cv2.absdiff(gray,prev).mean())/255.0
-        sharp=float(cv2.Laplacian(gray,cv2.CV_64F).var())
-        contrast=float(gray.std())/128.0
-        samples.append((frame_index/fps,motion,min(sharp/180.0,1.0),min(contrast,1.0)))
+        sharp=min(float(cv2.Laplacian(gray,cv2.CV_64F).var())/180.0,1.0)
+        contrast=min(float(gray.std())/64.0,1.0)
+
+        edges=cv2.Canny(gray,60,150)
+        edge_density=float((edges>0).mean())
+        edge_score=min(edge_density/0.18,1.0)
+
+        hsv=cv2.cvtColor(small,cv2.COLOR_BGR2HSV)
+        saturation=min(float(hsv[:,:,1].mean())/128.0,1.0)
+        brightness=float(hsv[:,:,2].mean())/255.0
+        lighting_score=max(0.0,1.0-abs(brightness-0.58)/0.58)
+
+        samples.append((
+            frame_index/fps,
+            motion,
+            sharp,
+            contrast,
+            edge_score,
+            saturation,
+            lighting_score,
+        ))
         prev=gray
         frame_index += 1
 
@@ -929,14 +966,23 @@ def visual_score(path):
     if len(samples)<8:
         return {"score":0.0,"best_start":0.0,"best_duration":min(3.8,duration)}
 
-    window=12
+    window=max(8,min(18,int(round(3.8*3.0))))
     best=None
     for i in range(0,len(samples)-window+1):
         chunk=samples[i:i+window]
-        motion=sum(x[1] for x in chunk)/window
-        sharp=sum(x[2] for x in chunk)/window
-        contrast=sum(x[3] for x in chunk)/window
-        score=100.0*(0.50*motion+0.32*sharp+0.18*contrast)
+        vals=[sum(x[j] for x in chunk)/window for j in range(1,7)]
+        motion,sharp,contrast,edge,saturation,lighting=vals
+
+        # Better balance between action and visual clarity. Static but striking
+        # frames can now survive; genuinely dull frames still score poorly.
+        score=100.0*(
+            0.22*min(motion*1.8,1.0)
+            +0.20*sharp
+            +0.16*contrast
+            +0.16*edge
+            +0.14*saturation
+            +0.12*lighting
+        )
         start=chunk[0][0]
         if best is None or score>best[0]:
             best=(score,start)
@@ -944,8 +990,9 @@ def visual_score(path):
     return {
         "score":round(min(best[0],99.0),2),
         "best_start":round(best[1],3),
-        "best_duration":3.8
+        "best_duration":min(3.8,duration)
     }
+
 
 
 def download_source(src):
