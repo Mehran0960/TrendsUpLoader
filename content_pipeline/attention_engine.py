@@ -454,7 +454,7 @@ def infer_viral_category(video_category_id, title, description=""):
         ("wow", ["amazing","skill","trick","acrobat","acrobatics","stunt","magic","flip","jump"]),
     ]
     for category,words in keyword_map:
-        if any(re.search(r"\\b"+re.escape(w)+r"\\b", blob) for w in words):
+        if any(re.search(r"\b"+re.escape(w)+r"\b", blob) for w in words):
             return category
 
     fallback_map={"15":"animals","17":"sports","28":"tech"}
