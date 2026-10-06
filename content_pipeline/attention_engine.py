@@ -1727,13 +1727,14 @@ def main():
     trend_queries_by_category = {}
     # Let the global chart radar choose the category first. Local search is
     # only run for the winning category, keeping API cost bounded.
-    opportunity_category, opportunity_score, _ = choose_opportunity_category(
+    opportunity_category, opportunity_score, opportunity_ranked = choose_opportunity_category(
         global_youtube_signals, []
     )
 
     if opportunity_category:
+        top_categories = [x[1] for x in opportunity_ranked[:3]]
         experiment = "global_opportunity:" + opportunity_category
-        targets = {opportunity_category: 1}
+        targets = {category: 1 for category in top_categories}
     else:
         counts=state.get("experiment_counts",{})
         least=min(counts.get(name,0) for name,_ in EXPERIMENTS)
