@@ -56,6 +56,12 @@ PIXABAY_QUERIES = {
     "beauty_style": ["woman dance", "woman fashion", "woman performance"],
     "talent": ["woman singing", "dance performance", "female drummer"],
     "wow": ["amazing skill", "acrobatics", "trick performance"],
+    "sports": ["sports fail", "amazing goal", "trick shot"],
+    "food": ["satisfying cooking", "street food", "food art"],
+    "cars": ["car transformation", "car stunt", "car detail"],
+    "satisfying": ["oddly satisfying", "restoration", "cleaning transformation"],
+    "travel": ["amazing travel", "beautiful destination", "travel moment"],
+    "tech": ["cool technology", "amazing gadget", "tech demo"],
 }
 YOUTUBE_QUERIES = {
     "animals": ["funny cat", "funny dog"],
@@ -63,6 +69,12 @@ YOUTUBE_QUERIES = {
     "beauty_style": ["woman dance", "woman fashion"],
     "talent": ["woman singing", "dance performance"],
     "wow": ["amazing skill", "trick performance"],
+    "sports": ["sports fail", "amazing goal", "trick shot"],
+    "food": ["satisfying cooking", "street food", "food art"],
+    "cars": ["car transformation", "car stunt", "car detail"],
+    "satisfying": ["oddly satisfying", "restoration", "cleaning transformation"],
+    "travel": ["amazing travel", "beautiful destination", "travel moment"],
+    "tech": ["cool technology", "amazing gadget", "tech demo"],
 }
 YOUTUBE_STOPWORDS = {
     "the","and","that","this","with","from","for","you","your","are","was","were",
@@ -87,7 +99,23 @@ DISCOVERY = {
     "beauty_style": ["woman dance", "woman fashion", "woman performance", "style performance"],
     "talent": ["woman singing", "women singing", "singing performance", "female drummer"],
     "wow": ["amazing skill", "acrobatics", "trick performance", "satisfying performance"],
+    "sports": ["sports fail", "amazing goal", "trick shot", "crazy sports moment"],
+    "food": ["satisfying cooking", "street food", "food art", "amazing recipe"],
+    "cars": ["car transformation", "car stunt", "car detail", "crazy car"],
+    "satisfying": ["oddly satisfying", "restoration", "cleaning transformation", "before after"],
+    "travel": ["amazing travel", "beautiful destination", "travel moment", "hidden place"],
+    "tech": ["cool technology", "amazing gadget", "tech demo", "future technology"],
 }
+
+YOUTUBE_REGION_CODES = ["US", "GB", "CA", "AU", "IN", "BR", "DE", "TR", "IR"]
+YOUTUBE_CHART_CATEGORY_IDS = ["15", "17", "23", "24", "26", "28", "19"]
+YOUTUBE_CATEGORY_NAMES = {
+    "15": "animals",
+    "17": "sports",
+    "23": "human_funny",
+    "19": "travel",
+}
+
 
 CAPTIONS = {
     "animals": [
@@ -130,6 +158,11 @@ EXPERIMENTS = [
     ("talent_show", {"talent": 3}),
     ("wow_moments", {"wow": 3}),
     ("mixed_fun", {"animals": 2, "human_funny": 1}),
+    ("sports_action", {"sports": 3}),
+    ("satisfying_visuals", {"satisfying": 3}),
+    ("food_craft", {"food": 3}),
+    ("cars_motion", {"cars": 3}),
+    ("global_mix", {"wow": 1, "satisfying": 1, "sports": 1}),
 ]
 
 # Small vetted fallback pool; dynamic discovery is preferred.
