@@ -1065,7 +1065,7 @@ def select_sources(pool, state, forced_experiment=None):
                 src["_pre_score"]=(
                     0.40*float(src.get("attention_score") or 0)
                     +0.25*float(src.get("relevance_score") or source_relevance_score(src))
-                    +0.35*float(src.get("trend_match_score") or 50.0)
+                    +0.35*float(src.get("cross_web_score") or src.get("trend_match_score") or 50.0)
                 )
             items.sort(key=lambda x:float(x.get("_pre_score") or 0),reverse=True)
             shortlist.extend(items[:3])
@@ -1099,7 +1099,7 @@ def select_sources(pool, state, forced_experiment=None):
                     src.get("relevance_score")
                     or source_relevance_score(src)
                 )
-                demand=float(src.get("trend_match_score") or 50.0)
+                demand=float(src.get("cross_web_score") or src.get("trend_match_score") or 50.0)
                 orient=orientation_score(info["width"],info["height"])
                 shortness=duration_score(duration)
 
