@@ -58,11 +58,19 @@ jobs:
         run: python content_pipeline/attention_engine.py
 
       - name: Publish validated attention video to Telegram
+        id: publish
         if: ${{ hashFiles('out/**/video.mp4') != '' }}
+        continue-on-error: true
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python content_pipeline/publish_attention_telegram.py
+
+      - name: Publish diagnostics
+        if: ${{ always() && hashFiles('out/**/publish_error.json') != '' }}
+        run: |
+          echo "=== PUBLISH ERROR ==="
+          cat out/**/publish_error.json
 
       - name: Persist published attention experiment state
         if: ${{ success() && hashFiles('out/**/publish.json') != '' }}
@@ -104,9 +112,14 @@ jobs:
           fi
 
       - name: Upload attention artifact
+        if: ${{ always() && hashFiles('out/**/video.mp4') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: attention-remix
           path: out/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
+
+      - name: Require successful publish
+        if: ${{ always() && hashFiles('out/**/video.mp4') != '' && hashFiles('out/**/publish.json') == '' }}
+        run: exit 1
