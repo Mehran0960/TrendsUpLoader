@@ -5,11 +5,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    paths:
-      - "content_pipeline/attention_engine.py"
+  schedule:
+    - cron: "0 */6 * * *"
   workflow_dispatch:
-  # Temporary engine-only validation trigger.
+  # Passive radar: every 6 hours + manual dispatch.
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -64,14 +63,119 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: python content_pipeline/attention_engine.py
 
-      - name: Publish validated attention video to Telegram
-        id: publish
-        if: ${{ false && hashFiles('out/**/video.mp4') != '' }}
-        continue-on-error: true
+      - name: Build public radar feed and select direct viral candidate
+        run: |
+          python - <<'PY'
+          import json, re, urllib.parse
+          from pathlib import Path
+          from datetime import datetime, timezone
+          radar_files=sorted(Path('out').glob('**/radar.json'), key=lambda p:p.stat().st_mtime, reverse=True)
+          if not radar_files:
+              print('No radar.json found.')
+              raise SystemExit(0)
+          radar=json.loads(radar_files[0].read_text(encoding='utf-8'))
+          signals=list(radar.get('top_global_youtube_signals') or [])
+          feed={
+              'updated_at':datetime.now(timezone.utc).isoformat(),
+              'engine_version':radar.get('engine_version'),
+              'opportunity_category':radar.get('opportunity_category'),
+              'opportunity_score':radar.get('opportunity_score'),
+              'signals':signals[:40],
+          }
+          p=Path('attention_state/public_radar.json')
+          p.parent.mkdir(exist_ok=True)
+          p.write_text(json.dumps(feed,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+
+          state_path=Path('attention_state/direct_viral_posted.json')
+          try:
+              state=json.loads(state_path.read_text(encoding='utf-8'))
+          except Exception:
+              state={'version':1,'urls':[]}
+          posted=set(str(x) for x in state.get('urls',[]))
+
+          blocked=re.compile(r'\b(movie|trailer|official|music video|full episode|podcast|news|politics|election|child|children|minor|toddler|schoolgirl|schoolboy|explicit|gore)\b',re.I)
+          curiosity=re.compile(r'\b(gets|got|caught|catch|eating|eats|custom|artificial|unexpected|surprise|surprising|fails|failed|falls|fell|wins|won|reacts|reaction|transformation|before|after|impossible|crazy|amazing|smartest|why|how|which|entire|different)\b',re.I)
+
+          candidates=[]
+          for s in signals:
+              url=str(s.get('url') or '').strip()
+              title=str(s.get('title') or '').strip()
+              cat=str(s.get('category') or '').strip()
+              demand=float(s.get('demand_score') or 0)
+              regions=int(s.get('chart_region_count') or 0)
+              duration=float(s.get('duration') or 0)
+              if not url or url in posted or cat=='other' or demand<92 or regions<2 or duration<1:
+                  continue
+              if blocked.search(title):
+                  continue
+              published=str(s.get('published_at') or '')
+              try:
+                  dt=datetime.fromisoformat(published.replace('Z','+00:00'))
+                  age=(datetime.now(timezone.utc)-dt).total_seconds()/86400
+                  if age>7:
+                      continue
+              except Exception:
+                  age=99
+              cue=1 if curiosity.search(title) else 0
+              score=0.62*demand + 10*min(regions/4,1) + 5*cue + max(0,7-age)*0.5
+              candidates.append((score,s))
+          candidates.sort(key=lambda x:x[0],reverse=True)
+
+          if candidates:
+              chosen=candidates[0][1]
+              hub='https://viral-hub.m-hoseyni-6966.workers.dev/watch?url='+urllib.parse.quote(chosen['url'],safe='')+'&title='+urllib.parse.quote('🔥 '+chosen['title'],safe='')
+              item={
+                  'source_url':chosen['url'],
+                  'title':chosen['title'],
+                  'hub_url':hub,
+                  'platform':'YouTube',
+                  'demand_score':chosen.get('demand_score'),
+                  'views':chosen.get('views'),
+                  'likes':chosen.get('likes'),
+                  'comments':chosen.get('comments'),
+                  'chart_region_count':chosen.get('chart_region_count'),
+                  'chart_rank':chosen.get('chart_rank'),
+                  'category':chosen.get('category'),
+                  'published_at':chosen.get('published_at'),
+                  'selected_at':datetime.now(timezone.utc).isoformat(),
+              }
+              Path('out/direct_viral.json').write_text(json.dumps(item,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              print('DIRECT VIRAL SELECTED:',json.dumps(item,ensure_ascii=False))
+          else:
+              Path('out/direct_viral_skip.json').write_text(json.dumps({'reason':'no_new_direct_candidate','signals_checked':len(signals)},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              print('No new direct viral candidate.')
+          PY
+
+      - name: Publish direct viral Hub link to Telegram
+        id: direct_publish
+        if: ${{ hashFiles('out/direct_viral.json') != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python content_pipeline/publish_attention_telegram.py
+        run: |
+          python - <<'PY'
+          import json, os, urllib.parse, urllib.request
+          from pathlib import Path
+          item=json.loads(Path('out/direct_viral.json').read_text(encoding='utf-8'))
+          text=('🔥 وایرال منتخب\n\n'+item['title']+'\n\n🎬 مشاهده ویدئوی اصلی:\n'+item['hub_url'])
+          token=os.environ.get('TELEGRAM_BOT_TOKEN','').strip()
+          chat=os.environ.get('TELEGRAM_CHAT_ID','').strip()
+          if not token or not chat:
+              raise SystemExit('Telegram secrets missing.')
+          data=urllib.parse.urlencode({'chat_id':chat,'text':text,'disable_web_page_preview':'false'}).encode()
+          req=urllib.request.Request('https://api.telegram.org/bot'+token+'/sendMessage',data=data,headers={'Content-Type':'application/x-www-form-urlencoded'})
+          with urllib.request.urlopen(req,timeout=30) as resp:
+              result=json.loads(resp.read().decode())
+          if not result.get('ok'):
+              raise SystemExit('Telegram send failed: '+json.dumps(result))
+          Path('out/direct_viral_sent.json').write_text(json.dumps({
+              'ok':True,
+              'message_id':(result.get('result') or {}).get('message_id'),
+              'source_url':item['source_url'],
+              'hub_url':item['hub_url']
+          },ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          print('Telegram direct viral message sent.')
+          PY
 
       - name: Publish diagnostics
         if: ${{ always() && hashFiles('out/**/publish_error.json') != '' }}
@@ -79,42 +183,36 @@ jobs:
           echo "=== PUBLISH ERROR ==="
           cat out/**/publish_error.json
 
-      - name: Persist published attention experiment state
-        if: ${{ success() && hashFiles('out/**/publish.json') != '' }}
+      - name: Persist radar feed and direct viral state
+        if: ${{ always() && hashFiles('attention_state/public_radar.json') != '' }}
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          p=Path('attention_state/posted.json')
-          p.parent.mkdir(exist_ok=True)
+          state=Path('attention_state/direct_viral_posted.json')
           try:
-              data=json.loads(p.read_text(encoding='utf-8'))
+              data=json.loads(state.read_text(encoding='utf-8'))
           except Exception:
-              data={'version':1,'keys':[],'experiment_counts':{},'runs':[]}
-          keys=[str(x) for x in data.get('keys',[])]
-          counts={str(k):int(v) for k,v in (data.get('experiment_counts') or {}).items()}
-          runs=list(data.get('runs') or [])
-          for m in Path('out').glob('**/metadata.json'):
-              meta=json.loads(m.read_text(encoding='utf-8'))
-              key=str(meta.get('combination_key') or '').strip()
-              exp=str(meta.get('experiment') or '').strip()
-              if key and key not in keys:
-                  keys.append(key)
-              if exp:
-                  counts[exp]=counts.get(exp,0)+1
-              pub_path=m.parent/'publish.json'
-              if pub_path.exists():
-                  pub=json.loads(pub_path.read_text(encoding='utf-8'))
-                  runs.append({'message_id':pub.get('message_id'),'experiment':exp,'categories':pub.get('categories') or [],'member_count':pub.get('member_count'),'published_at':pub.get('published_at'),'combination_key':key})
-          p.write_text(json.dumps({'version':1,'keys':keys[-100:],'experiment_counts':counts,'runs':runs[-100:]},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              data={'version':1,'urls':[]}
+          sent=Path('out/direct_viral_sent.json')
+          if sent.exists():
+              try:
+                  x=json.loads(sent.read_text(encoding='utf-8'))
+                  url=str(x.get('source_url') or '').strip()
+                  if url and url not in data.get('urls',[]):
+                      data.setdefault('urls',[]).append(url)
+              except Exception:
+                  pass
+          data['urls']=(data.get('urls') or [])[-200:]
+          state.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add attention_state/posted.json
+          git add attention_state/public_radar.json attention_state/direct_viral_posted.json
           if git diff --cached --quiet; then
-            echo 'No attention state change.'
+            echo 'No radar state change.'
           else
-            git commit -m 'Record attention experiment state'
+            git commit -m 'Update public viral radar feed'
             git push
           fi
 
