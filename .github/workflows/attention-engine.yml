@@ -5,10 +5,13 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    paths:
+      - ".github/workflows/attention-engine.yml"
   schedule:
     - cron: "0 */2 * * *"
   workflow_dispatch:
-  # Native-only: no YouTube/TikTok links are sent to viewers.
+  # Temporary push trigger for native end-to-end validation.
 
 jobs:
   build:
