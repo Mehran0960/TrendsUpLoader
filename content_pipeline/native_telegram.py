@@ -13,6 +13,7 @@ STATE_DIR = ROOT / "attention_state"
 OUT_DIR = ROOT / "out"
 NATIVE_STATE = STATE_DIR / "native_posted.json"
 TARGET_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+ENABLE_LICENSED_NATIVE = os.environ.get("ENABLE_LICENSED_NATIVE", "0").strip() == "1"
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 
 HOOKS = {
@@ -245,6 +246,14 @@ def evaluate_candidate(src):
 
 
 def main():
+    if not ENABLE_LICENSED_NATIVE:
+        OUT_DIR.mkdir(exist_ok=True)
+        (OUT_DIR / "native_skip.json").write_text(
+            json.dumps({"reason":"licensed_native_disabled_until_source_quality_is_proven"}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print("LICENSED NATIVE AUTO-PUBLISH DISABLED")
+        return
     OUT_DIR.mkdir(exist_ok=True)
     state = load_state()
 
