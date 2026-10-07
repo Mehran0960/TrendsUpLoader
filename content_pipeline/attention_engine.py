@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v9_event_structure_test"
+ENGINE_VERSION = "viral_radar_global_opportunity_v10_event_spike_gate"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -125,7 +125,7 @@ def extract_category_query(title, category):
 
 
 HOOK_CUES = {
-    "animals": ["funny","fail","reaction","chase","jump","attack","rescue","fight","catch","steal","escape","surprise","unexpected","unusual","strange","crazy","impossible"],
+    "animals": ["funny","fail","reaction","chase","jump","attack","rescue","fight","catch","steal","escape","surprise","unexpected","unusual","strange","play","playing","crazy","impossible"],
     "human_funny": ["funny","fail","prank","reaction","awkward","unexpected","surprise","embarrassing","crazy"],
     "beauty_style": ["transformation","transition","runway","dance","glow","makeup","before","after","outfit","performance"],
     "talent": ["singing","singer","high note","cover","drummer","drumming","guitar","piano","performance","incredible","insane"],
@@ -1444,18 +1444,22 @@ def visual_score(path):
     p95_motion=__import__("numpy").percentile(motions,95) if motions else 0.0
     early_p95=__import__("numpy").percentile(early,95) if early else p95_motion
     first_p95=__import__("numpy").percentile(first,95) if first else early_p95
-    spike_share=sum(1 for x in motions if x>0.12)/max(1,len(motions))
-    first_spike_share=sum(1 for x in first if x>0.12)/max(1,len(first))
+    deltas=[abs(motions[i]-motions[i-1]) for i in range(1,len(motions))]
+    first_deltas=[abs(first[i]-first[i-1]) for i in range(1,len(first))]
+    p95_delta=__import__("numpy").percentile(deltas,95) if deltas else 0.0
+    first_p95_delta=__import__("numpy").percentile(first_deltas,95) if first_deltas else p95_delta
+    spike_share=sum(1 for x in motions if x>0.15)/max(1,len(motions))
+    first_spike_share=sum(1 for x in first if x>0.15)/max(1,len(first))
     event_score=100.0*(
-        0.25*min(mean_motion/0.12,1.0)
-        +0.30*min(max(p95_motion-0.04,0.0)/0.10,1.0)
-        +0.25*min(spike_share/0.25,1.0)
-        +0.20*min(max(early_p95-0.04,0.0)/0.10,1.0)
+        0.18*min(max(mean_motion-0.05,0.0)/0.11,1.0)
+        +0.28*min(max(p95_motion-0.08,0.0)/0.16,1.0)
+        +0.22*min(spike_share/0.24,1.0)
+        +0.32*min(p95_delta/0.06,1.0)
     )
     first_event_score=100.0*(
-        0.45*min(max(first_p95-0.04,0.0)/0.10,1.0)
-        +0.35*min(first_spike_share/0.22,1.0)
-        +0.20*min(sum(first)/max(1,len(first))/0.10,1.0)
+        0.40*min(max(first_p95-0.08,0.0)/0.16,1.0)
+        +0.40*min(first_p95_delta/0.06,1.0)
+        +0.20*min(first_spike_share/0.20,1.0)
     )
 
     # Hook structure: distinguish a real event arc from sustained generic motion.
@@ -1533,10 +1537,10 @@ def source_hook_score(src, visual):
     structure=float(visual.get("hook_structure_score") or 0.0)
     pop=float(src.get("attention_score") or 0.0)
     ew=float(HOOK_EVENT_WEIGHT.get(category,0.40))
-    later_w=0.18 + 0.10*ew
-    first_w=0.30
-    structure_w=0.24
-    meta_w=max(0.0,0.22-0.05*ew)
+    later_w=0.16 + 0.08*ew
+    first_w=0.36
+    structure_w=0.30
+    meta_w=max(0.0,0.14-0.03*ew)
     pop_w=max(0.0,1.0-first_w-later_w-structure_w-meta_w)
     score=(
         first_w*first_event
