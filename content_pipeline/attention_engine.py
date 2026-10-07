@@ -487,7 +487,8 @@ def infer_viral_category(video_category_id, title, description=""):
         if any(re.search(r"\b"+re.escape(w)+r"\b", blob) for w in words):
             return category
 
-    fallback_map={"15":"animals","17":"sports","28":"tech"}
+    # YouTube chart metadata can be mislabeled; only trust low-risk fallback buckets.
+    fallback_map={"17":"sports","28":"tech","23":"human_funny"}
     return fallback_map.get(str(video_category_id), "other")
 
 
