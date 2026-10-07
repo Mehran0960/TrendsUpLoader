@@ -41,8 +41,8 @@ jobs:
       - name: Build Persian comedy remix
         run: python content_pipeline/comedy_pipeline.py
 
-      - name: Publish validated comedy video to Telegram
-        if: ${{ hashFiles('out/**/video.mp4') != '' }}
+      - name: Legacy Telegram publish DISABLED
+        if: ${{ false && hashFiles('out/**/video.mp4') != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
