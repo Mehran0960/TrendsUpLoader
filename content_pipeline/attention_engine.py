@@ -1916,7 +1916,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["hook_structure_score"]=round(hook_structure,2)
                 prepared["visual_novelty_score"]=round(visual_novelty,2)
                 prepared["hook_metadata_score"]=round(hook_meta,2)
-                 prepared["visual_hook_evidence_score"]=round(visual_hook_evidence,2)
+                prepared["visual_hook_evidence_score"]=round(visual_hook_evidence,2)
                 prepared["relevance_score"]=round(relevance,2)
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
                 # Category demand is the main discovery signal; exact phrase
