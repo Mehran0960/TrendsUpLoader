@@ -294,22 +294,51 @@ def sh(cmd):
     subprocess.run(cmd, check=True)
 
 def probe(path):
-    raw = subprocess.check_output(
-        ["ffprobe","-v","error","-show_entries","format=duration",
-         "-show_entries","stream=width,height,codec_type","-of","json",str(path)],
-        text=True,
-    )
-    data = json.loads(raw)
-    duration = float((data.get("format") or {}).get("duration") or 0)
-    streams = data.get("streams") or []
-    video = next((s for s in streams if s.get("codec_type") == "video"), {})
-    audio = any(s.get("codec_type") == "audio" for s in streams)
-    return {
-        "duration": duration,
-        "width": int(video.get("width") or 0),
-        "height": int(video.get("height") or 0),
-        "has_audio": audio,
-    }
+    """Probe media using ffprobe when available, otherwise ffmpeg stderr."""
+    try:
+        raw = subprocess.check_output(
+            ["ffprobe","-v","error","-show_entries","format=duration",
+             "-show_entries","stream=width,height,codec_type","-of","json",str(path)],
+            text=True,
+        )
+        data = json.loads(raw)
+        duration = float((data.get("format") or {}).get("duration") or 0)
+        streams = data.get("streams") or []
+        video = next((s for s in streams if s.get("codec_type") == "video"), {})
+        audio = any(s.get("codec_type") == "audio" for s in streams)
+        return {
+            "duration": duration,
+            "width": int(video.get("width") or 0),
+            "height": int(video.get("height") or 0),
+            "has_audio": audio,
+        }
+    except (FileNotFoundError, subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
+        proc = subprocess.run(
+            ["ffmpeg","-hide_banner","-i",str(path)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        text_out = proc.stderr or proc.stdout or ""
+        duration = 0.0
+        m = re.search(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)", text_out)
+        if m:
+            duration = (
+                int(m.group(1))*3600
+                + int(m.group(2))*60
+                + float(m.group(3))
+            )
+        width = height = 0
+        vm = re.search(r"Video:\s*[^\\n]*?(\d{2,5})x(\d{2,5})", text_out)
+        if vm:
+            width, height = int(vm.group(1)), int(vm.group(2))
+        has_audio = bool(re.search(r"Audio:\s*", text_out))
+        return {
+            "duration": duration,
+            "width": width,
+            "height": height,
+            "has_audio": has_audio,
+        }
 
 def strip_html_text(value):
     text = html.unescape(re.sub(r"<[^>]+>", " ", str(value or "")))
