@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "allow_all_channels_bot_can_receive": false,
+  "allowed_usernames": [],
+  "allowed_chat_ids": [],
+  "note": "Add only source channels where republishing/copying is permitted. The bot must be a member of the source channel so it receives channel_post updates."
+}
