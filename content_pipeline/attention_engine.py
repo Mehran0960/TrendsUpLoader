@@ -1402,10 +1402,17 @@ def visual_score(path):
         brightness=float(hsv[:,:,2].mean())/255.0
         lighting_score=max(0.0,1.0-abs(brightness-0.58)/0.58)
 
+        hist=cv2.calcHist([small],[0,1],None,[16,16],[0,256,0,256])
+        hist=cv2.normalize(hist,hist).flatten()
+        novelty=0.0 if prev is None or "prev_hist" not in locals() else float(
+            cv2.compareHist(prev_hist,hist,cv2.HISTCMP_BHATTACHARYYA)
+        )
+
         samples.append((
-            frame_index/fps,motion,sharp,contrast,edge_score,saturation,lighting_score
+            frame_index/fps,motion,sharp,contrast,edge_score,saturation,lighting_score,novelty
         ))
         prev=gray
+        prev_hist=hist
         frame_index += 1
 
     cap.release()
@@ -1438,8 +1445,11 @@ def visual_score(path):
             best=(score,start)
 
     motions=[float(x[1]) for x in samples]
+    novelties=[float(x[7]) for x in samples]
     early=[float(x[1]) for x in samples if float(x[0]) < min(3.0,duration)]
     first=[float(x[1]) for x in samples if float(x[0]) < min(1.6,duration)]
+    novelty_early=[float(x[7]) for x in samples if float(x[0]) < min(3.0,duration)]
+    novelty_first=[float(x[7]) for x in samples if float(x[0]) < min(1.6,duration)]
     mean_motion=sum(motions)/max(1,len(motions))
     p95_motion=__import__("numpy").percentile(motions,95) if motions else 0.0
     early_p95=__import__("numpy").percentile(early,95) if early else p95_motion
@@ -1460,6 +1470,17 @@ def visual_score(path):
         0.40*min(max(first_p95-0.08,0.0)/0.16,1.0)
         +0.40*min(first_p95_delta/0.06,1.0)
         +0.20*min(first_spike_share/0.20,1.0)
+    )
+
+    novelty_p95=__import__("numpy").percentile(novelties,95) if novelties else 0.0
+    novelty_first_p95=__import__("numpy").percentile(novelty_first,95) if novelty_first else novelty_p95
+    novelty_early_p95=__import__("numpy").percentile(novelty_early,95) if novelty_early else novelty_p95
+    novelty_spike_share=sum(1 for x in novelties if x>0.18)/max(1,len(novelties))
+    novelty_first_spike_share=sum(1 for x in novelty_first if x>0.18)/max(1,len(novelty_first))
+    visual_novelty_score=100.0*(
+        0.45*min(novelty_p95/0.35,1.0)
+        +0.30*min(novelty_spike_share/0.20,1.0)
+        +0.25*min(novelty_first_p95/0.35,1.0)
     )
 
     # Hook structure: distinguish a real event arc from sustained generic motion.
@@ -1493,6 +1514,7 @@ def visual_score(path):
         "hook_event_score":round(min(event_score,99.0),2),
         "hook_first_event_score":round(min(first_event_score,99.0),2),
         "hook_structure_score":round(min(hook_structure_score,99.0),2),
+        "visual_novelty_score":round(min(visual_novelty_score,99.0),2),
     }
 
 
@@ -1547,15 +1569,18 @@ def source_hook_score(src, visual):
     structure=float(visual.get("hook_structure_score") or 0.0)
     pop=float(src.get("attention_score") or 0.0)
     ew=float(HOOK_EVENT_WEIGHT.get(category,0.40))
-    later_w=0.16 + 0.08*ew
-    first_w=0.36
-    structure_w=0.30
-    meta_w=max(0.0,0.14-0.03*ew)
-    pop_w=max(0.0,1.0-first_w-later_w-structure_w-meta_w)
+    later_w=0.10 + 0.06*ew
+    first_w=0.30
+    structure_w=0.25
+    novelty_w=0.15
+    meta_w=max(0.0,0.15-0.03*ew)
+    pop_w=max(0.0,1.0-first_w-later_w-structure_w-novelty_w-meta_w)
+    novelty=float(visual.get("visual_novelty_score") or 0.0)
     score=(
         first_w*first_event
         +later_w*event
         +structure_w*structure
+        +novelty_w*novelty
         +meta_w*meta
         +pop_w*pop
     )
@@ -1798,6 +1823,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 hook_event=float(visual.get("hook_event_score") or 0.0)
                 hook_first_event=float(visual.get("hook_first_event_score") or 0.0)
                 hook_structure=float(visual.get("hook_structure_score") or 0.0)
+                visual_novelty=float(visual.get("visual_novelty_score") or 0.0)
                 hook_meta=float(metadata_hook_score(src))
 
                 if visual_score_value < MIN_VISUAL_SCORE:
@@ -1867,6 +1893,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["hook_event_score"]=round(hook_event,2)
                 prepared["hook_first_event_score"]=round(hook_first_event,2)
                 prepared["hook_structure_score"]=round(hook_structure,2)
+                prepared["visual_novelty_score"]=round(visual_novelty,2)
                 prepared["hook_metadata_score"]=round(hook_meta,2)
                 prepared["relevance_score"]=round(relevance,2)
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
@@ -1937,6 +1964,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                     "hook":x[0].get("hook_score"),
                     "first_event":x[0].get("hook_first_event_score"),
                     "structure":x[0].get("hook_structure_score"),
+                    "novelty":x[0].get("visual_novelty_score"),
                     "meta":x[0].get("hook_metadata_score"),
                     "relevance":x[0].get("relevance_score"),
                     "demand":x[0].get("cross_web_score"),
@@ -2238,6 +2266,7 @@ def main():
         "hook_event_score":src.get("hook_event_score"),
         "hook_first_event_score":src.get("hook_first_event_score"),
         "hook_structure_score":src.get("hook_structure_score"),
+        "visual_novelty_score":src.get("visual_novelty_score"),
         "hook_metadata_score":src.get("hook_metadata_score"),
         "relevance_score":src.get("relevance_score"),
         "shortness_score":src.get("shortness_score"),
