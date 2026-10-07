@@ -1,4 +1,4 @@
-name: Viral Radar + Licensed Acquisition Engine
+name: Viral Radar Direct Hub Engine
 
 concurrency:
   group: attention-remix
@@ -11,178 +11,165 @@ on:
   schedule:
     - cron: "0 */6 * * *"
   workflow_dispatch:
-  # Temporary push trigger for Vision Judge end-to-end validation.
+  # Temporary push trigger for direct-pipeline validation; restore schedule-only after test.
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    timeout-minutes: 18
+    timeout-minutes: 8
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set API cache date
-        id: date
-        run: echo "day=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
-
-      - name: Restore Pixabay API cache
-        uses: actions/cache@v4
-        with:
-          path: attention_api_cache
-          key: pixabay-api-v1-${{ steps.date.outputs.day }}
-      - name: Restore attention source cache
-        uses: actions/cache@v4
-        with:
-          path: attention_sources
-          key: attention-sources-v2
-
-      - name: Install FFmpeg and Arabic fonts
-        run: |
-          if command -v ffmpeg >/dev/null 2>&1; then
-            echo "FFmpeg already available."
-          else
-            sudo apt-get update
-            sudo apt-get install -y ffmpeg
-          fi
-          fc-match "Noto Sans Arabic" >/dev/null 2>&1 || sudo apt-get install -y fonts-noto-core fonts-noto-extra
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      - name: Install Python dependencies
+      - name: Install lightweight radar dependency
         run: |
           python -m pip install --upgrade pip
-          pip install pillow arabic-reshaper python-bidi opencv-python-headless
+          pip install pillow
 
-      - name: Validate Python syntax
-        run: python -m py_compile content_pipeline/attention_engine.py content_pipeline/publish_attention_telegram.py
-      - name: Build attention remix
+      - name: Discover global YouTube demand
         env:
-          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-        run: python content_pipeline/attention_engine.py
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          import content_pipeline.attention_engine as engine
+          signals = engine.discover_youtube_global_charts(limit_per_bucket=8)
+          radar = {
+              "updated_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat(),
+              "engine_version": "direct_radar_v1",
+              "signals": signals[:40],
+          }
+          Path("attention_state").mkdir(exist_ok=True)
+          Path("attention_state/public_radar.json").write_text(
+              json.dumps(radar, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8"
+          )
+          print("Global signals:", len(signals))
+          print("Top:", json.dumps(signals[:5], ensure_ascii=False))
+          PY
 
-      - name: Build public radar feed and select direct viral candidate
+      - name: Vision-select one direct viral
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: |
           python - <<'PY'
           import json, re, urllib.parse, urllib.request
           from pathlib import Path
           from datetime import datetime, timezone
 
-          radar_files=sorted(Path('out').glob('**/radar.json'), key=lambda p:p.stat().st_mtime, reverse=True)
-          if not radar_files:
-              print('No radar.json found.')
-              raise SystemExit(0)
-          radar=json.loads(radar_files[0].read_text(encoding='utf-8'))
-          signals=list(radar.get('top_global_youtube_signals') or [])
+          radar=json.loads(Path("attention_state/public_radar.json").read_text(encoding="utf-8"))
+          signals=list(radar.get("signals") or [])
 
-          feed={
-              'updated_at':datetime.now(timezone.utc).isoformat(),
-              'engine_version':radar.get('engine_version'),
-              'opportunity_category':radar.get('opportunity_category'),
-              'opportunity_score':radar.get('opportunity_score'),
-              'signals':signals[:40],
-          }
-          feed_path=Path('attention_state/public_radar.json')
-          feed_path.parent.mkdir(exist_ok=True)
-          feed_path.write_text(json.dumps(feed,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-
-          state_path=Path('attention_state/direct_viral_posted.json')
+          state_path=Path("attention_state/direct_viral_posted.json")
           try:
-              state=json.loads(state_path.read_text(encoding='utf-8'))
+              state=json.loads(state_path.read_text(encoding="utf-8"))
           except Exception:
-              state={'version':1,'urls':[]}
-          posted=set(str(x) for x in state.get('urls',[]))
+              state={"version":1,"urls":[]}
+          posted=set(str(x) for x in state.get("urls",[]))
 
-          blocked=re.compile(r'\b(movie|trailer|official|music video|full episode|podcast|news|politics|election|child|children|minor|toddler|schoolgirl|schoolboy|explicit|gore)\b',re.I)
-          curiosity=re.compile(r'\b(gets|got|caught|catch|eating|eats|custom|artificial|unexpected|surprise|surprising|fails|failed|falls|fell|wins|won|reacts|reaction|transformation|before|after|impossible|crazy|amazing|smartest|why|how|which|entire|different|imitates)\b',re.I)
+          blocked=re.compile(
+              r"\b(movie|trailer|official|music video|full episode|podcast|news|politics|election|child|children|minor|toddler|schoolgirl|schoolboy|explicit|gore)\b",
+              re.I,
+          )
+          curiosity=re.compile(
+              r"\b(gets|got|caught|catch|eating|eats|custom|artificial|unexpected|surprise|surprising|fails|failed|falls|fell|wins|won|reacts|reaction|transformation|before|after|impossible|crazy|amazing|smartest|why|how|which|entire|different|imitates)\b",
+              re.I,
+          )
 
-          pref=[]
+          pre=[]
           for s in signals:
-              url=str(s.get('url') or '').strip()
-              title=str(s.get('title') or '').strip()
-              demand=float(s.get('demand_score') or 0)
-              regions=int(s.get('chart_region_count') or 0)
+              url=str(s.get("url") or "").strip()
+              title=str(s.get("title") or "").strip()
+              demand=float(s.get("demand_score") or 0)
+              regions=int(s.get("chart_region_count") or 0)
               if not url or url in posted or demand<91 or regions<2:
                   continue
               if blocked.search(title):
                   continue
-              published=str(s.get('published_at') or '')
+              published=str(s.get("published_at") or "")
               try:
-                  dt=datetime.fromisoformat(published.replace('Z','+00:00'))
+                  dt=datetime.fromisoformat(published.replace("Z","+00:00"))
                   age=(datetime.now(timezone.utc)-dt).total_seconds()/86400
                   if age>7:
                       continue
               except Exception:
                   age=99
-              cue=1 if curiosity.search(title) else 0
-              pref_score=0.65*demand+9*min(regions/4,1)+4*cue+max(0,7-age)*0.5
-              pref.append((pref_score,s))
+              heuristic=0.68*demand+8*min(regions/4,1)+4*(1 if curiosity.search(title) else 0)+max(0,7-age)*0.5
+              pre.append((heuristic,s))
+          pre.sort(key=lambda x:x[0],reverse=True)
 
-          pref.sort(key=lambda x:x[0],reverse=True)
-          judge_base='https://viral-judge.m-hoseyni-6966.workers.dev/judge'
+          base="https://viral-judge.m-hoseyni-6966.workers.dev/judge"
           judged=[]
-          for _,s in pref[:8]:
-              params=urllib.parse.urlencode({'url':s['url'],'title':s['title']})
+          for _,s in pre[:8]:
+              q=urllib.parse.urlencode({"url":s["url"],"title":s["title"]})
               try:
-                  req=urllib.request.Request(judge_base+'?'+params,headers={'User-Agent':'TrendsUpLoader/viral-radar'})
-                  with urllib.request.urlopen(req,timeout=45) as resp:
-                      j=json.loads(resp.read().decode('utf-8'))
-                  if not bool(j.get('safe',False)):
+                  req=urllib.request.Request(base+"?"+q,headers={"User-Agent":"TrendsUpLoader/2.0"})
+                  with urllib.request.urlopen(req,timeout=40) as resp:
+                      j=json.loads(resp.read().decode("utf-8"))
+                  scroll=float(j.get("scroll_stop") or 0)
+                  event=float(j.get("event") or 0)
+                  cur=float(j.get("curiosity") or 0)
+                  safe=bool(j.get("safe",False))
+                  judge_score=0.50*scroll+0.28*event+0.22*cur
+                  print("JUDGE",s["title"],"=>",{"scroll":scroll,"event":event,"curiosity":cur,"safe":safe,"score":judge_score})
+                  if not safe or scroll<75 or event<65 or cur<65 or judge_score<72:
                       continue
-                  scroll=float(j.get('scroll_stop') or 0)
-                  event=float(j.get('event') or 0)
-                  curiosity_score=float(j.get('curiosity') or 0)
-                  judge_score=0.50*scroll+0.28*event+0.22*curiosity_score
-                  if scroll<75 or event<65 or curiosity_score<65 or judge_score<72:
-                      continue
-                  final_score=0.55*float(s.get('demand_score') or 0)+0.35*judge_score+2.5*min(int(s.get('chart_region_count') or 0),4)+4*(1 if curiosity.search(str(s.get('title') or '')) else 0)
-                  judged.append((final_score,s,j))
-                  print('VISION PASS',round(final_score,2),s.get('title'),j)
+                  final=0.55*float(s.get("demand_score") or 0)+0.35*judge_score+2.5*min(int(s.get("chart_region_count") or 0),4)+4*(1 if curiosity.search(str(s.get("title") or "")) else 0)
+                  judged.append((final,s,j))
               except Exception as exc:
-                  print('VISION JUDGE FAILED',s.get('url'),exc)
+                  print("JUDGE_FAILED",s.get("url"),repr(exc))
 
           judged.sort(key=lambda x:x[0],reverse=True)
-          if judged:
-              final_score,chosen,j=judged[0]
-              hub='https://viral-hub.m-hoseyni-6966.workers.dev/watch?url='+urllib.parse.quote(chosen['url'],safe='')+'&title='+urllib.parse.quote('🔥 '+chosen['title'],safe='')
-              item={
-                  'source_url':chosen['url'],
-                  'title':chosen['title'],
-                  'hub_url':hub,
-                  'platform':'YouTube',
-                  'demand_score':chosen.get('demand_score'),
-                  'views':chosen.get('views'),
-                  'likes':chosen.get('likes'),
-                  'comments':chosen.get('comments'),
-                  'chart_region_count':chosen.get('chart_region_count'),
-                  'chart_rank':chosen.get('chart_rank'),
-                  'category':chosen.get('category'),
-                  'published_at':chosen.get('published_at'),
-                  'vision_judge':{
-                      'scroll_stop':j.get('scroll_stop'),
-                      'event':j.get('event'),
-                      'curiosity':j.get('curiosity'),
-                      'safe':j.get('safe'),
-                      'reason':j.get('reason'),
-                      'model':j.get('model'),
-                  },
-                  'final_score':round(final_score,2),
-                  'selected_at':datetime.now(timezone.utc).isoformat(),
-              }
-              Path('out/direct_viral.json').write_text(json.dumps(item,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-              print('DIRECT VIRAL SELECTED:',json.dumps(item,ensure_ascii=False))
-          else:
-              Path('out/direct_viral_skip.json').write_text(json.dumps({'reason':'no_vision_qualified_candidate','prefilter_count':len(pref)},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-              print('No vision-qualified direct viral candidate.')
+          if not judged:
+              Path("out").mkdir(exist_ok=True)
+              Path("out/direct_viral_skip.json").write_text(
+                  json.dumps({"reason":"no_vision_qualified_candidate","prefilter_count":len(pre)},ensure_ascii=False,indent=2)+"\n",
+                  encoding="utf-8"
+              )
+              print("NO VISION QUALIFIED CANDIDATE. prefilter=",len(pre))
+              raise SystemExit(0)
+
+          final,chosen,j=judged[0]
+          hub="https://viral-hub.m-hoseyni-6966.workers.dev/watch?url="+urllib.parse.quote(chosen["url"],safe="")+"&title="+urllib.parse.quote("🔥 "+chosen["title"],safe="")
+          item={
+              "source_url":chosen["url"],
+              "title":chosen["title"],
+              "hub_url":hub,
+              "platform":"YouTube",
+              "demand_score":chosen.get("demand_score"),
+              "views":chosen.get("views"),
+              "likes":chosen.get("likes"),
+              "comments":chosen.get("comments"),
+              "chart_region_count":chosen.get("chart_region_count"),
+              "chart_rank":chosen.get("chart_rank"),
+              "category":chosen.get("category"),
+              "published_at":chosen.get("published_at"),
+              "vision_judge":{
+                  "scroll_stop":j.get("scroll_stop"),
+                  "event":j.get("event"),
+                  "curiosity":j.get("curiosity"),
+                  "safe":j.get("safe"),
+                  "reason":j.get("reason"),
+                  "model":j.get("model"),
+              },
+              "final_score":round(final,2),
+              "selected_at":datetime.now(timezone.utc).isoformat(),
+          }
+          Path("out").mkdir(exist_ok=True)
+          Path("out/direct_viral.json").write_text(json.dumps(item,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("DIRECT VIRAL SELECTED:",json.dumps(item,ensure_ascii=False))
           PY
 
       - name: Publish direct viral Hub link to Telegram
-        id: direct_publish
         if: ${{ hashFiles('out/direct_viral.json') != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -191,55 +178,51 @@ jobs:
           python - <<'PY'
           import json, os, urllib.parse, urllib.request
           from pathlib import Path
-          item=json.loads(Path('out/direct_viral.json').read_text(encoding='utf-8'))
-          text=('🔥 وایرال منتخب\n\n'+item['title']+'\n\n🎬 مشاهده ویدئوی اصلی:\n'+item['hub_url'])
-          token=os.environ.get('TELEGRAM_BOT_TOKEN','').strip()
-          chat=os.environ.get('TELEGRAM_CHAT_ID','').strip()
-          if not token or not chat:
-              raise SystemExit('Telegram secrets missing.')
-          data=urllib.parse.urlencode({'chat_id':chat,'text':text,'disable_web_page_preview':'false'}).encode()
-          req=urllib.request.Request('https://api.telegram.org/bot'+token+'/sendMessage',data=data,headers={'Content-Type':'application/x-www-form-urlencoded'})
-          with urllib.request.urlopen(req,timeout=30) as resp:
-              result=json.loads(resp.read().decode())
-          if not result.get('ok'):
-              raise SystemExit('Telegram send failed: '+json.dumps(result))
-          Path('out/direct_viral_sent.json').write_text(json.dumps({
-              'ok':True,
-              'message_id':(result.get('result') or {}).get('message_id'),
-              'source_url':item['source_url'],
-              'hub_url':item['hub_url']
-          },ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-          print('Telegram direct viral message sent.')
+          item=json.loads(Path("out/direct_viral.json").read_text(encoding="utf-8"))
+          body=urllib.parse.urlencode({
+              "chat_id":os.environ["TELEGRAM_CHAT_ID"],
+              "text":"🔥 وایرال منتخب\n\n"+item["title"]+"\n\n🎬 مشاهده ویدئوی اصلی:\n"+item["hub_url"]
+          }).encode()
+          req=urllib.request.Request(
+              "https://api.telegram.org/bot"+os.environ["TELEGRAM_BOT_TOKEN"]+"/sendMessage",
+              data=body,
+              headers={"Content-Type":"application/x-www-form-urlencoded"}
+          )
+          with urllib.request.urlopen(req,timeout=30) as r:
+              result=json.loads(r.read().decode("utf-8"))
+          if not result.get("ok"):
+              raise SystemExit("Telegram send failed: "+json.dumps(result))
+          Path("out/direct_viral_sent.json").write_text(
+              json.dumps({
+                  "ok":True,
+                  "message_id":(result.get("result") or {}).get("message_id"),
+                  "source_url":item["source_url"],
+                  "hub_url":item["hub_url"]
+              },ensure_ascii=False,indent=2)+"\n",
+              encoding="utf-8"
+          )
+          print("Telegram sent.")
           PY
 
-      - name: Publish diagnostics
-        if: ${{ always() && hashFiles('out/**/publish_error.json') != '' }}
-        run: |
-          echo "=== PUBLISH ERROR ==="
-          cat out/**/publish_error.json
-
-      - name: Persist radar feed and direct viral state
+      - name: Persist public radar state
         if: ${{ always() && hashFiles('attention_state/public_radar.json') != '' }}
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
-          state=Path('attention_state/direct_viral_posted.json')
+          state=Path("attention_state/direct_viral_posted.json")
           try:
-              data=json.loads(state.read_text(encoding='utf-8'))
+              data=json.loads(state.read_text(encoding="utf-8"))
           except Exception:
-              data={'version':1,'urls':[]}
-          sent=Path('out/direct_viral_sent.json')
+              data={"version":1,"urls":[]}
+          sent=Path("out/direct_viral_sent.json")
           if sent.exists():
-              try:
-                  x=json.loads(sent.read_text(encoding='utf-8'))
-                  url=str(x.get('source_url') or '').strip()
-                  if url and url not in data.get('urls',[]):
-                      data.setdefault('urls',[]).append(url)
-              except Exception:
-                  pass
-          data['urls']=(data.get('urls') or [])[-200:]
-          state.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              x=json.loads(sent.read_text(encoding="utf-8"))
+              url=str(x.get("source_url") or "").strip()
+              if url and url not in data.get("urls",[]):
+                  data.setdefault("urls",[]).append(url)
+          data["urls"]=(data.get("urls") or [])[-200:]
+          state.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
           PY
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -247,19 +230,15 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No radar state change.'
           else
-            git commit -m 'Update public viral radar feed'
+            git commit -m 'Update direct viral radar feed'
             git push
           fi
 
-      - name: Upload attention artifact
+      - name: Upload radar artifact
         if: ${{ always() && hashFiles('out/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
-          name: attention-remix
+          name: direct-viral-radar
           path: out/
           if-no-files-found: warn
           retention-days: 7
-
-      - name: Ensure direct pipeline remains non-blocking
-        if: ${{ always() }}
-        run: echo "Direct-embed pipeline complete; MP4 publication is intentionally disabled."
