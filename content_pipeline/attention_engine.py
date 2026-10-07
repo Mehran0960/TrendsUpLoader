@@ -1460,9 +1460,12 @@ def visual_score(path):
 def metadata_hook_score(src):
     category=str(src.get("category") or "")
     provider=str(src.get("provider") or "")
+    description=str(src.get("description") or "")
+    if provider == "pexels" and src.get("search_query"):
+        description=""
     text_blob=" ".join([
         str(src.get("title") or ""),
-        str(src.get("description") or ""),
+        description,
         str(src.get("tags") or ""),
     ]).lower()
     title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
