@@ -1,0 +1,52 @@
+name: Telegram Native Source Relay
+
+concurrency:
+  group: telegram-native-relay
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  # Poll only Telegram channel posts. No external video links are published.
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install relay dependency
+        run: pip install requests
+
+      - name: Validate relay syntax
+        run: python -m py_compile content_pipeline/telegram_native_relay.py
+
+      - name: Poll approved source channels
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python content_pipeline/telegram_native_relay.py
+
+      - name: Persist relay state
+        if: ${{ always() && hashFiles('attention_state/telegram_relay_state.json') != '' }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add attention_state/telegram_relay_state.json
+          if git diff --cached --quiet; then
+            echo 'No relay state change.'
+          else
+            git commit -m 'Record Telegram native relay state'
+            git push
+          fi
