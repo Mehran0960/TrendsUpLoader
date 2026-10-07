@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v7_hook_gate"
+ENGINE_VERSION = "viral_radar_global_opportunity_v8_semantic_hook_gate"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -33,6 +33,7 @@ MIN_RELEVANCE_SCORE = 65.0
 MIN_DEMAND_SCORE = 50.0
 MIN_COMBINED_SCORE = 76.0
 MIN_HOOK_SCORE = 63.0
+MIN_METADATA_HOOK_SCORE = 45.0
 MAX_YOUTUBE_SIGNAL_AGE_DAYS = 30
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
@@ -1472,10 +1473,12 @@ def metadata_hook_score(src):
     description=str(src.get("description") or "")
     if provider == "pexels" and src.get("search_query"):
         description=""
+    page_slug=re.sub(r"[-_/]+"," ",str(src.get("page") or ""))
     text_blob=" ".join([
         str(src.get("title") or ""),
         description,
         str(src.get("tags") or ""),
+        page_slug,
     ]).lower()
     title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
     cues=HOOK_CUES.get(category,[])
@@ -1512,8 +1515,8 @@ def source_hook_score(src, visual):
     # A generic stock clip cannot compensate for a weak opening simply by
     # having lots of motion later in the clip.
     title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
-    if meta < 45.0 and first_event < 60.0:
-        score=min(score,52.0)
+    if meta < MIN_METADATA_HOOK_SCORE:
+        score=min(score,50.0)
     if len(title_words) <= 1 and meta < 55.0 and first_event < 70.0:
         score=min(score,56.0)
     return round(max(0.0,min(100.0,score)),2)
@@ -1759,6 +1762,12 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                     print("REJECT demand-match floor",src["id"],
                           "provider=",provider,"demand=",round(demand,2),
                           "relevance=",round(relevance,2))
+                    continue
+                if hook_meta < MIN_METADATA_HOOK_SCORE:
+                    print("REJECT semantic hook floor",src["id"],
+                          "provider=",provider,
+                          "meta=",round(hook_meta,2),
+                          "required=",MIN_METADATA_HOOK_SCORE)
                     continue
                 if hook < MIN_HOOK_SCORE:
                     print("REJECT hook floor",src["id"],
