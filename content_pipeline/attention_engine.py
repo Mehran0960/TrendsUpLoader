@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v11_rejection_diagnostics_test"
+ENGINE_VERSION = "viral_radar_global_opportunity_v12_visual_hook_primary"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -35,6 +35,7 @@ MIN_COMBINED_SCORE = 76.0
 MIN_HOOK_SCORE = 63.0
 MIN_METADATA_HOOK_SCORE = 45.0
 MIN_HOOK_STRUCTURE_SCORE = 52.0
+MIN_VISUAL_HOOK_EVIDENCE = 44.0
 MAX_YOUTUBE_SIGNAL_AGE_DAYS = 30
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
@@ -1844,14 +1845,34 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                           "provider=",provider,"demand=",round(demand,2),
                           "relevance=",round(relevance,2))
                     continue
-                if hook_meta < MIN_METADATA_HOOK_SCORE:
-                    rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"metadata_hook_floor","meta":round(hook_meta,2),"required":MIN_METADATA_HOOK_SCORE})
-                    print("REJECT semantic hook floor",src["id"],
+                # Metadata is supporting evidence only. Stock libraries often use generic
+                # titles, so strong visual behavior must not be vetoed by weak text metadata.
+                visual_hook_evidence=(
+                    0.45*hook_first_event
+                    +0.30*hook_event
+                    +0.25*hook_structure
+                )
+                if (
+                    visual_hook_evidence < MIN_VISUAL_HOOK_EVIDENCE
+                    and hook_meta < 60.0
+                ):
+                    rejected.append({
+                        "id":src["id"],"provider":provider,"category":category,
+                        "reason":"visual_hook_evidence_floor",
+                        "visual_hook_evidence":round(visual_hook_evidence,2),
+                        "first_event":round(hook_first_event,2),
+                        "event":round(hook_event,2),
+                        "structure":round(hook_structure,2),
+                        "meta":round(hook_meta,2),
+                        "required":MIN_VISUAL_HOOK_EVIDENCE
+                    })
+                    print("REJECT visual hook evidence",src["id"],
                           "provider=",provider,
+                          "evidence=",round(visual_hook_evidence,2),
                           "meta=",round(hook_meta,2),
-                          "required=",MIN_METADATA_HOOK_SCORE)
+                          "required=",MIN_VISUAL_HOOK_EVIDENCE)
                     continue
-                if hook_structure < MIN_HOOK_STRUCTURE_SCORE and hook_meta < 60.0:
+if hook_structure < MIN_HOOK_STRUCTURE_SCORE and hook_meta < 60.0:
                     rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"hook_structure_floor","structure":round(hook_structure,2),"meta":round(hook_meta,2)})
                     print("REJECT hook structure floor",src["id"],
                           "provider=",provider,
@@ -1895,6 +1916,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["hook_structure_score"]=round(hook_structure,2)
                 prepared["visual_novelty_score"]=round(visual_novelty,2)
                 prepared["hook_metadata_score"]=round(hook_meta,2)
+                 prepared["visual_hook_evidence_score"]=round(visual_hook_evidence,2)
                 prepared["relevance_score"]=round(relevance,2)
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
                 # Category demand is the main discovery signal; exact phrase
@@ -1966,6 +1988,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                     "structure":x[0].get("hook_structure_score"),
                     "novelty":x[0].get("visual_novelty_score"),
                     "meta":x[0].get("hook_metadata_score"),
+                     "visual_hook_evidence":x[0].get("visual_hook_evidence_score"),
                     "relevance":x[0].get("relevance_score"),
                     "demand":x[0].get("cross_web_score"),
                     "combined":x[0].get("combined_score"),
@@ -2268,6 +2291,7 @@ def main():
         "hook_structure_score":src.get("hook_structure_score"),
         "visual_novelty_score":src.get("visual_novelty_score"),
         "hook_metadata_score":src.get("hook_metadata_score"),
+        "visual_hook_evidence_score":src.get("visual_hook_evidence_score"),
         "relevance_score":src.get("relevance_score"),
         "shortness_score":src.get("shortness_score"),
         "combined_score":src.get("combined_score"),
