@@ -66,15 +66,17 @@ jobs:
       - name: Build public radar feed and select direct viral candidate
         run: |
           python - <<'PY'
-          import json, re, urllib.parse
+          import json, re, urllib.parse, urllib.request
           from pathlib import Path
           from datetime import datetime, timezone
+
           radar_files=sorted(Path('out').glob('**/radar.json'), key=lambda p:p.stat().st_mtime, reverse=True)
           if not radar_files:
               print('No radar.json found.')
               raise SystemExit(0)
           radar=json.loads(radar_files[0].read_text(encoding='utf-8'))
           signals=list(radar.get('top_global_youtube_signals') or [])
+
           feed={
               'updated_at':datetime.now(timezone.utc).isoformat(),
               'engine_version':radar.get('engine_version'),
@@ -82,9 +84,9 @@ jobs:
               'opportunity_score':radar.get('opportunity_score'),
               'signals':signals[:40],
           }
-          p=Path('attention_state/public_radar.json')
-          p.parent.mkdir(exist_ok=True)
-          p.write_text(json.dumps(feed,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          feed_path=Path('attention_state/public_radar.json')
+          feed_path.parent.mkdir(exist_ok=True)
+          feed_path.write_text(json.dumps(feed,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 
           state_path=Path('attention_state/direct_viral_posted.json')
           try:
@@ -94,17 +96,15 @@ jobs:
           posted=set(str(x) for x in state.get('urls',[]))
 
           blocked=re.compile(r'\b(movie|trailer|official|music video|full episode|podcast|news|politics|election|child|children|minor|toddler|schoolgirl|schoolboy|explicit|gore)\b',re.I)
-          curiosity=re.compile(r'\b(gets|got|caught|catch|eating|eats|custom|artificial|unexpected|surprise|surprising|fails|failed|falls|fell|wins|won|reacts|reaction|transformation|before|after|impossible|crazy|amazing|smartest|why|how|which|entire|different)\b',re.I)
+          curiosity=re.compile(r'\b(gets|got|caught|catch|eating|eats|custom|artificial|unexpected|surprise|surprising|fails|failed|falls|fell|wins|won|reacts|reaction|transformation|before|after|impossible|crazy|amazing|smartest|why|how|which|entire|different|imitates)\b',re.I)
 
-          candidates=[]
+          pref=[]
           for s in signals:
               url=str(s.get('url') or '').strip()
               title=str(s.get('title') or '').strip()
-              cat=str(s.get('category') or '').strip()
               demand=float(s.get('demand_score') or 0)
               regions=int(s.get('chart_region_count') or 0)
-              duration=float(s.get('duration') or 0)
-              if not url or url in posted or cat=='other' or demand<92 or regions<2 or duration<1:
+              if not url or url in posted or demand<91 or regions<2:
                   continue
               if blocked.search(title):
                   continue
@@ -117,12 +117,35 @@ jobs:
               except Exception:
                   age=99
               cue=1 if curiosity.search(title) else 0
-              score=0.62*demand + 10*min(regions/4,1) + 5*cue + max(0,7-age)*0.5
-              candidates.append((score,s))
-          candidates.sort(key=lambda x:x[0],reverse=True)
+              pref_score=0.65*demand+9*min(regions/4,1)+4*cue+max(0,7-age)*0.5
+              pref.append((pref_score,s))
 
-          if candidates:
-              chosen=candidates[0][1]
+          pref.sort(key=lambda x:x[0],reverse=True)
+          judge_base='https://viral-judge.m-hoseyni-6966.workers.dev/judge'
+          judged=[]
+          for _,s in pref[:8]:
+              params=urllib.parse.urlencode({'url':s['url'],'title':s['title']})
+              try:
+                  req=urllib.request.Request(judge_base+'?'+params,headers={'User-Agent':'TrendsUpLoader/viral-radar'})
+                  with urllib.request.urlopen(req,timeout=45) as resp:
+                      j=json.loads(resp.read().decode('utf-8'))
+                  if not bool(j.get('safe',False)):
+                      continue
+                  scroll=float(j.get('scroll_stop') or 0)
+                  event=float(j.get('event') or 0)
+                  curiosity_score=float(j.get('curiosity') or 0)
+                  judge_score=0.50*scroll+0.28*event+0.22*curiosity_score
+                  if scroll<75 or event<65 or curiosity_score<65 or judge_score<72:
+                      continue
+                  final_score=0.55*float(s.get('demand_score') or 0)+0.35*judge_score+2.5*min(int(s.get('chart_region_count') or 0),4)+4*(1 if curiosity.search(str(s.get('title') or '')) else 0)
+                  judged.append((final_score,s,j))
+                  print('VISION PASS',round(final_score,2),s.get('title'),j)
+              except Exception as exc:
+                  print('VISION JUDGE FAILED',s.get('url'),exc)
+
+          judged.sort(key=lambda x:x[0],reverse=True)
+          if judged:
+              final_score,chosen,j=judged[0]
               hub='https://viral-hub.m-hoseyni-6966.workers.dev/watch?url='+urllib.parse.quote(chosen['url'],safe='')+'&title='+urllib.parse.quote('🔥 '+chosen['title'],safe='')
               item={
                   'source_url':chosen['url'],
@@ -137,13 +160,22 @@ jobs:
                   'chart_rank':chosen.get('chart_rank'),
                   'category':chosen.get('category'),
                   'published_at':chosen.get('published_at'),
+                  'vision_judge':{
+                      'scroll_stop':j.get('scroll_stop'),
+                      'event':j.get('event'),
+                      'curiosity':j.get('curiosity'),
+                      'safe':j.get('safe'),
+                      'reason':j.get('reason'),
+                      'model':j.get('model'),
+                  },
+                  'final_score':round(final_score,2),
                   'selected_at':datetime.now(timezone.utc).isoformat(),
               }
               Path('out/direct_viral.json').write_text(json.dumps(item,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
               print('DIRECT VIRAL SELECTED:',json.dumps(item,ensure_ascii=False))
           else:
-              Path('out/direct_viral_skip.json').write_text(json.dumps({'reason':'no_new_direct_candidate','signals_checked':len(signals)},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-              print('No new direct viral candidate.')
+              Path('out/direct_viral_skip.json').write_text(json.dumps({'reason':'no_vision_qualified_candidate','prefilter_count':len(pref)},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+              print('No vision-qualified direct viral candidate.')
           PY
 
       - name: Publish direct viral Hub link to Telegram
