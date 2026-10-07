@@ -1645,8 +1645,13 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                           "relevance=",round(relevance,2))
                     continue
 
+                # Blend category-level live demand with exact phrase evidence.
+                category_demand=float(src.get("category_demand_score") or demand or 50.0)
+                exact_match=float(src.get("trend_match_score") or 50.0)
+                demand_blend=min(100.0, 0.70*category_demand + 0.30*exact_match)
+
                 combined_score=(
-                    0.30*demand
+                    0.30*demand_blend
                     +0.29*visual_score_value
                     +0.18*relevance
                     +0.15*float(src.get("attention_score") or 0)
@@ -1663,10 +1668,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
                 # Category demand is the main discovery signal; exact phrase
                 # overlap is supporting evidence, not a hard requirement.
-                category_demand=float(src.get("category_demand_score") or demand or 50.0)
-                exact_match=float(src.get("trend_match_score") or 50.0)
-                demand_blend=0.70*category_demand + 0.30*exact_match
-                prepared["cross_web_score"]=round(min(100.0,demand_blend),2)
+                prepared["cross_web_score"]=round(demand_blend,2)
                 prepared["category_demand_score"]=round(category_demand,2)
                 prepared["orientation_score"]=round(orient,2)
                 prepared["shortness_score"]=round(shortness,2)
@@ -1831,9 +1833,14 @@ def main():
         for x in pexels_items:
             pool[x["id"]]=x
 
-    # Attach cross-platform web demand signals to every licensed acquisition candidate.
+    # Attach live category demand and cross-platform web demand signals.
+    opportunity_scores = {x[1]: float(x[0]) for x in opportunity_ranked}
     for item in pool.values():
         cat = str(item.get("category") or "")
+        item["category_demand_score"] = round(
+            max(50.0, min(100.0, opportunity_scores.get(cat, 50.0))),
+            2,
+        )
         queries = trend_queries_by_category.get(cat, [])
         item["trend_match_score"] = trend_match_score(item, queries)
 
