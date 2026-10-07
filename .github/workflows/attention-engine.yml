@@ -124,7 +124,7 @@ jobs:
           fi
 
       - name: Upload attention artifact
-        if: ${{ always() && (hashFiles('out/**/video.mp4') != '' || hashFiles('out/**/selection_diagnostics.json') != '') }}
+        if: ${{ always() && hashFiles('out/**') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: attention-remix
