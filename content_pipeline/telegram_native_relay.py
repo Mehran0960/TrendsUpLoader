@@ -10,6 +10,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "attention_state" / "telegram_relay_state.json"
+POLICY = ROOT / "config" / "telegram_source_policy.json"
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TARGET = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 
@@ -50,6 +51,20 @@ def save_state(s):
     s["seen"] = list(dict.fromkeys([str(x) for x in s.get("seen", [])]))[-500:]
     STATE.write_text(json.dumps(s, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
+def allowed_source(chat):
+    try:
+        policy=json.loads(POLICY.read_text(encoding="utf-8"))
+    except Exception:
+        policy={}
+    if bool(policy.get("allow_all_channels_bot_can_receive")):
+        return True
+    usernames={str(x).lstrip("@").lower() for x in policy.get("allowed_usernames",[]) if str(x).strip()}
+    chat_ids={str(x) for x in policy.get("allowed_chat_ids",[]) if str(x).strip()}
+    username=str(chat.get("username") or "").lstrip("@").lower()
+    cid=str(chat.get("id") or "")
+    return (username and username in usernames) or (cid and cid in chat_ids)
+
+
 def candidate(update):
     msg = update.get("channel_post") or {}
     if not msg:
@@ -57,6 +72,8 @@ def candidate(update):
     chat = msg.get("chat") or {}
     chat_id = str(chat.get("id") or "")
     if not chat_id or chat_id == str(TARGET):
+        return None
+    if not allowed_source(chat):
         return None
 
     media = msg.get("video") or msg.get("animation")
