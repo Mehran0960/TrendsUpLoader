@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v8_semantic_hook_gate"
+ENGINE_VERSION = "viral_radar_global_opportunity_v9_event_structure"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -34,6 +34,7 @@ MIN_DEMAND_SCORE = 50.0
 MIN_COMBINED_SCORE = 76.0
 MIN_HOOK_SCORE = 63.0
 MIN_METADATA_HOOK_SCORE = 45.0
+MIN_HOOK_STRUCTURE_SCORE = 52.0
 MAX_YOUTUBE_SIGNAL_AGE_DAYS = 30
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
@@ -1457,12 +1458,37 @@ def visual_score(path):
         +0.20*min(sum(first)/max(1,len(first))/0.10,1.0)
     )
 
+    # Hook structure: distinguish a real event arc from sustained generic motion.
+    # Five temporal buckets let us reward either:
+    #   1) an immediate shock/spike, or
+    #   2) a buildup that culminates later.
+    buckets=[float(__import__("numpy").mean(b)) for b in __import__("numpy").array_split(__import__("numpy").array(motions),5)]
+    baseline=float(__import__("numpy").median(buckets[1:-1])) if len(buckets) >= 3 else mean_motion
+    early_level=float(__import__("numpy").mean(buckets[:2]))
+    late_level=float(__import__("numpy").mean(buckets[-2:]))
+    peak=max(buckets) if buckets else mean_motion
+    peak_idx=int(max(range(len(buckets)), key=lambda i:buckets[i])) if buckets else 0
+    peak_without=max([buckets[i] for i in range(len(buckets)) if i != peak_idx] or [baseline])
+
+    late_escalation=min(max((late_level-early_level)/0.08,0.0),1.0)
+    peak_isolation=min(max((peak-peak_without)/0.08,0.0),1.0)
+    instant_escalation=min(max((max(first or [0.0])-float(__import__("numpy").median(motions[1:] or motions)))/0.10,0.0),1.0)
+    profile_spread=min(float(__import__("numpy").std(buckets))/0.045,1.0)
+    payoff_direction=late_escalation if peak_idx >= 3 else 0.0
+    shock_direction=instant_escalation if peak_idx <= 1 else 0.0
+
+    hook_structure_score=100.0*max(
+        0.60*shock_direction + 0.25*peak_isolation + 0.15*profile_spread,
+        0.55*payoff_direction + 0.30*peak_isolation + 0.15*profile_spread,
+    )
+
     return {
         "score":round(min(best[0],99.0),2),
         "best_start":round(best[1],3),
         "best_duration":round(min(3.8,duration),3),
         "hook_event_score":round(min(event_score,99.0),2),
-        "hook_first_event_score":round(min(first_event_score,99.0),2)
+        "hook_first_event_score":round(min(first_event_score,99.0),2),
+        "hook_structure_score":round(min(hook_structure_score,99.0),2),
     }
 
 
@@ -1504,17 +1530,27 @@ def source_hook_score(src, visual):
     meta=metadata_hook_score(src)
     event=float(visual.get("hook_event_score") or 0.0)
     first_event=float(visual.get("hook_first_event_score") or 0.0)
+    structure=float(visual.get("hook_structure_score") or 0.0)
     pop=float(src.get("attention_score") or 0.0)
     ew=float(HOOK_EVENT_WEIGHT.get(category,0.40))
-    later_w=0.25 + 0.15*ew
-    first_w=0.40
-    meta_w=max(0.0,0.35-0.10*ew)
-    pop_w=max(0.0,1.0-first_w-later_w-meta_w)
-    score=first_w*first_event + later_w*event + meta_w*meta + pop_w*pop
+    later_w=0.18 + 0.10*ew
+    first_w=0.30
+    structure_w=0.24
+    meta_w=max(0.0,0.22-0.05*ew)
+    pop_w=max(0.0,1.0-first_w-later_w-structure_w-meta_w)
+    score=(
+        first_w*first_event
+        +later_w*event
+        +structure_w*structure
+        +meta_w*meta
+        +pop_w*pop
+    )
 
-    # A generic stock clip cannot compensate for a weak opening simply by
+    # A generic stock clip cannot compensate for a weak event arc simply by
     # having lots of motion later in the clip.
     title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
+    if structure < MIN_HOOK_STRUCTURE_SCORE and meta < 60.0:
+        score=min(score,49.0)
     if meta < MIN_METADATA_HOOK_SCORE:
         score=min(score,50.0)
     if len(title_words) <= 1 and meta < 55.0 and first_event < 70.0:
@@ -1746,6 +1782,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 hook=source_hook_score(src,visual)
                 hook_event=float(visual.get("hook_event_score") or 0.0)
                 hook_first_event=float(visual.get("hook_first_event_score") or 0.0)
+                hook_structure=float(visual.get("hook_structure_score") or 0.0)
                 hook_meta=float(metadata_hook_score(src))
 
                 if visual_score_value < MIN_VISUAL_SCORE:
@@ -1769,12 +1806,19 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                           "meta=",round(hook_meta,2),
                           "required=",MIN_METADATA_HOOK_SCORE)
                     continue
+                if hook_structure < MIN_HOOK_STRUCTURE_SCORE and hook_meta < 60.0:
+                    print("REJECT hook structure floor",src["id"],
+                          "provider=",provider,
+                          "structure=",round(hook_structure,2),
+                          "meta=",round(hook_meta,2))
+                    continue
                 if hook < MIN_HOOK_SCORE:
                     print("REJECT hook floor",src["id"],
                           "provider=",provider,
                           "hook=",round(hook,2),
                           "event=",round(hook_event,2),
                           "first_event=",round(hook_first_event,2),
+                          "structure=",round(hook_structure,2),
                           "meta=",round(hook_meta,2))
                     continue
 
@@ -1801,6 +1845,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["hook_score"]=round(hook,2)
                 prepared["hook_event_score"]=round(hook_event,2)
                 prepared["hook_first_event_score"]=round(hook_first_event,2)
+                prepared["hook_structure_score"]=round(hook_structure,2)
                 prepared["hook_metadata_score"]=round(hook_meta,2)
                 prepared["relevance_score"]=round(relevance,2)
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
@@ -2112,6 +2157,7 @@ def main():
         "hook_score":src.get("hook_score"),
         "hook_event_score":src.get("hook_event_score"),
         "hook_first_event_score":src.get("hook_first_event_score"),
+        "hook_structure_score":src.get("hook_structure_score"),
         "hook_metadata_score":src.get("hook_metadata_score"),
         "relevance_score":src.get("relevance_score"),
         "shortness_score":src.get("shortness_score"),
