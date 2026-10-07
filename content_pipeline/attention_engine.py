@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v13_gold_source_fallback"
+ENGINE_VERSION = "viral_radar_global_opportunity_v14_category_demand_fix"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -2182,17 +2182,16 @@ def main():
         ][:5]
         web_match = trend_match_score(item, related_web) if related_web else 50.0
         item["web_signal_score"] = round(web_match, 2)
-        if related_web:
-            item["cross_web_score"] = round(
-                0.70 * float(item.get("trend_match_score") or 50.0)
-                + 0.30 * float(item.get("web_signal_score") or 50.0),
-                2,
-            )
-        else:
-            item["cross_web_score"] = round(
-                float(item.get("trend_match_score") or 50.0),
-                2,
-            )
+        # Live category demand is the primary demand signal. Exact source/topic
+        # matching and web corroboration are supporting evidence only.
+        exact_match=float(item.get("trend_match_score") or 50.0)
+        web_match=float(item.get("web_signal_score") or 50.0)
+        supporting=max(exact_match,web_match) if related_web else exact_match
+        item["cross_web_score"] = round(
+            0.70 * float(item.get("category_demand_score") or 50.0)
+            + 0.30 * supporting,
+            2,
+        )
 
     (run_dir/"radar.json").write_text(
         json.dumps({
