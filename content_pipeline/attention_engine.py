@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_multiregion_v5"
+ENGINE_VERSION = "viral_radar_global_opportunity_v6"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -1470,32 +1470,42 @@ def fit_lines(draw, text, font, max_width):
     return lines
 
 def caption_png(text, out_path, big=False):
-    img = Image.new("RGBA",(700,250 if big else 205),(0,0,0,0))
+    img = Image.new("RGBA",(700,230 if big else 205),(0,0,0,0))
     draw = ImageDraw.Draw(img)
-    font = ImageFont.truetype(find_font(), 54 if big else 46)
-    lines = fit_lines(draw,text,font,650)
-    line_h = 62 if big else 56
+    font = ImageFont.truetype(find_font(), 50 if big else 44)
+    lines = [shape_fa(x) for x in fit_lines(draw,text,font,640)]
+    line_h = 58 if big else 52
     total_h = max(1,len(lines))*line_h
-    y = (img.height-total_h)/2 - 4
+    pad_x, pad_y = 18, 14
+    y = (img.height-total_h)/2 - 2
 
-    for index,line in enumerate(lines[:3]):
-        s=shape_fa(line)
-        box=draw.textbbox((0,0),s,font=font,stroke_width=0)
+    widths=[]
+    for line in lines[:3]:
+        box=draw.textbbox((0,0),line,font=font,stroke_width=0)
+        widths.append(box[2]-box[0])
+
+    max_w=min(660,max(widths) if widths else 0)
+    panel_left=max(8,(700-max_w)/2-pad_x)
+    panel_right=min(692,(700+max_w)/2+pad_x)
+    panel_top=max(6,y-pad_y)
+    panel_bottom=min(img.height-6,y+len(lines[:3])*line_h+pad_y)
+    draw.rounded_rectangle(
+        (panel_left,panel_top,panel_right,panel_bottom),
+        radius=18,fill=(0,0,0,165)
+    )
+
+    for line in lines[:3]:
+        box=draw.textbbox((0,0),line,font=font,stroke_width=0)
         tw=box[2]-box[0]
         x=(img.width-tw)/2
         draw.text(
-            (x+2,y+3),s,font=font,
-            fill=(0,0,0,215),stroke_width=5,stroke_fill=(0,0,0,215)
-        )
-        fill=(255,255,255,255)
-        draw.text(
-            (x,y),s,font=font,fill=fill,
-            stroke_width=3,stroke_fill=(0,0,0,255)
+            (x,y),line,font=font,
+            fill=(255,255,255,255),
+            stroke_width=2,stroke_fill=(0,0,0,255)
         )
         y += line_h
 
     img.save(out_path)
-
 def clip_source(src, info, visual):
     item=dict(src)
     total=float(info["duration"])
