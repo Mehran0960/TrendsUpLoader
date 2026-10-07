@@ -1504,15 +1504,18 @@ def metadata_hook_score(src):
     if provider == "pexels" and src.get("search_query"):
         description=""
     page_slug=re.sub(r"[-_/]+"," ",str(src.get("page") or ""))
+    title=str(src.get("title") or "")
     text_blob=" ".join([
-        str(src.get("title") or ""),
+        title,
         description,
         str(src.get("tags") or ""),
         page_slug,
     ]).lower()
-    title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
+    title_words=re.findall(r"[a-z0-9'-]{3,}",title.lower())
+    page_words=re.findall(r"[a-z0-9'-]{3,}",page_slug.lower())
     cues=HOOK_CUES.get(category,[])
     cue_hits=sum(1 for cue in cues if cue in text_blob)
+
     distinctive=[]
     for word in re.findall(r"[a-z0-9'-]{3,}",text_blob):
         if word in GENERIC_MEDIA_WORDS or word in YOUTUBE_STOPWORDS:
@@ -1520,13 +1523,20 @@ def metadata_hook_score(src):
         if word not in distinctive:
             distinctive.append(word)
 
+    # Pexels often uses a generic API title; the actual media page slug is
+    # more useful evidence and must not be penalized as "generic title".
+    generic_provider_title = (
+        provider == "pexels" and
+        title.strip().lower() in {"pexels search","pexels popular"}
+    )
+    descriptive_page = len([w for w in page_words if w not in GENERIC_MEDIA_WORDS and w not in YOUTUBE_STOPWORDS]) >= 2
+
     score=30.0 + min(42.0, cue_hits*10.0) + min(18.0, len(distinctive)*4.0)
-    if len(title_words) <= 2 and cue_hits == 0:
+    if len(title_words) <= 2 and cue_hits == 0 and not (generic_provider_title and descriptive_page):
         score -= 22.0
-    elif len(title_words) <= 2 and cue_hits == 1:
+    elif len(title_words) <= 2 and cue_hits == 1 and not generic_provider_title:
         score -= 8.0
-    if provider == "pexels" and src.get("search_query") and cue_hits == 0:
-        score -= 5.0
+
     return round(max(0.0,min(100.0,score)),2)
 
 def source_hook_score(src, visual):
