@@ -1490,7 +1490,7 @@ def source_hook_score(src, visual):
     event=float(visual.get("hook_event_score") or 0.0)
     pop=float(src.get("attention_score") or 0.0)
     ew=float(HOOK_EVENT_WEIGHT.get(category,0.40))
-    meta_w=max(0.0,0.50-ew)
+    meta_w=max(0.0,0.80-ew)
     score=ew*event + meta_w*meta + 0.20*pop
     title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
     if len(title_words) <= 1 and meta < 55.0 and event < 75.0:
