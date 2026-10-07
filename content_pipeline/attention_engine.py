@@ -1872,7 +1872,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                           "meta=",round(hook_meta,2),
                           "required=",MIN_VISUAL_HOOK_EVIDENCE)
                     continue
-if hook_structure < MIN_HOOK_STRUCTURE_SCORE and hook_meta < 60.0:
+                if hook_structure < MIN_HOOK_STRUCTURE_SCORE and hook_meta < 60.0:
                     rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"hook_structure_floor","structure":round(hook_structure,2),"meta":round(hook_meta,2)})
                     print("REJECT hook structure floor",src["id"],
                           "provider=",provider,
