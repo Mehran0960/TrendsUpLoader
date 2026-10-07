@@ -246,14 +246,6 @@ def evaluate_candidate(src):
 
 
 def main():
-    if not ENABLE_LICENSED_NATIVE:
-        OUT_DIR.mkdir(exist_ok=True)
-        (OUT_DIR / "native_skip.json").write_text(
-            json.dumps({"reason":"licensed_native_disabled_until_source_quality_is_proven"}, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        print("LICENSED NATIVE AUTO-PUBLISH DISABLED")
-        return
     OUT_DIR.mkdir(exist_ok=True)
     state = load_state()
 
@@ -268,6 +260,14 @@ def main():
         json.dumps(feed, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+
+    if not ENABLE_LICENSED_NATIVE:
+        (OUT_DIR / "native_skip.json").write_text(
+            json.dumps({"reason":"licensed_native_disabled_until_source_quality_is_proven"}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print("LICENSED NATIVE AUTO-PUBLISH DISABLED")
+        return
 
     cats = rank_categories(signals)
     print("Native target categories:", cats)
