@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v12_visual_hook_primary"
+ENGINE_VERSION = "viral_radar_global_opportunity_v13_gold_source_fallback"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -2147,6 +2147,20 @@ def main():
         print("Pexels discovery complete:", category, "candidates=", len(pexels_items))
         for x in pexels_items:
             pool[x["id"]]=x
+
+    # Add a small vetted gold pool of openly licensed clips. Dynamic discovery
+    # is preferred, but these known-high-attention CC0 examples provide a
+    # quality calibration lane when stock discovery is weak.
+    for base in STATIC_SOURCES:
+        category = str(base.get("category") or "")
+        if category in targets:
+            item = dict(base)
+            item["provider"] = "commons"
+            item["license_verified"] = True
+            item["dynamic"] = False
+            item.setdefault("description", item.get("title", ""))
+            item.setdefault("download_url", "")
+            pool[item["id"]] = item
 
     # Attach live category demand and cross-platform web demand signals.
     opportunity_scores = {x[1]: float(x[0]) for x in opportunity_ranked}
