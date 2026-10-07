@@ -24,8 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify FFmpeg runtime
-        run: ffmpeg -version | head -n 1
+      - name: Verify media tools
+        run: |
+          if command -v ffmpeg >/dev/null 2>&1 && command -v ffprobe >/dev/null 2>&1; then
+            echo "ffmpeg + ffprobe available."
+          else
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
 
       - name: Setup Python
         uses: actions/setup-python@v5
