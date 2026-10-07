@@ -6,8 +6,6 @@ concurrency:
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
   # manual-only while the source-quality model is validated
 
 jobs:
