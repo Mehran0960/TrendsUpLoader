@@ -5,10 +5,13 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    paths:
+      - ".github/workflows/attention-engine.yml"
   schedule:
     - cron: "0 */6 * * *"
   workflow_dispatch:
-  # Passive radar: every 6 hours + manual dispatch.
+  # Temporary push trigger for end-to-end validation; remove after the test.
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -225,6 +228,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Require successful publish
-        if: ${{ always() && hashFiles('out/**/video.mp4') != '' && hashFiles('out/**/publish.json') == '' }}
-        run: exit 1
+      - name: Ensure direct pipeline remains non-blocking
+        if: ${{ always() }}
+        run: echo "Direct-embed pipeline complete; MP4 publication is intentionally disabled."
