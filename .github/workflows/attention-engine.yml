@@ -6,18 +6,13 @@ concurrency:
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "content_pipeline/attention_engine.py"
+  # manual-only while the source-quality model is validated
   # manual-only while the source-quality model is validated
   # manual-only while the source-quality model is validated
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ATTENTION_VALIDATION_ONLY: "true"
     permissions:
       contents: write
     timeout-minutes: 18
@@ -71,7 +66,7 @@ jobs:
 
       - name: Publish validated attention video to Telegram
         id: publish
-        if: ${{ hashFiles('out/**/video.mp4') != '' && env.ATTENTION_VALIDATION_ONLY != 'true' }}
+        if: ${{ hashFiles('out/**/video.mp4') != '' }}
         continue-on-error: true
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -133,5 +128,5 @@ jobs:
           retention-days: 7
 
       - name: Require successful publish
-        if: ${{ always() && env.ATTENTION_VALIDATION_ONLY != 'true' && hashFiles('out/**/video.mp4') != '' && hashFiles('out/**/publish.json') == '' }}
+        if: ${{ always() && hashFiles('out/**/video.mp4') != '' && hashFiles('out/**/publish.json') == '' }}
         run: exit 1
