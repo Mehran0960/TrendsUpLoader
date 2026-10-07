@@ -1437,22 +1437,31 @@ def visual_score(path):
 
     motions=[float(x[1]) for x in samples]
     early=[float(x[1]) for x in samples if float(x[0]) < min(3.0,duration)]
+    first=[float(x[1]) for x in samples if float(x[0]) < min(1.6,duration)]
     mean_motion=sum(motions)/max(1,len(motions))
     p95_motion=__import__("numpy").percentile(motions,95) if motions else 0.0
     early_p95=__import__("numpy").percentile(early,95) if early else p95_motion
+    first_p95=__import__("numpy").percentile(first,95) if first else early_p95
     spike_share=sum(1 for x in motions if x>0.12)/max(1,len(motions))
+    first_spike_share=sum(1 for x in first if x>0.12)/max(1,len(first))
     event_score=100.0*(
         0.25*min(mean_motion/0.12,1.0)
         +0.30*min(max(p95_motion-0.04,0.0)/0.10,1.0)
         +0.25*min(spike_share/0.25,1.0)
         +0.20*min(max(early_p95-0.04,0.0)/0.10,1.0)
     )
+    first_event_score=100.0*(
+        0.45*min(max(first_p95-0.04,0.0)/0.10,1.0)
+        +0.35*min(first_spike_share/0.22,1.0)
+        +0.20*min(sum(first)/max(1,len(first))/0.10,1.0)
+    )
 
     return {
         "score":round(min(best[0],99.0),2),
         "best_start":round(best[1],3),
         "best_duration":round(min(3.8,duration),3),
-        "hook_event_score":round(min(event_score,99.0),2)
+        "hook_event_score":round(min(event_score,99.0),2),
+        "hook_first_event_score":round(min(first_event_score,99.0),2)
     }
 
 
@@ -1491,12 +1500,21 @@ def source_hook_score(src, visual):
     category=str(src.get("category") or "")
     meta=metadata_hook_score(src)
     event=float(visual.get("hook_event_score") or 0.0)
+    first_event=float(visual.get("hook_first_event_score") or 0.0)
     pop=float(src.get("attention_score") or 0.0)
     ew=float(HOOK_EVENT_WEIGHT.get(category,0.40))
-    meta_w=max(0.0,0.80-ew)
-    score=ew*event + meta_w*meta + 0.20*pop
+    later_w=0.25 + 0.15*ew
+    first_w=0.40
+    meta_w=max(0.0,0.35-0.10*ew)
+    pop_w=max(0.0,1.0-first_w-later_w-meta_w)
+    score=first_w*first_event + later_w*event + meta_w*meta + pop_w*pop
+
+    # A generic stock clip cannot compensate for a weak opening simply by
+    # having lots of motion later in the clip.
     title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
-    if len(title_words) <= 1 and meta < 55.0 and event < 75.0:
+    if meta < 45.0 and first_event < 60.0:
+        score=min(score,52.0)
+    if len(title_words) <= 1 and meta < 55.0 and first_event < 70.0:
         score=min(score,56.0)
     return round(max(0.0,min(100.0,score)),2)
 
@@ -1724,6 +1742,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 shortness=duration_score(duration)
                 hook=source_hook_score(src,visual)
                 hook_event=float(visual.get("hook_event_score") or 0.0)
+                hook_first_event=float(visual.get("hook_first_event_score") or 0.0)
                 hook_meta=float(metadata_hook_score(src))
 
                 if visual_score_value < MIN_VISUAL_SCORE:
@@ -1746,6 +1765,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                           "provider=",provider,
                           "hook=",round(hook,2),
                           "event=",round(hook_event,2),
+                          "first_event=",round(hook_first_event,2),
                           "meta=",round(hook_meta,2))
                     continue
 
@@ -1771,6 +1791,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["visual_score"]=round(visual_score_value,2)
                 prepared["hook_score"]=round(hook,2)
                 prepared["hook_event_score"]=round(hook_event,2)
+                prepared["hook_first_event_score"]=round(hook_first_event,2)
                 prepared["hook_metadata_score"]=round(hook_meta,2)
                 prepared["relevance_score"]=round(relevance,2)
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
@@ -2081,6 +2102,7 @@ def main():
         "visual_score":src.get("visual_score"),
         "hook_score":src.get("hook_score"),
         "hook_event_score":src.get("hook_event_score"),
+        "hook_first_event_score":src.get("hook_first_event_score"),
         "hook_metadata_score":src.get("hook_metadata_score"),
         "relevance_score":src.get("relevance_score"),
         "shortness_score":src.get("shortness_score"),
