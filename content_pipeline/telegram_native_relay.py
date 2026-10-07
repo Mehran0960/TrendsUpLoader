@@ -66,7 +66,7 @@ def allowed_source(chat):
 
 
 def candidate(update):
-    msg = update.get("channel_post") or {}
+    msg = update.get("channel_post") or update.get("message") or {}
     if not msg:
         return None
     chat = msg.get("chat") or {}
@@ -76,7 +76,9 @@ def candidate(update):
     if not allowed_source(chat):
         return None
 
-    media = msg.get("video") or msg.get("animation")
+    media = msg.get("video") or msg.get("animation") or msg.get("document")
+    if msg.get("document") and not str(media.get("mime_type") or "").startswith("video/"):
+        media = None
     if not media:
         return None
 
@@ -153,7 +155,7 @@ def main():
             "offset": offset,
             "limit": 100,
             "timeout": 0,
-            "allowed_updates": ["channel_post"],
+            "allowed_updates": ["channel_post", "message"],
         },
     ) or []
 
