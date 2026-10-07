@@ -1661,7 +1661,13 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["visual_score"]=round(visual_score_value,2)
                 prepared["relevance_score"]=round(relevance,2)
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
-                prepared["cross_web_score"]=round(demand,2)
+                # Category demand is the main discovery signal; exact phrase
+                # overlap is supporting evidence, not a hard requirement.
+                category_demand=float(src.get("category_demand_score") or demand or 50.0)
+                exact_match=float(src.get("trend_match_score") or 50.0)
+                demand_blend=0.70*category_demand + 0.30*exact_match
+                prepared["cross_web_score"]=round(min(100.0,demand_blend),2)
+                prepared["category_demand_score"]=round(category_demand,2)
                 prepared["orientation_score"]=round(orient,2)
                 prepared["shortness_score"]=round(shortness,2)
                 prepared["combined_score"]=round(combined_score,2)
@@ -1962,6 +1968,7 @@ def main():
         "combined_score":src.get("combined_score"),
         "trend_match_score":src.get("trend_match_score"),
         "cross_web_score":src.get("cross_web_score"),
+        "category_demand_score":src.get("category_demand_score"),
         "start":0.0,
         "duration":src["duration"],
     }]
