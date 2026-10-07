@@ -6,10 +6,7 @@ concurrency:
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - ".attention_trigger"
-  # temporary validation trigger
+  # manual-only while the source-quality model is validated
 
 jobs:
   build:
