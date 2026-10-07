@@ -148,11 +148,18 @@ def rank_categories(signals):
     return [x[1] for x in ranked[:3]]
 
 
-def native_candidates(categories):
+def native_candidates(categories, signals):
     found = []
     for category in categories:
+        trend_queries = engine.derive_trend_queries(signals, category, max_queries=3)
         try:
-            found.extend(engine.discover_pixabay(category, limit=8))
+            found.extend(
+                engine.discover_pixabay(
+                    category,
+                    limit=10,
+                    trend_queries=trend_queries,
+                )
+            )
         except Exception as exc:
             print("Pixabay error", category, repr(exc))
         try:
@@ -160,14 +167,20 @@ def native_candidates(categories):
                 [
                     x for x in engine.discover_sources(categories=[category])
                     if "cc0" in str(x.get("license") or "").lower()
-                ][:8]
+                ][:10]
             )
         except Exception as exc:
             print("Commons error", category, repr(exc))
 
+        for gold in getattr(engine, "STATIC_SOURCES", []):
+            if str(gold.get("category") or "") == category and "cc0" in str(gold.get("license") or "").lower():
+                found.append(dict(gold))
+
     dedup = {}
     for x in found:
-        dedup[str(x.get("id"))] = x
+        sid = str(x.get("id") or "")
+        if sid:
+            dedup[sid] = x
     return list(dedup.values())
 
 
@@ -271,11 +284,31 @@ def main():
 
     cats = rank_categories(signals)
     print("Native target categories:", cats)
-    pool = native_candidates(cats)
+    relay_state_path = STATE_DIR / "telegram_relay_state.json"
+    try:
+        relay_state = json.loads(relay_state_path.read_text(encoding="utf-8"))
+    except Exception:
+        relay_state = {}
+    last_copy = relay_state.get("last_copy") or {}
+    skip_fallback = False
+    try:
+        copied_at = datetime.fromisoformat(str(last_copy.get("copied_at")).replace("Z", "+00:00"))
+        skip_fallback = (datetime.now(timezone.utc) - copied_at).total_seconds() < 2*3600
+    except Exception:
+        pass
+    if skip_fallback:
+        (OUT_DIR / "native_skip.json").write_text(
+            json.dumps({"reason":"recent_telegram_source_copy","last_copy":last_copy}, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        print("LICENSED NATIVE FALLBACK SKIPPED: recent Telegram source copy")
+        return
+
+    pool = native_candidates(cats, signals)
     print("Native acquisition pool:", len(pool))
 
     scored = []
-    for src in pool[:12]:
+    for src in pool[:18]:
         try:
             x = evaluate_candidate(src)
             if x:
@@ -291,7 +324,7 @@ def main():
                     "reason": "no_native_candidate_passed",
                     "categories": cats,
                     "pool": len(pool),
-                    "checked": min(12, len(pool)),
+                    "checked": min(18, len(pool)),
                 },
                 ensure_ascii=False,
                 indent=2,
