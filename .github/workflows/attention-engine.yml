@@ -6,6 +6,10 @@ concurrency:
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "content_pipeline/attention_engine.py"
   # manual-only while the source-quality model is validated
 
 jobs:
