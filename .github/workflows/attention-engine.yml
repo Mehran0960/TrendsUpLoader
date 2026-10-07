@@ -5,13 +5,10 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    paths:
-      - ".github/workflows/attention-engine.yml"
   schedule:
     - cron: "0 */6 * * *"
   workflow_dispatch:
-  # Temporary push trigger for end-to-end validation; remove after the test.
+  # Passive radar: every 6 hours + manual dispatch.
 jobs:
   build:
     runs-on: ubuntu-latest
