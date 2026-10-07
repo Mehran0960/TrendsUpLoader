@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v6"
+ENGINE_VERSION = "viral_radar_global_opportunity_v7_hook_gate"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -32,6 +32,7 @@ MIN_VISUAL_SCORE = 50.0
 MIN_RELEVANCE_SCORE = 65.0
 MIN_DEMAND_SCORE = 50.0
 MIN_COMBINED_SCORE = 76.0
+MIN_HOOK_SCORE = 63.0
 MAX_YOUTUBE_SIGNAL_AGE_DAYS = 30
 
 SEED = int(os.environ.get("GITHUB_RUN_ID", "1"))
@@ -51,7 +52,7 @@ YOUTUBE_CACHE = Path("attention_api_cache/youtube")
 PEXELS_CACHE = Path("attention_api_cache/pexels")
 GDELT_CACHE = Path("attention_api_cache/gdelt")
 PIXABAY_QUERIES = {
-    "animals": ["funny cat", "funny dog", "cute animal"],
+    "animals": ["animal fail", "funny animal", "animal reaction"],
     "human_funny": ["funny people", "funny fail", "funny reaction"],
     "beauty_style": ["woman dance", "woman fashion", "woman performance"],
     "talent": ["woman singing", "dance performance", "female drummer"],
@@ -119,6 +120,32 @@ def extract_category_query(title, category):
     phrase = " ".join(phrase_words[:3]).strip()
     return phrase if len(phrase) >= 7 else None
 
+
+
+HOOK_CUES = {
+    "animals": ["funny","fail","reaction","chase","jump","attack","rescue","fight","catch","steal","escape","surprise","unexpected","unusual","strange","crazy","impossible"],
+    "human_funny": ["funny","fail","prank","reaction","awkward","unexpected","surprise","embarrassing","crazy"],
+    "beauty_style": ["transformation","transition","runway","dance","glow","makeup","before","after","outfit","performance"],
+    "talent": ["singing","singer","high note","cover","drummer","drumming","guitar","piano","performance","incredible","insane"],
+    "wow": ["amazing","impossible","record","trick","acrobat","acrobatics","stunt","magic","flip","jump","skill","crazy","insane"],
+    "sports": ["goal","save","knockout","dunk","trick","flip","catch","shot","fail","win","crazy","amazing"],
+    "food": ["giant","fire","carving","cheese pull","satisfying","impossible","perfect","street","art","transformation"],
+    "cars": ["drift","stunt","transformation","restoration","supercar","luxury","racing","crazy","insane"],
+    "satisfying": ["restoration","restore","cleaning","polish","peel","perfect","pressure","before","after","transformation","satisfying"],
+    "travel": ["breathtaking","hidden","aerial","drone","extreme","secret","unexpected","beautiful","impossible"],
+    "tech": ["robot","ai","future","invisible","demo","gadget","transformation","crazy","impossible","new"],
+}
+HOOK_EVENT_WEIGHT = {
+    "animals": 0.50, "human_funny": 0.52, "beauty_style": 0.35,
+    "talent": 0.45, "wow": 0.52, "sports": 0.52,
+    "food": 0.30, "cars": 0.42, "satisfying": 0.30,
+    "travel": 0.20, "tech": 0.35,
+}
+GENERIC_MEDIA_WORDS = {
+    "video","videos","clip","footage","animal","animals","cat","dog","woman","women",
+    "people","person","food","car","cars","technology","tech","squirrel","nature",
+    "cute","beautiful","cool","scene","moment","performance"
+}
 
 YOUTUBE_STOPWORDS = {
     "the","and","that","this","with","from","for","you","your","are","was","were",
@@ -1408,13 +1435,67 @@ def visual_score(path):
         if best is None or score>best[0]:
             best=(score,start)
 
+    motions=[float(x[1]) for x in samples]
+    early=[float(x[1]) for x in samples if float(x[0]) < min(3.0,duration)]
+    mean_motion=sum(motions)/max(1,len(motions))
+    p95_motion=__import__("numpy").percentile(motions,95) if motions else 0.0
+    early_p95=__import__("numpy").percentile(early,95) if early else p95_motion
+    spike_share=sum(1 for x in motions if x>0.12)/max(1,len(motions))
+    event_score=100.0*(
+        0.25*min(mean_motion/0.12,1.0)
+        +0.30*min(max(p95_motion-0.04,0.0)/0.10,1.0)
+        +0.25*min(spike_share/0.25,1.0)
+        +0.20*min(max(early_p95-0.04,0.0)/0.10,1.0)
+    )
+
     return {
         "score":round(min(best[0],99.0),2),
         "best_start":round(best[1],3),
-        "best_duration":round(min(3.8,duration),3)
+        "best_duration":round(min(3.8,duration),3),
+        "hook_event_score":round(min(event_score,99.0),2)
     }
 
 
+
+def metadata_hook_score(src):
+    category=str(src.get("category") or "")
+    provider=str(src.get("provider") or "")
+    text_blob=" ".join([
+        str(src.get("title") or ""),
+        str(src.get("description") or ""),
+        str(src.get("tags") or ""),
+    ]).lower()
+    title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
+    cues=HOOK_CUES.get(category,[])
+    cue_hits=sum(1 for cue in cues if cue in text_blob)
+    distinctive=[]
+    for word in re.findall(r"[a-z0-9'-]{3,}",text_blob):
+        if word in GENERIC_MEDIA_WORDS or word in YOUTUBE_STOPWORDS:
+            continue
+        if word not in distinctive:
+            distinctive.append(word)
+
+    score=30.0 + min(42.0, cue_hits*10.0) + min(18.0, len(distinctive)*4.0)
+    if len(title_words) <= 2 and cue_hits == 0:
+        score -= 22.0
+    elif len(title_words) <= 2 and cue_hits == 1:
+        score -= 8.0
+    if provider == "pexels" and src.get("search_query") and cue_hits == 0:
+        score -= 5.0
+    return round(max(0.0,min(100.0,score)),2)
+
+def source_hook_score(src, visual):
+    category=str(src.get("category") or "")
+    meta=metadata_hook_score(src)
+    event=float(visual.get("hook_event_score") or 0.0)
+    pop=float(src.get("attention_score") or 0.0)
+    ew=float(HOOK_EVENT_WEIGHT.get(category,0.40))
+    meta_w=max(0.0,0.50-ew)
+    score=ew*event + meta_w*meta + 0.20*pop
+    title_words=re.findall(r"[a-z0-9'-]{3,}",str(src.get("title") or "").lower())
+    if len(title_words) <= 1 and meta < 55.0 and event < 75.0:
+        score=min(score,56.0)
+    return round(max(0.0,min(100.0,score)),2)
 
 def download_source(src):
     CACHE.mkdir(parents=True, exist_ok=True)
@@ -1638,6 +1719,9 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 demand=float(src.get("cross_web_score") or src.get("trend_match_score") or 50.0)
                 orient=orientation_score(info["width"],info["height"])
                 shortness=duration_score(duration)
+                hook=source_hook_score(src,visual)
+                hook_event=float(visual.get("hook_event_score") or 0.0)
+                hook_meta=float(metadata_hook_score(src))
 
                 if visual_score_value < MIN_VISUAL_SCORE:
                     print("REJECT quality floor",src["id"],
@@ -1654,6 +1738,13 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                           "provider=",provider,"demand=",round(demand,2),
                           "relevance=",round(relevance,2))
                     continue
+                if hook < MIN_HOOK_SCORE:
+                    print("REJECT hook floor",src["id"],
+                          "provider=",provider,
+                          "hook=",round(hook,2),
+                          "event=",round(hook_event,2),
+                          "meta=",round(hook_meta,2))
+                    continue
 
                 # Blend category-level live demand with exact phrase evidence.
                 category_demand=float(src.get("category_demand_score") or demand or 50.0)
@@ -1661,12 +1752,13 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 demand_blend=min(100.0, 0.70*category_demand + 0.30*exact_match)
 
                 combined_score=(
-                    0.30*demand_blend
-                    +0.29*visual_score_value
+                    0.27*demand_blend
+                    +0.24*visual_score_value
                     +0.18*relevance
-                    +0.15*float(src.get("attention_score") or 0)
+                    +0.10*float(src.get("attention_score") or 0)
+                    +0.12*hook
                     +0.05*orient
-                    +0.03*shortness
+                    +0.04*shortness
                 )
 
                 prepared=dict(src)
@@ -1674,6 +1766,9 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 prepared["start"]=0.0
                 prepared["duration"]=round(duration,3)
                 prepared["visual_score"]=round(visual_score_value,2)
+                prepared["hook_score"]=round(hook,2)
+                prepared["hook_event_score"]=round(hook_event,2)
+                prepared["hook_metadata_score"]=round(hook_meta,2)
                 prepared["relevance_score"]=round(relevance,2)
                 prepared["trend_match_score"]=round(float(src.get("trend_match_score") or 50.0),2)
                 # Category demand is the main discovery signal; exact phrase
@@ -1693,6 +1788,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                     "combined=",prepared["combined_score"],
                     "pop=",prepared.get("attention_score"),
                     "visual=",prepared["visual_score"],
+                    "hook=",prepared["hook_score"],
                     "relevance=",prepared["relevance_score"],
                     "demand_match=",prepared["cross_web_score"],
                     "duration=",prepared["duration"],
@@ -1980,6 +2076,9 @@ def main():
         "provider":src.get("provider"),
         "attention_score":src.get("attention_score"),
         "visual_score":src.get("visual_score"),
+        "hook_score":src.get("hook_score"),
+        "hook_event_score":src.get("hook_event_score"),
+        "hook_metadata_score":src.get("hook_metadata_score"),
         "relevance_score":src.get("relevance_score"),
         "shortness_score":src.get("shortness_score"),
         "combined_score":src.get("combined_score"),
