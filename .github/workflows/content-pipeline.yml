@@ -73,8 +73,8 @@ jobs:
           RADAR_URL: https://trend-radar.m-hoseyni-6966.workers.dev/candidates
         run: python content_pipeline/build.py
 
-      - name: Publish to Telegram when configured
-        if: ${{ hashFiles('out/**/video.mp4') != '' }}
+      - name: Legacy Telegram publish DISABLED
+        if: ${{ false && hashFiles('out/**/video.mp4') != '' }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
