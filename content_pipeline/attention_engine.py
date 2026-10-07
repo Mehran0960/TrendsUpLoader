@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw, ImageFont
 OUT = Path("out")
 CACHE = Path("attention_sources")
 STATE_PATH = Path("attention_state/posted.json")
-ENGINE_VERSION = "viral_radar_global_opportunity_v10_event_spike_gate_test"
+ENGINE_VERSION = "viral_radar_global_opportunity_v11_rejection_diagnostics"
 WIDTH, HEIGHT, FPS = 720, 1280, 30
 MIN_TOTAL = 1.0
 MAX_TOTAL = None
@@ -1742,6 +1742,7 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
 
     candidates=list(pool)
     evaluated=[]
+    rejected=[]
     used=set()
 
     for category in targets:
@@ -1800,33 +1801,39 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 hook_meta=float(metadata_hook_score(src))
 
                 if visual_score_value < MIN_VISUAL_SCORE:
+                    rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"visual_floor","visual":round(visual_score_value,2),"relevance":round(relevance,2)})
                     print("REJECT quality floor",src["id"],
                           "provider=",provider,"visual=",round(visual_score_value,2),
                           "relevance=",round(relevance,2))
                     continue
                 if relevance < MIN_RELEVANCE_SCORE:
+                    rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"relevance_floor","visual":round(visual_score_value,2),"relevance":round(relevance,2)})
                     print("REJECT relevance floor",src["id"],
                           "provider=",provider,"visual=",round(visual_score_value,2),
                           "relevance=",round(relevance,2))
                     continue
                 if demand < MIN_DEMAND_SCORE:
+                    rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"demand_floor","demand":round(demand,2),"relevance":round(relevance,2)})
                     print("REJECT demand-match floor",src["id"],
                           "provider=",provider,"demand=",round(demand,2),
                           "relevance=",round(relevance,2))
                     continue
                 if hook_meta < MIN_METADATA_HOOK_SCORE:
+                    rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"metadata_hook_floor","meta":round(hook_meta,2),"required":MIN_METADATA_HOOK_SCORE})
                     print("REJECT semantic hook floor",src["id"],
                           "provider=",provider,
                           "meta=",round(hook_meta,2),
                           "required=",MIN_METADATA_HOOK_SCORE)
                     continue
                 if hook_structure < MIN_HOOK_STRUCTURE_SCORE and hook_meta < 60.0:
+                    rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"hook_structure_floor","structure":round(hook_structure,2),"meta":round(hook_meta,2)})
                     print("REJECT hook structure floor",src["id"],
                           "provider=",provider,
                           "structure=",round(hook_structure,2),
                           "meta=",round(hook_meta,2))
                     continue
                 if hook < MIN_HOOK_SCORE:
+                    rejected.append({"id":src["id"],"provider":provider,"category":category,"reason":"hook_floor","hook":round(hook,2),"event":round(hook_event,2),"first_event":round(hook_first_event,2),"structure":round(hook_structure,2),"meta":round(hook_meta,2),"duration":round(duration,2)})
                     print("REJECT hook floor",src["id"],
                           "provider=",provider,
                           "hook=",round(hook,2),
@@ -1887,6 +1894,29 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
                 )
             except Exception as exc:
                 print("REJECT",src.get("id"),"provider=",provider,exc)
+
+    try:
+        diag_path=OUT/("attention_"+str(SEED))/"selection_diagnostics.json"
+        diag_path.parent.mkdir(parents=True,exist_ok=True)
+        ranked_rejected=sorted(
+            rejected,
+            key=lambda x: float(
+                x.get("hook") or x.get("structure") or x.get("meta") or
+                x.get("visual") or x.get("demand") or 0
+            ),
+            reverse=True,
+        )[:30]
+        diag_path.write_text(
+            json.dumps({
+                "experiment":experiment,
+                "evaluated_count":len(evaluated),
+                "rejected_count":len(rejected),
+                "top_rejected":ranked_rejected,
+            },ensure_ascii=False,indent=2),
+            encoding="utf-8",
+        )
+    except Exception as exc:
+        print("Diagnostic write failed:",exc)
 
     if not evaluated:
         return [],experiment
