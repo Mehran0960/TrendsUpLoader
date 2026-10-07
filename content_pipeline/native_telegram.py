@@ -266,7 +266,7 @@ def main():
     print("Native acquisition pool:", len(pool))
 
     scored = []
-    for src in pool[:24]:
+    for src in pool[:12]:
         try:
             x = evaluate_candidate(src)
             if x:
@@ -282,7 +282,7 @@ def main():
                     "reason": "no_native_candidate_passed",
                     "categories": cats,
                     "pool": len(pool),
-                    "checked": min(24, len(pool)),
+                    "checked": min(12, len(pool)),
                 },
                 ensure_ascii=False,
                 indent=2,
