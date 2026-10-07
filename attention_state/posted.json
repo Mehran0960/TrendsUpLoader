@@ -1,10 +1,12 @@
 {
   "version": 1,
   "keys": [
-    "attention:pixabay:1630"
+    "attention:pixabay:1630",
+    "attention:pixabay:2717"
   ],
   "experiment_counts": {
-    "talent_show": 1
+    "talent_show": 1,
+    "global_opportunity:animals": 1
   },
   "runs": [
     {
@@ -16,6 +18,16 @@
       "member_count": 2,
       "published_at": "2026-10-05T09:40:37.859659+00:00",
       "combination_key": "attention:pixabay:1630"
+    },
+    {
+      "message_id": 26,
+      "experiment": "global_opportunity:animals",
+      "categories": [
+        "animals"
+      ],
+      "member_count": 2,
+      "published_at": "2026-10-07T04:15:19.506066+00:00",
+      "combination_key": "attention:pixabay:2717"
     }
   ]
 }
