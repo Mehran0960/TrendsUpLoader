@@ -5,11 +5,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    paths:
-      - "content_pipeline/attention_engine.py"
   workflow_dispatch:
-  # Temporary push trigger: runs only when the engine changes, then is removed after validation.
+  # manual-only while the source-quality model is validated
 jobs:
   build:
     runs-on: ubuntu-latest
