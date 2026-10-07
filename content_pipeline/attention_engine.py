@@ -1918,6 +1918,42 @@ def select_sources(pool, state, forced_experiment=None, forced_targets=None):
     except Exception as exc:
         print("Diagnostic write failed:",exc)
 
+    report_path=OUT/("attention_"+str(SEED))
+    report_path.mkdir(parents=True,exist_ok=True)
+    report={
+        "engine_version":ENGINE_VERSION,
+        "experiment":experiment,
+        "targets":list(targets),
+        "evaluated_count":len(evaluated),
+        "rejected_count":len(rejected),
+        "evaluated_top":sorted(
+            [
+                {
+                    "id":x[0].get("id"),
+                    "provider":x[0].get("provider"),
+                    "category":x[0].get("category"),
+                    "duration":x[0].get("duration"),
+                    "visual":x[0].get("visual_score"),
+                    "hook":x[0].get("hook_score"),
+                    "first_event":x[0].get("hook_first_event_score"),
+                    "structure":x[0].get("hook_structure_score"),
+                    "meta":x[0].get("hook_metadata_score"),
+                    "relevance":x[0].get("relevance_score"),
+                    "demand":x[0].get("cross_web_score"),
+                    "combined":x[0].get("combined_score"),
+                }
+                for x in evaluated
+            ],
+            key=lambda x:float(x.get("combined") or 0),
+            reverse=True,
+        )[:20],
+        "rejected_top":rejected[:100],
+    }
+    (report_path/"selection_report.json").write_text(
+        json.dumps(report,ensure_ascii=False,indent=2),
+        encoding="utf-8",
+    )
+
     if not evaluated:
         return [],experiment
 
