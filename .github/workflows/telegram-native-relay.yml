@@ -5,10 +5,13 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    paths:
+      - ".github/workflows/telegram-native-relay.yml"
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
-  # Poll only Telegram channel posts. No external video links are published.
+  # Temporary push trigger for relay validation.
 
 jobs:
   relay:
