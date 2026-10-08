@@ -1,0 +1,59 @@
+name: Attraction Quality Sample 2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/attraction-quality-sample-2.yml"
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --disable-pip-version-check requests pillow numpy opencv-python-headless
+      - name: Score and send native sample
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import json, os, tempfile
+          from pathlib import Path
+          from content_pipeline.iran_video_hunter import download_direct_file, media_info, content_quality_gate, send_video
+          url="https://upload.wikimedia.org/wikipedia/commons/1/12/MeDha.webm"
+          path=download_direct_file(url, ".webm")
+          if not path:
+              raise SystemExit("DIRECT_ACQUISITION_FAILED")
+          try:
+              mi=media_info(path)
+              item={"title":"اجرای پرانرژی گروه درامر","description":"اجرای پویا و پرتحرک گروه درامر","source":"Wikimedia Commons"}
+              score,metrics=content_quality_gate(path,item,mi)
+              print("ATTRACTION_SCORE",score)
+              print("ATTRACTION_METRICS",json.dumps(metrics,ensure_ascii=False))
+              if not metrics.get("passed"):
+                  raise SystemExit("ATTRACTION_GATE_FAILED")
+              sent=send_video(path,item["title"],"Wikimedia Commons")
+              print("TELEGRAM_SENT",sent.get("message_id"))
+              print("TELEGRAM_FILE_ID",(sent.get("video") or {}).get("file_id"))
+          finally:
+              try: os.unlink(path)
+              except Exception: pass
+          PY
+      - name: Remove sample workflow
+        if: ${{ always() }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/attraction-quality-sample-2.yml
+          git commit -m "Remove attraction quality sample 2"
+          git push
