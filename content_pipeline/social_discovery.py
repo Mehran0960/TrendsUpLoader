@@ -64,6 +64,57 @@ def platform(url):
     if "aparat.com" in h: return "aparat"
     return "web"
 
+def decode_bing_url(value):
+    """Decode Bing's signed redirect URL into the real destination."""
+    from base64 import urlsafe_b64decode
+    s = str(value or "")
+    m = re.search(r"(?:^|[?&])u=(a1[^&]+)", s)
+    if not m:
+        return ""
+    token = m.group(1)
+    if token.startswith("a1"):
+        token = token[2:]
+    token += "=" * (-len(token) % 4)
+    try:
+        return urlsafe_b64decode(token.encode()).decode("utf-8", "ignore")
+    except Exception:
+        return ""
+
+def bing_search(query, limit=12):
+    """Zero-key fallback discovery using Bing's public HTML results."""
+    from html import unescape
+    from urllib.parse import quote_plus
+    headers = {"User-Agent": UA, "Accept-Language": "fa-IR,fa;q=0.9,en;q=0.7"}
+    url = "https://www.bing.com/search?count=%d&q=%s" % (limit, quote_plus(query))
+    r = requests.get(url, headers=headers, timeout=25)
+    r.raise_for_status()
+    text = r.text
+    out = []
+    seen = set()
+    blocks = re.findall(r'<li[^>]+class=["\\\'][^"\\\']*b_algo[^"\\\']*["\\\'].*?</li>', text, re.I | re.S)
+    for block in blocks:
+        hm = re.search(r'<a[^>]+href=["\\\']([^"\\\']+)["\\\'][^>]*>(.*?)</a>', block, re.I | re.S)
+        if not hm:
+            continue
+        dest = decode_bing_url(unescape(hm.group(1)))
+        if not dest:
+            dest = unescape(hm.group(1))
+        dest = dest.strip()
+        if not dest or dest in seen:
+            continue
+        seen.add(dest)
+        title = re.sub(r"<[^>]+>", " ", unescape(hm.group(2)))
+        title = re.sub(r"\\s+", " ", title).strip()
+        pm = re.search(r"<p[^>]*>(.*?)</p>", block, re.I | re.S)
+        desc = ""
+        if pm:
+            desc = re.sub(r"<[^>]+>", " ", unescape(pm.group(1)))
+            desc = re.sub(r"\\s+", " ", desc).strip()
+        out.append({"url": dest, "title": title, "description": desc, "raw": {"source":"bing_search"}})
+        if len(out) >= limit:
+            break
+    return out
+
 def flatten_results(obj):
     found = []
     def walk(x):
@@ -117,20 +168,67 @@ def extract_metrics(x):
 def main():
     now = datetime.now(timezone.utc)
     if not KEY:
-        OUT.parent.mkdir(parents=True, exist_ok=True)
-        existing = []
+        # Free fallback: Bing can expose public social URLs without an API key.
+        # This is discovery-only; media acquisition still happens downstream.
+        qidx = int(now.timestamp() // (30 * 60)) % len(QUERIES)
+        query_variants = [
+            QUERIES[qidx],
+            'site:instagram.com/reel (فارسی OR ایرانی OR ایران) (لایک OR likes OR پربازدید)',
+            'site:tiktok.com/@ (فارسی OR ایرانی OR ایران) (views OR لایک OR پربازدید)',
+            'site:aparat.com/v (ایران OR ایرانی) (بازدید OR پربازدید OR وایرال)',
+            'site:x.com (ویدئو OR ویدیو) (ایران OR ایرانی OR فارسی) (views OR likes)',
+        ]
+        found = []
+        for q in query_variants[:3]:
+            try:
+                found.extend(bing_search(q, limit=12))
+            except Exception as exc:
+                print("BING_SEARCH_FAIL", type(exc).__name__)
+        results = []
+        seen_urls = set()
+        for x in found:
+            p = platform(x["url"])
+            if p not in {"tiktok","instagram","youtube","x","aparat"}:
+                continue
+            if x["url"] in seen_urls:
+                continue
+            seen_urls.add(x["url"])
+            views, likes, comments, shares = extract_metrics(x)
+            text_blob = x["title"] + " " + x["description"]
+            persian = len(re.findall(r"[؀-ۿ]", text_blob))
+            results.append({
+                "id": hashlib.sha256(x["url"].encode()).hexdigest(),
+                "url": x["url"],
+                "title": x["title"],
+                "description": x["description"][:1500],
+                "platform": p,
+                "views": views,
+                "likes": likes,
+                "comments": comments,
+                "shares": shares,
+                "persian_signal": persian >= 3,
+                "discovered_at": now.isoformat(),
+                "source": "bing_search",
+                "query": qidx,
+            })
+        previous = []
         try:
-            existing = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
+            previous = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
         except Exception:
             pass
+        merged = {str(x.get("id")): x for x in previous}
+        for x in results:
+            merged[x["id"]] = x
+        items = list(merged.values())[:500]
+        OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps({
-            "version": 1,
+            "version": 2,
             "updated_at": now.isoformat(),
-            "status": "waiting_for_firecrawl_key",
-            "count": len(existing),
-            "items": existing[:500],
+            "status": "bing_fallback",
+            "count": len(items),
+            "items": items,
         }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print("FIRECRAWL_API_KEY_MISSING_STATE_WRITTEN")
+        print("BING_FALLBACK_ITEMS", len(results))
         return 0
 
     now = datetime.now(timezone.utc)
