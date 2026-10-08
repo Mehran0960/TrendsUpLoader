@@ -2,7 +2,8 @@
   "version": 1,
   "seen_keys": [],
   "seen_hashes": [
-    "492240c1a9e2a0db81b28adad7c9587fae4571796b3eb094a3abe944aa00342d"
+    "492240c1a9e2a0db81b28adad7c9587fae4571796b3eb094a3abe944aa00342d",
+    "6b75dcc6bccc6c9037195e448c6d6e71e1133ed6e7cc2b9b64026ea182da1720"
   ],
   "history": [
     {
@@ -18,22 +19,36 @@
       "width": 720,
       "height": 1280,
       "test_mode": true
+    },
+    {
+      "at": "2026-10-08T09:39:29.741631+00:00",
+      "title": "تست خروجی — ویدئوی داغ ایران",
+      "article": "https://www.hamshahrionline.ir/",
+      "video": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Cat_meowing_into_camera.webm",
+      "sha256": "6b75dcc6bccc6c9037195e448c6d6e71e1133ed6e7cc2b9b64026ea182da1720",
+      "telegram_message_id": 31,
+      "score": 100,
+      "cross_sources": 1,
+      "duration": 14.981,
+      "width": 430,
+      "height": 360,
+      "test_mode": true
     }
   ],
   "last_scan": "2026-10-08T09:31:55.227860+00:00",
   "last_result": "no_new_qualified_video",
   "last_copy": {
-    "at": "2026-10-08T04:11:20.623379+00:00",
+    "at": "2026-10-08T09:39:29.741631+00:00",
     "title": "تست خروجی — ویدئوی داغ ایران",
     "article": "https://www.hamshahrionline.ir/",
-    "video": "https://media.hamshahrionline.ir/d/2026/10/07/0/5414599.mp4?ts=1791386679000",
-    "sha256": "492240c1a9e2a0db81b28adad7c9587fae4571796b3eb094a3abe944aa00342d",
-    "telegram_message_id": 30,
+    "video": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Cat_meowing_into_camera.webm",
+    "sha256": "6b75dcc6bccc6c9037195e448c6d6e71e1133ed6e7cc2b9b64026ea182da1720",
+    "telegram_message_id": 31,
     "score": 100,
     "cross_sources": 1,
-    "duration": 131.04,
-    "width": 720,
-    "height": 1280,
+    "duration": 14.981,
+    "width": 430,
+    "height": 360,
     "test_mode": true
   }
 }
