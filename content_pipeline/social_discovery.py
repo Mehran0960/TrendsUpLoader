@@ -115,8 +115,22 @@ def extract_metrics(x):
     return views, likes, comments, shares
 
 def main():
+    now = datetime.now(timezone.utc)
     if not KEY:
-        print("FIRECRAWL_API_KEY_MISSING")
+        OUT.parent.mkdir(parents=True, exist_ok=True)
+        existing = []
+        try:
+            existing = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
+        except Exception:
+            pass
+        OUT.write_text(json.dumps({
+            "version": 1,
+            "updated_at": now.isoformat(),
+            "status": "waiting_for_firecrawl_key",
+            "count": len(existing),
+            "items": existing[:500],
+        }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print("FIRECRAWL_API_KEY_MISSING_STATE_WRITTEN")
         return 0
 
     now = datetime.now(timezone.utc)
