@@ -1,0 +1,91 @@
+name: IG Real Viral Proof 2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/ig-real-proof-2.yml"
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Start Cobalt
+        run: |
+          docker network create cobalt-net
+          docker run -d --init --name yt-session-generator --network cobalt-net ghcr.io/imputnet/yt-session-generator:webserver
+          docker run -d --init --name cobalt --network cobalt-net -p 9000:9000             -e API_URL=http://127.0.0.1:9000/             -e YOUTUBE_SESSION_SERVER=http://yt-session-generator:8080/token             ghcr.io/imputnet/cobalt:11
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:9000/ >/tmp/cobalt.txt 2>/dev/null; then
+              cat /tmp/cobalt.txt
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs cobalt || true
+          docker logs yt-session-generator || true
+          exit 1
+      - name: Install media tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --disable-pip-version-check requests pillow numpy opencv-python-headless "yt-dlp[default]" yt-dlp-ejs
+      - name: Real Persian Instagram proof with attraction gate
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          COBALT_API_URL: http://127.0.0.1:9000
+          TEST_URL: https://www.instagram.com/p/DdUBpsOAex0/
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          from content_pipeline.iran_video_hunter import local_download, media_info, content_quality_gate, send_video
+          url=os.environ["TEST_URL"]
+          item={
+              "title":"ویدئوی فارسی/ایرانی از یک پست پربازدید اینستاگرام",
+              "source":"Instagram public post",
+              "link":url,
+              "platform":"instagram",
+              "description":"منبع عمومی اینستاگرام با کپشن فارسی و تعامل بالا",
+              "channel_title":"Iranian public Instagram source"
+          }
+          print("REAL_SOCIAL_SOURCE", url)
+          path=local_download(url)
+          if not path:
+              raise SystemExit("INSTAGRAM_ACQUISITION_FAILED")
+          try:
+              mi=media_info(path)
+              print("MEDIA_INFO", json.dumps(mi, ensure_ascii=False))
+              if not mi or mi["duration"] < 2 or mi["duration"] > 900 or mi["width"] < 240 or mi["height"] < 240:
+                  raise SystemExit("MEDIA_GATE_FAILED")
+              attraction, cq=content_quality_gate(path,item,mi)
+              print("ATTRACTION_METRICS", json.dumps(cq, ensure_ascii=False))
+              if not cq.get("passed"):
+                  raise SystemExit("ATTRACTION_GATE_FAILED")
+              sent=send_video(path, "🔥 تست واقعی — ویدئوی پربازدید فارسی اینستاگرام", "Instagram public post")
+              print("TELEGRAM_SENT", sent.get("message_id"))
+          finally:
+              try: Path(path).unlink()
+              except Exception: pass
+          PY
+      - name: Cleanup proof workflow
+        if: ${{ always() }}
+        run: |
+          docker rm -f cobalt yt-session-generator 2>/dev/null || true
+          docker network rm cobalt-net 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/ig-real-proof-2.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove one-shot Instagram proof workflow'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
