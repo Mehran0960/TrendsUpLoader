@@ -187,6 +187,45 @@ def main():
     seen_keys = set(state.get("seen_keys", []))
     seen_hashes = set(state.get("seen_hashes", []))
 
+    one_shot_url = os.environ.get("ONE_SHOT_VIDEO_URL", "").strip()
+    if one_shot_url:
+        path = local_download(one_shot_url)
+        if not path:
+            raise RuntimeError("One-shot video download failed")
+        try:
+            h = hashlib.sha256(Path(path).read_bytes()).hexdigest()
+            mi = media_info(path)
+            if not mi or mi["duration"] < 2 or mi["duration"] > 600 or mi["width"] < 240 or mi["height"] < 240:
+                raise RuntimeError("One-shot video failed media quality gate")
+            if Path(path).stat().st_size > 50 * 1024 * 1024:
+                raise RuntimeError("One-shot video exceeds Telegram upload limit")
+            sent = send_video(path, "تست خروجی — ویدئوی داغ ایران", "Hamshahri Online")
+            entry = {
+                "at": datetime.now(timezone.utc).isoformat(),
+                "title": "تست خروجی — ویدئوی داغ ایران",
+                "article": "https://www.hamshahrionline.ir/",
+                "video": one_shot_url,
+                "sha256": h,
+                "telegram_message_id": sent.get("message_id"),
+                "score": 100,
+                "cross_sources": 1,
+                "duration": mi["duration"],
+                "width": mi["width"],
+                "height": mi["height"],
+                "test_mode": True,
+            }
+            state["seen_hashes"].append(h)
+            state["last_copy"] = entry
+            state["history"].append(entry)
+            save(state)
+            print(json.dumps({"ONE_SHOT_SENT": entry}, ensure_ascii=False, indent=2))
+            return 0
+        finally:
+            try:
+                os.unlink(path)
+            except Exception:
+                pass
+
     queries = [f"site:{d} ({term})" for d in SOURCE_DOMAINS for term in QUERY_TERMS[:4]]
     items = {}
     for q in queries:
