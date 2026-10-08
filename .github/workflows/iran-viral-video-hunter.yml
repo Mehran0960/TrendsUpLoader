@@ -5,16 +5,12 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    paths:
-      - "attention_state/one_shot_20261008.trigger"
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
 
 jobs:
   hunt:
-    if: github.event_name != 'push' || github.event.head_commit.message == 'ONE_SHOT_TEST'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
