@@ -707,9 +707,27 @@ def download_youtube_via_piped(url):
                     return path
         except Exception as exc:
             print("YOUTUBE_PIPED_FAIL", api, type(exc).__name__)
-    # YouTube's current web_safari path can expose HLS formats that do not
+    return None
+
+def local_download(url):
+    if M3U8.search(url):
+        return None
+    host = urlparse(url).netloc.lower()
+    social = any(x in host for x in [
+        "youtube.com","youtu.be","tiktok.com","instagram.com",
+        "x.com","twitter.com","aparat.com"
+    ])
+    if social:
+        cobalt_path = download_via_cobalt(url)
+        if cobalt_path:
+            return cobalt_path
+        if "youtube.com" in host or "youtu.be" in host:
+            piped_path = download_youtube_via_piped(url)
+            if piped_path:
+                return piped_path
+        # YouTube's current web_safari path can expose HLS formats that do not
     # require a PO token for GVS at present.
-    if "youtube.com" in host or "youtu.be" in host:
+        if "youtube.com" in host or "youtu.be" in host:
         outdir = tempfile.mkdtemp(prefix="ytdlp-hls-")
         try:
             p = subprocess.run(
@@ -734,24 +752,6 @@ def download_youtube_via_piped(url):
         except Exception as exc:
             print("YOUTUBE_HLS_ERROR", type(exc).__name__)
 
-    return None
-
-def local_download(url):
-    if M3U8.search(url):
-        return None
-    host = urlparse(url).netloc.lower()
-    social = any(x in host for x in [
-        "youtube.com","youtu.be","tiktok.com","instagram.com",
-        "x.com","twitter.com","aparat.com"
-    ])
-    if social:
-        cobalt_path = download_via_cobalt(url)
-        if cobalt_path:
-            return cobalt_path
-        if "youtube.com" in host or "youtu.be" in host:
-            piped_path = download_youtube_via_piped(url)
-            if piped_path:
-                return piped_path
         outdir = tempfile.mkdtemp(prefix="ytdlp-")
         try:
             p = subprocess.run(
