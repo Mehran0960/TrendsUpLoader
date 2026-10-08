@@ -1,0 +1,22 @@
+name: Python Syntax Check
+
+on:
+  push:
+    paths:
+      - "**.py"
+      - ".github/workflows/python-syntax-check.yml"
+  workflow_dispatch:
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile Python sources
+        run: |
+          python -m compileall -q content_pipeline
+          echo "PYTHON_SYNTAX_OK"
