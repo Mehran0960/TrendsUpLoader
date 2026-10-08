@@ -677,7 +677,6 @@ def main():
         '("ویدئو" OR "ویدیو") ("بازدید بالا" OR "بازدید میلیونی") ایران',
     ])
     queries.extend(platform_queries)
-[f"site:{d} ({term})" for d in SOURCE_DOMAINS for term in QUERY_TERMS[:8]]
     items = {}
 
     # Feed fresh YouTube chart discoveries from the global radar into the
