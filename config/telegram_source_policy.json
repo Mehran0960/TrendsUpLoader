@@ -1,16 +1,7 @@
 {
   "version": 1,
   "allow_all_channels_bot_can_receive": false,
-  "allowed_usernames": [
-    "keereker",
-    "khandbazar20",
-    "khandedar_tv",
-    "funirn",
-    "qdpie",
-    "drtel",
-    "teletabnak",
-    "Tabrizonline"
-  ],
+  "allowed_usernames": [],
   "allowed_chat_ids": [],
-  "note": "Bot must be a member of each source channel to receive new posts. Protected content is skipped. Allowlist is intentionally explicit."
+  "note": "Optional acquisition lane only. Sources require administrator permission to add the bot; main discovery does not depend on Telegram."
 }
