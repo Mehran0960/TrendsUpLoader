@@ -1,0 +1,48 @@
+name: Bing Social Links Probe
+
+on:
+  push:
+    paths:
+      - ".github/workflows/bing-social-links-probe.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse Bing links
+        run: |
+          python - <<'PY'
+          import requests,re,html
+          from urllib.parse import quote_plus
+          h={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36","Accept-Language":"fa-IR,fa;q=0.9,en;q=0.6"}
+          qs=[
+            'site:instagram.com/p reza_morche',
+            'site:imginn.com/p reza_morche',
+            'site:instagram.com/reel (فارسی OR ایرانی) (لایک OR likes OR پربازدید)'
+          ]
+          for q in qs:
+            r=requests.get("https://www.bing.com/search?count=20&q="+quote_plus(q),headers=h,timeout=20)
+            t=html.unescape(r.text)
+            hrefs=re.findall(r'<a[^>]+href=["\']([^"\']+)["\']',t,re.I)
+            matches=[u for u in hrefs if "instagram.com" in u.lower() or "imginn.com" in u.lower()]
+            print("\nQUERY",q,"STATUS",r.status_code,"HREF_MATCHES",len(matches))
+            for u in list(dict.fromkeys(matches))[:30]: print(u)
+            for pat in [r'<h2[^>]*>.*?<a[^>]+href=["\']([^"\']+)["\'].*?</a>']:
+              print("H2",re.findall(pat,t,re.I|re.S)[:10])
+          PY
+      - name: Cleanup
+        if: ${{ always() }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/bing-social-links-probe.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove Bing social links probe'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
