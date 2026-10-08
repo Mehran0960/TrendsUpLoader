@@ -1,8 +1,39 @@
 {
   "version": 1,
   "seen_keys": [],
-  "seen_hashes": [],
-  "history": [],
+  "seen_hashes": [
+    "492240c1a9e2a0db81b28adad7c9587fae4571796b3eb094a3abe944aa00342d"
+  ],
+  "history": [
+    {
+      "at": "2026-10-08T04:11:20.623379+00:00",
+      "title": "تست خروجی — ویدئوی داغ ایران",
+      "article": "https://www.hamshahrionline.ir/",
+      "video": "https://media.hamshahrionline.ir/d/2026/10/07/0/5414599.mp4?ts=1791386679000",
+      "sha256": "492240c1a9e2a0db81b28adad7c9587fae4571796b3eb094a3abe944aa00342d",
+      "telegram_message_id": 30,
+      "score": 100,
+      "cross_sources": 1,
+      "duration": 131.04,
+      "width": 720,
+      "height": 1280,
+      "test_mode": true
+    }
+  ],
   "last_scan": "2026-10-08T04:09:32.422722+00:00",
-  "last_result": "no_new_qualified_video"
+  "last_result": "no_new_qualified_video",
+  "last_copy": {
+    "at": "2026-10-08T04:11:20.623379+00:00",
+    "title": "تست خروجی — ویدئوی داغ ایران",
+    "article": "https://www.hamshahrionline.ir/",
+    "video": "https://media.hamshahrionline.ir/d/2026/10/07/0/5414599.mp4?ts=1791386679000",
+    "sha256": "492240c1a9e2a0db81b28adad7c9587fae4571796b3eb094a3abe944aa00342d",
+    "telegram_message_id": 30,
+    "score": 100,
+    "cross_sources": 1,
+    "duration": 131.04,
+    "width": 720,
+    "height": 1280,
+    "test_mode": true
+  }
 }
