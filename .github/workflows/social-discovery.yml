@@ -1,0 +1,45 @@
+name: Multi-Platform Social Discovery
+
+concurrency:
+  group: social-discovery
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "17 */4 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "content_pipeline/social_discovery.py"
+      - ".github/workflows/social-discovery.yml"
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install --disable-pip-version-check requests
+      - name: Discover cross-platform viral candidates
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: python content_pipeline/social_discovery.py
+      - name: Persist discovery state
+        if: ${{ always() && hashFiles('attention_state/social_discovery.json') != '' }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add attention_state/social_discovery.json
+          if git diff --cached --quiet; then
+            echo 'No social discovery state change.'
+            exit 0
+          fi
+          git commit -m 'Update multi-platform social discovery state'
+          git fetch origin main
+          git rebase origin/main
+          git push
