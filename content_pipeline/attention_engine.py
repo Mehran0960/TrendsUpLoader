@@ -182,7 +182,7 @@ DISCOVERY = {
     "tech": ["cool technology", "amazing gadget", "tech demo", "future technology"],
 }
 
-YOUTUBE_REGION_CODES = ["US", "GB", "CA", "IN", "BR", "DE", "TR"]
+YOUTUBE_REGION_CODES = ["IR", "US", "GB", "CA", "IN", "BR", "DE", "TR"]
 YOUTUBE_CHART_CATEGORY_IDS = ["15", "17", "23", "24", "26", "28"]
 YOUTUBE_CATEGORY_NAMES = {
     "15": "animals",
