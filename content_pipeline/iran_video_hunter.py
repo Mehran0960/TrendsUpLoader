@@ -24,6 +24,7 @@ UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.3
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 PIPED_FALLBACKS = ["https://pipedapi.kavin.rocks","https://pipedapi.leptons.xyz","https://pipedapi.nosebs.ru","https://pipedapi.adminforge.de","https://api.piped.yt"]
 PERSIAN_RE = re.compile(r"[\u0600-\u06ff]")
+COBALT_API_URL = os.environ.get("COBALT_API_URL", "").strip().rstrip("/")
 
 SOURCE_DOMAINS = [
     "hamshahrionline.ir","khabaronline.ir","mehrnews.com","isna.ir","irna.ir",
@@ -587,6 +588,50 @@ def article_candidates(item):
             out.append(u)
     return out[:6]
 
+def download_via_cobalt(url):
+    """Use a locally running Cobalt API as the primary social-media acquisition path."""
+    if not COBALT_API_URL:
+        return None
+    try:
+        r = session.post(
+            COBALT_API_URL + "/",
+            json={
+                "url": url,
+                "videoQuality": "720",
+                "downloadMode": "auto",
+                "youtubeVideoCodec": "h264",
+                "youtubeVideoContainer": "mp4",
+                "alwaysProxy": True,
+                "disableMetadata": True,
+            },
+            headers={"Accept": "application/json", "Content-Type": "application/json"},
+            timeout=35,
+        )
+        if not r.ok:
+            print("COBALT_HTTP_FAIL", r.status_code)
+            return None
+        data = r.json()
+        status = str(data.get("status") or "")
+        if status in {"redirect", "tunnel"} and str(data.get("url") or "").startswith("http"):
+            path = download_direct_file(str(data["url"]), ".mp4")
+            if path:
+                print("COBALT_ACQUIRED", platform_of(url), data.get("filename", ""))
+                return path
+        if status == "picker":
+            for item in data.get("picker") or []:
+                if str(item.get("type") or "") != "video":
+                    continue
+                u = str(item.get("url") or "")
+                if u.startswith("http"):
+                    path = download_direct_file(u, ".mp4")
+                    if path:
+                        print("COBALT_PICKER_ACQUIRED", platform_of(url))
+                        return path
+        print("COBALT_FAIL", platform_of(url), status, data.get("code", ""))
+    except Exception as exc:
+        print("COBALT_ERROR", type(exc).__name__)
+    return None
+
 def piped_api_instances():
     """Load current public Piped APIs, with static fallbacks."""
     urls = []
@@ -673,6 +718,9 @@ def local_download(url):
         "x.com","twitter.com","aparat.com"
     ])
     if social:
+        cobalt_path = download_via_cobalt(url)
+        if cobalt_path:
+            return cobalt_path
         if "youtube.com" in host or "youtu.be" in host:
             piped_path = download_youtube_via_piped(url)
             if piped_path:
