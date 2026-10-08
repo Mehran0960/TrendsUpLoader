@@ -1,0 +1,31 @@
+name: Article Mirror Native Telegram Proof
+
+concurrency:
+  group: article-mirror-native-proof
+  cancel-in-progress: true
+
+on:
+  push:
+    paths:
+      - ".github/workflows/article-video-proof.yml"
+      - "content_pipeline/article_video_proof.py"
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --disable-pip-version-check requests
+      - name: Extract Persian mirror and send native MP4
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python content_pipeline/article_video_proof.py
