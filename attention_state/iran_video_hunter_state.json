@@ -35,8 +35,8 @@
       "test_mode": true
     }
   ],
-  "last_scan": "2026-10-08T09:31:55.227860+00:00",
-  "last_result": "no_new_qualified_video",
+  "last_scan": "2026-10-08T16:19:31.189338+00:00",
+  "last_result": "no_high_demand_video_acquired",
   "last_copy": {
     "at": "2026-10-08T09:39:29.741631+00:00",
     "title": "تست خروجی — ویدئوی داغ ایران",
@@ -50,5 +50,8 @@
     "width": 430,
     "height": 360,
     "test_mode": true
-  }
+  },
+  "observations": {},
+  "last_ranked_candidates": [],
+  "last_acquisition_attempts": []
 }
