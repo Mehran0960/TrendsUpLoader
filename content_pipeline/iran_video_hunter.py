@@ -21,7 +21,9 @@ SOURCE_DOMAINS = [
 ]
 QUERY_TERMS = [
     "ویدئو","ویدیو","فیلم","لحظه","جنجالی","پربازدید","عجیب","باورنکردنی",
-    "واکنش","مردم","فوتبال","سلبریتی","ایران"
+    "واکنش","مردم","فوتبال","سلبریتی","ایران",
+    "خنده دار","بامزه","سوتی","فیل","گربه","سگ","شوخی","درگیری","عکس العمل",
+    "عجیب ترین","غافلگیرکننده","اتفاق خنده دار","ویدئوی کوتاه"
 ]
 BLOCK = re.compile(r"\b(porn|sex|sexual|nsfw|gore|self-harm)\b", re.I)
 VIDEO_EXT = re.compile(r"\.(?:mp4|webm|mov)(?:\?|#|$)", re.I)
@@ -174,11 +176,40 @@ def send_video(path, title, source):
 
 def score(item, duration, cross_count):
     title = item["title"]
-    cues = sum(1 for w in ["جنجالی","باورنکردنی","عجیب","لحظه","پربازدید","واکنش","فوری","افشا","غافلگیر","وایرال"] if w in title)
+    viral_cues = [
+        "جنجالی","باورنکردنی","عجیب","لحظه","پربازدید","واکنش",
+        "فوری","افشا","غافلگیر","وایرال","درگیری","کشف","ممنوع"
+    ]
+    fun_cues = [
+        "خنده دار","بامزه","سوتی","شوخی","فیل","گربه","سگ","طنز",
+        "کمدی","فان","مسخره","باحال","عجیب ترین","غافلگیرکننده"
+    ]
+    cues = sum(1 for w in viral_cues if w in title)
+    fun = sum(1 for w in fun_cues if w in title)
     freshness = max(0.0, 1.0 - item["age_hours"] / 48.0)
     source_boost = 1 if any(d in item["link"] for d in SOURCE_DOMAINS) else 0
-    duration_score = 1.0 if 4 <= duration <= 60 else (0.5 if duration <= 120 else 0.0)
-    return round(45*freshness + 12*min(cues,4) + 8*min(cross_count,4) + 5*source_boost + 10*duration_score, 2)
+
+    # Entertainment-first: short clips receive a meaningful advantage.
+    if 5 <= duration <= 20:
+        duration_score = 1.0
+    elif 20 < duration <= 45:
+        duration_score = 0.82
+    elif 45 < duration <= 75:
+        duration_score = 0.58
+    elif duration <= 120:
+        duration_score = 0.25
+    else:
+        duration_score = 0.0
+
+    return round(
+        39*freshness
+        + 9*min(cues,4)
+        + 12*min(fun,3)
+        + 8*min(cross_count,4)
+        + 4*source_boost
+        + 18*duration_score,
+        2,
+    )
 
 def main():
     if not TOKEN or not TARGET:
@@ -226,7 +257,15 @@ def main():
             except Exception:
                 pass
 
-    queries = [f"site:{d} ({term})" for d in SOURCE_DOMAINS for term in QUERY_TERMS[:4]]
+    platform_queries = [
+        'site:youtube.com/shorts ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش") ایران',
+        'site:instagram.com/reel ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش") ایران',
+        'site:tiktok.com ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش") ایران',
+        'site:aparat.com/v ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش")',
+        'site:x.com ("ویدئو" OR "ویدیو") ("خنده دار" OR "عجیب" OR "واکنش") ایران',
+    ]
+    queries = [f"site:{d} ({term})" for d in SOURCE_DOMAINS for term in QUERY_TERMS[:8]]
+    queries.extend(platform_queries)
     items = {}
     for q in queries:
         try:
