@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - ".github/workflows/viral-hunter-fast-live.yml"
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
