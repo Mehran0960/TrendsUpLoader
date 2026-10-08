@@ -8,6 +8,13 @@ from urllib.parse import quote_plus, urlparse
 import requests
 import xml.etree.ElementTree as ET
 
+# Reuse the mature visual/hook scorer from the existing pipeline.
+try:
+    from content_pipeline.attention_engine import visual_score, source_hook_score
+except Exception:
+    visual_score = None
+    source_hook_score = None
+
 ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / "attention_state" / "iran_video_hunter_state.json"
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -196,6 +203,68 @@ def telegram(method, payload):
         raise RuntimeError(data)
     return data.get("result")
 
+def content_quality_gate(path, item, mi):
+    """Reject clips that are merely short; require a real visual event/hook."""
+    if visual_score is None or source_hook_score is None:
+        # Fail open only for the discovery engine; direct tests remain possible.
+        return 0.0, {}
+
+    try:
+        visual = visual_score(path)
+    except Exception as exc:
+        print("VISUAL_SCORE_FAIL", type(exc).__name__)
+        return 0.0, {}
+
+    src = {
+        "title": item.get("title", ""),
+        "description": item.get("title", ""),
+        "category": "human_funny",
+        "provider": "social_or_web",
+        "attention_score": 78.0,
+    }
+    try:
+        hook = float(source_hook_score(src, visual) or 0.0)
+    except Exception:
+        hook = 0.0
+
+    first_event = float(visual.get("hook_first_event_score") or 0.0)
+    event = float(visual.get("hook_event_score") or 0.0)
+    structure = float(visual.get("hook_structure_score") or 0.0)
+    novelty = float(visual.get("visual_novelty_score") or 0.0)
+    visual_total = float(visual.get("score") or 0.0)
+
+    # The key anti-boring gate: a clip needs an actual early event or a
+    # clearly developing/payoff structure. Static close-ups and generic pet
+    # footage usually fail here even when they are short and visually clean.
+    passed = (
+        hook >= 58.0
+        and visual_total >= 52.0
+        and (
+            (first_event >= 48.0 and event >= 50.0)
+            or (structure >= 58.0 and novelty >= 32.0)
+        )
+    )
+
+    quality = round(
+        0.30*hook
+        + 0.25*event
+        + 0.20*first_event
+        + 0.15*structure
+        + 0.10*novelty,
+        2,
+    )
+    metrics = {
+        "hook_score": round(hook,2),
+        "visual_score": round(visual_total,2),
+        "hook_event_score": round(event,2),
+        "hook_first_event_score": round(first_event,2),
+        "hook_structure_score": round(structure,2),
+        "visual_novelty_score": round(novelty,2),
+        "content_quality_score": quality,
+        "passed": passed,
+    }
+    return quality, metrics
+
 def send_video(path, title, source):
     cap = ("🔥 ویدئوی داغ ایران\n\n" + title[:700] + "\n\n" +
            "منبع کشف: " + source[:120]).strip()
@@ -381,11 +450,19 @@ def main():
                 ]
                 if w in title
             )
-            # Freshness alone is not enough: require either a strong
-            # curiosity cue or corroboration across multiple sources.
-            if sc < 55 or (virality_cues == 0 and cross < 2):
+            content_quality, cq = content_quality_gate(path, item, mi)
+            print("CONTENT_QUALITY", item["title"], cq)
+            # Shortness is a preference, not a substitute for entertainment.
+            if (
+                sc < 55
+                or content_quality < 48
+                or not cq.get("passed", False)
+                or (virality_cues == 0 and cross < 2)
+            ):
                 os.unlink(path)
                 continue
+            item["content_quality_score"] = content_quality
+            item["content_quality_metrics"] = cq
             chosen = (item, url, path, h, mi, sc, cross)
             break
         except Exception:
@@ -405,7 +482,9 @@ def main():
         "at": datetime.now(timezone.utc).isoformat(),
         "title": item["title"], "article": item["link"], "video": url,
         "sha256": h, "telegram_message_id": sent.get("message_id"),
-        "score": sc, "cross_sources": cross, "duration": mi["duration"],
+        "score": sc, "content_quality_score": item.get("content_quality_score"),
+        "content_quality_metrics": item.get("content_quality_metrics", {}),
+        "cross_sources": cross, "duration": mi["duration"],
         "width": mi["width"], "height": mi["height"]
     }
     state["seen_keys"].append(item["key"])
