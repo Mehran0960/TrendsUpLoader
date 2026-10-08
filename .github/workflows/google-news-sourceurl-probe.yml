@@ -1,0 +1,40 @@
+name: Google News Source URL Probe
+
+on:
+  push:
+    paths:
+      - ".github/workflows/google-news-sourceurl-probe.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect source URL attribute
+        run: |
+          python - <<'PY'
+          import requests,urllib.parse,xml.etree.ElementTree as ET,html
+          q='site:imginn.com/p/ (ایران OR ایرانی OR فارسی) (ویدئو OR ویدیو OR وایرال)'
+          u="https://news.google.com/rss/search?q="+urllib.parse.quote_plus(q)+"&hl=fa&gl=IR&ceid=IR:fa"
+          root=ET.fromstring(requests.get(u,headers={"User-Agent":"Mozilla/5.0"},timeout=25).content)
+          for it in root.findall(".//item")[:12]:
+            src=it.find("source")
+            print("TITLE",html.unescape((it.findtext("title") or "").strip()))
+            print("SOURCE_TEXT",(src.text or "") if src is not None else "")
+            print("SOURCE_ATTRS",src.attrib if src is not None else {})
+          PY
+      - name: Cleanup
+        if: ${{ always() }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/google-news-sourceurl-probe.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove Google News source URL probe'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
