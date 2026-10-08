@@ -527,6 +527,8 @@ def main():
             item["demand_metrics"] = dm
             item["content_quality_score"] = content_quality
             item["content_quality_metrics"] = cq
+            chosen = (item, url, path, h, mi, sc, cross)
+            break
 
         except Exception:
             try: os.unlink(path)
