@@ -9,6 +9,8 @@ OUT = Path("/tmp/viral-proof.mp4")
 subprocess.run([
     "yt-dlp", "--no-playlist", "--no-warnings",
     "--js-runtimes", "deno",
+    "--extractor-args", "youtubepot-bgutilhttp:base_url=http://127.0.0.1:4416",
+    "--extractor-args", "youtube:player-client=mweb",
     "--max-filesize", "50M",
     "-f", "best[ext=mp4][height<=720]/best[ext=mp4]/best",
     "-o", str(OUT),
