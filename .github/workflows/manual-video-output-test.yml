@@ -20,7 +20,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          VIDEO_URL: https://www.youtube.com/watch?v=XMqKI14h6jo
+          VIDEO_URL: https://commons.wikimedia.org/wiki/Special:Redirect/file/Cat%20Jumpscare.webm
         run: |
           yt-dlp --no-playlist --no-warnings -f "b[ext=mp4]" -o "test.mp4" "$VIDEO_URL"
           python - <<'PY'
@@ -33,7 +33,7 @@ jobs:
                   f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendVideo",
                   data={
                       "chat_id":os.environ["TELEGRAM_CHAT_ID"],
-                      "caption":"🔥 تست کیفیت — Short کمدی فارسی",
+                      "caption":"🔥 تست کیفیت — کلیپ کوتاه اتفاق‌دار",
                       "supports_streaming":"true",
                   },
                   files={"video":("quality-test.mp4",f,"video/mp4")},
