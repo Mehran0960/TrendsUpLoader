@@ -1,0 +1,46 @@
+name: Imginn Profile Probe 2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/imginn-profile-probe-2.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe
+        run: |
+          python - <<'PY'
+          import re, requests, html
+          h={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36","Accept-Language":"fa-IR,fa;q=0.9,en;q=0.6"}
+          for user in ["in_filma","iranintltv","persian"]:
+            u=f"https://imginn.com/{user}/"
+            r=requests.get(u,headers=h,timeout=25)
+            print("\nUSER",user,"STATUS",r.status_code,"LEN",len(r.text),"TYPE",r.headers.get("content-type"))
+            t=html.unescape(r.text).replace("\\/","/")
+            posts=list(dict.fromkeys(re.findall(r'(?:https://imginn.com)?/p/[A-Za-z0-9_-]+/?',t)))
+            print("POSTS",posts[:20])
+            print("HAS_SCONTENT", "scontent" in t, "HAS_VIDEO", ".mp4" in t)
+            for m in re.finditer(r'scontent[^"\\\'<>\\s]+',t,re.I):
+              s=t[max(0,m.start()-180):m.end()+180]
+              if ".mp4" in s:
+                print("CDN_SNIP",s[:1000])
+                break
+          PY
+      - name: Cleanup
+        if: ${{ always() }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/imginn-profile-probe-2.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove Imginn probe'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
