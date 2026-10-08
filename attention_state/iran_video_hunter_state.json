@@ -35,7 +35,7 @@
       "test_mode": true
     }
   ],
-  "last_scan": "2026-10-08T17:05:44.992535+00:00",
+  "last_scan": "2026-10-08T17:17:35.964410+00:00",
   "last_result": "no_high_demand_video_acquired",
   "last_copy": {
     "at": "2026-10-08T09:39:29.741631+00:00",
@@ -51,7 +51,1466 @@
     "height": 360,
     "test_mode": true
   },
-  "observations": {},
-  "last_ranked_candidates": [],
-  "last_acquisition_attempts": []
+  "observations": {
+    "youtube:5EQyPC2tY_U": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 34228195,
+      "likes": 412199,
+      "comments": 1906,
+      "shares": 0
+    },
+    "youtube:MSPVq-5sbCg": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 27561715,
+      "likes": 631341,
+      "comments": 5683,
+      "shares": 0
+    },
+    "youtube:bJkVNDRksDY": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 58367506,
+      "likes": 1224677,
+      "comments": 4696,
+      "shares": 0
+    },
+    "youtube:1xI_lsZ4sxI": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 31270115,
+      "likes": 861915,
+      "comments": 4226,
+      "shares": 0
+    },
+    "youtube:8tVozXGS33k": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 4916890,
+      "likes": 203250,
+      "comments": 10867,
+      "shares": 0
+    },
+    "youtube:plN7JMbadRg": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 180967293,
+      "likes": 3341405,
+      "comments": 123977,
+      "shares": 0
+    },
+    "youtube:_1R5FKG_MC0": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 5871941,
+      "likes": 279519,
+      "comments": 4521,
+      "shares": 0
+    },
+    "youtube:ssRH9gJdJdM": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 7478269,
+      "likes": 118343,
+      "comments": 539,
+      "shares": 0
+    },
+    "youtube:aN8dInVmhV0": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 12357194,
+      "likes": 284980,
+      "comments": 8906,
+      "shares": 0
+    },
+    "youtube:rZPvGAiRYlo": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 16606512,
+      "likes": 517117,
+      "comments": 4407,
+      "shares": 0
+    },
+    "youtube:zP3iyQFKfaU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3707058,
+      "likes": 89102,
+      "comments": 495,
+      "shares": 0
+    },
+    "youtube:7Az0iUaWsSw": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 8393091,
+      "likes": 94916,
+      "comments": 544,
+      "shares": 0
+    },
+    "youtube:aaGyayYKfMk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3027554,
+      "likes": 27986,
+      "comments": 195,
+      "shares": 0
+    },
+    "youtube:NlZpr4B59aE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 33244058,
+      "likes": 748478,
+      "comments": 11727,
+      "shares": 0
+    },
+    "youtube:C-GZdIT1_I0": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 9993176,
+      "likes": 451247,
+      "comments": 6059,
+      "shares": 0
+    },
+    "youtube:48xCRlB3QRA": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 15733471,
+      "likes": 253882,
+      "comments": 1311,
+      "shares": 0
+    },
+    "youtube:-oVQgcuw_sk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3541716,
+      "likes": 49183,
+      "comments": 270,
+      "shares": 0
+    },
+    "youtube:V1-mpBqKErE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 6850395,
+      "likes": 0,
+      "comments": 354,
+      "shares": 0
+    },
+    "youtube:jF1AxPovjrc": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 23578387,
+      "likes": 344588,
+      "comments": 1785,
+      "shares": 0
+    },
+    "youtube:m40siw6NUn4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 7034968,
+      "likes": 112854,
+      "comments": 330,
+      "shares": 0
+    },
+    "youtube:_k2w1cC69qY": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 21135800,
+      "likes": 402363,
+      "comments": 1162,
+      "shares": 0
+    },
+    "youtube:7pxPckvZXfQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 8917002,
+      "likes": 193514,
+      "comments": 1359,
+      "shares": 0
+    },
+    "youtube:Cw8z4CkJrio": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 16662862,
+      "likes": 361444,
+      "comments": 1274,
+      "shares": 0
+    },
+    "youtube:zVVh37YkWtU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 16108360,
+      "likes": 164381,
+      "comments": 1991,
+      "shares": 0
+    },
+    "youtube:sF9X6u1QG7A": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2784272,
+      "likes": 137461,
+      "comments": 3974,
+      "shares": 0
+    },
+    "youtube:NBiYnk1VuOo": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 9074461,
+      "likes": 354350,
+      "comments": 4237,
+      "shares": 0
+    },
+    "youtube:PaBLPgZt-WE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 4702966,
+      "likes": 158854,
+      "comments": 2542,
+      "shares": 0
+    },
+    "youtube:1b8cx1EqW_g": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 10582923,
+      "likes": 238920,
+      "comments": 170,
+      "shares": 0
+    },
+    "youtube:XHdTdHE8EWU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1646747,
+      "likes": 37241,
+      "comments": 1891,
+      "shares": 0
+    },
+    "youtube:XIr-C83fYwU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 6928478,
+      "likes": 84272,
+      "comments": 751,
+      "shares": 0
+    },
+    "youtube:5vdzBxLjVqU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 6669277,
+      "likes": 90926,
+      "comments": 207,
+      "shares": 0
+    },
+    "youtube:FW_PPcr1sPE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 16930123,
+      "likes": 450327,
+      "comments": 26174,
+      "shares": 0
+    },
+    "youtube:Xmq5Dtek2lg": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 7391156,
+      "likes": 169810,
+      "comments": 789,
+      "shares": 0
+    },
+    "youtube:7lHS-C6mIqo": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1787585,
+      "likes": 36523,
+      "comments": 633,
+      "shares": 0
+    },
+    "youtube:lS4DJMtQTBs": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 8263344,
+      "likes": 126450,
+      "comments": 1708,
+      "shares": 0
+    },
+    "youtube:rcVDxHE1EwQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 6445645,
+      "likes": 154972,
+      "comments": 1224,
+      "shares": 0
+    },
+    "youtube:D2Ej0fXFReQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 13051860,
+      "likes": 348070,
+      "comments": 21515,
+      "shares": 0
+    },
+    "youtube:xSPgFH5yBRE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 18191961,
+      "likes": 217866,
+      "comments": 16722,
+      "shares": 0
+    },
+    "youtube:3d7oVagsV_g": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 9854512,
+      "likes": 324687,
+      "comments": 2996,
+      "shares": 0
+    },
+    "youtube:3d6HPLENFt4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1133651,
+      "likes": 22897,
+      "comments": 2146,
+      "shares": 0
+    },
+    "youtube:CH6WrSKvNOY": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 12248003,
+      "likes": 420577,
+      "comments": 17543,
+      "shares": 0
+    },
+    "youtube:AOzvvHLDcV0": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3061633,
+      "likes": 34200,
+      "comments": 582,
+      "shares": 0
+    },
+    "youtube:3DpCX_bXDlY": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1949302,
+      "likes": 41549,
+      "comments": 705,
+      "shares": 0
+    },
+    "youtube:UI4Xat5hmOg": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 4479497,
+      "likes": 174348,
+      "comments": 862,
+      "shares": 0
+    },
+    "youtube:Rz_SB57gSA4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 5011852,
+      "likes": 28693,
+      "comments": 430,
+      "shares": 0
+    },
+    "youtube:lGUnJhOdzKQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1445349,
+      "likes": 33266,
+      "comments": 27,
+      "shares": 0
+    },
+    "youtube:aH-yY0Lttj4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 5178244,
+      "likes": 117368,
+      "comments": 408,
+      "shares": 0
+    },
+    "youtube:QXDCp7jVO8M": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 19845852,
+      "likes": 0,
+      "comments": 956,
+      "shares": 0
+    },
+    "youtube:fVOleLZYAQo": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 34001005,
+      "likes": 178298,
+      "comments": 29,
+      "shares": 0
+    },
+    "youtube:Uxx0p2ER-pk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3351776,
+      "likes": 18837,
+      "comments": 2912,
+      "shares": 0
+    },
+    "youtube:LDPKbvZw2aA": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2662734,
+      "likes": 116464,
+      "comments": 3063,
+      "shares": 0
+    },
+    "youtube:Jrzx0YYH43I": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 10968530,
+      "likes": 48059,
+      "comments": 27,
+      "shares": 0
+    },
+    "youtube:Fhx0TUWY5hk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 9307753,
+      "likes": 152218,
+      "comments": 266,
+      "shares": 0
+    },
+    "youtube:SGJWmSgMOIk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3308216,
+      "likes": 36557,
+      "comments": 329,
+      "shares": 0
+    },
+    "youtube:1Z9fYLhypiQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2160977,
+      "likes": 77098,
+      "comments": 331,
+      "shares": 0
+    },
+    "youtube:9z3a7Nb4QSk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1635644,
+      "likes": 34124,
+      "comments": 94,
+      "shares": 0
+    },
+    "youtube:2iyXoJN3p2c": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 17880498,
+      "likes": 318337,
+      "comments": 1818,
+      "shares": 0
+    },
+    "youtube:417Lc5wTynU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 4082803,
+      "likes": 58751,
+      "comments": 110,
+      "shares": 0
+    },
+    "youtube:5Jt65A2L41g": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 5625779,
+      "likes": 124026,
+      "comments": 1585,
+      "shares": 0
+    },
+    "youtube:tIp8K20dUU8": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 14404238,
+      "likes": 183348,
+      "comments": 305,
+      "shares": 0
+    },
+    "youtube:LsJlzH9ihIo": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 42270418,
+      "likes": 845314,
+      "comments": 818,
+      "shares": 0
+    },
+    "youtube:mwDwps_Rss4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 803792,
+      "likes": 7138,
+      "comments": 183,
+      "shares": 0
+    },
+    "youtube:tsUJ8RMTv1o": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 5393362,
+      "likes": 259473,
+      "comments": 12547,
+      "shares": 0
+    },
+    "youtube:nJMztbwLAFE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 10235112,
+      "likes": 103645,
+      "comments": 90,
+      "shares": 0
+    },
+    "youtube:AJv18_xXPoQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2817944,
+      "likes": 75597,
+      "comments": 1216,
+      "shares": 0
+    },
+    "youtube:K27LaEAR6YU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3708274,
+      "likes": 24267,
+      "comments": 237,
+      "shares": 0
+    },
+    "youtube:beBJi_YKB9s": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 7328027,
+      "likes": 119760,
+      "comments": 1051,
+      "shares": 0
+    },
+    "youtube:3NF5i5o127s": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 12970936,
+      "likes": 154634,
+      "comments": 1469,
+      "shares": 0
+    },
+    "youtube:BvdVQC2Ff7c": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 419909,
+      "likes": 3688,
+      "comments": 24,
+      "shares": 0
+    },
+    "youtube:W-6RfYYx6JQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2317329,
+      "likes": 28414,
+      "comments": 570,
+      "shares": 0
+    },
+    "youtube:Vfe7xUFaYEg": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 3878858,
+      "likes": 80787,
+      "comments": 388,
+      "shares": 0
+    },
+    "youtube:Lt2RT2UaGRo": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2448279,
+      "likes": 38446,
+      "comments": 705,
+      "shares": 0
+    },
+    "youtube:tArTTwrusso": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1041724,
+      "likes": 32989,
+      "comments": 16,
+      "shares": 0
+    },
+    "youtube:C1rBSssJI0Q": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2909455,
+      "likes": 41961,
+      "comments": 8592,
+      "shares": 0
+    },
+    "youtube:o5RxKXerG0s": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1867709,
+      "likes": 5581,
+      "comments": 48,
+      "shares": 0
+    },
+    "youtube:6TbiqrFTis4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 1273959,
+      "likes": 23722,
+      "comments": 153,
+      "shares": 0
+    },
+    "youtube:00zr4UUe2K4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 18605941,
+      "likes": 154540,
+      "comments": 14506,
+      "shares": 0
+    },
+    "youtube:M0kPLTHQ02I": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 2832469,
+      "likes": 34159,
+      "comments": 49,
+      "shares": 0
+    },
+    "youtube:maKQFZVJytw": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 11395910,
+      "likes": 265294,
+      "comments": 729,
+      "shares": 0
+    },
+    "youtube:Oq4XgFTdKHM": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 7997500,
+      "likes": 51675,
+      "comments": 26,
+      "shares": 0
+    },
+    "youtube:KqgP39RmckE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 64438,
+      "likes": 3172,
+      "comments": 35,
+      "shares": 0
+    },
+    "youtube:UNHgJ9l6124": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 74398,
+      "likes": 1000,
+      "comments": 22,
+      "shares": 0
+    },
+    "youtube:KRSgPMTE-2c": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 42927,
+      "likes": 1612,
+      "comments": 14,
+      "shares": 0
+    },
+    "youtube:-A2VOP4G2jQ": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 55129,
+      "likes": 2807,
+      "comments": 157,
+      "shares": 0
+    },
+    "youtube:xDcHV5wHjVE": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 43385,
+      "likes": 745,
+      "comments": 15,
+      "shares": 0
+    },
+    "youtube:QZrjJaIfy00": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 40957,
+      "likes": 640,
+      "comments": 18,
+      "shares": 0
+    },
+    "youtube:j0dL53Gi31U": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 37233,
+      "likes": 1540,
+      "comments": 17,
+      "shares": 0
+    },
+    "youtube:G_L6PEEV5IM": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 43017,
+      "likes": 1284,
+      "comments": 33,
+      "shares": 0
+    },
+    "youtube:5rotUjs9Sv4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 36992,
+      "likes": 477,
+      "comments": 103,
+      "shares": 0
+    },
+    "youtube:Uze6GH7R5Lk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 28950,
+      "likes": 871,
+      "comments": 158,
+      "shares": 0
+    },
+    "youtube:NXAE3Id_dzg": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 31512,
+      "likes": 830,
+      "comments": 62,
+      "shares": 0
+    },
+    "youtube:pZ7CrPdQ1Wc": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 28470,
+      "likes": 1314,
+      "comments": 24,
+      "shares": 0
+    },
+    "youtube:1FEdT0jTRsI": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 30912,
+      "likes": 88,
+      "comments": 1,
+      "shares": 0
+    },
+    "youtube:xmtbFGz32HU": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 20954,
+      "likes": 661,
+      "comments": 105,
+      "shares": 0
+    },
+    "youtube:43omnpjPRhY": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 21075,
+      "likes": 294,
+      "comments": 81,
+      "shares": 0
+    },
+    "youtube:GjSTY2H5198": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 11566,
+      "likes": 346,
+      "comments": 30,
+      "shares": 0
+    },
+    "youtube:Es0aGFNF-O4": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 21723,
+      "likes": 159,
+      "comments": 0,
+      "shares": 0
+    },
+    "youtube:AeLByfTiDTY": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 17390,
+      "likes": 596,
+      "comments": 76,
+      "shares": 0
+    },
+    "youtube:1hi8Udeiau8": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 18510,
+      "likes": 479,
+      "comments": 4,
+      "shares": 0
+    },
+    "youtube:Sv5WEB1-lMk": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 16610,
+      "likes": 116,
+      "comments": 1,
+      "shares": 0
+    },
+    "youtube:2NKL5Zl-aAM": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 12610,
+      "likes": 392,
+      "comments": 16,
+      "shares": 0
+    },
+    "youtube:D77dR0yMWbo": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 6486,
+      "likes": 403,
+      "comments": 28,
+      "shares": 0
+    },
+    "youtube:jz9XJZZhdsc": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 9322,
+      "likes": 270,
+      "comments": 13,
+      "shares": 0
+    },
+    "youtube:c1p6zA7_VDw": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 6290,
+      "likes": 114,
+      "comments": 26,
+      "shares": 0
+    },
+    "youtube:QB1j_KdsnZY": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 7145,
+      "likes": 486,
+      "comments": 20,
+      "shares": 0
+    },
+    "youtube:o_wHWz-kzcI": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 265502,
+      "likes": 11950,
+      "comments": 74,
+      "shares": 0
+    },
+    "youtube:xBJ9kmcf-7I": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 288552,
+      "likes": 7552,
+      "comments": 750,
+      "shares": 0
+    },
+    "youtube:StkMKgN5nR8": {
+      "at": "2026-10-08T17:14:44.230698+00:00",
+      "views": 82567,
+      "likes": 418,
+      "comments": 277,
+      "shares": 0
+    }
+  },
+  "last_ranked_candidates": [
+    {
+      "title": "Can You Solve This Stolen Money Puzzle? 🤔",
+      "platform": "youtube",
+      "demand_score": 84.58,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 9993176,
+        "likes": 451247,
+        "comments": 6059,
+        "shares": 0,
+        "velocity_views_per_hour": 459616.01,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.045156,
+        "share_rate": 0.0,
+        "comment_rate": 0.000606,
+        "age_hours": 21.74,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=C-GZdIT1_I0"
+    },
+    {
+      "title": "I’m gonna start handing out PCs",
+      "platform": "youtube",
+      "demand_score": 83.9,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 4916890,
+        "likes": 203250,
+        "comments": 10867,
+        "shares": 0,
+        "velocity_views_per_hour": 76057.32,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.041337,
+        "share_rate": 0.0,
+        "comment_rate": 0.00221,
+        "age_hours": 64.65,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=8tVozXGS33k"
+    },
+    {
+      "title": "Eles Encontraram ISSO Dentro da Cobra 😱🐍",
+      "platform": "youtube",
+      "demand_score": 83.24,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 2784272,
+        "likes": 137461,
+        "comments": 3974,
+        "shares": 0,
+        "velocity_views_per_hour": 68349.55,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.049371,
+        "share_rate": 0.0,
+        "comment_rate": 0.001427,
+        "age_hours": 40.74,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=sF9X6u1QG7A"
+    },
+    {
+      "title": "JAILER 2 - Official Trailer | Superstar Rajinikanth | Sun Pictures | Anirudh | Nelson",
+      "platform": "youtube",
+      "demand_score": 83.16,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 16930123,
+        "likes": 450327,
+        "comments": 26174,
+        "shares": 0,
+        "velocity_views_per_hour": 220566.52,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.026599,
+        "share_rate": 0.0,
+        "comment_rate": 0.001546,
+        "age_hours": 76.76,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=FW_PPcr1sPE"
+    },
+    {
+      "title": "SPECIALIST'S INSPECT MY $1.7M BROKEN YACHT",
+      "platform": "youtube",
+      "demand_score": 82.06,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 13051860,
+        "likes": 348070,
+        "comments": 21515,
+        "shares": 0,
+        "velocity_views_per_hour": 135615.17,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.026668,
+        "share_rate": 0.0,
+        "comment_rate": 0.001648,
+        "age_hours": 96.24,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=D2Ej0fXFReQ"
+    },
+    {
+      "title": "The FUNNIEST VIDEO EVER #fypviralシ #fypreelsシ゚viralシ #fypシ゚viralシfypシ゚viralシalシ #fypageシ #foryoupage",
+      "platform": "youtube",
+      "demand_score": 81.87,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 12248003,
+        "likes": 420577,
+        "comments": 17543,
+        "shares": 0,
+        "velocity_views_per_hour": 66597.73,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.034338,
+        "share_rate": 0.0,
+        "comment_rate": 0.001432,
+        "age_hours": 183.91,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=CH6WrSKvNOY"
+    },
+    {
+      "title": "Yanlış bilen ıslanıyor😂",
+      "platform": "youtube",
+      "demand_score": 81.76,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 2909455,
+        "likes": 41961,
+        "comments": 8592,
+        "shares": 0,
+        "velocity_views_per_hour": 53315.72,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.014422,
+        "share_rate": 0.0,
+        "comment_rate": 0.002953,
+        "age_hours": 54.57,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=C1rBSssJI0Q"
+    },
+    {
+      "title": "Guy Saves Iguana Swimming Miles From Shore",
+      "platform": "youtube",
+      "demand_score": 81.51,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 5393362,
+        "likes": 259473,
+        "comments": 12547,
+        "shares": 0,
+        "velocity_views_per_hour": 45594.39,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.04811,
+        "share_rate": 0.0,
+        "comment_rate": 0.002326,
+        "age_hours": 118.29,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=tsUJ8RMTv1o"
+    },
+    {
+      "title": "Eat Everything In A Grocery Store, Win $1,000,000",
+      "platform": "youtube",
+      "demand_score": 81.44,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 180967293,
+        "likes": 3341405,
+        "comments": 123977,
+        "shares": 0,
+        "velocity_views_per_hour": 1492572.56,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.018464,
+        "share_rate": 0.0,
+        "comment_rate": 0.000685,
+        "age_hours": 121.25,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=plN7JMbadRg"
+    },
+    {
+      "title": "The helpful bird #nature #nationalgeographic #wildanimals #shorts",
+      "platform": "youtube",
+      "demand_score": 81.17,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 33244058,
+        "likes": 748478,
+        "comments": 11727,
+        "shares": 0,
+        "velocity_views_per_hour": 169407.55,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.022515,
+        "share_rate": 0.0,
+        "comment_rate": 0.000353,
+        "age_hours": 196.24,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=NlZpr4B59aE"
+    },
+    {
+      "title": "Proof I don't have legs... #shorts #shortsfeed #youtubeshorts #cringe #louisayy #comedy #funny",
+      "platform": "youtube",
+      "demand_score": 80.79,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 12357194,
+        "likes": 284980,
+        "comments": 8906,
+        "shares": 0,
+        "velocity_views_per_hour": 131188.22,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.023062,
+        "share_rate": 0.0,
+        "comment_rate": 0.000721,
+        "age_hours": 94.19,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=aN8dInVmhV0"
+    },
+    {
+      "title": "Life imitates art I guess",
+      "platform": "youtube",
+      "demand_score": 80.6,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 58367506,
+        "likes": 1224677,
+        "comments": 4696,
+        "shares": 0,
+        "velocity_views_per_hour": 481284.68,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.020982,
+        "share_rate": 0.0,
+        "comment_rate": 8e-05,
+        "age_hours": 121.27,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=bJkVNDRksDY"
+    },
+    {
+      "title": "Toucan Gets A Custom Artificial Beak 😌",
+      "platform": "youtube",
+      "demand_score": 80.57,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 27561715,
+        "likes": 631341,
+        "comments": 5683,
+        "shares": 0,
+        "velocity_views_per_hour": 292461.47,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.022906,
+        "share_rate": 0.0,
+        "comment_rate": 0.000206,
+        "age_hours": 94.24,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=MSPVq-5sbCg"
+    },
+    {
+      "title": "Which AI is smartest?",
+      "platform": "youtube",
+      "demand_score": 80.47,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 31270115,
+        "likes": 861915,
+        "comments": 4226,
+        "shares": 0,
+        "velocity_views_per_hour": 182984.53,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.027564,
+        "share_rate": 0.0,
+        "comment_rate": 0.000135,
+        "age_hours": 170.89,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=1xI_lsZ4sxI"
+    },
+    {
+      "title": "Our family is growing 💚",
+      "platform": "youtube",
+      "demand_score": 80.21,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 16606512,
+        "likes": 517117,
+        "comments": 4407,
+        "shares": 0,
+        "velocity_views_per_hour": 165141.79,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.031139,
+        "share_rate": 0.0,
+        "comment_rate": 0.000265,
+        "age_hours": 100.56,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=rZPvGAiRYlo"
+    },
+    {
+      "title": "JOGO COMPLETO: ARGENTINA X BENIN | DESPEDIDA DE MESSI | AMISTOSOS | ge tv",
+      "platform": "youtube",
+      "demand_score": 80.15,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 10582923,
+        "likes": 238920,
+        "comments": 170,
+        "shares": 0,
+        "velocity_views_per_hour": 278951.06,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.022576,
+        "share_rate": 0.0,
+        "comment_rate": 1.6e-05,
+        "age_hours": 37.94,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=1b8cx1EqW_g"
+    },
+    {
+      "title": "Голодные игры Xiaomi",
+      "platform": "youtube",
+      "demand_score": 80.1,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 9074461,
+        "likes": 354350,
+        "comments": 4237,
+        "shares": 0,
+        "velocity_views_per_hour": 92838.69,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.039049,
+        "share_rate": 0.0,
+        "comment_rate": 0.000467,
+        "age_hours": 97.74,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=NBiYnk1VuOo"
+    },
+    {
+      "title": "Como saber se tem alguém MEXENDO NO SEU CELULAR",
+      "platform": "youtube",
+      "demand_score": 79.88,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 5625779,
+        "likes": 124026,
+        "comments": 1585,
+        "shares": 0,
+        "velocity_views_per_hour": 84926.64,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.022046,
+        "share_rate": 0.0,
+        "comment_rate": 0.000282,
+        "age_hours": 66.24,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=5Jt65A2L41g"
+    },
+    {
+      "title": "Why 'Ultra Rich' THROW AWAY iPhone & Switch To Android? Apple vs Android Tech Battle #shorts",
+      "platform": "youtube",
+      "demand_score": 79.81,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 4479497,
+        "likes": 174348,
+        "comments": 862,
+        "shares": 0,
+        "velocity_views_per_hour": 70458.25,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.038921,
+        "share_rate": 0.0,
+        "comment_rate": 0.000192,
+        "age_hours": 63.58,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=UI4Xat5hmOg"
+    },
+    {
+      "title": "The Funniest Trio of All Time 🤣😭",
+      "platform": "youtube",
+      "demand_score": 79.6,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 3,
+        "views": 9854512,
+        "likes": 324687,
+        "comments": 2996,
+        "shares": 0,
+        "velocity_views_per_hour": 78729.76,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.032948,
+        "share_rate": 0.0,
+        "comment_rate": 0.000304,
+        "age_hours": 125.17,
+        "metric_source": "youtube_api"
+      },
+      "link": "https://www.youtube.com/watch?v=3d7oVagsV_g"
+    }
+  ],
+  "last_acquisition_attempts": [
+    {
+      "title": "Can You Solve This Stolen Money Puzzle? 🤔",
+      "platform": "youtube",
+      "demand_score": 84.58,
+      "result": "download_failed"
+    },
+    {
+      "title": "I’m gonna start handing out PCs",
+      "platform": "youtube",
+      "demand_score": 83.9,
+      "result": "download_failed"
+    },
+    {
+      "title": "Eles Encontraram ISSO Dentro da Cobra 😱🐍",
+      "platform": "youtube",
+      "demand_score": 83.24,
+      "result": "download_failed"
+    },
+    {
+      "title": "JAILER 2 - Official Trailer | Superstar Rajinikanth | Sun Pictures | Anirudh | Nelson",
+      "platform": "youtube",
+      "demand_score": 83.16,
+      "result": "download_failed"
+    },
+    {
+      "title": "SPECIALIST'S INSPECT MY $1.7M BROKEN YACHT",
+      "platform": "youtube",
+      "demand_score": 82.06,
+      "result": "download_failed"
+    },
+    {
+      "title": "The FUNNIEST VIDEO EVER #fypviralシ #fypreelsシ゚viralシ #fypシ゚viralシfypシ゚viralシalシ #fypageシ #foryoupage",
+      "platform": "youtube",
+      "demand_score": 81.87,
+      "result": "download_failed"
+    },
+    {
+      "title": "Yanlış bilen ıslanıyor😂",
+      "platform": "youtube",
+      "demand_score": 81.76,
+      "result": "download_failed"
+    },
+    {
+      "title": "Guy Saves Iguana Swimming Miles From Shore",
+      "platform": "youtube",
+      "demand_score": 81.51,
+      "result": "download_failed"
+    },
+    {
+      "title": "Eat Everything In A Grocery Store, Win $1,000,000",
+      "platform": "youtube",
+      "demand_score": 81.44,
+      "result": "download_failed"
+    },
+    {
+      "title": "The helpful bird #nature #nationalgeographic #wildanimals #shorts",
+      "platform": "youtube",
+      "demand_score": 81.17,
+      "result": "download_failed"
+    },
+    {
+      "title": "Proof I don't have legs... #shorts #shortsfeed #youtubeshorts #cringe #louisayy #comedy #funny",
+      "platform": "youtube",
+      "demand_score": 80.79,
+      "result": "download_failed"
+    },
+    {
+      "title": "Life imitates art I guess",
+      "platform": "youtube",
+      "demand_score": 80.6,
+      "result": "download_failed"
+    },
+    {
+      "title": "Toucan Gets A Custom Artificial Beak 😌",
+      "platform": "youtube",
+      "demand_score": 80.57,
+      "result": "download_failed"
+    },
+    {
+      "title": "Which AI is smartest?",
+      "platform": "youtube",
+      "demand_score": 80.47,
+      "result": "download_failed"
+    },
+    {
+      "title": "Our family is growing 💚",
+      "platform": "youtube",
+      "demand_score": 80.21,
+      "result": "download_failed"
+    },
+    {
+      "title": "JOGO COMPLETO: ARGENTINA X BENIN | DESPEDIDA DE MESSI | AMISTOSOS | ge tv",
+      "platform": "youtube",
+      "demand_score": 80.15,
+      "result": "download_failed"
+    },
+    {
+      "title": "Голодные игры Xiaomi",
+      "platform": "youtube",
+      "demand_score": 80.1,
+      "result": "download_failed"
+    },
+    {
+      "title": "Como saber se tem alguém MEXENDO NO SEU CELULAR",
+      "platform": "youtube",
+      "demand_score": 79.88,
+      "result": "download_failed"
+    },
+    {
+      "title": "Why 'Ultra Rich' THROW AWAY iPhone & Switch To Android? Apple vs Android Tech Battle #shorts",
+      "platform": "youtube",
+      "demand_score": 79.81,
+      "result": "download_failed"
+    },
+    {
+      "title": "The Funniest Trio of All Time 🤣😭",
+      "platform": "youtube",
+      "demand_score": 79.6,
+      "result": "download_failed"
+    },
+    {
+      "title": "Ela é ALÉRGICA a nozes e resolveu EXPERIMENTAR!",
+      "platform": "youtube",
+      "demand_score": 79.28,
+      "result": "download_failed"
+    },
+    {
+      "title": "First guy deserves an oscar 📹 by : Jasontheween",
+      "platform": "youtube",
+      "demand_score": 79.25,
+      "result": "download_failed"
+    },
+    {
+      "title": "Vídeos de youtubers que deram MUITO ERRADO",
+      "platform": "youtube",
+      "demand_score": 79.2,
+      "result": "download_failed"
+    },
+    {
+      "title": "Her Smile Made My Day,..🥺❤️ #azmaik #reality #humanity #hearttouching #motivation #kindness",
+      "platform": "youtube",
+      "demand_score": 79.15,
+      "result": "download_failed"
+    },
+    {
+      "title": "China made a better iPhone Duo 😭",
+      "platform": "youtube",
+      "demand_score": 79.02,
+      "result": "download_failed"
+    },
+    {
+      "title": "Daha 17 | 19. Bölüm",
+      "platform": "youtube",
+      "demand_score": 78.96,
+      "result": "download_failed"
+    },
+    {
+      "title": "Patrick Tricks Henry | The Mentalist S4.E4 | #Shorts",
+      "platform": "youtube",
+      "demand_score": 78.87,
+      "result": "download_failed"
+    },
+    {
+      "title": "Full Throttle Bottle Baby 😳",
+      "platform": "youtube",
+      "demand_score": 78.63,
+      "result": "download_failed"
+    },
+    {
+      "title": "How To Annoy A Sniper In One Move 😂🎯",
+      "platform": "youtube",
+      "demand_score": 78.47,
+      "result": "download_failed"
+    },
+    {
+      "title": "How Colin Jost Pulled Off His Viral Scarlett Johansson Joke 😂🎤",
+      "platform": "youtube",
+      "demand_score": 78.46,
+      "result": "download_failed"
+    },
+    {
+      "title": "Social Media Is Fake",
+      "platform": "youtube",
+      "demand_score": 78.24,
+      "result": "download_failed"
+    },
+    {
+      "title": "Er Griff Einen Senior An – Dann Kam Die Polizei 🚨",
+      "platform": "youtube",
+      "demand_score": 78.2,
+      "result": "download_failed"
+    },
+    {
+      "title": "Apple trolling Samsung🤣 #apple  #iphone18pro #upcomingphones #newlaunch",
+      "platform": "youtube",
+      "demand_score": 77.7,
+      "result": "download_failed"
+    },
+    {
+      "title": "I Went To A Capybara Cafe!",
+      "platform": "youtube",
+      "demand_score": 77.69,
+      "result": "download_failed"
+    },
+    {
+      "title": "Why The First Diving Suits Were Insanely Scary 😳",
+      "platform": "youtube",
+      "demand_score": 77.62,
+      "result": "download_failed"
+    },
+    {
+      "title": "Taşacak Bu Deniz 32. Bölüm @trt1",
+      "platform": "youtube",
+      "demand_score": 77.39,
+      "result": "download_failed"
+    },
+    {
+      "title": "Barack Obama knows ball🥀 #shorts",
+      "platform": "youtube",
+      "demand_score": 77.32,
+      "result": "download_failed"
+    },
+    {
+      "title": "Unsere Autos✨",
+      "platform": "youtube",
+      "demand_score": 77.32,
+      "result": "download_failed"
+    },
+    {
+      "title": "A Way of Shutting Down The PC",
+      "platform": "youtube",
+      "demand_score": 77.25,
+      "result": "download_failed"
+    },
+    {
+      "title": "Once You Notice This, the Entire Movie Feels Different | Tomorrowland (2015)",
+      "platform": "youtube",
+      "demand_score": 77.23,
+      "result": "download_failed"
+    }
+  ]
 }
