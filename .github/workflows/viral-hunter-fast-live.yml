@@ -1,5 +1,9 @@
 name: Viral Hunter Fast Live Check
 
+concurrency:
+  group: viral-hunter-fast-live
+  cancel-in-progress: true
+
 on:
   push:
     paths:
