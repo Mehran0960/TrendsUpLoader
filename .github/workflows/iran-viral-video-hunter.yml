@@ -70,7 +70,7 @@ jobs:
           curl -fsSL https://deno.land/install.sh | sh
           export PATH="$HOME/.deno/bin:$PATH"
           echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
-          python -m pip install --disable-pip-version-check requests "yt-dlp[default]" yt-dlp-ejs bgutil-ytdlp-pot-provider
+          python -m pip install --disable-pip-version-check requests pillow numpy opencv-python-headless "yt-dlp[default]" yt-dlp-ejs bgutil-ytdlp-pot-provider
           deno --version
           yt-dlp --version
       - name: Hunt and publish one new viral candidate
