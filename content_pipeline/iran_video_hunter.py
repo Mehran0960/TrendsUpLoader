@@ -808,6 +808,35 @@ def main():
     for yt_item in discover_youtube_public_candidates(limit=25):
         items[yt_item["key"]] = yt_item
 
+    # Merge asynchronous multi-platform discoveries (TikTok/Instagram/X/Aparat)
+    # produced by the dedicated discovery workflow.
+    social_path = ROOT / "attention_state" / "social_discovery.json"
+    try:
+        social = json.loads(social_path.read_text(encoding="utf-8"))
+        for s in social.get("items", []) or []:
+            link = str(s.get("url") or "").strip()
+            title = str(s.get("title") or "").strip()
+            if not link or not title:
+                continue
+            key_text = re.sub(r"\s+", " ", title.lower()) + "|" + link.split("?")[0]
+            x = {
+                "title": title,
+                "link": link,
+                "source": "social discovery",
+                "platform": s.get("platform"),
+                "pub": "",
+                "age_hours": 999999.0,
+                "views": int(s.get("views") or 0),
+                "likes": int(s.get("likes") or 0),
+                "comments": int(s.get("comments") or 0),
+                "shares": int(s.get("shares") or 0),
+                "metric_source": "social_discovery",
+            }
+            x["key"] = hashlib.sha256(key_text.encode()).hexdigest()
+            items[x["key"]] = x
+    except Exception as exc:
+        print("SOCIAL_DISCOVERY_FEED_FAIL", type(exc).__name__)
+
     enrich_youtube_metrics(items)
     enrich_public_platform_metrics(items, limit=35)
     apply_observed_momentum(items, state)
