@@ -107,17 +107,17 @@ def candidate(update):
         except Exception:
             pass
 
-    cue = 1 if CUES.search(caption) else 0
-    freshness = max(0.0, 24.0 - min(age_hours, 24.0)) / 24.0
+    age_h = max(0.25, age_hours)
+    velocity = views / age_h
+    reaction_rate = reaction_count / max(1, views)
 
-    # Within-source ranking: views dominate, then reactions/recency/curiosity.
-    score = (
-        12.0 * min(1.0, views / 100000.0)
-        + 6.0 * min(1.0, reaction_count / 1000.0)
-        + 4.0 * freshness
-        + 4.0 * cue
-        + min(4.0, len(caption) / 80.0)
-    )
+    # Rank on measured demand only. Log scaling preserves separation between
+    # 100K and 10M-view posts instead of treating them as equal.
+    view_score = min(45.0, 7.0 * __import__("math").log10(views + 1))
+    velocity_score = min(30.0, 6.0 * __import__("math").log10(velocity + 1))
+    engagement_score = min(15.0, 300.0 * reaction_rate)
+    freshness_score = 10.0 * max(0.0, 1.0 - min(age_h / 24.0, 1.0))
+    score = min(100.0, view_score + velocity_score + engagement_score + freshness_score)
 
     source_name = str(chat.get("title") or chat.get("username") or chat_id)
     return {
