@@ -1,0 +1,48 @@
+name: Imginn Profile Probe
+
+on:
+  push:
+    paths:
+      - ".github/workflows/imginn-profile-probe.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe Imginn public profile HTML
+        run: |
+          python - <<'PY'
+          import re, requests, html
+          from bs4 import BeautifulSoup
+          headers={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36","Accept-Language":"fa-IR,fa;q=0.9,en;q=0.6"}
+          u="https://imginn.com/in_filma/"
+          r=requests.get(u,headers=headers,timeout=25)
+          print("STATUS",r.status_code,"TYPE",r.headers.get("content-type"))
+          t=r.text
+          print("LEN",len(t))
+          posts=sorted(set(re.findall(r'(?:https://imginn.com)?/p/[A-Za-z0-9_-]+/?',t)))
+          print("POST_LINKS",posts[:20])
+          for needle in ["168k","68k","63k","likes","comments","Download","scontent","cdninstagram"]:
+              pos=t.find(needle)
+              print("NEEDLE",needle,"POS",pos)
+              if pos>=0: print(html.unescape(t[max(0,pos-500):pos+1200]))
+          soup=BeautifulSoup(t,"html.parser")
+          print("TEXT_START")
+          print(" ".join(soup.stripped_strings)[:12000])
+          PY
+      - name: Cleanup probe workflow
+        if: ${{ always() }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/imginn-profile-probe.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove Imginn profile probe'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
