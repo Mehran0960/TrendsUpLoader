@@ -235,7 +235,17 @@ def main():
                 os.unlink(path)
                 continue
             sc = score(item, mi["duration"], cross)
-            if sc < 55:
+            title = item["title"]
+            virality_cues = sum(
+                1 for w in [
+                    "جنجالی","باورنکردنی","عجیب","لحظه","پربازدید","واکنش",
+                    "فوری","افشا","غافلگیر","وایرال","درگیری","کشف","ممنوع"
+                ]
+                if w in title
+            )
+            # Freshness alone is not enough: require either a strong
+            # curiosity cue or corroboration across multiple sources.
+            if sc < 55 or (virality_cues == 0 and cross < 2):
                 os.unlink(path)
                 continue
             chosen = (item, url, path, h, mi, sc, cross)
