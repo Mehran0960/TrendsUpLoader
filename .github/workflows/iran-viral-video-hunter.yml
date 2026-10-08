@@ -6,7 +6,8 @@ concurrency:
 
 on:
   push:
-    branches: ["main"]
+    paths:
+      - "attention_state/one_shot_20261008.trigger"
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
