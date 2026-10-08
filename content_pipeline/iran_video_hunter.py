@@ -814,28 +814,65 @@ def main():
 
     # Demand-first: only public engagement evidence can qualify a candidate.
     # Acquisition is deliberately separated from selection: a hard-to-download
-    # viral video remains a top candidate and simply falls through to the next
-    # best acquisition route/candidate.
+    # viral video remains a top candidate while alternate URLs for the same
+    # underlying item are collected from corroborating web/social sources.
     ranked = []
     title_buckets = {}
+    signature_by_key = {}
     for x in items.values():
         norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", str(x.get("title") or "").lower())
         norm = re.sub(r"\s+", " ", norm).strip()
         tokens = [t for t in norm.split() if len(t) > 2]
         key = " ".join(tokens[:12])
+        short_key = " ".join(tokens[:8])
         title_buckets.setdefault(key, 0)
         title_buckets[key] += 1
+        signature_by_key[x["key"]] = (short_key, set(tokens[:18]))
 
-    for x in items.values():
+    media_route_cache = {}
+    def cached_routes(item):
+        link = str(item.get("link") or "")
+        if link in media_route_cache:
+            return list(media_route_cache[link])
+        routes = article_candidates(item)
+        media_route_cache[link] = list(routes)
+        return list(routes)
+
+    all_items = list(items.values())
+
+    for x in all_items:
         if x["key"] in seen_keys:
             continue
 
-        vids = article_candidates(x)
         norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", str(x.get("title") or "").lower())
         norm = re.sub(r"\s+", " ", norm).strip()
         tokens = [t for t in norm.split() if len(t) > 2]
         stem = " ".join(tokens[:12])
+        short_key = " ".join(tokens[:8])
         corroboration = max(1, title_buckets.get(stem, 1))
+
+        # Start with the source that supplied the demand evidence.
+        vids = cached_routes(x)
+
+        # Then search for the same story/video in corroborating sources. This
+        # lets a high-demand YouTube/TikTok/etc. item acquire through an article
+        # page that exposes a direct MP4 even when the social URL is blocked.
+        related = []
+        for y in all_items:
+            if y["key"] == x["key"]:
+                continue
+            ysig = signature_by_key.get(y["key"], ("", set()))[1]
+            if not ysig:
+                continue
+            overlap = len(set(tokens[:18]) & ysig) / max(1, len(set(tokens[:18]) | ysig))
+            yshort = signature_by_key.get(y["key"], ("", set()))[0]
+            if (short_key and short_key == yshort) or overlap >= 0.62:
+                related.append(y)
+
+        for y in sorted(related, key=lambda z: float(z.get("age_hours") or 999999))[:8]:
+            for route in cached_routes(y):
+                if route not in vids:
+                    vids.append(route)
 
         demand, dm = public_demand_score(x, corroboration)
         if not dm.get("evidence"):
