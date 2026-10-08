@@ -161,73 +161,59 @@ def enrich_youtube_metrics(items):
 
 
 def discover_youtube_public_candidates(limit=25):
-    """Direct YouTube demand lane: Iran popular + fresh high-view videos."""
+    """Direct YouTube demand lane focused on globally distributed Persian/Iranian videos."""
     if not YOUTUBE_KEY:
         return []
     out = {}
     now = datetime.now(timezone.utc)
 
-    def add_video(raw):
+    def add_video(raw, search_profile=""):
         vid = str(raw.get("id") or "").strip()
         if not vid:
             return
         snippet = raw.get("snippet") or {}
         stats = raw.get("statistics") or {}
-        views = int(stats.get("viewCount") or 0)
-        likes = int(stats.get("likeCount") or 0)
-        comments = int(stats.get("commentCount") or 0)
         published = str(snippet.get("publishedAt") or "")
         age_h = 999999.0
         if published:
             try:
-                age_h = max(
-                    0.0,
-                    (now - datetime.fromisoformat(published.replace("Z", "+00:00"))).total_seconds()/3600.0,
-                )
+                age_h = max(0.0, (now - datetime.fromisoformat(published.replace("Z", "+00:00"))).total_seconds()/3600.0)
             except Exception:
                 pass
-        link = f"https://www.youtube.com/watch?v={vid}"
         item = {
             "title": str(snippet.get("title") or "").strip(),
-            "link": link,
+            "description": str(snippet.get("description") or "").strip(),
+            "channel_id": str(snippet.get("channelId") or "").strip(),
+            "channel_title": str(snippet.get("channelTitle") or "").strip(),
+            "link": f"https://www.youtube.com/watch?v={vid}",
             "source": "YouTube public API",
             "video_id": vid,
-            "views": views,
-            "likes": likes,
-            "comments": comments,
+            "views": int(stats.get("viewCount") or 0),
+            "likes": int(stats.get("likeCount") or 0),
+            "comments": int(stats.get("commentCount") or 0),
             "published_at": published,
             "age_hours": age_h,
             "metric_source": "youtube_api",
+            "youtube_search_profile": search_profile,
         }
         item["key"] = hashlib.sha256(("youtube:" + vid).encode()).hexdigest()
         out[item["key"]] = item
 
-    try:
-        r = session.get(
-            "https://www.googleapis.com/youtube/v3/videos",
-            params={
-                "key": YOUTUBE_KEY, "part": "snippet,statistics,contentDetails",
-                "chart": "mostPopular", "regionCode": "IR", "maxResults": limit,
-            },
-            timeout=25,
-        )
-        r.raise_for_status()
-        for raw in (r.json().get("items") or []):
-            add_video(raw)
-    except Exception as exc:
-        print("YOUTUBE_POPULAR_FAIL", type(exc).__name__)
+    profiles = [
+        ("فارسی", "fa"), ("ایرانی", "fa"), ("ایران", "fa"),
+        ("ویدیو ایرانی", "fa"), ("ویدئوی ایرانی", "fa"), ("پرشین", "fa"),
+        ("Farsi", "fa"), ("Persian", "fa"), ("Iranian", "fa"), ("Iran", "fa"),
+    ]
+    q, lang = profiles[int(now.timestamp() // 1800) % len(profiles)]
 
-    queries = ["ویدئو", "کلیپ", "لحظه", "فیلم"]
-    q = queries[int(now.timestamp() // 1800) % len(queries)]
     try:
-        published_after = (now - __import__("datetime").timedelta(hours=72)).isoformat().replace("+00:00", "Z")
+        published_after = (now - __import__("datetime").timedelta(hours=168)).isoformat().replace("+00:00", "Z")
         r = session.get(
             "https://www.googleapis.com/youtube/v3/search",
             params={
                 "key": YOUTUBE_KEY, "part": "snippet", "q": q, "type": "video",
-                "regionCode": "IR", "relevanceLanguage": "fa",
-                "order": "viewCount", "publishedAfter": published_after,
-                "maxResults": min(25, limit),
+                "relevanceLanguage": lang, "order": "viewCount",
+                "publishedAfter": published_after, "maxResults": min(50, max(25, limit)),
             },
             timeout=25,
         )
@@ -240,17 +226,40 @@ def discover_youtube_public_candidates(limit=25):
         if ids:
             rr = session.get(
                 "https://www.googleapis.com/youtube/v3/videos",
-                params={
-                    "key": YOUTUBE_KEY, "part": "snippet,statistics,contentDetails",
-                    "id": ",".join(ids[:50]), "maxResults": 50,
-                },
+                params={"key": YOUTUBE_KEY, "part": "snippet,statistics,contentDetails",
+                        "id": ",".join(ids[:50]), "maxResults": 50},
                 timeout=25,
             )
             rr.raise_for_status()
             for raw in (rr.json().get("items") or []):
-                add_video(raw)
+                add_video(raw, q)
     except Exception as exc:
-        print("YOUTUBE_FRESH_SEARCH_FAIL", type(exc).__name__)
+        print("YOUTUBE_SEARCH_FAIL", type(exc).__name__, q)
+
+    channel_ids = list(dict.fromkeys(
+        str(x.get("channel_id") or "").strip() for x in out.values()
+        if str(x.get("channel_id") or "").strip()
+    ))
+    if channel_ids:
+        try:
+            cr = session.get(
+                "https://www.googleapis.com/youtube/v3/channels",
+                params={"key": YOUTUBE_KEY, "part": "snippet",
+                        "id": ",".join(channel_ids[:50]), "maxResults": 50},
+                timeout=25,
+            )
+            cr.raise_for_status()
+            by_id = {str(x.get("id")): x for x in (cr.json().get("items") or [])}
+            for item in out.values():
+                raw = by_id.get(item.get("channel_id"))
+                if raw:
+                    sn = raw.get("snippet") or {}
+                    item["channel_country"] = str(sn.get("country") or "").upper()
+                    item["channel_description"] = str(sn.get("description") or "")[:4000]
+                    if not item.get("channel_title"):
+                        item["channel_title"] = str(sn.get("title") or "")
+        except Exception as exc:
+            print("YOUTUBE_CHANNEL_META_FAIL", type(exc).__name__)
 
     return list(out.values())
 
