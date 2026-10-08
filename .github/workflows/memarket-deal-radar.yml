@@ -1,0 +1,47 @@
+name: MeMarket Deal Radar
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+      timezone: "Asia/Tehran"
+  workflow_dispatch:
+
+concurrency:
+  group: memarket-deal-radar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run MeMarket radar
+        env:
+          MEMARKET_USERNAME: ${{ secrets.MEMARKET_USERNAME }}
+          MEMARKET_PASSWORD: ${{ secrets.MEMARKET_PASSWORD }}
+          MEMARKET_AFFILIATE_CODE: ${{ secrets.MEMARKET_AFFILIATE_CODE }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          MIN_DISCOUNT: "30"
+          PRICE_DROP_THRESHOLD: "8"
+          LOW_STOCK: "5"
+          COOLDOWN_HOURS: "6"
+          MAX_ALERTS: "3"
+          PER_PAGE: "200"
+          MAX_PAGES: "50"
+          BOOTSTRAP_SILENT: "false"
+        run: python affiliate_radar/memarket_deal_radar.py
