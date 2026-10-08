@@ -711,22 +711,48 @@ def download_youtube_via_piped(url):
     return None
 
 def search_web_mirror_routes(title, limit=5):
-    """Find article copies of the same viral item that may expose a direct MP4."""
+    """Find Persian article copies of the same viral item with direct media URLs."""
     title = re.sub(r"\s+", " ", str(title or "")).strip()
     if not title:
         return []
+
+    raw_tokens = re.findall(r"[\u0600-\u06ff]{3,}", title)
+    stop = {
+        "ایرانی", "ایران", "خواننده", "ویدئو", "ویدیو", "فیلم",
+        "جنجالی", "پربازدید", "جدید", "این", "آن", "برای",
+    }
+    tokens = [t for t in raw_tokens if t not in stop]
+    compact = " ".join(tokens[:5])
+
+    queries = [
+        f'"{title[:180]}"',
+        f'"{compact}" ویدئو' if compact else "",
+        f'{compact} ویدیو' if compact else "",
+    ]
     routes = []
     seen = set()
-    queries = [
-        f'"{title[:180]}" (ویدئو OR ویدیو OR فیلم)',
-        f'"{title[:180]}" ایران',
-    ]
-    for q in queries:
+
+    for q in [x for x in queries if x]:
         try:
             for item in rss_items(q):
                 link = str(item.get("link") or "").strip()
                 if not link or platform_of(link) != "web":
                     continue
+
+                page_title = str(item.get("title") or "")
+                page_text = f"{page_title} {q}"
+                # Require at least one distinctive Persian title token on the
+                # mirror page. This is discovery matching, not demand ranking.
+                if tokens and not any(t in page_text for t in tokens[:3]):
+                    try:
+                        rr = session.get(link, timeout=12, allow_redirects=True)
+                        if rr.ok:
+                            probe = rr.text[:1_500_000]
+                            if not any(t in probe for t in tokens[:3]):
+                                continue
+                    except Exception:
+                        continue
+
                 for route in article_candidates(item):
                     if route not in seen:
                         seen.add(route)
@@ -735,6 +761,7 @@ def search_web_mirror_routes(title, limit=5):
                             return routes
         except Exception as exc:
             print("WEB_MIRROR_SEARCH_FAIL", type(exc).__name__)
+
     return routes
 
 def download_youtube_via_ejs(url):
