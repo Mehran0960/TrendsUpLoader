@@ -31,7 +31,6 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          ONE_SHOT_VIDEO_URL: ${{ github.event_name == 'push' && github.event.head_commit.message == 'ONE_SHOT_TEST' && 'https://media.hamshahrionline.ir/d/2026/10/07/0/5414599.mp4?ts=1791386679000' || '' }}
         run: python content_pipeline/iran_video_hunter.py
       - name: Persist dedupe state
         if: ${{ always() && hashFiles('attention_state/iran_video_hunter_state.json') != '' }}
