@@ -736,6 +736,33 @@ def search_web_mirror_routes(title, limit=5):
             print("WEB_MIRROR_SEARCH_FAIL", type(exc).__name__)
     return routes
 
+def download_youtube_via_ejs(url):
+    """Primary YouTube downloader: yt-dlp with the supported Deno/EJS challenge solver."""
+    outdir = tempfile.mkdtemp(prefix="ytdlp-ejs-")
+    try:
+        p = subprocess.run(
+            [
+                "yt-dlp", "--no-playlist", "--no-warnings",
+                "--js-runtimes", "deno",
+                "--remote-components", "ejs:github",
+                "--max-filesize", "50M",
+                "-f", "bv*[ext=mp4][height<=720]+ba[ext=m4a]/b[ext=mp4]/b",
+                "--merge-output-format", "mp4",
+                "-o", str(Path(outdir) / "video.%(ext)s"),
+                url,
+            ],
+            capture_output=True, text=True, timeout=90,
+        )
+        if p.returncode == 0:
+            candidates = sorted(Path(outdir).glob("video.*"))
+            if candidates:
+                print("YOUTUBE_EJS_ACQUIRED", youtube_video_id(url) or "")
+                return str(candidates[0])
+        print("YOUTUBE_EJS_FAIL", p.stderr[-700:])
+    except Exception as exc:
+        print("YOUTUBE_EJS_ERROR", type(exc).__name__)
+    return None
+
 def local_download(url):
     if M3U8.search(url):
         return None
@@ -747,19 +774,25 @@ def local_download(url):
     ])
 
     if social:
-        # 1) Local Cobalt mesh: preferred because it supports multiple platforms.
+        is_youtube = "youtube.com" in host or "youtu.be" in host
+
+        # YouTube gets the current official yt-dlp EJS path first; this is
+        # faster and avoids depending on third-party mirror availability.
+        if is_youtube:
+            ejs_path = download_youtube_via_ejs(url)
+            if ejs_path:
+                return ejs_path
+
+        # Cobalt is especially useful for TikTok/Instagram/X/Aparat.
         cobalt_path = download_via_cobalt(url)
         if cobalt_path:
             return cobalt_path
 
-        # 2) Public Piped fallback for YouTube.
-        if "youtube.com" in host or "youtu.be" in host:
+        if is_youtube:
             piped_path = download_youtube_via_piped(url)
             if piped_path:
                 return piped_path
 
-            # 3) YouTube web_safari HLS fallback. Current yt-dlp guidance says
-            # some HLS GVS streams from this client do not need a PO token.
             outdir = tempfile.mkdtemp(prefix="ytdlp-hls-")
             try:
                 p = subprocess.run(
@@ -784,7 +817,6 @@ def local_download(url):
             except Exception as exc:
                 print("YOUTUBE_HLS_ERROR", type(exc).__name__)
 
-        # 4) Direct yt-dlp last resort.
         outdir = tempfile.mkdtemp(prefix="ytdlp-")
         try:
             p = subprocess.run(
@@ -1165,7 +1197,7 @@ def main():
     acquisition_attempts = []
     # Try the best demand candidates first. Never download arbitrary lower-ranked
     # content simply because it happens to have an accessible MP4.
-    for item, url, cross, demand, dm in ranked[:40]:
+    for item, url, cross, demand, dm in ranked[:12]:
         path = local_download(url)
         if not path:
             acquisition_attempts.append({
