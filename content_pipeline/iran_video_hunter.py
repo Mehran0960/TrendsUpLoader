@@ -884,9 +884,14 @@ def local_download(url):
         if cobalt_path:
             return cobalt_path
 
-        # Public Instagram fallback: Imginn exposes the original public media
-        # as a CDN URL even when direct Instagram acquisition fails on CI.
         if platform_of(url) == "instagram":
+            # parth-dl uses multiple current logged-out Instagram paths and is
+            # currently a better CI fallback than scraper mirrors.
+            parth_path = download_instagram_via_parth_dl(url)
+            if parth_path:
+                return parth_path
+
+            # Final public-mirror fallback: useful when Imginn is reachable.
             for media_url in instagram_imginn_routes(url, limit=6):
                 path = download_direct_file(media_url, ".mp4")
                 if path:
