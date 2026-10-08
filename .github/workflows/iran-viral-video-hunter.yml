@@ -5,6 +5,9 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  push:
+    paths:
+      - "attention_state/manual_viral_probe.trigger"
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
