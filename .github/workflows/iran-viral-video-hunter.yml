@@ -31,7 +31,6 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          ONE_SHOT_VIDEO_URL: https://upload.wikimedia.org/wikipedia/commons/c/cb/Cat_meowing_into_camera.webm
         run: python content_pipeline/iran_video_hunter.py
       - name: Persist dedupe state
         if: ${{ always() && hashFiles('attention_state/iran_video_hunter_state.json') != '' }}
