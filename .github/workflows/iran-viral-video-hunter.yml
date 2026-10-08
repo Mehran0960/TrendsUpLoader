@@ -24,6 +24,8 @@ jobs:
           python-version: "3.11"
       - name: Install media tools
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
           ffmpeg -version | head -n 1
           python -m pip install --disable-pip-version-check requests yt-dlp
       - name: Hunt and publish one new viral candidate
