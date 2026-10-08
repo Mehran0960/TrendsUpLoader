@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    if: github.event.issue.title == 'MANUAL_EVENT_VIDEO_TEST'
+    if: startsWith(github.event.issue.title, 'MANUAL_EVENT_VIDEO_TEST')
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -17,7 +17,7 @@ jobs:
       - name: Fetch eventful clip
         run: |
           curl -L --fail --silent --show-error             -A "Mozilla/5.0"             "https://upload.wikimedia.org/wikipedia/commons/0/07/Cat_Jumpscare.webm"             -o source.webm
-          ffmpeg -y -i source.webm             -vf "scale=720:405:force_original_aspect_ratio=decrease,pad=720:405:(ow-iw)/2:(oh-ih)/2"             -c:v libx264 -preset veryfast -crf 23             -c:a aac -b:a 96k -movflags +faststart test.mp4
+          ffmpeg -y -i source.webm             -vf "scale=720:405"             -c:v libx264 -preset veryfast -crf 23             -c:a aac -b:a 96k -movflags +faststart test.mp4
       - name: Send to Telegram
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
