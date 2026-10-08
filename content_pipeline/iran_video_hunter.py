@@ -595,6 +595,30 @@ def article_candidates(item):
             out.append(u)
     return out[:6]
 
+def download_instagram_via_parth_dl(url):
+    """Acquire public Instagram media with parth-dl's multi-path anonymous extractor."""
+    outdir = Path(tempfile.mkdtemp(prefix="parth-ig-"))
+    try:
+        p = subprocess.run(
+            [
+                "parth-dl", "--no-banner", "-P", str(outdir),
+                url,
+            ],
+            capture_output=True, text=True, timeout=100,
+        )
+        videos = sorted(
+            [x for x in outdir.glob("*.mp4") if x.is_file()],
+            key=lambda x: x.stat().st_size,
+            reverse=True,
+        )
+        if p.returncode == 0 and videos:
+            print("INSTAGRAM_PARTH_ACQUIRED", videos[0].name)
+            return str(videos[0])
+        print("INSTAGRAM_PARTH_FAIL", p.returncode, p.stderr[-900:] or p.stdout[-900:])
+    except Exception as exc:
+        print("INSTAGRAM_PARTH_ERROR", type(exc).__name__)
+    return None
+
 def instagram_imginn_routes(url, limit=6):
     """Resolve a public Instagram post through Imginn and return direct CDN media URLs."""
     path = urlparse(str(url or "")).path
