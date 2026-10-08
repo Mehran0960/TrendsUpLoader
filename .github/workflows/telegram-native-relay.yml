@@ -8,6 +8,11 @@ on:
   schedule:
     - cron: "*/5 * * * *"
   workflow_dispatch:
+  push:
+    paths:
+      - "content_pipeline/telegram_native_relay.py"
+      - "config/telegram_source_policy.json"
+      - ".github/workflows/telegram-native-relay.yml"
   # Poll only Telegram channel posts.
 
 jobs:
