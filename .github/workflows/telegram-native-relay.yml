@@ -6,7 +6,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
   # Poll only Telegram channel posts.
 
