@@ -809,7 +809,7 @@ def main():
         items[yt_item["key"]] = yt_item
 
     enrich_youtube_metrics(items)
-    enrich_public_platform_metrics(items, limit=90)
+    enrich_public_platform_metrics(items, limit=35)
     apply_observed_momentum(items, state)
 
     # Demand-first: only public engagement evidence can qualify a candidate.
