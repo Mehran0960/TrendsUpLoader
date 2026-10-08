@@ -712,46 +712,52 @@ def download_youtube_via_piped(url):
 def local_download(url):
     if M3U8.search(url):
         return None
+
     host = urlparse(url).netloc.lower()
     social = any(x in host for x in [
-        "youtube.com","youtu.be","tiktok.com","instagram.com",
-        "x.com","twitter.com","aparat.com"
+        "youtube.com", "youtu.be", "tiktok.com", "instagram.com",
+        "x.com", "twitter.com", "aparat.com"
     ])
+
     if social:
+        # 1) Local Cobalt mesh: preferred because it supports multiple platforms.
         cobalt_path = download_via_cobalt(url)
         if cobalt_path:
             return cobalt_path
+
+        # 2) Public Piped fallback for YouTube.
         if "youtube.com" in host or "youtu.be" in host:
             piped_path = download_youtube_via_piped(url)
             if piped_path:
                 return piped_path
-        # YouTube's current web_safari path can expose HLS formats that do not
-    # require a PO token for GVS at present.
-        if "youtube.com" in host or "youtu.be" in host:
-        outdir = tempfile.mkdtemp(prefix="ytdlp-hls-")
-        try:
-            p = subprocess.run(
-                [
-                    "yt-dlp", "--no-playlist", "--no-warnings",
-                    "--extractor-args", "youtube:player_client=web_safari",
-                    "--max-filesize", "50M",
-                    "-f", "best[protocol*=m3u8]/best[ext=mp4]/best",
-                    "--hls-prefer-native",
-                    "--merge-output-format", "mp4",
-                    "-o", str(Path(outdir) / "video.%(ext)s"),
-                    url,
-                ],
-                capture_output=True, text=True, timeout=100,
-            )
-            if p.returncode == 0:
-                candidates = sorted(Path(outdir).glob("video.*"))
-                if candidates:
-                    print("YOUTUBE_HLS_ACQUIRED", youtube_video_id(url) or "")
-                    return str(candidates[0])
-            print("YOUTUBE_HLS_FAIL", p.stderr[-500:])
-        except Exception as exc:
-            print("YOUTUBE_HLS_ERROR", type(exc).__name__)
 
+            # 3) YouTube web_safari HLS fallback. Current yt-dlp guidance says
+            # some HLS GVS streams from this client do not need a PO token.
+            outdir = tempfile.mkdtemp(prefix="ytdlp-hls-")
+            try:
+                p = subprocess.run(
+                    [
+                        "yt-dlp", "--no-playlist", "--no-warnings",
+                        "--extractor-args", "youtube:player_client=web_safari",
+                        "--max-filesize", "50M",
+                        "-f", "best[protocol*=m3u8]/best[ext=mp4]/best",
+                        "--hls-prefer-native",
+                        "--merge-output-format", "mp4",
+                        "-o", str(Path(outdir) / "video.%(ext)s"),
+                        url,
+                    ],
+                    capture_output=True, text=True, timeout=100,
+                )
+                if p.returncode == 0:
+                    candidates = sorted(Path(outdir).glob("video.*"))
+                    if candidates:
+                        print("YOUTUBE_HLS_ACQUIRED", youtube_video_id(url) or "")
+                        return str(candidates[0])
+                print("YOUTUBE_HLS_FAIL", p.stderr[-500:])
+            except Exception as exc:
+                print("YOUTUBE_HLS_ERROR", type(exc).__name__)
+
+        # 4) Direct yt-dlp last resort.
         outdir = tempfile.mkdtemp(prefix="ytdlp-")
         try:
             p = subprocess.run(
@@ -772,9 +778,10 @@ def local_download(url):
             if not candidates:
                 return None
             return str(candidates[0])
-        except Exception as e:
-            print("YTDLP_ERROR", host, type(e).__name__)
+        except Exception as exc:
+            print("YTDLP_ERROR", host, type(exc).__name__)
             return None
+
     return download_direct_file(url)
 
 def media_info(path):
