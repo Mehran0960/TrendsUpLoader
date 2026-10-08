@@ -860,6 +860,15 @@ def local_download(url):
         if cobalt_path:
             return cobalt_path
 
+        # Public Instagram fallback: Imginn exposes the original public media
+        # as a CDN URL even when direct Instagram acquisition fails on CI.
+        if platform_of(url) == "instagram":
+            for media_url in instagram_imginn_routes(url, limit=6):
+                path = download_direct_file(media_url, ".mp4")
+                if path:
+                    print("INSTAGRAM_IMGINN_ACQUIRED", media_url[:140])
+                    return path
+
         if is_youtube:
             piped_path = download_youtube_via_piped(url)
             if piped_path:
