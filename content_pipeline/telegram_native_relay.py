@@ -23,11 +23,7 @@ CUES = re.compile(
     re.I,
 )
 
-BLOCK = re.compile(
-    r"\b(politics|election|news|war|gore|explicit|nsfw|porn|"
-    r"child|children|minor|toddler|schoolgirl|schoolboy)\b",
-    re.I,
-)
+BLOCK = re.compile(r"\b(gore|explicit|nsfw|porn|self-harm)\b", re.I)
 
 def api(method, payload=None):
     url = f"https://api.telegram.org/bot{TOKEN}/{method}"
@@ -111,12 +107,13 @@ def candidate(update):
     velocity = views / age_h
     reaction_rate = reaction_count / max(1, views)
 
-    # Rank on measured demand only. Log scaling preserves separation between
-    # 100K and 10M-view posts instead of treating them as equal.
-    view_score = min(45.0, 7.0 * __import__("math").log10(views + 1))
-    velocity_score = min(30.0, 6.0 * __import__("math").log10(velocity + 1))
-    engagement_score = min(15.0, 300.0 * reaction_rate)
-    freshness_score = 10.0 * max(0.0, 1.0 - min(age_h / 24.0, 1.0))
+    # Demand-first ranking. Topic, duration and "funny" cues never affect rank.
+    # Reactions are supporting evidence because Telegram does not expose share count.
+    import math
+    view_score = min(50.0, 7.4 * math.log10(views + 1))
+    velocity_score = min(30.0, 6.4 * math.log10(velocity + 1))
+    engagement_score = min(12.0, 350.0 * reaction_rate)
+    freshness_score = 8.0 * max(0.0, 1.0 - min(age_h / 24.0, 1.0))
     score = min(100.0, view_score + velocity_score + engagement_score + freshness_score)
 
     source_name = str(chat.get("title") or chat.get("username") or chat_id)
@@ -175,6 +172,18 @@ def main():
         candidates.append(c)
 
     candidates.sort(key=lambda x: x["score"], reverse=True)
+
+    # Never publish tiny/unknown posts just because they are the only item in a poll.
+    # A fresh post can qualify through very high velocity/reactions; otherwise wait
+    # for more evidence on a later poll.
+    candidates = [
+        x for x in candidates
+        if (
+            x["views"] >= 1000
+            or x["reactions"] >= 25
+            or x["score"] >= 72.0
+        )
+    ]
 
     if not candidates:
         s["offset"] = max_update
