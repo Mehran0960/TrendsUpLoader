@@ -1,0 +1,50 @@
+name: Search Engine Social Probe
+
+on:
+  push:
+    paths:
+      - ".github/workflows/search-engine-social-probe.yml"
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe search engines
+        run: |
+          python - <<'PY'
+          import requests, re
+          from urllib.parse import quote_plus, unquote
+          h={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36","Accept-Language":"fa-IR,fa;q=0.9,en;q=0.6"}
+          q='site:instagram.com/p (فارسی OR ایرانی OR ایران) (viral OR وایرال OR پربازدید)'
+          urls=[
+            "https://www.google.com/search?num=20&q="+quote_plus(q),
+            "https://www.bing.com/search?count=20&q="+quote_plus(q),
+            "https://lite.duckduckgo.com/lite/?q="+quote_plus(q)
+          ]
+          for u in urls:
+            try:
+              r=requests.get(u,headers=h,timeout=20)
+              print("\nURL",u.split("?")[0],"STATUS",r.status_code,"LEN",len(r.text))
+              t=r.text
+              print("INSTAGRAMS",list(dict.fromkeys(re.findall(r'https?://(?:www\\.)?instagram\\.com/(?:p|reel)/[A-Za-z0-9_-]+/?',t)))[:20])
+              for key in ["likes","لایک","131,172","131172","comments","کامنت"]:
+                print(key,t.lower().find(key.lower()))
+              print(re.sub(r'<[^>]+>',' ',t)[:5000])
+            except Exception as e: print("ERR",type(e).__name__)
+          PY
+      - name: Cleanup
+        if: ${{ always() }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/search-engine-social-probe.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove search engine probe'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
