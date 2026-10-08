@@ -10,8 +10,7 @@ subprocess.run([
     "yt-dlp", "--no-playlist", "--no-warnings",
     "--js-runtimes", "deno",
     "--max-filesize", "50M",
-    "-f", "bv*[ext=mp4][height<=720]+ba[ext=m4a]/b[ext=mp4]/b",
-    "--merge-output-format", "mp4",
+    "-f", "best[ext=mp4][height<=720]/best[ext=mp4]/best",
     "-o", str(OUT),
     URL,
 ], check=True, timeout=120)
