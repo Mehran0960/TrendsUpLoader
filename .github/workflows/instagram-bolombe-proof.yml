@@ -1,0 +1,67 @@
+name: Instagram Bolombe Real Proof
+
+on:
+  push:
+    paths:
+      - ".github/workflows/instagram-bolombe-proof.yml"
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --disable-pip-version-check requests pillow numpy opencv-python-headless parth-dl
+      - name: Acquire and gate real viral Persian Instagram post
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess, tempfile
+          from pathlib import Path
+          from content_pipeline.iran_video_hunter import media_info, content_quality_gate, send_video
+          url="https://www.instagram.com/p/DdUC8hiz6xe/"
+          out=Path(tempfile.mkdtemp(prefix="ig-bolombe-proof-"))
+          print("REAL_INSTAGRAM_SOURCE",url)
+          p=subprocess.run(["parth-dl","--no-banner","-P",str(out),url],capture_output=True,text=True,timeout=100)
+          print("PARTH_EXIT",p.returncode)
+          print(p.stdout[-4500:])
+          print(p.stderr[-2000:])
+          videos=sorted(out.glob("*.mp4"),key=lambda x:x.stat().st_size,reverse=True)
+          if p.returncode != 0 or not videos:
+              raise SystemExit("PARTH_IG_DOWNLOAD_FAILED")
+          video=videos[0]
+          mi=media_info(str(video))
+          print("MEDIA_INFO",json.dumps(mi,ensure_ascii=False))
+          item={"title":"ویدئوی وایرال فارسی","source":"Instagram / @alireza_bolombe",
+                "link":url,"description":"پست فارسی/ایرانی با حدود 33 هزار لایک و 223 کامنت طبق منبع عمومی نمایه‌گر.",
+                "channel_title":"alireza_bolombe"}
+          attraction,cq=content_quality_gate(str(video),item,mi)
+          print("ATTRACTION_METRICS",json.dumps(cq,ensure_ascii=False))
+          if not cq.get("passed"):
+              raise SystemExit("ATTRACTION_GATE_FAILED")
+          sent=send_video(str(video),"🔥 ویدئوی وایرال فارسی — Instagram / @alireza_bolombe","Instagram / @alireza_bolombe")
+          print("TELEGRAM_SENT",sent.get("message_id"))
+          PY
+      - name: Cleanup
+        if: ${{ always() }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/instagram-bolombe-proof.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove Instagram Bolombe proof workflow'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
