@@ -1,8 +1,8 @@
 name: Telegram Native Output Proof
-# LIVE_PROOF_BGUTIL_V2
+# LIVE_PROOF_BGUTIL_V3
 
 concurrency:
-  group: telegram-native-output-proof
+  group: telegram-native-output-proof-v3
   cancel-in-progress: true
 
 on:
