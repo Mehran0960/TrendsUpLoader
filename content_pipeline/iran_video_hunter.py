@@ -464,27 +464,44 @@ def main():
         except Exception as e:
             print("RSS_FAIL", q, type(e).__name__)
 
-    groups = {}
-    for x in items.values():
-        norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", x["title"].lower())
-        norm = re.sub(r"\s+", " ", norm).strip()
-        stem = " ".join(norm.split()[:10])
-        groups.setdefault(stem, []).append(x)
+    enrich_youtube_metrics(items)
 
+    # Demand-first: only candidates with measurable public engagement enter
+    # the acquisition queue. Topic, title keywords, and duration are ignored.
     ranked = []
     for x in items.values():
-        if x["key"] in seen_keys or x["age_hours"] > 72:
+        if x["key"] in seen_keys:
             continue
         vids = article_candidates(x)
         norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", x["title"].lower())
-        stem = " ".join(re.sub(r"\s+", " ", norm).strip().split()[:10])
-        for u in vids:
-            ranked.append((x, u, len(groups.get(stem, []))))
-    ranked.sort(key=lambda z: (-score(z[0], 20.0, z[2]), z[0]["age_hours"]))
+        norm = re.sub(r"\s+", " ", norm).strip()
+        stem = " ".join(norm.split()[:10])
 
-    print("DISCOVERED_ARTICLES", len(items), "VIDEO_CANDIDATES", len(ranked))
+        corroboration = 1
+        for y in items.values():
+            yn = re.sub(r"[^\w\u0600-\u06ff ]", " ", y["title"].lower())
+            yn = re.sub(r"\s+", " ", yn).strip()
+            if yn and stem and yn[:80] == stem[:80]:
+                corroboration += 1
+
+        for u in vids:
+            demand, dm = public_demand_score(x, corroboration)
+            if not dm.get("evidence"):
+                continue
+            ranked.append((x, u, corroboration, demand, dm))
+
+    ranked.sort(
+        key=lambda z: (
+            -z[3],
+            -int(z[0].get("views") or 0),
+            -float(z[0].get("likes") or 0),
+            float(z[0].get("age_hours") or 999999),
+        )
+    )
+
+    print("DISCOVERED_ARTICLES", len(items), "MEASURABLE_VIDEO_CANDIDATES", len(ranked))
     chosen = None
-    for item, url, cross in ranked:
+    for item, url, cross, demand, dm in ranked:
         path = local_download(url)
         if not path:
             continue
@@ -500,30 +517,17 @@ def main():
             if Path(path).stat().st_size > 50 * 1024 * 1024:
                 os.unlink(path)
                 continue
-            sc = score(item, mi["duration"], cross)
-            title = item["title"]
-            virality_cues = sum(
-                1 for w in [
-                    "جنجالی","باورنکردنی","عجیب","لحظه","پربازدید","واکنش",
-                    "فوری","افشا","غافلگیر","وایرال","درگیری","کشف","ممنوع"
-                ]
-                if w in title
-            )
+            sc = demand
+            # Visual/hook analysis is diagnostic only. It never overrides
+            # measured public demand and therefore cannot discard a highly
+            # watched video merely because our subjective model dislikes it.
             content_quality, cq = content_quality_gate(path, item, mi)
-            print("CONTENT_QUALITY", item["title"], cq)
-            # Shortness is a preference, not a substitute for entertainment.
-            if (
-                sc < 55
-                or content_quality < 48
-                or not cq.get("passed", False)
-                or (virality_cues == 0 and cross < 2)
-            ):
-                os.unlink(path)
-                continue
+            print("DEMAND_METRICS", json.dumps(dm, ensure_ascii=False))
+            print("CONTENT_DIAGNOSTIC", item["title"], cq)
+            item["demand_metrics"] = dm
             item["content_quality_score"] = content_quality
             item["content_quality_metrics"] = cq
-            chosen = (item, url, path, h, mi, sc, cross)
-            break
+
         except Exception:
             try: os.unlink(path)
             except Exception: pass
@@ -541,7 +545,7 @@ def main():
         "at": datetime.now(timezone.utc).isoformat(),
         "title": item["title"], "article": item["link"], "video": url,
         "sha256": h, "telegram_message_id": sent.get("message_id"),
-        "score": sc, "content_quality_score": item.get("content_quality_score"),
+        "score": sc, "demand_score": sc, "demand_metrics": item.get("demand_metrics", {}), "content_quality_score": item.get("content_quality_score"),
         "content_quality_metrics": item.get("content_quality_metrics", {}),
         "cross_sources": cross, "duration": mi["duration"],
         "width": mi["width"], "height": mi["height"]
