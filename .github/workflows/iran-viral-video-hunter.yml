@@ -27,9 +27,8 @@ jobs:
           python-version: "3.11"
       - name: Install media tools
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
-          pip install requests yt-dlp
+          ffmpeg -version | head -n 1
+          python -m pip install --disable-pip-version-check requests yt-dlp
       - name: Hunt and publish one new viral candidate
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
