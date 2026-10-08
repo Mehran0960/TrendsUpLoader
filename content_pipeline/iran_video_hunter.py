@@ -595,6 +595,43 @@ def article_candidates(item):
             out.append(u)
     return out[:6]
 
+def instagram_imginn_routes(url, limit=6):
+    """Resolve a public Instagram post through Imginn and return direct CDN media URLs."""
+    path = urlparse(str(url or "")).path
+    m = re.search(r"/(?:p|reel|tv)/([A-Za-z0-9_-]+)/?", path)
+    if not m:
+        return []
+    shortcode = m.group(1)
+    bases = ["https://imginn.com/p/"]
+    routes = []
+    seen = set()
+    for base in bases:
+        try:
+            page_url = base + shortcode + "/"
+            r = session.get(page_url, timeout=18, allow_redirects=True)
+            if not r.ok or "text/html" not in (r.headers.get("content-type") or "").lower():
+                continue
+            text = html.unescape(r.text[:8_000_000]).replace("\\/", "/")
+            found = []
+            for pat in (
+                r'href=["\\\'](https?://[^"\\\']+cdninstagram\\.com/[^"\\\']+(?:\\.mp4|\\?[^"\\\']*))["\\\']',
+                r'(https://scontent[^"\\\'<>\\s]+\\.mp4(?:\\?[^"\\\'<>\\s]*)?)',
+                r'(https://[^"\\\'<>\\s]*cdninstagram[^"\\\'<>\\s]+)',
+                r'<meta[^>]+(?:property|name)=["\\\']og:video(?::url)?["\\\'][^>]+content=["\\\']([^"\\\']+)',
+            ):
+                found.extend(re.findall(pat, text, re.I))
+            for u in found:
+                u = html.unescape(u).replace("\\", "").strip()
+                if u.startswith("http") and "cdninstagram.com" in u:
+                    if u not in seen:
+                        seen.add(u)
+                        routes.append(u)
+                        if len(routes) >= limit:
+                            return routes
+        except Exception as exc:
+            print("INSTAGRAM_IMGINN_FAIL", type(exc).__name__)
+    return routes
+
 def download_via_cobalt(url):
     """Use a locally running Cobalt API as the primary social-media acquisition path."""
     if not COBALT_API_URL:
