@@ -25,6 +25,7 @@ YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 PIPED_FALLBACKS = ["https://pipedapi.kavin.rocks","https://pipedapi.leptons.xyz","https://pipedapi.nosebs.ru","https://pipedapi.adminforge.de","https://api.piped.yt"]
 PERSIAN_RE = re.compile(r"[\u0600-\u06ff]")
 COBALT_API_URL = os.environ.get("COBALT_API_URL", "").strip().rstrip("/")
+BGUTIL_POT_URL = os.environ.get("BGUTIL_POT_URL", "http://127.0.0.1:4416").strip().rstrip("/")
 
 SOURCE_DOMAINS = [
     "hamshahrionline.ir","khabaronline.ir","mehrnews.com","isna.ir","irna.ir",
@@ -737,29 +738,31 @@ def search_web_mirror_routes(title, limit=5):
     return routes
 
 def download_youtube_via_ejs(url):
-    """Primary YouTube downloader: yt-dlp with the supported Deno/EJS challenge solver."""
-    outdir = tempfile.mkdtemp(prefix="ytdlp-ejs-")
+    """Primary YouTube acquisition via bgutil PO tokens + Deno/EJS."""
+    outdir = tempfile.mkdtemp(prefix="ytdlp-pot-")
     try:
         p = subprocess.run(
             [
                 "yt-dlp", "--no-playlist", "--no-warnings",
                 "--js-runtimes", "deno",
+                "--extractor-args", f"youtubepot-bgutilhttp:base_url={BGUTIL_POT_URL}",
+                "--extractor-args", "youtube:player-client=mweb",
                 "--max-filesize", "50M",
                 "-f", "bv*[ext=mp4][height<=720]+ba[ext=m4a]/b[ext=mp4]/b",
                 "--merge-output-format", "mp4",
                 "-o", str(Path(outdir) / "video.%(ext)s"),
                 url,
             ],
-            capture_output=True, text=True, timeout=90,
+            capture_output=True, text=True, timeout=75,
         )
         if p.returncode == 0:
             candidates = sorted(Path(outdir).glob("video.*"))
             if candidates:
-                print("YOUTUBE_EJS_ACQUIRED", youtube_video_id(url) or "")
+                print("YOUTUBE_POT_ACQUIRED", youtube_video_id(url) or "")
                 return str(candidates[0])
-        print("YOUTUBE_EJS_FAIL", p.stderr[-700:])
+        print("YOUTUBE_POT_FAIL", p.stderr[-1200:])
     except Exception as exc:
-        print("YOUTUBE_EJS_ERROR", type(exc).__name__)
+        print("YOUTUBE_POT_ERROR", type(exc).__name__)
     return None
 
 def local_download(url):
