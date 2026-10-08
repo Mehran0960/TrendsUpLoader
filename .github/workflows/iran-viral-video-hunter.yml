@@ -30,7 +30,7 @@ jobs:
         run: |
           docker run -d --init --name bgutil-provider -p 127.0.0.1:4416:4416 brainicism/bgutil-ytdlp-pot-provider:2.0.0
           for i in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:4416/ >/tmp/bgutil-health.txt 2>/dev/null; then
+            if curl -fsS http://127.0.0.1:4416/ping >/tmp/bgutil-health.txt 2>/dev/null; then
               echo "bgutil provider reachable"
               cat /tmp/bgutil-health.txt
               exit 0
