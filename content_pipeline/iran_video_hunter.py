@@ -744,7 +744,6 @@ def download_youtube_via_ejs(url):
             [
                 "yt-dlp", "--no-playlist", "--no-warnings",
                 "--js-runtimes", "deno",
-                "--remote-components", "ejs:github",
                 "--max-filesize", "50M",
                 "-f", "bv*[ext=mp4][height<=720]+ba[ext=m4a]/b[ext=mp4]/b",
                 "--merge-output-format", "mp4",
