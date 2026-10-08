@@ -557,6 +557,7 @@ def public_demand_score(item, corroboration=1):
         "comment_rate": round(comment_rate, 6),
         "age_hours": round(age_h, 2),
         "metric_source": item.get("metric_source", "youtube_api" if item.get("video_id") else "unknown"),
+        "score": round(total, 2),
     }
 
 def article_candidates(item):
@@ -1389,11 +1390,8 @@ def main():
         return 0
 
     _, _, item, url, path, h, mi, cross, attraction, cq = chosen
-    sc = float(item.get("demand_metrics", {}).get("views", 0) or 0)
     demand_score = float(item.get("demand_metrics", {}).get("score", 0) or 0)
     if demand_score <= 0:
-        # Preserve the original ranked score when the metric payload is not
-        # carrying a redundant "score" field.
         demand_score = next(
             (float(z[3]) for z in ranked if z[0].get("key") == item.get("key") and z[1] == url),
             0.0,
