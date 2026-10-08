@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
+  push:
+    paths:
+      - "content_pipeline/iran_video_hunter.py"
+      - ".github/workflows/iran-viral-video-hunter.yml"
 
 jobs:
   hunt:
