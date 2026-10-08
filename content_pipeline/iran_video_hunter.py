@@ -707,6 +707,33 @@ def download_youtube_via_piped(url):
                     return path
         except Exception as exc:
             print("YOUTUBE_PIPED_FAIL", api, type(exc).__name__)
+    # YouTube's current web_safari path can expose HLS formats that do not
+    # require a PO token for GVS at present.
+    if "youtube.com" in host or "youtu.be" in host:
+        outdir = tempfile.mkdtemp(prefix="ytdlp-hls-")
+        try:
+            p = subprocess.run(
+                [
+                    "yt-dlp", "--no-playlist", "--no-warnings",
+                    "--extractor-args", "youtube:player_client=web_safari",
+                    "--max-filesize", "50M",
+                    "-f", "best[protocol*=m3u8]/best[ext=mp4]/best",
+                    "--hls-prefer-native",
+                    "--merge-output-format", "mp4",
+                    "-o", str(Path(outdir) / "video.%(ext)s"),
+                    url,
+                ],
+                capture_output=True, text=True, timeout=100,
+            )
+            if p.returncode == 0:
+                candidates = sorted(Path(outdir).glob("video.*"))
+                if candidates:
+                    print("YOUTUBE_HLS_ACQUIRED", youtube_video_id(url) or "")
+                    return str(candidates[0])
+            print("YOUTUBE_HLS_FAIL", p.stderr[-500:])
+        except Exception as exc:
+            print("YOUTUBE_HLS_ERROR", type(exc).__name__)
+
     return None
 
 def local_download(url):
