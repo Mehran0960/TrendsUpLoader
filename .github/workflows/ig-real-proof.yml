@@ -1,0 +1,57 @@
+name: IG Real Viral Proof
+
+on:
+  push:
+    paths:
+      - ".github/workflows/ig-real-proof.yml"
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Start Cobalt
+        run: |
+          docker network create cobalt-net
+          docker run -d --init --name cobalt --network cobalt-net -p 9000:9000 ghcr.io/imputnet/cobalt:11
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:9000/ >/tmp/cobalt.txt 2>/dev/null; then
+              cat /tmp/cobalt.txt
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs cobalt || true
+          exit 1
+      - name: Install media tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          python -m pip install --disable-pip-version-check requests pillow numpy opencv-python-headless "yt-dlp[default]" yt-dlp-ejs
+      - name: Real Instagram source proof
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          COBALT_API_URL: http://127.0.0.1:9000
+          ONE_SHOT_VIDEO_URL: https://www.instagram.com/p/Da0LeSqx2ES/
+        run: python content_pipeline/iran_video_hunter.py
+      - name: Cleanup proof workflow
+        if: ${{ always() }}
+        run: |
+          docker rm -f cobalt 2>/dev/null || true
+          docker network rm cobalt-net 2>/dev/null || true
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm -f .github/workflows/ig-real-proof.yml 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'Remove one-shot Instagram proof workflow'
+            git fetch origin main
+            git rebase origin/main
+            git push
+          fi
