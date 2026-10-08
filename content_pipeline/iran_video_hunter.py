@@ -464,6 +464,32 @@ def apply_observed_momentum(items, state):
         )[:3000]
         state["observations"] = dict(newest)
 
+def persian_identity_score(item):
+    """Estimate Persian/Iranian identity without using topic or duration."""
+    title = str(item.get("title") or "")
+    desc = str(item.get("description") or "") + " " + str(item.get("channel_description") or "")
+    channel = str(item.get("channel_title") or "")
+    source = str(item.get("source") or "")
+    profile = str(item.get("youtube_search_profile") or "")
+    domain = urlparse(str(item.get("link") or "")).netloc.lower()
+    text = " ".join([title, desc, channel, source, profile])
+
+    persian_chars = len(PERSIAN_RE.findall(text))
+    score = 0.0
+    if persian_chars >= 8:
+        score += 0.62
+    elif persian_chars >= 3:
+        score += 0.42
+    if re.search(r"(?i)(persian|farsi|iranian|iran|پرشین|فارسی|ایرانی|ایران)", text):
+        score += 0.32
+    if str(item.get("channel_country") or "").upper() == "IR":
+        score += 0.55
+    if any(domain == d or domain.endswith("." + d) for d in SOURCE_DOMAINS):
+        score += 0.60
+    if profile:
+        score += 0.10
+    return round(min(1.0, score), 3)
+
 def public_demand_score(item, corroboration=1):
     """Demand-first score. Duration/topic/visual aesthetics do not influence rank."""
     import math
@@ -561,6 +587,83 @@ def article_candidates(item):
             out.append(u)
     return out[:6]
 
+def piped_api_instances():
+    """Load current public Piped APIs, with static fallbacks."""
+    urls = []
+    try:
+        r = session.get(
+            "https://raw.githubusercontent.com/TeamPiped/documentation/main/content/docs/public-instances/index.md",
+            timeout=12,
+        )
+        if r.ok:
+            urls.extend(re.findall(r"https://(?:pipedapi[^\s|]+|api\.piped\.yt)", r.text))
+    except Exception:
+        pass
+    urls.extend(PIPED_FALLBACKS)
+    out = []
+    seen = set()
+    for u in urls:
+        u = str(u).strip().rstrip(").,")
+        if u and u not in seen:
+            seen.add(u)
+            out.append(u)
+    return out[:12]
+
+def download_direct_file(url, suffix=".mp4", max_bytes=52 * 1024 * 1024):
+    fd, path = tempfile.mkstemp(suffix=suffix)
+    os.close(fd)
+    try:
+        with session.get(url, stream=True, timeout=40, allow_redirects=True) as r:
+            r.raise_for_status()
+            if "text/html" in (r.headers.get("content-type") or "").lower():
+                return None
+            total = 0
+            with open(path, "wb") as f:
+                for chunk in r.iter_content(1024 * 128):
+                    if not chunk:
+                        continue
+                    total += len(chunk)
+                    if total > max_bytes:
+                        return None
+                    f.write(chunk)
+        if total < 100_000:
+            return None
+        return path
+    except Exception:
+        try:
+            os.unlink(path)
+        except Exception:
+            pass
+        return None
+
+def download_youtube_via_piped(url):
+    """Use unauthenticated Piped streams before falling back to yt-dlp."""
+    vid = youtube_video_id(url)
+    if not vid:
+        return None
+    for api in piped_api_instances():
+        try:
+            r = session.get(f"{api}/streams/{vid}", timeout=25)
+            if not r.ok:
+                continue
+            data = r.json()
+            streams = [
+                s for s in (data.get("videoStreams") or [])
+                if str(s.get("mimeType") or "").startswith("video/mp4")
+                and not bool(s.get("videoOnly"))
+                and str(s.get("url") or "").startswith("http")
+                and int(s.get("height") or 0) <= 720
+            ]
+            streams.sort(key=lambda s: int(s.get("height") or 0), reverse=True)
+            for stream in streams:
+                path = download_direct_file(str(stream["url"]), ".mp4")
+                if path:
+                    print("YOUTUBE_PIPED_ACQUIRED", api, vid, stream.get("quality"))
+                    return path
+        except Exception as exc:
+            print("YOUTUBE_PIPED_FAIL", api, type(exc).__name__)
+    return None
+
 def local_download(url):
     if M3U8.search(url):
         return None
@@ -570,6 +673,10 @@ def local_download(url):
         "x.com","twitter.com","aparat.com"
     ])
     if social:
+        if "youtube.com" in host or "youtu.be" in host:
+            piped_path = download_youtube_via_piped(url)
+            if piped_path:
+                return piped_path
         outdir = tempfile.mkdtemp(prefix="ytdlp-")
         try:
             p = subprocess.run(
@@ -593,32 +700,7 @@ def local_download(url):
         except Exception as e:
             print("YTDLP_ERROR", host, type(e).__name__)
             return None
-
-    fd, path = tempfile.mkstemp(suffix=".mp4")
-    os.close(fd)
-    try:
-        with session.get(url, stream=True, timeout=35, allow_redirects=True) as r:
-            r.raise_for_status()
-            if "text/html" in (r.headers.get("content-type") or "").lower():
-                return None
-            total = 0
-            with open(path, "wb") as f:
-                for chunk in r.iter_content(1024*128):
-                    if not chunk:
-                        continue
-                    total += len(chunk)
-                    if total > 52 * 1024 * 1024:
-                        return None
-                    f.write(chunk)
-        if total < 100_000:
-            return None
-        return path
-    except Exception:
-        try:
-            os.unlink(path)
-        except Exception:
-            pass
-        return None
+    return download_direct_file(url)
 
 def media_info(path):
     try:
