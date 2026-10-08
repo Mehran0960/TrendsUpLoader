@@ -22,6 +22,8 @@ TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TARGET = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
+PIPED_FALLBACKS = ["https://pipedapi.kavin.rocks","https://pipedapi.leptons.xyz","https://pipedapi.nosebs.ru","https://pipedapi.adminforge.de","https://api.piped.yt"]
+PERSIAN_RE = re.compile(r"[\u0600-\u06ff]")
 
 SOURCE_DOMAINS = [
     "hamshahrionline.ir","khabaronline.ir","mehrnews.com","isna.ir","irna.ir",
