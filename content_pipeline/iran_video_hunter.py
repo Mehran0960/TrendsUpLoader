@@ -80,6 +80,13 @@ def rss_items(query):
     return out
 
 def article_candidates(item):
+    host = urlparse(item["link"]).netloc.lower()
+    # Social/video platform URLs can be handed directly to yt-dlp.
+    if any(x in host for x in [
+        "youtube.com","youtu.be","tiktok.com","instagram.com",
+        "x.com","twitter.com","aparat.com"
+    ]):
+        return [item["link"]]
     try:
         r = session.get(item["link"], timeout=20, allow_redirects=True)
         if r.status_code >= 400:
@@ -110,6 +117,36 @@ def article_candidates(item):
 def local_download(url):
     if M3U8.search(url):
         return None
+    host = urlparse(url).netloc.lower()
+    social = any(x in host for x in [
+        "youtube.com","youtu.be","tiktok.com","instagram.com",
+        "x.com","twitter.com","aparat.com"
+    ])
+    if social:
+        outdir = tempfile.mkdtemp(prefix="ytdlp-")
+        try:
+            p = subprocess.run(
+                [
+                    "yt-dlp", "--no-playlist", "--no-warnings",
+                    "--max-filesize", "50M",
+                    "-f", "bv*[ext=mp4][height<=1080]+ba[ext=m4a]/b[ext=mp4]/b",
+                    "--merge-output-format", "mp4",
+                    "-o", str(Path(outdir) / "video.%(ext)s"),
+                    url,
+                ],
+                capture_output=True, text=True, timeout=100,
+            )
+            if p.returncode != 0:
+                print("YTDLP_FAIL", host, p.stderr[-500:])
+                return None
+            candidates = sorted(Path(outdir).glob("video.*"))
+            if not candidates:
+                return None
+            return str(candidates[0])
+        except Exception as e:
+            print("YTDLP_ERROR", host, type(e).__name__)
+            return None
+
     fd, path = tempfile.mkstemp(suffix=".mp4")
     os.close(fd)
     try:
@@ -267,6 +304,29 @@ def main():
     queries = [f"site:{d} ({term})" for d in SOURCE_DOMAINS for term in QUERY_TERMS[:8]]
     queries.extend(platform_queries)
     items = {}
+
+    # Feed fresh YouTube chart discoveries from the global radar into the
+    # same candidate queue, so a strong video can move straight to testing.
+    radar_path = ROOT / "attention_state" / "public_radar.json"
+    try:
+        radar = json.loads(radar_path.read_text(encoding="utf-8"))
+        for s in radar.get("signals", []):
+            link = str(s.get("url") or s.get("video_url") or "").strip()
+            title = str(s.get("title") or "").strip()
+            if not link or not title:
+                continue
+            x = {
+                "title": title,
+                "link": link,
+                "source": "YouTube radar",
+                "pub": str(s.get("published_at") or ""),
+                "age_hours": max(0.0, float(s.get("age_hours") or 0.0)),
+            }
+            key_text = re.sub(r"\\s+", " ", title.lower()) + "|" + link.split("?")[0]
+            x["key"] = hashlib.sha256(key_text.encode()).hexdigest()
+            items[x["key"]] = x
+    except Exception as e:
+        print("RADAR_FEED_FAIL", type(e).__name__)
     for q in queries:
         try:
             for x in rss_items(q):
