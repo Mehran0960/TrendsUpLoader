@@ -709,6 +709,33 @@ def download_youtube_via_piped(url):
             print("YOUTUBE_PIPED_FAIL", api, type(exc).__name__)
     return None
 
+def search_web_mirror_routes(title, limit=5):
+    """Find article copies of the same viral item that may expose a direct MP4."""
+    title = re.sub(r"\s+", " ", str(title or "")).strip()
+    if not title:
+        return []
+    routes = []
+    seen = set()
+    queries = [
+        f'"{title[:180]}" (ویدئو OR ویدیو OR فیلم)',
+        f'"{title[:180]}" ایران',
+    ]
+    for q in queries:
+        try:
+            for item in rss_items(q):
+                link = str(item.get("link") or "").strip()
+                if not link or platform_of(link) != "web":
+                    continue
+                for route in article_candidates(item):
+                    if route not in seen:
+                        seen.add(route)
+                        routes.append(route)
+                        if len(routes) >= limit:
+                            return routes
+        except Exception as exc:
+            print("WEB_MIRROR_SEARCH_FAIL", type(exc).__name__)
+    return routes
+
 def local_download(url):
     if M3U8.search(url):
         return None
@@ -1103,6 +1130,32 @@ def main():
             float(z[0].get("age_hours") or 999999),
         )
     )
+
+    # Before acquisition, enrich only the top demand candidates with article
+    # mirrors. This preserves demand-first ranking while adding alternate MP4 routes.
+    expanded = list(ranked)
+    mirror_seen = set()
+    for base in ranked[:20]:
+        x, original_url, cross, demand, dm = base
+        if platform_of(original_url) not in {"youtube", "tiktok", "instagram", "x"}:
+            continue
+        ident = public_identity(x)
+        if ident in mirror_seen:
+            continue
+        mirror_seen.add(ident)
+        for route in search_web_mirror_routes(x.get("title"), limit=5):
+            if route != original_url:
+                expanded.append((x, route, cross, demand, dm))
+    expanded.sort(
+        key=lambda z: (
+            -z[3],
+            -int(z[0].get("shares") or 0),
+            -int(z[0].get("likes") or 0),
+            -int(z[0].get("views") or 0),
+            float(z[0].get("age_hours") or 999999),
+        )
+    )
+    ranked = expanded
 
     print("DISCOVERED_ARTICLES", len(items),
           "PERSIAN_IDENTITY_REJECTIONS", identity_rejections,
