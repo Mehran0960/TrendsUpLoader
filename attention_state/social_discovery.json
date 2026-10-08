@@ -1,7 +1,23 @@
 {
-  "version": 1,
-  "updated_at": "2026-10-08T17:13:32.501152+00:00",
-  "status": "waiting_for_firecrawl_key",
-  "count": 0,
-  "items": []
+  "version": 2,
+  "updated_at": "2026-10-08T21:59:51.641223+00:00",
+  "status": "bing_fallback",
+  "count": 1,
+  "items": [
+    {
+      "id": "f3d521fe0bafff4bbb63b781889abd0c1176d7e5e8ecb18bd0ffba6dcfee96f0",
+      "url": "https://www.instagram.com/nakhlmusic/",
+      "title": "instagram.com    https://www.instagram.com › nakhlmusic",
+      "description": "111K Followers, 353 Following, 1,639 Posts - ‎🎵 نخل موزیک 🌴 (@nakhlmusic)‎ on Instagram: \"‎نخل موزیک - رسانه موسیقی جنوب‎\"",
+      "platform": "instagram",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "persian_signal": true,
+      "discovered_at": "2026-10-08T21:59:51.641223+00:00",
+      "source": "bing_search",
+      "query": 0
+    }
+  ]
 }
