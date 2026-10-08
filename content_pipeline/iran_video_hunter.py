@@ -20,6 +20,7 @@ STATE_PATH = ROOT / "attention_state" / "iran_video_hunter_state.json"
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TARGET = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
+YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 
 SOURCE_DOMAINS = [
     "hamshahrionline.ir","khabaronline.ir","mehrnews.com","isna.ir","irna.ir",
@@ -85,6 +86,98 @@ def rss_items(query):
             pass
         out.append({"title": title, "link": link, "source": source, "pub": pub, "age_hours": age_h})
     return out
+
+def youtube_video_id(url):
+    host = urlparse(str(url or "")).netloc.lower()
+    path = urlparse(str(url or "")).path
+    query = urlparse(str(url or "")).query
+    if "youtu.be" in host:
+        return path.strip("/").split("/")[0] or None
+    if "youtube.com" in host:
+        m = re.search(r"(?:^|&)v=([A-Za-z0-9_-]{6,})", query)
+        if m:
+            return m.group(1)
+        m = re.search(r"/shorts/([A-Za-z0-9_-]{6,})", path)
+        if m:
+            return m.group(1)
+    return None
+
+def enrich_youtube_metrics(items):
+    """Attach public YouTube demand metrics before any media download."""
+    if not YOUTUBE_KEY:
+        return
+    ids = []
+    for item in items.values():
+        vid = str(item.get("video_id") or youtube_video_id(item.get("link")) or "").strip()
+        if vid:
+            item["video_id"] = vid
+            ids.append(vid)
+    ids = list(dict.fromkeys(ids))
+    for i in range(0, len(ids), 50):
+        batch = ids[i:i+50]
+        try:
+            r = session.get(
+                "https://www.googleapis.com/youtube/v3/videos",
+                params={"key": YOUTUBE_KEY, "part": "snippet,contentDetails,statistics",
+                        "id": ",".join(batch), "maxResults": 50},
+                timeout=30,
+            )
+            r.raise_for_status()
+            data = r.json()
+        except Exception as exc:
+            print("YOUTUBE_METRICS_FAIL", type(exc).__name__)
+            continue
+        by_id = {str(x.get("id")): x for x in data.get("items", []) or []}
+        for item in items.values():
+            raw = by_id.get(str(item.get("video_id") or ""))
+            if not raw:
+                continue
+            stats = raw.get("statistics") or {}
+            snippet = raw.get("snippet") or {}
+            views = int(stats.get("viewCount") or 0)
+            likes = int(stats.get("likeCount") or 0)
+            comments = int(stats.get("commentCount") or 0)
+            published = str(snippet.get("publishedAt") or item.get("published_at") or "")
+            age_h = float(item.get("age_hours") or 999999.0)
+            try:
+                age_h = max(
+                    0.0,
+                    (datetime.now(timezone.utc) -
+                     datetime.fromisoformat(published.replace("Z", "+00:00"))).total_seconds()/3600.0
+                )
+            except Exception:
+                pass
+            item.update({
+                "views": views, "likes": likes, "comments": comments,
+                "published_at": published,
+                "age_hours": age_h,
+                "like_rate": likes/max(1, views),
+                "comment_rate": comments/max(1, views),
+            })
+
+def public_demand_score(item, corroboration=1):
+    """Rank by measurable public demand; never by topic, title cues, or duration."""
+    views = max(0, int(item.get("views") or 0))
+    likes = max(0, int(item.get("likes") or 0))
+    comments = max(0, int(item.get("comments") or 0))
+    age_h = max(0.25, float(item.get("age_hours") or 999999.0))
+    if views <= 0:
+        return 0.0, {"evidence": False}
+    velocity = views/age_h
+    like_rate = likes/max(1, views)
+    comment_rate = comments/max(1, views)
+    volume = min(30.0, 5.0*__import__("math").log10(views+1))
+    velocity_score = min(35.0, 6.0*__import__("math").log10(velocity+1))
+    engagement = min(20.0, 400.0*like_rate) + min(10.0, 500.0*comment_rate)
+    corroboration_score = min(5.0, 1.5*max(0, corroboration-1))
+    freshness = 5.0*max(0.0, 1.0-min(age_h/72.0, 1.0))
+    total = min(100.0, volume + velocity_score + engagement + corroboration_score + freshness)
+    return round(total, 2), {
+        "evidence": True, "views": views, "likes": likes, "comments": comments,
+        "velocity_views_per_hour": round(velocity, 2),
+        "like_rate": round(like_rate, 6), "comment_rate": round(comment_rate, 6),
+        "age_hours": round(age_h, 2),
+    }
 
 def article_candidates(item):
     host = urlparse(item["link"]).netloc.lower()
@@ -280,42 +373,8 @@ def send_video(path, title, source):
         raise RuntimeError(data)
     return data["result"]
 
-def score(item, duration, cross_count):
-    title = item["title"]
-    viral_cues = [
-        "جنجالی","باورنکردنی","عجیب","لحظه","پربازدید","واکنش",
-        "فوری","افشا","غافلگیر","وایرال","درگیری","کشف","ممنوع"
-    ]
-    fun_cues = [
-        "خنده دار","بامزه","سوتی","شوخی","فیل","گربه","سگ","طنز",
-        "کمدی","فان","مسخره","باحال","عجیب ترین","غافلگیرکننده"
-    ]
-    cues = sum(1 for w in viral_cues if w in title)
-    fun = sum(1 for w in fun_cues if w in title)
-    freshness = max(0.0, 1.0 - item["age_hours"] / 48.0)
-    source_boost = 1 if any(d in item["link"] for d in SOURCE_DOMAINS) else 0
-
-    # Entertainment-first: short clips receive a meaningful advantage.
-    if 5 <= duration <= 20:
-        duration_score = 1.0
-    elif 20 < duration <= 45:
-        duration_score = 0.82
-    elif 45 < duration <= 75:
-        duration_score = 0.58
-    elif duration <= 120:
-        duration_score = 0.25
-    else:
-        duration_score = 0.0
-
-    return round(
-        39*freshness
-        + 9*min(cues,4)
-        + 12*min(fun,3)
-        + 8*min(cross_count,4)
-        + 4*source_boost
-        + 18*duration_score,
-        2,
-    )
+def score(item, corroboration):
+    return public_demand_score(item, corroboration)[0]
 
 def main():
     if not TOKEN or not TARGET:
