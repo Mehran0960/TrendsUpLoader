@@ -24,12 +24,26 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Start bgutil PO token provider
+        run: |
+          docker run -d --init --name bgutil-provider -p 127.0.0.1:4416:4416 brainicism/bgutil-ytdlp-pot-provider:2.0.0
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4416/ >/tmp/bgutil-health.txt 2>/dev/null; then
+              echo "bgutil provider reachable"
+              cat /tmp/bgutil-health.txt
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs bgutil-provider || true
+          exit 1
+
       - name: Install yt-dlp and Deno
         run: |
           curl -fsSL https://deno.land/install.sh | sh
           export PATH="$HOME/.deno/bin:$PATH"
           echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
-          python -m pip install --disable-pip-version-check "yt-dlp[default]" yt-dlp-ejs requests
+          python -m pip install --disable-pip-version-check "yt-dlp[default]" yt-dlp-ejs requests bgutil-ytdlp-pot-provider
           deno --version
           yt-dlp --version
 
@@ -40,3 +54,4 @@ jobs:
         run: |
           export PATH="$HOME/.deno/bin:$PATH"
           python content_pipeline/telegram_output_proof.py
+          docker rm -f bgutil-provider 2>/dev/null || true
