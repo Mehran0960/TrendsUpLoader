@@ -35,7 +35,7 @@
       "test_mode": true
     }
   ],
-  "last_scan": "2026-10-08T20:54:22.645161+00:00",
+  "last_scan": "2026-10-08T21:00:21.350258+00:00",
   "last_result": "no_high_demand_video_acquired",
   "last_copy": {
     "at": "2026-10-08T09:39:29.741631+00:00",
@@ -53,269 +53,269 @@
   },
   "observations": {
     "youtube:5EQyPC2tY_U": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 34418827,
-      "likes": 414215,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 34422903,
+      "likes": 414152,
       "comments": 1909,
       "shares": 0
     },
     "youtube:MSPVq-5sbCg": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 29583858,
-      "likes": 658377,
-      "comments": 5796,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 29625847,
+      "likes": 658306,
+      "comments": 5797,
       "shares": 0
     },
     "youtube:bJkVNDRksDY": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 60382010,
-      "likes": 1254025,
-      "comments": 4807,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 60433066,
+      "likes": 1254357,
+      "comments": 4814,
       "shares": 0
     },
     "youtube:1xI_lsZ4sxI": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 31462063,
-      "likes": 865585,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 31465095,
+      "likes": 865655,
       "comments": 4243,
       "shares": 0
     },
     "youtube:8tVozXGS33k": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5000948,
-      "likes": 206774,
-      "comments": 10998,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5003171,
+      "likes": 206853,
+      "comments": 11001,
       "shares": 0
     },
     "youtube:plN7JMbadRg": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 185367165,
-      "likes": 3372975,
-      "comments": 125109,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 185450511,
+      "likes": 3373620,
+      "comments": 125131,
       "shares": 0
     },
     "youtube:_1R5FKG_MC0": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5910358,
-      "likes": 281269,
-      "comments": 4548,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5911400,
+      "likes": 281307,
+      "comments": 4549,
       "shares": 0
     },
     "youtube:ssRH9gJdJdM": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 7532705,
-      "likes": 120329,
-      "comments": 547,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 7535345,
+      "likes": 120353,
+      "comments": 548,
       "shares": 0
     },
     "youtube:aN8dInVmhV0": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 12571430,
-      "likes": 288680,
-      "comments": 9084,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 12575284,
+      "likes": 288695,
+      "comments": 9093,
       "shares": 0
     },
     "youtube:rZPvGAiRYlo": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 17002784,
-      "likes": 528667,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 17015787,
+      "likes": 528779,
       "comments": 4448,
       "shares": 0
     },
     "youtube:zP3iyQFKfaU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3803983,
-      "likes": 91802,
-      "comments": 507,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3806234,
+      "likes": 91787,
+      "comments": 508,
       "shares": 0
     },
     "youtube:7Az0iUaWsSw": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 8625210,
-      "likes": 99616,
-      "comments": 555,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 8633025,
+      "likes": 99773,
+      "comments": 556,
       "shares": 0
     },
     "youtube:aaGyayYKfMk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3252159,
-      "likes": 29143,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3255913,
+      "likes": 29101,
       "comments": 197,
       "shares": 0
     },
     "youtube:NlZpr4B59aE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 33400983,
-      "likes": 751724,
-      "comments": 11768,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 33407642,
+      "likes": 751761,
+      "comments": 11770,
       "shares": 0
     },
     "youtube:C-GZdIT1_I0": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 10874853,
-      "likes": 476969,
-      "comments": 6344,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 10892212,
+      "likes": 476921,
+      "comments": 6350,
       "shares": 0
     },
     "youtube:48xCRlB3QRA": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 15963993,
-      "likes": 258356,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 15968407,
+      "likes": 258337,
       "comments": 1317,
       "shares": 0
     },
     "youtube:-oVQgcuw_sk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3643638,
-      "likes": 50953,
-      "comments": 276,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3646883,
+      "likes": 51008,
+      "comments": 277,
       "shares": 0
     },
     "youtube:V1-mpBqKErE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 6921287,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 6922735,
       "likes": 0,
       "comments": 355,
       "shares": 0
     },
     "youtube:jF1AxPovjrc": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 24059971,
-      "likes": 348064,
-      "comments": 1793,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 24067468,
+      "likes": 348038,
+      "comments": 1794,
       "shares": 0
     },
     "youtube:m40siw6NUn4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 7139827,
-      "likes": 116155,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 7145349,
+      "likes": 116198,
       "comments": 336,
       "shares": 0
     },
     "youtube:_k2w1cC69qY": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 21419739,
-      "likes": 405438,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 21425711,
+      "likes": 405493,
       "comments": 1167,
       "shares": 0
     },
     "youtube:7pxPckvZXfQ": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 8986687,
-      "likes": 194715,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 8988634,
+      "likes": 194757,
       "comments": 1362,
       "shares": 0
     },
     "youtube:Cw8z4CkJrio": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 16929216,
-      "likes": 368264,
-      "comments": 1290,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 16935067,
+      "likes": 368317,
+      "comments": 1291,
       "shares": 0
     },
     "youtube:zVVh37YkWtU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 16177590,
-      "likes": 165667,
-      "comments": 2008,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 16180185,
+      "likes": 165725,
+      "comments": 2009,
       "shares": 0
     },
     "youtube:sF9X6u1QG7A": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 2799454,
-      "likes": 138347,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 2799890,
+      "likes": 138362,
       "comments": 4004,
       "shares": 0
     },
     "youtube:NBiYnk1VuOo": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 9201520,
-      "likes": 358832,
-      "comments": 4273,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 9205781,
+      "likes": 358860,
+      "comments": 4274,
       "shares": 0
     },
     "youtube:PaBLPgZt-WE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 4864419,
-      "likes": 163207,
-      "comments": 2583,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 4867833,
+      "likes": 163248,
+      "comments": 2584,
       "shares": 0
     },
     "youtube:1b8cx1EqW_g": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 10586503,
-      "likes": 238957,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 10586583,
+      "likes": 238958,
       "comments": 173,
       "shares": 0
     },
     "youtube:XHdTdHE8EWU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1739916,
-      "likes": 38519,
-      "comments": 1945,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1741894,
+      "likes": 38536,
+      "comments": 1946,
       "shares": 0
     },
     "youtube:XIr-C83fYwU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 6998315,
-      "likes": 85344,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 7000625,
+      "likes": 85382,
       "comments": 754,
       "shares": 0
     },
     "youtube:5vdzBxLjVqU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 6978342,
-      "likes": 96382,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 6987587,
+      "likes": 96335,
       "comments": 222,
       "shares": 0
     },
     "youtube:FW_PPcr1sPE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 17188481,
-      "likes": 451394,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 17192283,
+      "likes": 451406,
       "comments": 26247,
       "shares": 0
     },
     "youtube:Xmq5Dtek2lg": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 7671828,
-      "likes": 179419,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 7679719,
+      "likes": 179502,
       "comments": 809,
       "shares": 0
     },
     "youtube:7lHS-C6mIqo": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1907956,
-      "likes": 38359,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1911077,
+      "likes": 38405,
       "comments": 653,
       "shares": 0
     },
     "youtube:lS4DJMtQTBs": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 8467641,
-      "likes": 129438,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 8472008,
+      "likes": 129325,
       "comments": 1735,
       "shares": 0
     },
     "youtube:rcVDxHE1EwQ": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 6564433,
-      "likes": 157373,
-      "comments": 1239,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 6567248,
+      "likes": 157426,
+      "comments": 1240,
       "shares": 0
     },
     "youtube:D2Ej0fXFReQ": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 13204481,
-      "likes": 349937,
-      "comments": 21615,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 13208210,
+      "likes": 349986,
+      "comments": 21620,
       "shares": 0
     },
     "youtube:xSPgFH5yBRE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 18543985,
-      "likes": 219616,
-      "comments": 16829,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 18552466,
+      "likes": 219652,
+      "comments": 16832,
       "shares": 0
     },
     "youtube:3d7oVagsV_g": {
@@ -326,156 +326,156 @@
       "shares": 0
     },
     "youtube:3d6HPLENFt4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1149659,
-      "likes": 23068,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1149924,
+      "likes": 23066,
       "comments": 2155,
       "shares": 0
     },
     "youtube:CH6WrSKvNOY": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 12531896,
-      "likes": 426760,
-      "comments": 17865,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 12535480,
+      "likes": 426877,
+      "comments": 17873,
       "shares": 0
     },
     "youtube:AOzvvHLDcV0": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3167890,
-      "likes": 35241,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3171379,
+      "likes": 35246,
       "comments": 592,
       "shares": 0
     },
     "youtube:3DpCX_bXDlY": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1994104,
-      "likes": 42122,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1995289,
+      "likes": 42125,
       "comments": 711,
       "shares": 0
     },
     "youtube:UI4Xat5hmOg": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 4687467,
-      "likes": 178776,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 4690582,
+      "likes": 178792,
       "comments": 882,
       "shares": 0
     },
     "youtube:Rz_SB57gSA4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5274383,
-      "likes": 30280,
-      "comments": 442,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5280266,
+      "likes": 30274,
+      "comments": 443,
       "shares": 0
     },
     "youtube:lGUnJhOdzKQ": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1478474,
-      "likes": 33934,
-      "comments": 28,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1479523,
+      "likes": 33924,
+      "comments": 29,
       "shares": 0
     },
     "youtube:aH-yY0Lttj4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5234318,
-      "likes": 117743,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5234820,
+      "likes": 117741,
       "comments": 409,
       "shares": 0
     },
     "youtube:QXDCp7jVO8M": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 20433261,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 20451736,
       "likes": 0,
       "comments": 970,
       "shares": 0
     },
     "youtube:fVOleLZYAQo": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 34834080,
-      "likes": 179953,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 34842808,
+      "likes": 179952,
       "comments": 29,
       "shares": 0
     },
     "youtube:Uxx0p2ER-pk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3356912,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3357145,
       "likes": 18848,
       "comments": 2909,
       "shares": 0
     },
     "youtube:LDPKbvZw2aA": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 2704597,
-      "likes": 119089,
-      "comments": 3122,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 2705786,
+      "likes": 119152,
+      "comments": 3124,
       "shares": 0
     },
     "youtube:Jrzx0YYH43I": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 11895007,
-      "likes": 49251,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 11899455,
+      "likes": 49208,
       "comments": 27,
       "shares": 0
     },
     "youtube:Fhx0TUWY5hk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 9460650,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 9461221,
       "likes": 152918,
       "comments": 267,
       "shares": 0
     },
     "youtube:SGJWmSgMOIk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3400594,
-      "likes": 37203,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3403066,
+      "likes": 37185,
       "comments": 332,
       "shares": 0
     },
     "youtube:1Z9fYLhypiQ": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 2207632,
-      "likes": 77816,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 2208875,
+      "likes": 77807,
       "comments": 338,
       "shares": 0
     },
     "youtube:9z3a7Nb4QSk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1724230,
-      "likes": 35611,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1725793,
+      "likes": 35633,
       "comments": 95,
       "shares": 0
     },
     "youtube:2iyXoJN3p2c": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 18166454,
-      "likes": 324796,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 18176062,
+      "likes": 324869,
       "comments": 1846,
       "shares": 0
     },
     "youtube:417Lc5wTynU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 4196006,
-      "likes": 60064,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 4198939,
+      "likes": 60082,
       "comments": 114,
       "shares": 0
     },
     "youtube:5Jt65A2L41g": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5794622,
-      "likes": 128489,
-      "comments": 1623,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5799828,
+      "likes": 128542,
+      "comments": 1625,
       "shares": 0
     },
     "youtube:tIp8K20dUU8": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 14608385,
-      "likes": 186806,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 14618159,
+      "likes": 186802,
       "comments": 308,
       "shares": 0
     },
     "youtube:LsJlzH9ihIo": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 43631264,
-      "likes": 873307,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 43662067,
+      "likes": 873452,
       "comments": 827,
       "shares": 0
     },
@@ -487,51 +487,51 @@
       "shares": 0
     },
     "youtube:tsUJ8RMTv1o": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5695194,
-      "likes": 273661,
-      "comments": 13145,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5703276,
+      "likes": 273896,
+      "comments": 13159,
       "shares": 0
     },
     "youtube:nJMztbwLAFE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 10732203,
-      "likes": 105224,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 10735449,
+      "likes": 105218,
       "comments": 91,
       "shares": 0
     },
     "youtube:AJv18_xXPoQ": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 2834242,
-      "likes": 75752,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 2834563,
+      "likes": 75754,
       "comments": 1218,
       "shares": 0
     },
     "youtube:K27LaEAR6YU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3901863,
-      "likes": 25225,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3908111,
+      "likes": 25199,
       "comments": 240,
       "shares": 0
     },
     "youtube:beBJi_YKB9s": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 7626711,
-      "likes": 125635,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 7635140,
+      "likes": 125691,
       "comments": 1113,
       "shares": 0
     },
     "youtube:3NF5i5o127s": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 13174599,
-      "likes": 158244,
-      "comments": 1498,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 13182642,
+      "likes": 158247,
+      "comments": 1500,
       "shares": 0
     },
     "youtube:BvdVQC2Ff7c": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 433223,
-      "likes": 3807,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 433489,
+      "likes": 3801,
       "comments": 24,
       "shares": 0
     },
@@ -543,65 +543,65 @@
       "shares": 0
     },
     "youtube:Vfe7xUFaYEg": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 4097796,
-      "likes": 87658,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 4104370,
+      "likes": 87655,
       "comments": 398,
       "shares": 0
     },
     "youtube:Lt2RT2UaGRo": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 2576852,
-      "likes": 39453,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 2579964,
+      "likes": 39416,
       "comments": 725,
       "shares": 0
     },
     "youtube:tArTTwrusso": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1062088,
-      "likes": 33545,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1062657,
+      "likes": 33542,
       "comments": 16,
       "shares": 0
     },
     "youtube:C1rBSssJI0Q": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 3244325,
-      "likes": 44639,
-      "comments": 9126,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 3251360,
+      "likes": 44633,
+      "comments": 9129,
       "shares": 0
     },
     "youtube:o5RxKXerG0s": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1932224,
-      "likes": 5706,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1933645,
+      "likes": 5702,
       "comments": 58,
       "shares": 0
     },
     "youtube:6TbiqrFTis4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1283457,
-      "likes": 23881,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1283731,
+      "likes": 23890,
       "comments": 154,
       "shares": 0
     },
     "youtube:00zr4UUe2K4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 18899165,
-      "likes": 155162,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 18905437,
+      "likes": 155173,
       "comments": 14398,
       "shares": 0
     },
     "youtube:M0kPLTHQ02I": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 2879733,
-      "likes": 34693,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 2880420,
+      "likes": 34715,
       "comments": 51,
       "shares": 0
     },
     "youtube:maKQFZVJytw": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 12214614,
-      "likes": 270507,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 12219600,
+      "likes": 270505,
       "comments": 737,
       "shares": 0
     },
@@ -809,30 +809,30 @@
       "shares": 0
     },
     "youtube:Pduz6AVWgAc": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 861927,
-      "likes": 4956,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 863816,
+      "likes": 4966,
       "comments": 99,
       "shares": 0
     },
     "youtube:G82Dx6qKUKM": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1499784,
-      "likes": 18344,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1502686,
+      "likes": 18333,
       "comments": 148,
       "shares": 0
     },
     "youtube:vVoITvAys_U": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 23073723,
-      "likes": 407516,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 23074664,
+      "likes": 407513,
       "comments": 1238,
       "shares": 0
     },
     "youtube:WIB8A4stKKs": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 10935882,
-      "likes": 68471,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 10938925,
+      "likes": 68455,
       "comments": 34,
       "shares": 0
     },
@@ -1012,197 +1012,197 @@
       "shares": 0
     },
     "youtube:bVZqPgWWx_4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 242350,
-      "likes": 2669,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 242596,
+      "likes": 2667,
       "comments": 706,
       "shares": 0
     },
     "youtube:MtzlErhmWe8": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 118566,
-      "likes": 5573,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 118625,
+      "likes": 5569,
       "comments": 82,
       "shares": 0
     },
     "youtube:zlD38V_4lLs": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 53637,
-      "likes": 2640,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 53675,
+      "likes": 2639,
       "comments": 283,
       "shares": 0
     },
     "youtube:AZgE-jnAAh8": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 30962,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 30991,
       "likes": 272,
       "comments": 22,
       "shares": 0
     },
     "youtube:GYNxsHQDufg": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 23798,
-      "likes": 785,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 23827,
+      "likes": 781,
       "comments": 172,
       "shares": 0
     },
     "youtube:sWxpoCVs5mc": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 15584,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 15620,
       "likes": 101,
       "comments": 4,
       "shares": 0
     },
     "youtube:LYj391dFUSU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 23776,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 23769,
       "likes": 0,
       "comments": 3,
       "shares": 0
     },
     "youtube:yKr4eJKaEzE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 24475,
-      "likes": 965,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 24489,
+      "likes": 962,
       "comments": 175,
       "shares": 0
     },
     "youtube:05R9d5H3AlU": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 19216,
-      "likes": 296,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 19256,
+      "likes": 295,
       "comments": 44,
       "shares": 0
     },
     "youtube:OAF3xzGXSuk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 14491,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 14508,
       "likes": 126,
       "comments": 0,
       "shares": 0
     },
     "youtube:F0fFIGJuelg": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 13014,
-      "likes": 667,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 13017,
+      "likes": 666,
       "comments": 32,
       "shares": 0
     },
     "youtube:boUX-hHJg_Q": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
+      "at": "2026-10-08T20:57:06.166492+00:00",
       "views": 6541,
       "likes": 377,
       "comments": 6,
       "shares": 0
     },
     "youtube:8sqJzcWeBGk": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 6848,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 6854,
       "likes": 156,
       "comments": 8,
       "shares": 0
     },
     "youtube:D-hYyTGeIdc": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5213,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5216,
       "likes": 62,
       "comments": 5,
       "shares": 0
     },
     "youtube:LECTSkuKaso": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 7759,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 7770,
       "likes": 61,
       "comments": 18,
       "shares": 0
     },
     "youtube:lDIx8TXoPcI": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
+      "at": "2026-10-08T20:57:06.166492+00:00",
       "views": 4423,
       "likes": 153,
       "comments": 8,
       "shares": 0
     },
     "youtube:jUYGmk_t6nM": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5822,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5863,
       "likes": 116,
       "comments": 9,
       "shares": 0
     },
     "youtube:Qfs_D_6T62c": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 5740,
-      "likes": 548,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 5745,
+      "likes": 549,
       "comments": 3,
       "shares": 0
     },
     "youtube:1-He5fZyICE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 6738,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 6747,
       "likes": 602,
       "comments": 10,
       "shares": 0
     },
     "youtube:ISdBnM1xbfE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
+      "at": "2026-10-08T20:57:06.166492+00:00",
       "views": 4075,
       "likes": 112,
       "comments": 89,
       "shares": 0
     },
     "youtube:tQ_DWRyZ8lM": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 2407,
-      "likes": 33,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 2435,
+      "likes": 32,
       "comments": 1,
       "shares": 0
     },
     "youtube:nlWcC4AFDfE": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
+      "at": "2026-10-08T20:57:06.166492+00:00",
       "views": 2848,
       "likes": 0,
       "comments": 3,
       "shares": 0
     },
     "youtube:IGX7UXCoBZM": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
+      "at": "2026-10-08T20:57:06.166492+00:00",
       "views": 2101,
       "likes": 0,
       "comments": 2,
       "shares": 0
     },
     "youtube:IS5fWA0Z5Q8": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
+      "at": "2026-10-08T20:57:06.166492+00:00",
       "views": 1762,
       "likes": 38,
       "comments": 1,
       "shares": 0
     },
     "youtube:-W4WD1xzxxY": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 1729,
-      "likes": 71,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 1854,
+      "likes": 69,
       "comments": 15,
       "shares": 0
     },
     "youtube:NMCg_NsTI-4": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 41211,
-      "likes": 203,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 41279,
+      "likes": 204,
       "comments": 82,
       "shares": 0
     },
     "youtube:b29sq9SFT4M": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 67353,
-      "likes": 604,
-      "comments": 268,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 67506,
+      "likes": 607,
+      "comments": 270,
       "shares": 0
     },
     "youtube:5xlxOTnGggA": {
-      "at": "2026-10-08T20:51:09.568799+00:00",
-      "views": 30347,
+      "at": "2026-10-08T20:57:06.166492+00:00",
+      "views": 30408,
       "likes": 72,
       "comments": 24,
       "shares": 0
@@ -1212,22 +1212,22 @@
     {
       "title": "هلن خواننده ایرانی😱#خواننده #آهنگ #هنرمند #ترانه # #فیلم # #سینما #سریال #بازیگران",
       "platform": "youtube",
-      "demand_score": 67.96,
+      "demand_score": 67.94,
       "demand_metrics": {
         "evidence": true,
         "metric_fields": 3,
-        "views": 242350,
-        "likes": 2669,
+        "views": 242596,
+        "likes": 2667,
         "comments": 706,
         "shares": 0,
-        "velocity_views_per_hour": 4872.95,
-        "observed_views_per_hour": 0.0,
+        "velocity_views_per_hour": 4868.2,
+        "observed_views_per_hour": 2483.47,
         "observed_likes_per_hour": 0.0,
         "observed_shares_per_hour": 0.0,
-        "like_rate": 0.011013,
+        "like_rate": 0.010994,
         "share_rate": 0.0,
-        "comment_rate": 0.002913,
-        "age_hours": 49.73,
+        "comment_rate": 0.00291,
+        "age_hours": 49.83,
         "metric_source": "youtube_api"
       },
       "persian_identity_score": 1.0,
@@ -1236,22 +1236,22 @@
     {
       "title": "New videos recorded by a person on the ground show Iran's strikes on U.S. base",
       "platform": "youtube",
-      "demand_score": 63.29,
+      "demand_score": 63.3,
       "demand_metrics": {
         "evidence": true,
         "metric_fields": 3,
-        "views": 67353,
-        "likes": 604,
-        "comments": 268,
+        "views": 67506,
+        "likes": 607,
+        "comments": 270,
         "shares": 0,
-        "velocity_views_per_hour": 2825.19,
-        "observed_views_per_hour": 0.0,
-        "observed_likes_per_hour": 0.0,
+        "velocity_views_per_hour": 2819.89,
+        "observed_views_per_hour": 1544.6,
+        "observed_likes_per_hour": 30.29,
         "observed_shares_per_hour": 0.0,
-        "like_rate": 0.008968,
+        "like_rate": 0.008992,
         "share_rate": 0.0,
-        "comment_rate": 0.003979,
-        "age_hours": 23.84,
+        "comment_rate": 0.004,
+        "age_hours": 23.94,
         "metric_source": "youtube_api"
       },
       "persian_identity_score": 1.0,
@@ -1262,13 +1262,13 @@
     {
       "title": "هلن خواننده ایرانی😱#خواننده #آهنگ #هنرمند #ترانه # #فیلم # #سینما #سریال #بازیگران",
       "platform": "youtube",
-      "demand_score": 67.96,
+      "demand_score": 67.94,
       "result": "download_failed"
     },
     {
       "title": "New videos recorded by a person on the ground show Iran's strikes on U.S. base",
       "platform": "youtube",
-      "demand_score": 63.29,
+      "demand_score": 63.3,
       "result": "download_failed"
     }
   ]
