@@ -155,28 +155,210 @@ def enrich_youtube_metrics(items):
                 "comment_rate": comments/max(1, views),
             })
 
+
+def normalize_public_number(raw):
+    """Parse Persian/English public counters such as 1.2M, ۳٬۲۰۰, 2 میلیون."""
+    if raw is None:
+        return 0
+    s = str(raw).strip().replace("٫", ".").replace("٬", ",").replace("،", ",")
+    trans = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+    s = s.translate(trans)
+    m = re.search(r"([0-9][0-9,.\s]*)\s*(تریلیون|میلیارد|بیلیون|میلیون|هزار\s*میلیون|هزار|[KkMmBb])?", s)
+    if not m:
+        return 0
+    try:
+        num = float(m.group(1).replace(",", "").replace(" ", ""))
+    except Exception:
+        return 0
+    unit = (m.group(2) or "").replace(" ", "").lower()
+    mult = {
+        "k": 1e3, "m": 1e6, "b": 1e9,
+        "هزار": 1e3, "میلیون": 1e6, "هزارمیلیون": 1e6,
+        "میلیارد": 1e9, "بیلیون": 1e9, "تریلیون": 1e12,
+    }.get(unit, 1.0)
+    return int(max(0, num * mult))
+
+def first_metric(html_text, patterns):
+    for pat in patterns:
+        m = re.search(pat, html_text, re.I | re.S)
+        if not m:
+            continue
+        value = normalize_public_number(m.group(1))
+        if value > 0:
+            return value
+    return 0
+
+def platform_of(url):
+    host = urlparse(str(url or "")).netloc.lower()
+    if "youtube.com" in host or "youtu.be" in host:
+        return "youtube"
+    if "tiktok.com" in host:
+        return "tiktok"
+    if "instagram.com" in host:
+        return "instagram"
+    if "x.com" in host or "twitter.com" in host:
+        return "x"
+    if "aparat.com" in host:
+        return "aparat"
+    return "web"
+
+def extract_public_platform_metrics(item):
+    """Best-effort extraction of public counters from a public social page.
+    This is discovery intelligence only; failure is normal and never crashes the hunt.
+    """
+    url = str(item.get("link") or "")
+    platform = platform_of(url)
+    if platform not in {"tiktok", "instagram", "x", "aparat"}:
+        return {}
+
+    try:
+        r = session.get(url, timeout=12, allow_redirects=True)
+        if r.status_code >= 400 or "text/html" not in (r.headers.get("content-type") or "").lower():
+            return {}
+        html_text = r.text[:5_000_000]
+    except Exception:
+        return {}
+
+    metrics = {}
+    if platform == "tiktok":
+        metrics["views"] = first_metric(html_text, [
+            r'"(?:playCount|play_count|viewCount|views)"\s*:\s*"?(.*?)"?[,}]',
+            r'"(?:playCount|play_count|viewCount|views)"\s*[:=]\s*([0-9.,KkMmBb]+)',
+        ])
+        metrics["likes"] = first_metric(html_text, [
+            r'"(?:diggCount|likeCount|like_count|likes)"\s*:\s*"?(.*?)"?[,}]',
+            r'"(?:diggCount|likeCount|like_count|likes)"\s*[:=]\s*([0-9.,KkMmBb]+)',
+        ])
+        metrics["comments"] = first_metric(html_text, [
+            r'"(?:commentCount|comment_count|comments)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+        metrics["shares"] = first_metric(html_text, [
+            r'"(?:shareCount|share_count|shares)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+    elif platform == "instagram":
+        metrics["views"] = first_metric(html_text, [
+            r'"(?:video_view_count|play_count|videoPlayCount|view_count)"\s*:\s*"?(.*?)"?[,}]',
+            r'"(?:play_count|video_view_count)"\s*[:=]\s*([0-9.,KkMmBb]+)',
+        ])
+        metrics["likes"] = first_metric(html_text, [
+            r'"(?:edge_media_preview_like|like_count|likes)"[^{}]{0,120}?"count"\s*:\s*([0-9.,KkMmBb]+)',
+            r'"(?:like_count|likes)"\s*:\s*([0-9.,KkMmBb]+)',
+        ])
+        metrics["comments"] = first_metric(html_text, [
+            r'"(?:edge_media_to_comment|comment_count|comments)"[^{}]{0,120}?"count"\s*:\s*([0-9.,KkMmBb]+)',
+            r'"(?:comment_count|comments)"\s*:\s*([0-9.,KkMmBb]+)',
+        ])
+    elif platform == "x":
+        metrics["views"] = first_metric(html_text, [
+            r'"(?:view_count|views)"\s*:\s*"?(.*?)"?[,}]',
+            r'"(?:viewCount)"\s*:\s*([0-9.,KkMmBb]+)',
+        ])
+        metrics["likes"] = first_metric(html_text, [
+            r'"(?:favorite_count|like_count|likes)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+        metrics["comments"] = first_metric(html_text, [
+            r'"(?:reply_count|comment_count|replies)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+        metrics["shares"] = first_metric(html_text, [
+            r'"(?:retweet_count|repost_count|share_count)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+    elif platform == "aparat":
+        metrics["views"] = first_metric(html_text, [
+            r'"(?:viewCount|visitCount|view_cnt|views)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+        metrics["likes"] = first_metric(html_text, [
+            r'"(?:likeCount|like_cnt|likes)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+        metrics["comments"] = first_metric(html_text, [
+            r'"(?:commentCount|comment_cnt|comments)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+        metrics["shares"] = first_metric(html_text, [
+            r'"(?:shareCount|share_cnt|shares)"\s*:\s*"?(.*?)"?[,}]',
+        ])
+
+    return {k: int(v) for k, v in metrics.items() if int(v or 0) > 0}
+
+def enrich_public_platform_metrics(items, limit=90):
+    """Enrich only the most promising social URLs so discovery stays within CI limits."""
+    candidates = [
+        x for x in items.values()
+        if platform_of(x.get("link")) in {"tiktok", "instagram", "x", "aparat"}
+    ]
+    candidates.sort(
+        key=lambda x: (
+            float(x.get("age_hours") or 999999),
+            0 if platform_of(x.get("link")) in {"tiktok", "instagram"} else 1,
+        )
+    )
+    for item in candidates[:limit]:
+        metrics = extract_public_platform_metrics(item)
+        if not metrics:
+            continue
+        item.update(metrics)
+        item["metric_source"] = "public_page"
+        item["metric_platform"] = platform_of(item.get("link"))
+        if item.get("views"):
+            age_h = max(0.25, float(item.get("age_hours") or 999999))
+            item["velocity_views_per_hour"] = round(item["views"] / age_h, 2)
+        item["like_rate"] = item.get("likes", 0) / max(1, item.get("views", 0))
+        item["comment_rate"] = item.get("comments", 0) / max(1, item.get("views", 0))
+        item["share_rate"] = item.get("shares", 0) / max(1, item.get("views", 0))
+
 def public_demand_score(item, corroboration=1):
-    """Rank by measurable public demand; never by topic, title cues, or duration."""
+    """Demand-first score. Duration/topic/visual aesthetics do not influence rank."""
+    import math
     views = max(0, int(item.get("views") or 0))
     likes = max(0, int(item.get("likes") or 0))
     comments = max(0, int(item.get("comments") or 0))
+    shares = max(0, int(item.get("shares") or 0))
     age_h = max(0.25, float(item.get("age_hours") or 999999.0))
-    if views <= 0:
-        return 0.0, {"evidence": False}
-    velocity = views/age_h
-    like_rate = likes/max(1, views)
-    comment_rate = comments/max(1, views)
-    volume = min(30.0, 5.0*__import__("math").log10(views+1))
-    velocity_score = min(35.0, 6.0*__import__("math").log10(velocity+1))
-    engagement = min(20.0, 400.0*like_rate) + min(10.0, 500.0*comment_rate)
-    corroboration_score = min(5.0, 1.5*max(0, corroboration-1))
-    freshness = 5.0*max(0.0, 1.0-min(age_h/72.0, 1.0))
-    total = min(100.0, volume + velocity_score + engagement + corroboration_score + freshness)
+
+    # Public counters are the core evidence. We score absolute scale and growth
+    # separately so a fresh breakout can beat an old video with a larger lifetime total.
+    volume = min(28.0, 4.7 * math.log10(max(1, views)) if views else 0.0)
+    velocity = views / age_h if views else 0.0
+    velocity_score = min(30.0, 6.2 * math.log10(max(1, velocity)) if velocity else 0.0)
+
+    like_volume = min(12.0, 2.0 * math.log10(max(1, likes)) if likes else 0.0)
+    share_volume = min(12.0, 2.1 * math.log10(max(1, shares)) if shares else 0.0)
+    comment_volume = min(6.0, 1.5 * math.log10(max(1, comments)) if comments else 0.0)
+
+    like_rate = likes / max(1, views)
+    share_rate = shares / max(1, views)
+    comment_rate = comments / max(1, views)
+    engagement_quality = (
+        min(5.0, 250.0 * like_rate)
+        + min(5.0, 1500.0 * share_rate)
+        + min(4.0, 1200.0 * comment_rate)
+    )
+
+    cross_score = min(10.0, 2.0 * max(0, corroboration - 1))
+    freshness = 5.0 * max(0.0, 1.0 - min(age_h / 96.0, 1.0))
+
+    total = min(
+        100.0,
+        volume + velocity_score + like_volume + share_volume +
+        comment_volume + engagement_quality + cross_score + freshness
+    )
+
+    metric_fields = sum(1 for v in (views, likes, comments, shares) if v > 0)
+    strong_absolute = (
+        views >= 10_000 or likes >= 1_000 or shares >= 300 or comments >= 500
+    )
+    evidence = metric_fields >= 2 and (strong_absolute or views >= 2_000)
     return round(total, 2), {
-        "evidence": True, "views": views, "likes": likes, "comments": comments,
+        "evidence": evidence,
+        "metric_fields": metric_fields,
+        "views": views,
+        "likes": likes,
+        "comments": comments,
+        "shares": shares,
         "velocity_views_per_hour": round(velocity, 2),
-        "like_rate": round(like_rate, 6), "comment_rate": round(comment_rate, 6),
+        "like_rate": round(like_rate, 6),
+        "share_rate": round(share_rate, 6),
+        "comment_rate": round(comment_rate, 6),
         "age_hours": round(age_h, 2),
+        "metric_source": item.get("metric_source", "youtube_api" if item.get("video_id") else "unknown"),
     }
 
 def article_candidates(item):
@@ -423,14 +605,21 @@ def main():
                 pass
 
     platform_queries = [
-        'site:youtube.com/shorts ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش") ایران',
-        'site:instagram.com/reel ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش") ایران',
-        'site:tiktok.com ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش") ایران',
-        'site:aparat.com/v ("خنده دار" OR "بامزه" OR "عجیب" OR "واکنش")',
-        'site:x.com ("ویدئو" OR "ویدیو") ("خنده دار" OR "عجیب" OR "واکنش") ایران',
+        'site:youtube.com/shorts ("وایرال" OR "پربازدید" OR "میلیون بازدید" OR "ترند")',
+        'site:instagram.com/reel ("وایرال" OR "پربازدید" OR "میلیون بازدید" OR "ترند")',
+        'site:tiktok.com ("وایرال" OR "پربازدید" OR "میلیون بازدید" OR "ترند")',
+        'site:aparat.com/v ("وایرال" OR "پربازدید" OR "میلیون بازدید" OR "ترند")',
+        'site:x.com ("ویدئو" OR "ویدیو") ("وایرال" OR "پربازدید" OR "ترند")',
+        'site:twitter.com ("ویدئو" OR "ویدیو") ("وایرال" OR "پربازدید" OR "ترند")',
     ]
-    queries = [f"site:{d} ({term})" for d in SOURCE_DOMAINS for term in QUERY_TERMS[:8]]
+    queries = [f"site:{d} (ویدئو OR ویدیو OR فیلم) (وایرال OR پربازدید OR ترند)" for d in SOURCE_DOMAINS]
+    queries.extend([
+        '("ویدئو" OR "ویدیو") ("میلیون بازدید" OR "صدها هزار بازدید" OR "وایرال") ایران',
+        '("ویدئو" OR "ویدیو") ("پربازدیدترین" OR "ترند") ایران',
+        '("ویدئو" OR "ویدیو") ("بازدید بالا" OR "بازدید میلیونی") ایران',
+    ])
     queries.extend(platform_queries)
+[f"site:{d} ({term})" for d in SOURCE_DOMAINS for term in QUERY_TERMS[:8]]
     items = {}
 
     # Feed fresh YouTube chart discoveries from the global radar into the
@@ -465,80 +654,134 @@ def main():
             print("RSS_FAIL", q, type(e).__name__)
 
     enrich_youtube_metrics(items)
+    enrich_public_platform_metrics(items, limit=90)
 
-    # Demand-first: only candidates with measurable public engagement enter
-    # the acquisition queue. Topic, title keywords, and duration are ignored.
+    # Demand-first: only public engagement evidence can qualify a candidate.
+    # Acquisition is deliberately separated from selection: a hard-to-download
+    # viral video remains a top candidate and simply falls through to the next
+    # best acquisition route/candidate.
     ranked = []
+    title_buckets = {}
+    for x in items.values():
+        norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", str(x.get("title") or "").lower())
+        norm = re.sub(r"\s+", " ", norm).strip()
+        tokens = [t for t in norm.split() if len(t) > 2]
+        key = " ".join(tokens[:12])
+        title_buckets.setdefault(key, 0)
+        title_buckets[key] += 1
+
     for x in items.values():
         if x["key"] in seen_keys:
             continue
+
         vids = article_candidates(x)
-        norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", x["title"].lower())
+        norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", str(x.get("title") or "").lower())
         norm = re.sub(r"\s+", " ", norm).strip()
-        stem = " ".join(norm.split()[:10])
+        tokens = [t for t in norm.split() if len(t) > 2]
+        stem = " ".join(tokens[:12])
+        corroboration = max(1, title_buckets.get(stem, 1))
 
-        corroboration = 1
-        for y in items.values():
-            yn = re.sub(r"[^\w\u0600-\u06ff ]", " ", y["title"].lower())
-            yn = re.sub(r"\s+", " ", yn).strip()
-            if yn and stem and yn[:80] == stem[:80]:
-                corroboration += 1
-
+        demand, dm = public_demand_score(x, corroboration)
+        if not dm.get("evidence"):
+            continue
+        if demand < 60.0:
+            continue
         for u in vids:
-            demand, dm = public_demand_score(x, corroboration)
-            if not dm.get("evidence"):
-                continue
             ranked.append((x, u, corroboration, demand, dm))
 
     ranked.sort(
         key=lambda z: (
             -z[3],
+            -int(z[0].get("shares") or 0),
+            -int(z[0].get("likes") or 0),
             -int(z[0].get("views") or 0),
-            -float(z[0].get("likes") or 0),
             float(z[0].get("age_hours") or 999999),
         )
     )
 
-    print("DISCOVERED_ARTICLES", len(items), "MEASURABLE_VIDEO_CANDIDATES", len(ranked))
+    print("DISCOVERED_ARTICLES", len(items),
+          "MEASURABLE_HIGH_DEMAND_CANDIDATES", len(ranked))
+
     chosen = None
-    for item, url, cross, demand, dm in ranked:
+    acquisition_attempts = []
+    # Try the best demand candidates first. Never download arbitrary lower-ranked
+    # content simply because it happens to have an accessible MP4.
+    for item, url, cross, demand, dm in ranked[:40]:
         path = local_download(url)
         if not path:
+            acquisition_attempts.append({
+                "title": item["title"], "platform": platform_of(url),
+                "demand_score": demand, "result": "download_failed"
+            })
             continue
         try:
             h = hashlib.sha256(Path(path).read_bytes()).hexdigest()
             if h in seen_hashes or item["key"] in seen_keys:
+                acquisition_attempts.append({
+                    "title": item["title"], "platform": platform_of(url),
+                    "demand_score": demand, "result": "duplicate"
+                })
                 os.unlink(path)
                 continue
+
             mi = media_info(path)
-            if not mi or mi["duration"] < 2 or mi["duration"] > 600 or mi["width"] < 240 or mi["height"] < 240:
+            if (
+                not mi
+                or mi["duration"] < 2
+                or mi["duration"] > 900
+                or mi["width"] < 240
+                or mi["height"] < 240
+                or Path(path).stat().st_size > 50 * 1024 * 1024
+            ):
+                acquisition_attempts.append({
+                    "title": item["title"], "platform": platform_of(url),
+                    "demand_score": demand, "result": "media_rejected"
+                })
                 os.unlink(path)
                 continue
-            if Path(path).stat().st_size > 50 * 1024 * 1024:
-                os.unlink(path)
-                continue
-            sc = demand
-            # Visual/hook analysis is diagnostic only. It never overrides
-            # measured public demand and therefore cannot discard a highly
-            # watched video merely because our subjective model dislikes it.
+
+            # Visual analysis is diagnostic only. It is explicitly forbidden
+            # from demoting a high-demand candidate out of the publish queue.
             content_quality, cq = content_quality_gate(path, item, mi)
             print("DEMAND_METRICS", json.dumps(dm, ensure_ascii=False))
             print("CONTENT_DIAGNOSTIC", item["title"], cq)
+
             item["demand_metrics"] = dm
             item["content_quality_score"] = content_quality
             item["content_quality_metrics"] = cq
-            chosen = (item, url, path, h, mi, sc, cross)
+            acquisition_attempts.append({
+                "title": item["title"], "platform": platform_of(url),
+                "demand_score": demand, "result": "acquired"
+            })
+            chosen = (item, url, path, h, mi, demand, cross)
             break
-
-        except Exception:
-            try: os.unlink(path)
-            except Exception: pass
+        except Exception as exc:
+            acquisition_attempts.append({
+                "title": item["title"], "platform": platform_of(url),
+                "demand_score": demand, "result": "processing_error",
+                "error": type(exc).__name__
+            })
+            try:
+                os.unlink(path)
+            except Exception:
+                pass
 
     if not chosen:
         state["last_scan"] = datetime.now(timezone.utc).isoformat()
-        state["last_result"] = "no_new_qualified_video"
+        state["last_result"] = "no_high_demand_video_acquired"
+        state["last_ranked_candidates"] = [
+            {
+                "title": z[0].get("title"),
+                "platform": platform_of(z[1]),
+                "demand_score": z[3],
+                "demand_metrics": z[4],
+                "link": z[0].get("link"),
+            }
+            for z in ranked[:20]
+        ]
+        state["last_acquisition_attempts"] = acquisition_attempts[-40:]
         save(state)
-        print("NO_NEW_QUALIFIED_VIDEO")
+        print("NO_HIGH_DEMAND_VIDEO_ACQUIRED")
         return 0
 
     item, url, path, h, mi, sc, cross = chosen
@@ -547,9 +790,10 @@ def main():
         "at": datetime.now(timezone.utc).isoformat(),
         "title": item["title"], "article": item["link"], "video": url,
         "sha256": h, "telegram_message_id": sent.get("message_id"),
-        "score": sc, "demand_score": sc, "demand_metrics": item.get("demand_metrics", {}), "content_quality_score": item.get("content_quality_score"),
+        "score": sc, "demand_score": sc, "demand_metrics": item.get("demand_metrics", {}),
+        "content_quality_score": item.get("content_quality_score"),
         "content_quality_metrics": item.get("content_quality_metrics", {}),
-        "cross_sources": cross, "duration": mi["duration"],
+        "cross_sources": cross, "platform": platform_of(url), "duration": mi["duration"],
         "width": mi["width"], "height": mi["height"]
     }
     state["seen_keys"].append(item["key"])
