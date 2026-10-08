@@ -304,6 +304,59 @@ def enrich_public_platform_metrics(items, limit=90):
         item["comment_rate"] = item.get("comments", 0) / max(1, item.get("views", 0))
         item["share_rate"] = item.get("shares", 0) / max(1, item.get("views", 0))
 
+
+def public_identity(item):
+    """Stable identity for repeated public-metric observations across scans."""
+    vid = str(item.get("video_id") or youtube_video_id(item.get("link")) or "").strip()
+    if vid:
+        return "youtube:" + vid
+    url = str(item.get("link") or "").split("?")[0].rstrip("/")
+    plat = platform_of(url)
+    if plat in {"tiktok", "instagram", "x", "aparat"}:
+        return plat + ":" + url
+    title = re.sub(r"\s+", " ", str(item.get("title") or "").lower()).strip()
+    return hashlib.sha256((plat + ":" + title).encode("utf-8")).hexdigest()
+
+def apply_observed_momentum(items, state):
+    """Use changes between scans to detect breakouts that lifetime counters hide."""
+    observations = state.setdefault("observations", {})
+    now = datetime.now(timezone.utc)
+    for item in items.values():
+        metrics = {k: int(item.get(k) or 0) for k in ("views", "likes", "comments", "shares")}
+        if not any(metrics.values()):
+            continue
+        ident = public_identity(item)
+        previous = observations.get(ident)
+        if previous:
+            try:
+                prev_at = datetime.fromisoformat(str(previous.get("at")).replace("Z", "+00:00"))
+                hours = max(0.01, (now - prev_at).total_seconds() / 3600.0)
+            except Exception:
+                hours = 0.0
+            if hours > 0:
+                dv = max(0, metrics["views"] - int(previous.get("views") or 0))
+                dl = max(0, metrics["likes"] - int(previous.get("likes") or 0))
+                ds = max(0, metrics["shares"] - int(previous.get("shares") or 0))
+                dc = max(0, metrics["comments"] - int(previous.get("comments") or 0))
+                if dv > 0:
+                    item["observed_views_per_hour"] = round(dv / hours, 2)
+                if dl > 0:
+                    item["observed_likes_per_hour"] = round(dl / hours, 2)
+                if ds > 0:
+                    item["observed_shares_per_hour"] = round(ds / hours, 2)
+                if dc > 0:
+                    item["observed_comments_per_hour"] = round(dc / hours, 2)
+        item["public_identity"] = ident
+        observations[ident] = {"at": now.isoformat(), **metrics}
+
+    if len(observations) > 3000:
+        newest = sorted(
+            observations.items(),
+            key=lambda kv: str(kv[1].get("at") or ""),
+            reverse=True,
+        )[:3000]
+        state["observations"] = dict(newest)
+
 def public_demand_score(item, corroboration=1):
     """Demand-first score. Duration/topic/visual aesthetics do not influence rank."""
     import math
@@ -316,7 +369,9 @@ def public_demand_score(item, corroboration=1):
     # Public counters are the core evidence. We score absolute scale and growth
     # separately so a fresh breakout can beat an old video with a larger lifetime total.
     volume = min(28.0, 4.7 * math.log10(max(1, views)) if views else 0.0)
-    velocity = views / age_h if views else 0.0
+    lifetime_velocity = views / age_h if views else 0.0
+    observed_velocity = float(item.get("observed_views_per_hour") or 0.0)
+    velocity = max(lifetime_velocity, observed_velocity)
     velocity_score = min(30.0, 6.2 * math.log10(max(1, velocity)) if velocity else 0.0)
 
     like_volume = min(12.0, 2.0 * math.log10(max(1, likes)) if likes else 0.0)
@@ -354,6 +409,9 @@ def public_demand_score(item, corroboration=1):
         "comments": comments,
         "shares": shares,
         "velocity_views_per_hour": round(velocity, 2),
+        "observed_views_per_hour": round(float(item.get("observed_views_per_hour") or 0.0), 2),
+        "observed_likes_per_hour": round(float(item.get("observed_likes_per_hour") or 0.0), 2),
+        "observed_shares_per_hour": round(float(item.get("observed_shares_per_hour") or 0.0), 2),
         "like_rate": round(like_rate, 6),
         "share_rate": round(share_rate, 6),
         "comment_rate": round(comment_rate, 6),
@@ -655,6 +713,7 @@ def main():
 
     enrich_youtube_metrics(items)
     enrich_public_platform_metrics(items, limit=90)
+    apply_observed_momentum(items, state)
 
     # Demand-first: only public engagement evidence can qualify a candidate.
     # Acquisition is deliberately separated from selection: a hard-to-download
