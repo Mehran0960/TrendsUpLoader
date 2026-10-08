@@ -1,3 +1,4 @@
+# Viral demand engine
 #!/usr/bin/env python3
 """Iran viral video hunter: discover fresh Persian web videos, rank, dedupe, send native MP4 to Telegram."""
 import hashlib, html, json, os, re, subprocess, sys, tempfile
