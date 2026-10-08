@@ -962,6 +962,7 @@ def main():
         return list(routes)
 
     all_items = list(items.values())
+    identity_rejections = 0
 
     for x in all_items:
         if x["key"] in seen_keys:
@@ -997,6 +998,12 @@ def main():
                 if route not in vids:
                     vids.append(route)
 
+        identity_score = persian_identity_score(x)
+        x["persian_identity_score"] = identity_score
+        if identity_score < 0.45:
+            identity_rejections += 1
+            continue
+
         demand, dm = public_demand_score(x, corroboration)
         if not dm.get("evidence"):
             continue
@@ -1016,6 +1023,7 @@ def main():
     )
 
     print("DISCOVERED_ARTICLES", len(items),
+          "PERSIAN_IDENTITY_REJECTIONS", identity_rejections,
           "MEASURABLE_HIGH_DEMAND_CANDIDATES", len(ranked))
 
     chosen = None
@@ -1091,6 +1099,7 @@ def main():
                 "platform": platform_of(z[1]),
                 "demand_score": z[3],
                 "demand_metrics": z[4],
+                "persian_identity_score": z[0].get("persian_identity_score"),
                 "link": z[0].get("link"),
             }
             for z in ranked[:20]
