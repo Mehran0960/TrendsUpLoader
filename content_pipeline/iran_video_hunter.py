@@ -26,6 +26,11 @@ PIPED_FALLBACKS = ["https://pipedapi.kavin.rocks","https://pipedapi.leptons.xyz"
 PERSIAN_RE = re.compile(r"[\u0600-\u06ff]")
 COBALT_API_URL = os.environ.get("COBALT_API_URL", "").strip().rstrip("/")
 BGUTIL_POT_URL = os.environ.get("BGUTIL_POT_URL", "http://127.0.0.1:4416").strip().rstrip("/")
+ATTRACTION_MODEL_VERSION = "visual_hook_v2"
+ATTRACTION_FLOOR = 48.0
+ATTRACTION_EMERGENCY_FLOOR = 40.0
+DEMAND_EMERGENCY_THRESHOLD = 88.0
+ACQUISITION_REVIEW_LIMIT = 8
 
 SOURCE_DOMAINS = [
     "hamshahrionline.ir","khabaronline.ir","mehrnews.com","isna.ir","irna.ir",
@@ -896,66 +901,83 @@ def telegram(method, payload):
     return data.get("result")
 
 def content_quality_gate(path, item, mi):
-    """Reject clips that are merely short; require a real visual event/hook."""
-    if visual_score is None or source_hook_score is None:
-        # Fail open only for the discovery engine; direct tests remain possible.
-        return 0.0, {}
+    """Estimate viewer-attraction separately from proven demand.
+
+    Demand answers: "Did people actually watch/interact with this?"
+    Attraction answers: "Does the file itself contain a visible hook/event worth
+    stopping the scroll for?" This score is intentionally topic/duration agnostic.
+    """
+    if visual_score is None:
+        # Production should install the visual dependencies. Keep a neutral
+        # fallback so discovery does not silently become a hard failure if a
+        # future runner loses them.
+        return 50.0, {
+            "model_version": ATTRACTION_MODEL_VERSION,
+            "available": False,
+            "reason": "visual_dependencies_unavailable",
+            "passed": True,
+        }
 
     try:
-        visual = visual_score(path)
+        visual = visual_score(path) or {}
     except Exception as exc:
         print("VISUAL_SCORE_FAIL", type(exc).__name__)
-        return 0.0, {}
+        return 45.0, {
+            "model_version": ATTRACTION_MODEL_VERSION,
+            "available": False,
+            "reason": type(exc).__name__,
+            "passed": False,
+        }
 
-    src = {
-        "title": item.get("title", ""),
-        "description": item.get("title", ""),
-        "category": "human_funny",
-        "provider": "social_or_web",
-        "attention_score": 78.0,
-    }
-    try:
-        hook = float(source_hook_score(src, visual) or 0.0)
-    except Exception:
-        hook = 0.0
-
+    overall = float(visual.get("score") or 0.0)
     first_event = float(visual.get("hook_first_event_score") or 0.0)
     event = float(visual.get("hook_event_score") or 0.0)
     structure = float(visual.get("hook_structure_score") or 0.0)
     novelty = float(visual.get("visual_novelty_score") or 0.0)
-    visual_total = float(visual.get("score") or 0.0)
 
-    # The key anti-boring gate: a clip needs an actual early event or a
-    # clearly developing/payoff structure. Static close-ups and generic pet
-    # footage usually fail here even when they are short and visually clean.
+    # The first seconds and a real event arc matter more than generic visual
+    # polish. This is a proxy for scroll-stop potential, not a beauty score.
+    attraction = (
+        0.40 * first_event
+        + 0.30 * event
+        + 0.18 * structure
+        + 0.07 * novelty
+        + 0.05 * overall
+    )
+
+    # Detect the exact failure mode seen in the Helen proof: a clip can be
+    # genuinely viral while being too static / weak as a standalone post.
+    static_penalty = 0.0
+    if first_event < 28.0 and event < 38.0 and structure < 45.0:
+        static_penalty = 8.0
+    attraction = max(0.0, attraction - static_penalty)
+
+    # A candidate passes when it has a credible early/event hook. Exception:
+    # an exceptionally strong demand signal may survive a weaker visual score,
+    # but only down to a conservative emergency floor.
     passed = (
-        hook >= 58.0
-        and visual_total >= 52.0
+        attraction >= ATTRACTION_FLOOR
         and (
-            (first_event >= 48.0 and event >= 50.0)
-            or (structure >= 58.0 and novelty >= 32.0)
+            first_event >= 32.0
+            or event >= 42.0
+            or structure >= 52.0
         )
     )
 
-    quality = round(
-        0.30*hook
-        + 0.25*event
-        + 0.20*first_event
-        + 0.15*structure
-        + 0.10*novelty,
-        2,
-    )
     metrics = {
-        "hook_score": round(hook,2),
-        "visual_score": round(visual_total,2),
-        "hook_event_score": round(event,2),
-        "hook_first_event_score": round(first_event,2),
-        "hook_structure_score": round(structure,2),
-        "visual_novelty_score": round(novelty,2),
-        "content_quality_score": quality,
+        "model_version": ATTRACTION_MODEL_VERSION,
+        "available": True,
+        "attraction_score": round(attraction, 2),
+        "visual_score": round(overall, 2),
+        "hook_event_score": round(event, 2),
+        "hook_first_event_score": round(first_event, 2),
+        "hook_structure_score": round(structure, 2),
+        "visual_novelty_score": round(novelty, 2),
+        "static_penalty": static_penalty,
+        "duration_seconds": round(float(mi.get("duration") or 0.0), 2),
         "passed": passed,
     }
-    return quality, metrics
+    return round(attraction, 2), metrics
 
 def send_video(path, title, source):
     cap = ("🔥 ویدئوی داغ ایران\n\n" + title[:700] + "\n\n" +
@@ -1224,9 +1246,12 @@ def main():
 
     chosen = None
     acquisition_attempts = []
-    # Try the best demand candidates first. Never download arbitrary lower-ranked
-    # content simply because it happens to have an accessible MP4.
-    for item, url, cross, demand, dm in ranked[:12]:
+    reviewed = []
+
+    # Review several of the strongest demand candidates instead of publishing
+    # the first file that happens to download. This preserves "viral first"
+    # while allowing the file itself to prove that it is watchable.
+    for item, url, cross, demand, dm in ranked[:ACQUISITION_REVIEW_LIMIT]:
         path = local_download(url)
         if not path:
             acquisition_attempts.append({
@@ -1260,21 +1285,69 @@ def main():
                 os.unlink(path)
                 continue
 
-            # Visual analysis is diagnostic only. It is explicitly forbidden
-            # from demoting a high-demand candidate out of the publish queue.
-            content_quality, cq = content_quality_gate(path, item, mi)
+            attraction, cq = content_quality_gate(path, item, mi)
+            emergency_ok = (
+                demand >= DEMAND_EMERGENCY_THRESHOLD
+                and attraction >= ATTRACTION_EMERGENCY_FLOOR
+            )
+            publishable = bool(cq.get("passed")) or emergency_ok
+
+            publish_score = round(
+                0.72 * float(demand)
+                + 0.28 * float(attraction),
+                2,
+            )
+
             print("DEMAND_METRICS", json.dumps(dm, ensure_ascii=False))
-            print("CONTENT_DIAGNOSTIC", item["title"], cq)
+            print("ATTRACTION_METRICS", json.dumps(cq, ensure_ascii=False))
+
+            reviewed.append({
+                "title": item["title"],
+                "platform": platform_of(url),
+                "demand_score": round(float(demand), 2),
+                "attraction_score": round(float(attraction), 2),
+                "publish_score": publish_score,
+                "publishable": publishable,
+            })
+
+            if not publishable:
+                acquisition_attempts.append({
+                    "title": item["title"],
+                    "platform": platform_of(url),
+                    "demand_score": demand,
+                    "attraction_score": attraction,
+                    "publish_score": publish_score,
+                    "result": "attraction_rejected",
+                    "attraction_metrics": cq,
+                })
+                os.unlink(path)
+                continue
 
             item["demand_metrics"] = dm
-            item["content_quality_score"] = content_quality
+            item["content_quality_score"] = attraction
             item["content_quality_metrics"] = cq
             acquisition_attempts.append({
                 "title": item["title"], "platform": platform_of(url),
-                "demand_score": demand, "result": "acquired"
+                "demand_score": demand, "attraction_score": attraction,
+                "publish_score": publish_score, "result": "acquired_reviewed"
             })
-            chosen = (item, url, path, h, mi, demand, cross)
-            break
+            # Keep the best publishable candidate found so far; demand remains
+            # the dominant component, attraction is the anti-boring tie-breaker.
+            reviewed_entry = (
+                publish_score, demand, item, url, path, h, mi, cross, attraction, cq
+            )
+            if chosen is None or reviewed_entry[:2] > chosen[:2]:
+                if chosen is not None:
+                    try:
+                        os.unlink(chosen[4])
+                    except Exception:
+                        pass
+                chosen = reviewed_entry
+            else:
+                try:
+                    os.unlink(path)
+                except Exception:
+                    pass
         except Exception as exc:
             acquisition_attempts.append({
                 "title": item["title"], "platform": platform_of(url),
@@ -1285,6 +1358,15 @@ def main():
                 os.unlink(path)
             except Exception:
                 pass
+
+    reviewed.sort(
+        key=lambda x: (
+            -float(x.get("publish_score") or 0),
+            -float(x.get("demand_score") or 0),
+            -float(x.get("attraction_score") or 0),
+        )
+    )
+    state["last_reviewed_candidates"] = reviewed[:ACQUISITION_REVIEW_LIMIT]
 
     if not chosen:
         state["last_scan"] = datetime.now(timezone.utc).isoformat()
@@ -1301,19 +1383,31 @@ def main():
             for z in ranked[:20]
         ]
         state["last_acquisition_attempts"] = acquisition_attempts[-40:]
+        state["last_reviewed_candidates"] = reviewed[:ACQUISITION_REVIEW_LIMIT]
         save(state)
         print("NO_HIGH_DEMAND_VIDEO_ACQUIRED")
         return 0
 
-    item, url, path, h, mi, sc, cross = chosen
+    _, _, item, url, path, h, mi, cross, attraction, cq = chosen
+    sc = float(item.get("demand_metrics", {}).get("views", 0) or 0)
+    demand_score = float(item.get("demand_metrics", {}).get("score", 0) or 0)
+    if demand_score <= 0:
+        # Preserve the original ranked score when the metric payload is not
+        # carrying a redundant "score" field.
+        demand_score = next(
+            (float(z[3]) for z in ranked if z[0].get("key") == item.get("key") and z[1] == url),
+            0.0,
+        )
     sent = send_video(path, item["title"], item["source"] or urlparse(item["link"]).netloc)
     entry = {
         "at": datetime.now(timezone.utc).isoformat(),
         "title": item["title"], "article": item["link"], "video": url,
         "sha256": h, "telegram_message_id": sent.get("message_id"),
-        "score": sc, "demand_score": sc, "demand_metrics": item.get("demand_metrics", {}),
-        "content_quality_score": item.get("content_quality_score"),
-        "content_quality_metrics": item.get("content_quality_metrics", {}),
+        "score": demand_score, "demand_score": demand_score, "demand_metrics": item.get("demand_metrics", {}),
+        "attraction_score": round(float(attraction), 2),
+        "content_quality_score": round(float(attraction), 2),
+        "content_quality_metrics": cq,
+        "publish_score": round(0.72 * float(demand_score) + 0.28 * float(attraction), 2),
         "cross_sources": cross, "platform": platform_of(url), "duration": mi["duration"],
         "width": mi["width"], "height": mi["height"]
     }
