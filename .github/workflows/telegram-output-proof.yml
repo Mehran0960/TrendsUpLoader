@@ -1,5 +1,9 @@
 name: Telegram Native Output Proof
 
+concurrency:
+  group: telegram-native-output-proof
+  cancel-in-progress: true
+
 on:
   push:
     paths:
@@ -12,22 +16,20 @@ permissions:
 jobs:
   output:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install tools
+      - name: Install yt-dlp and Deno
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq ffmpeg
           curl -fsSL https://deno.land/install.sh | sh
           export PATH="$HOME/.deno/bin:$PATH"
           echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
           python -m pip install --disable-pip-version-check "yt-dlp[default]" yt-dlp-ejs requests
+          deno --version
+          yt-dlp --version
 
       - name: Download and send
         env:
