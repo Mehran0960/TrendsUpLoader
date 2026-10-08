@@ -1,0 +1,48 @@
+name: Viral Hunter EJS Live Check
+
+on:
+  push:
+    paths:
+      - ".github/workflows/viral-hunter-ejs-live.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  live-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install media tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          curl -fsSL https://deno.land/install.sh | sh
+          echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
+          python -m pip install --disable-pip-version-check requests "yt-dlp[default]" numpy opencv-python-headless yt-dlp-ejs
+          deno --version
+          yt-dlp --version
+
+      - name: Run live viral hunter
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python content_pipeline/iran_video_hunter.py
+
+      - name: Persist dedupe state
+        if: ${{ always() && hashFiles('attention_state/iran_video_hunter_state.json') != '' }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add attention_state/iran_video_hunter_state.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Update viral hunter live test state'
+          git fetch origin main
+          git rebase origin/main
+          git push
