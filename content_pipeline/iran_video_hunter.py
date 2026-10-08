@@ -156,6 +156,101 @@ def enrich_youtube_metrics(items):
             })
 
 
+
+def discover_youtube_public_candidates(limit=25):
+    """Direct YouTube demand lane: Iran popular + fresh high-view videos."""
+    if not YOUTUBE_KEY:
+        return []
+    out = {}
+    now = datetime.now(timezone.utc)
+
+    def add_video(raw):
+        vid = str(raw.get("id") or "").strip()
+        if not vid:
+            return
+        snippet = raw.get("snippet") or {}
+        stats = raw.get("statistics") or {}
+        views = int(stats.get("viewCount") or 0)
+        likes = int(stats.get("likeCount") or 0)
+        comments = int(stats.get("commentCount") or 0)
+        published = str(snippet.get("publishedAt") or "")
+        age_h = 999999.0
+        if published:
+            try:
+                age_h = max(
+                    0.0,
+                    (now - datetime.fromisoformat(published.replace("Z", "+00:00"))).total_seconds()/3600.0,
+                )
+            except Exception:
+                pass
+        link = f"https://www.youtube.com/watch?v={vid}"
+        item = {
+            "title": str(snippet.get("title") or "").strip(),
+            "link": link,
+            "source": "YouTube public API",
+            "video_id": vid,
+            "views": views,
+            "likes": likes,
+            "comments": comments,
+            "published_at": published,
+            "age_hours": age_h,
+            "metric_source": "youtube_api",
+        }
+        item["key"] = hashlib.sha256(("youtube:" + vid).encode()).hexdigest()
+        out[item["key"]] = item
+
+    try:
+        r = session.get(
+            "https://www.googleapis.com/youtube/v3/videos",
+            params={
+                "key": YOUTUBE_KEY, "part": "snippet,statistics,contentDetails",
+                "chart": "mostPopular", "regionCode": "IR", "maxResults": limit,
+            },
+            timeout=25,
+        )
+        r.raise_for_status()
+        for raw in (r.json().get("items") or []):
+            add_video(raw)
+    except Exception as exc:
+        print("YOUTUBE_POPULAR_FAIL", type(exc).__name__)
+
+    queries = ["ویدئو", "کلیپ", "لحظه", "فیلم"]
+    q = queries[int(now.timestamp() // 1800) % len(queries)]
+    try:
+        published_after = (now - __import__("datetime").timedelta(hours=72)).isoformat().replace("+00:00", "Z")
+        r = session.get(
+            "https://www.googleapis.com/youtube/v3/search",
+            params={
+                "key": YOUTUBE_KEY, "part": "snippet", "q": q, "type": "video",
+                "regionCode": "IR", "relevanceLanguage": "fa",
+                "order": "viewCount", "publishedAfter": published_after,
+                "maxResults": min(25, limit),
+            },
+            timeout=25,
+        )
+        r.raise_for_status()
+        ids = [
+            str(x.get("id", {}).get("videoId") or "").strip()
+            for x in (r.json().get("items") or [])
+            if x.get("id", {}).get("videoId")
+        ]
+        if ids:
+            rr = session.get(
+                "https://www.googleapis.com/youtube/v3/videos",
+                params={
+                    "key": YOUTUBE_KEY, "part": "snippet,statistics,contentDetails",
+                    "id": ",".join(ids[:50]), "maxResults": 50,
+                },
+                timeout=25,
+            )
+            rr.raise_for_status()
+            for raw in (rr.json().get("items") or []):
+                add_video(raw)
+    except Exception as exc:
+        print("YOUTUBE_FRESH_SEARCH_FAIL", type(exc).__name__)
+
+    return list(out.values())
+
 def normalize_public_number(raw):
     """Parse Persian/English public counters such as 1.2M, ۳٬۲۰۰, 2 میلیون."""
     if raw is None:
@@ -709,6 +804,9 @@ def main():
                 items[x["key"]] = x
         except Exception as e:
             print("RSS_FAIL", q, type(e).__name__)
+
+    for yt_item in discover_youtube_public_candidates(limit=25):
+        items[yt_item["key"]] = yt_item
 
     enrich_youtube_metrics(items)
     enrich_public_platform_metrics(items, limit=90)
