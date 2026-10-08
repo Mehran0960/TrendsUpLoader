@@ -54,6 +54,7 @@ jobs:
           sudo apt-get install -y -qq ffmpeg
           ffmpeg -version | head -n 1
           curl -fsSL https://deno.land/install.sh | sh
+          export PATH="$HOME/.deno/bin:$PATH"
           echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
           python -m pip install --disable-pip-version-check requests "yt-dlp[default]" numpy opencv-python-headless yt-dlp-ejs
           deno --version
