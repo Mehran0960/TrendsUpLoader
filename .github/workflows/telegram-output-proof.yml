@@ -1,0 +1,67 @@
+name: Telegram Native Output Proof
+
+on:
+  push:
+    paths:
+      - ".github/workflows/telegram-output-proof.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  output:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          curl -fsSL https://deno.land/install.sh | sh
+          export PATH="$HOME/.deno/bin:$PATH"
+          echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
+          python -m pip install --disable-pip-version-check "yt-dlp[default]" yt-dlp-ejs requests
+          deno --version
+          yt-dlp --version
+
+      - name: Download selected viral video
+        run: |
+          export PATH="$HOME/.deno/bin:$PATH"
+          mkdir -p /tmp/viral
+          yt-dlp --no-playlist --no-warnings \
+            --js-runtimes deno \
+            --max-filesize 50M \
+            -f "bv*[ext=mp4][height<=720]+ba[ext=m4a]/b[ext=mp4]/b" \
+            --merge-output-format mp4 \
+            -o "/tmp/viral/viral.%(ext)s" \
+            "https://www.youtube.com/watch?v=bVZqPgWWx_4"
+          ls -lh /tmp/viral
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 /tmp/viral/viral.mp4
+
+      - name: Send native MP4 to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          test -s /tmp/viral/viral.mp4
+          curl -fsS -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendVideo" \
+            -F "chat_id=$TELEGRAM_CHAT_ID" \
+            -F "supports_streaming=true" \
+            -F "caption=🔥 ویدئوی وایرال ایرانی | هلن خواننده ایرانی
+
+📊 242K بازدید • 2.6K لایک • 706 کامنت
+
+🎬 ارسال مستقیم به‌صورت ویدئو" \
+            -F "video=@/tmp/viral/viral.mp4;type=video/mp4" \
+            | tee /tmp/telegram-result.json
+          python - <<'PY'
+          import json
+          d=json.load(open("/tmp/telegram-result.json"))
+          assert d.get("ok"), d
+          print("TELEGRAM_SENT", d["result"]["message_id"])
+          print("TELEGRAM_VIDEO_FILE_ID", d["result"]["video"]["file_id"])
+          PY
