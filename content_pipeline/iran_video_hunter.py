@@ -55,12 +55,12 @@ MAX_ROUTINE_SHORTFORM_SECONDS = 75.0
 # Roundups can look visually busy while lacking one memorable payoff.
 # They are allowed only when demand and the first/event/structure hooks are exceptional.
 COMPILATION_TITLE_RE = re.compile(
-    r"(?:\\b(?:compilation|roundup|recap|best\\s+of|top\\s*\\d+|"
-    r"funniest\\s+moments|multiple\\s+stories|three\\s+stories)\\b|"
-    r"(?:گلچین|گزیده|میکس|مروری\\s*بر|مجموعه\\s*(?:ای\\s*از|از)|"
-    r"(?:چند|سه|چهار|پنج)\\s+(?:ماجرا|داستان|اتفاق|کلیپ|ویدیو)|"
-    r"روایت\\s+(?:چند|سه|چهار|پنج)\\s+(?:ماجرا|داستان|اتفاق)|"
-    r"در.{0,20}چه\\s*می.?گذرد|چه\\s*می.?گذرد.{0,20}))",
+    r"(?:\b(?:compilation|roundup|recap|best\s+of|top\s*\d+|"
+    r"funniest\s+moments|multiple\s+stories|three\s+stories)\b|"
+    r"(?:گلچین|گزیده|میکس|مروری\s*بر|مجموعه\s*(?:ای\s*از|از)|"
+    r"(?:چند|سه|چهار|پنج)\s+(?:ماجرا|داستان|اتفاق|کلیپ|ویدیو)|"
+    r"روایت\s+(?:چند|سه|چهار|پنج)\s+(?:ماجرا|داستان|اتفاق)|"
+    r"در.{0,20}چه\s*می.?گذرد|چه\s*می.?گذرد.{0,20}))",
     re.I,
 )
 ACQUISITION_REVIEW_LIMIT = 8
@@ -696,7 +696,7 @@ SENSITIVE_HARM_CONTENT = re.compile(
 UNSAFE_BRAND_CONTENT = re.compile(r"(?<!\w)(?:گوه|کیر|کون|کس|کص|کصکش|کسکش|جنده|کثافت|حشری|سکس|پورن|زناشویی)(?!\w)|فحش\s*رکیک", re.I)
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
 RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره", "دوسم", "عاشق", "عشق", "رابطه", "دلتنگ", "خواستگار", "مجرد", "ازدواج", "دوست دختر", "دوست‌دختر", "دوست پسر", "دوست‌پسر")
-TECH_CUES = ("هوش مصنوعی", "هوش‌مصنوعی", "تکنولوژی", "فناوری", "ربات", "گجت", "چت جی پی تی", "چت‌جی‌پی‌تی", "sora", "veo", "gemini", "chatgpt", "robot", "ai")
+TECH_CUES = ("هوش مصنوعی", "هوش‌مصنوعی", "تکنولوژی", "فناوری", "ربات", "گجت", "چت جی پی تی", "چت‌جی‌پی‌تی", "sora", "veo", "gemini", "chatgpt", "robot")
 ANIMAL_CUES = ("گربه", "سگ", "حیوان", "میمون", "پرنده", "گاو", "اسب", "cat", "dog", "animal", "pet")
 PUZZLE_CUES = ("معما", "چیستان", "معمای تصویری", "خطای دید", "پیداش کن", "پیدا کن", "کدومش", "کدام یک", "spot the difference", "optical illusion", "puzzle", "brain teaser")
 SKILL_CUES = ("تردستی", "آکروبات", "پشتک", "مهارت عجیب", "حرکت دیدنی", "رکورد", "شکست رکورد", "ترفند", "نجاری", "کاردستی", "life hack", "magic trick", "skill")
@@ -714,6 +714,8 @@ def content_shareability_proxy(item):
     relatable_hits = sum(1 for cue in RELATABLE_CUES if cue.lower() in blob)
     surprise_hits = sum(1 for cue in SURPRISE_CUES if cue.lower() in blob)
     tech_hits = sum(1 for cue in TECH_CUES if cue.lower() in blob)
+    if re.search(r"AI", blob, re.I):
+        tech_hits += 1
     animal_hits = sum(1 for cue in ANIMAL_CUES if cue.lower() in blob)
     puzzle_hits = sum(1 for cue in PUZZLE_CUES if cue.lower() in blob)
     skill_hits = sum(1 for cue in SKILL_CUES if cue.lower() in blob)
@@ -1913,9 +1915,9 @@ def main():
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
                 "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت|آکروبات|پشتک|ژیمناستیک|نمایش دیدنی|magic trick|skill)", item_text, re.I)),
                 "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after|satisfying)", item_text, re.I)),
-                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش.?مصنوعی|ربات|گجت|تکنولوژی|فناوری|گوشی|chatgpt|gemini|sora|veo|ai|دوسم|عاشق|عشق|رابطه|دلتنگ|خواستگار|مجرد|ازدواج)", item_text, re.I)),
+                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش.?مصنوعی|ربات|گجت|تکنولوژی|فناوری|گوشی|chatgpt|gemini|sora|veo|\bAI\b|دوسم|عاشق|عشق|رابطه|دلتنگ|خواستگار|مجرد|ازدواج)", item_text, re.I)),
                 "ai_or_tech_demo": bool(
-                    re.search(r"(هوش.?مصنوعی|\\bAI\\b|چت.?جی.?پی.?تی|chatgpt|gemini|sora|veo|ربات|robot|گجت|تکنولوژی|فناوری)", item_text, re.I)
+                    re.search(r"(هوش.?مصنوعی|\bAI\b|چت.?جی.?پی.?تی|chatgpt|gemini|sora|veo|ربات|robot|گجت|تکنولوژی|فناوری)", item_text, re.I)
                     and re.search(r"(ساخت|تبدیل|تولید|واقعی|باورنکردنی|عجیب|تصویر|ویدیو|فیلم|صدا|قبل.{0,10}بعد|اجر|نمایش|سورا|veo|imagine|generat)", item_text, re.I)
                 ),
                 "puzzle_or_reveal": bool(re.search(r"(معما|چیستان|خطای دید|پیداش کن|پیدا کن|کدام یک|کدومش|جوابش|جواب معما|spot the difference|optical illusion|brain teaser|puzzle)", item_text, re.I)),
