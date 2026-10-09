@@ -152,6 +152,7 @@ def telegram_repost_candidates():
     )
     out = []
     seen = set()
+    by_url = {}
     for channel in channels:
         try:
             r = requests.get(
@@ -203,21 +204,37 @@ def telegram_repost_candidates():
                     kind = "reel" if kind == "reels" else kind
                     url = f"https://www.instagram.com/{kind}/{shortcode}/"
                     if url in seen:
+                        existing = by_url.get(url)
+                        if existing:
+                            raw = existing.get("raw") or {}
+                            relay_channels = list(raw.get("telegram_channels") or [])
+                            if channel not in relay_channels:
+                                relay_channels.append(channel)
+                                raw["telegram_repost_views"] = int(raw.get("telegram_repost_views") or 0) + relay_views
+                                raw["telegram_channels"] = relay_channels
+                                old_age = float(raw.get("age_hours") or 999999.0)
+                                raw["age_hours"] = min(old_age, age_hours)
+                                if not raw.get("telegram_published_at") or (published_at and published_at > raw["telegram_published_at"]):
+                                    raw["telegram_published_at"] = published_at
+                            existing["raw"] = raw
                         continue
                     seen.add(url)
-                    out.append({
+                    item = {
                         "url": url,
                         "title": caption[:260],
                         "description": caption[:1800],
                         "raw": {
                             "source": "telegram_public_repost",
                             "telegram_channel": channel,
+                            "telegram_channels": [channel],
                             "telegram_post": message_id.group(1),
                             "telegram_repost_views": relay_views,
                             "telegram_published_at": published_at,
                             "age_hours": age_hours,
                         },
-                    })
+                    }
+                    out.append(item)
+                    by_url[url] = item
                     channel_count += 1
             print("TELEGRAM_REPOST_CHANNEL", json.dumps({
                 "channel": channel, "candidates": channel_count,
@@ -331,7 +348,7 @@ def main():
                 "comments": comments,
                 "shares": shares,
                 "telegram_repost_views": int((x.get("raw") or {}).get("telegram_repost_views") or 0),
-                "telegram_repost_channels": [str((x.get("raw") or {}).get("telegram_channel") or "")] if (x.get("raw") or {}).get("telegram_channel") else [],
+                "telegram_repost_channels": list((x.get("raw") or {}).get("telegram_channels") or ([str((x.get("raw") or {}).get("telegram_channel") or "")] if (x.get("raw") or {}).get("telegram_channel") else [])),
                 "published_at": str((x.get("raw") or {}).get("telegram_published_at") or ""),
                 "age_hours": float((x.get("raw") or {}).get("age_hours") or 999999.0),
                 "persian_signal": persian >= 3,
