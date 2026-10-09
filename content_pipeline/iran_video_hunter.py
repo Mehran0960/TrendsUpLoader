@@ -1743,25 +1743,38 @@ def main():
                 broad_interest_cues[name]
                 for name in ("humor_or_reaction", "animals", "sports_or_skill", "transformation_or_satisfying", "relatable_or_tech")
             )
-            if broad_interest_cues["relatable_or_tech"]:
+            comedy_exploration = (
+                bool(dm.get("telegram_comedy_exploration"))
+                and bool(broad_interest_cues["humor_or_reaction"])
+            )
+            required_views = MIN_SINGLE_METRIC_TELEGRAM_VIEWS
+            if comedy_exploration:
+                # Exploration lane is deliberately narrow: strong laugh/reaction
+                # cue, fresh 10k+ public views, attraction >=62 and a measured hook.
+                required_shareability = 50.0
+                required_attraction = MIN_COMEDY_EXPLORATION_ATTRACTION
+                required_demand = MIN_COMEDY_EXPLORATION_DEMAND
+                required_views = MIN_COMEDY_EXPLORATION_VIEWS
+            elif broad_interest_cues["relatable_or_tech"]:
                 required_shareability = 45.0
                 # Everyday/AI clips can be compelling without fast motion;
-                # allow the normal visual gate to stand, but keep a 52-point
-                # category floor and the explicit hook-event requirement.
+                # keep a 52-point category floor and an explicit hook-event check.
                 required_attraction = 52.0
+                required_demand = MIN_SINGLE_METRIC_TELEGRAM_DEMAND
             elif entertainment_cue:
                 required_shareability = MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY
                 required_attraction = MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION
+                required_demand = MIN_SINGLE_METRIC_TELEGRAM_DEMAND
             else:
                 required_shareability = 60.0
                 required_attraction = 65.0
-            required_demand = MIN_SINGLE_METRIC_TELEGRAM_DEMAND if entertainment_cue else MIN_EVENT_ONLY_TELEGRAM_DEMAND
+                required_demand = MIN_EVENT_ONLY_TELEGRAM_DEMAND
             if single_metric_telegram:
                 if demand < required_demand:
                     appeal_failures.append("demand_score_below_category_floor")
                 if shareability < required_shareability:
                     appeal_failures.append("shareability_below_category_floor")
-                if int(dm.get("views") or 0) < MIN_SINGLE_METRIC_TELEGRAM_VIEWS:
+                if int(dm.get("views") or 0) < required_views:
                     appeal_failures.append("views_below_floor")
                 if float(dm.get("age_hours") or 999999.0) > MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS:
                     appeal_failures.append("too_old")
@@ -1772,7 +1785,13 @@ def main():
                 else:
                     if float(cq.get("attraction_score") or attraction) < required_attraction:
                         appeal_failures.append("visual_attraction_below_category_floor")
-                    if entertainment_cue:
+                    if comedy_exploration:
+                        strong_hook = (
+                            float(cq.get("hook_first_event_score") or 0.0) >= 55.0
+                            or float(cq.get("hook_event_score") or 0.0) >= 60.0
+                            or float(cq.get("hook_structure_score") or 0.0) >= 58.0
+                        )
+                    elif entertainment_cue:
                         strong_hook = (
                             float(cq.get("hook_first_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_FIRST_EVENT
                             or float(cq.get("hook_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_EVENT
@@ -1800,8 +1819,9 @@ def main():
                 "entertainment_cue": entertainment_cue if single_metric_telegram else False,
                 "required_shareability": required_shareability if single_metric_telegram else None,
                 "required_attraction": required_attraction if single_metric_telegram else None,
+                "comedy_exploration": comedy_exploration if single_metric_telegram else False,
                 "required_demand": required_demand if single_metric_telegram else None,
-                "minimum_views": MIN_SINGLE_METRIC_TELEGRAM_VIEWS if single_metric_telegram else None,
+                "minimum_views": required_views if single_metric_telegram else None,
                 "maximum_age_hours": MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS if single_metric_telegram else None,
             }
             if single_metric_telegram and appeal_failures:
