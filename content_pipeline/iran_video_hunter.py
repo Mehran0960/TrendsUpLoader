@@ -636,7 +636,7 @@ SENSITIVE_HARM_CONTENT = re.compile(
 )
 UNSAFE_BRAND_CONTENT = re.compile(r"(?<!\w)(?:گوه|کیر|کون|کس|کص|کصکش|کسکش|جنده|کثافت|حشری|سکس|پورن|زناشویی)(?!\w)|فحش\s*رکیک", re.I)
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
-RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره")
+RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره", "دوسم", "عاشق", "عشق", "رابطه", "دلتنگ", "خواستگار", "مجرد", "ازدواج", "دوست دختر", "دوست‌دختر", "دوست پسر", "دوست‌پسر")
 SURPRISE_CUES = ("عجیب", "باورنکردنی", "غافلگیر", "غیرمنتظره", "آخرش", "ناگهان", "چطور ممکن", "چطوری", "راز", "قبل و بعد", "تغییر باورنکردنی", "این شکلی", "شوکه", "شوک", "انتظارشو نداشتم", "انتظار نداشتم")
 
 
@@ -1628,8 +1628,9 @@ def main():
         -int(z[0].get("views") or 0),
         float(z[0].get("age_hours") or 999999),
     ))
-    # Keep the main native lane concentrated on strong public demand, but leave
-    # one separate slot for fresh comedy from another channel when possible.
+    # Keep most slots focused on strong public demand, but reserve independent
+    # tests for a fresh breakout from another Persian Telegram channel and for
+    # a funny low-reach clip. This avoids one source monopolizing all downloads.
     native_review = native_review[:min(3, ACQUISITION_REVIEW_LIMIT)]
     native_keys = {str(z[0].get("key") or "") for z in native_review}
     recent_channels = {
@@ -1637,11 +1638,28 @@ def main():
         for h in (state.get("history") or [])[-4:]
         if str(h.get("telegram_channel") or "").strip()
     }
+    diversity_review = [
+        z for z in ranked
+        if str(z[0].get("source") or "") == "telegram_native_video"
+        and str(z[0].get("key") or "") not in native_keys
+        and str(z[0].get("telegram_channel") or "").lower() not in recent_channels
+        and int(z[0].get("views") or 0) >= 50_000
+        and float(z[0].get("age_hours") or 999999.0) <= 24.0
+        and float(z[3]) >= 50.0
+        and float(z[0].get("shareability_proxy_score") or 0.0) >= 43.0
+    ]
+    diversity_review.sort(key=lambda z: (
+        -(0.75 * float(z[3]) + 0.25 * float(z[0].get("shareability_proxy_score") or 0.0)),
+        -int(z[0].get("views") or 0),
+        float(z[0].get("age_hours") or 999999),
+    ))
+    diversity_review = diversity_review[:1]
+    diversity_keys = {str(z[0].get("key") or "") for z in diversity_review}
     comedy_review = [
         z for z in ranked
         if str(z[0].get("source") or "") == "telegram_native_video"
         and bool(z[4].get("telegram_comedy_exploration"))
-        and str(z[0].get("key") or "") not in native_keys
+        and str(z[0].get("key") or "") not in (native_keys | diversity_keys)
         and float(z[3]) >= MIN_COMEDY_EXPLORATION_DEMAND
     ]
     comedy_review.sort(key=lambda z: (
@@ -1652,17 +1670,19 @@ def main():
     ))
     comedy_review = comedy_review[:1]
     comedy_keys = {str(z[0].get("key") or "") for z in comedy_review}
+    reserved_keys = native_keys | diversity_keys | comedy_keys
     general_review = [
         z for z in ranked
-        if str(z[0].get("key") or "") not in native_keys | comedy_keys
+        if str(z[0].get("key") or "") not in reserved_keys
     ]
-    review_queue = native_review + comedy_review + general_review[
-        :max(0, ACQUISITION_REVIEW_LIMIT - len(native_review) - len(comedy_review))
+    review_queue = native_review + diversity_review + comedy_review + general_review[
+        :max(0, ACQUISITION_REVIEW_LIMIT - len(native_review) - len(diversity_review) - len(comedy_review))
     ]
     print("ACQUISITION_LANE_ALLOCATION", json.dumps({
         "telegram_native_video": len(native_review),
+        "telegram_source_diversity": len(diversity_review),
         "telegram_comedy_exploration": len(comedy_review),
-        "general_viral": len(review_queue) - len(native_review) - len(comedy_review),
+        "general_viral": len(review_queue) - len(native_review) - len(diversity_review) - len(comedy_review),
         "budget": ACQUISITION_REVIEW_LIMIT,
     }, ensure_ascii=False))
     print("CONTENT_FILTER_REJECTIONS", json.dumps(lane_rejections, ensure_ascii=False))
@@ -1736,7 +1756,7 @@ def main():
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
                 "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت|آکروبات|پشتک|ژیمناستیک|نمایش دیدنی)", item_text, re.I)),
                 "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after)", item_text, re.I)),
-                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش مصنوعی|ربات|گجت|تکنولوژی|گوشی)", item_text, re.I)),
+                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش مصنوعی|ربات|گجت|تکنولوژی|گوشی|دوسم|عاشق|عشق|رابطه|دلتنگ|خواستگار|مجرد|ازدواج)", item_text, re.I)),
                 "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|صحنه آخر)", item_text, re.I)),
             }
             entertainment_cue = any(
