@@ -629,6 +629,7 @@ SENSITIVE_HARM_CONTENT = re.compile(
     r"(?:جسد|کشته\s*شد|جان\s*باخت|مرگبار|خونین|قطع\s*عضو|تصادف\s*شدید|برق\s*گرفتگی|برق\s*گرفت|زیر\s*آوار|آوار\s*روی|چاقوکشی|تیراندازی|شلیک|کودک.?آزاری|تجاوز|آزار\s*جنسی|دیوار.{0,30}(?:میوفته|می.?افته|افتاد|می.?ریزه|فرو\s*ریخت).{0,18}(?:روشون|روی|سر|خانم|زن|مردم|آدم))",
     re.I,
 )
+UNSAFE_BRAND_CONTENT = re.compile(r"(?:گوه|کیر|کون|کس|جنده|کثافت|فحش رکیک)", re.I)
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
 RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره")
 SURPRISE_CUES = ("عجیب", "باورنکردنی", "غافلگیر", "غیرمنتظره", "آخرش", "ناگهان", "چطور ممکن", "چطوری", "راز", "قبل و بعد", "تغییر باورنکردنی", "این شکلی", "شوکه", "شوک", "انتظارشو نداشتم", "انتظار نداشتم")
@@ -639,7 +640,7 @@ def content_shareability_proxy(item):
     blob = " ".join([str(item.get("title") or ""), str(item.get("description") or "")]).lower()
     promotion = bool(PROMOTIONAL_CONTENT.search(blob))
     hard_news = bool(HARD_NEWS_CONTENT.search(blob))
-    sensitive_harm = bool(SENSITIVE_HARM_CONTENT.search(blob))
+    sensitive_harm = bool(SENSITIVE_HARM_CONTENT.search(blob) or UNSAFE_BRAND_CONTENT.search(blob))
     humor_hits = sum(1 for cue in HUMOR_CUES if cue.lower() in blob)
     relatable_hits = sum(1 for cue in RELATABLE_CUES if cue.lower() in blob)
     surprise_hits = sum(1 for cue in SURPRISE_CUES if cue.lower() in blob)
@@ -1492,7 +1493,9 @@ def main():
         if str(x.get("source") or "") == "telegram_native_video" and shareability_flags["hard_news"]:
             lane_rejections["hard_news"] += 1
             continue
-        if str(x.get("source") or "") == "telegram_native_video" and shareability < 48.0:
+        # This is only an inexpensive prefilter; the stricter category, demand,
+        # and visual-hook gate runs after download.
+        if str(x.get("source") or "") == "telegram_native_video" and shareability < 43.0:
             lane_rejections["low_shareability"] += 1
             continue
 
@@ -1674,7 +1677,7 @@ def main():
                 str(item.get("description") or ""),
             ]).lower()
             broad_interest_cues = {
-                "humor_or_reaction": bool(re.search(r"(خنده.?دار|طنز|شوخی|سوتی|بامزه|میم|واکنش بامزه|prank|funny|fail)", item_text, re.I)),
+                "humor_or_reaction": bool(re.search(r"(خنده.?دار|طنز|شوخی|سوتی|بامزه|میم|واکنش بامزه|prank|funny|fail|😂|🤣|😅|😆|خوش.?شانس|بدشانس|شانس.?ترین)", item_text, re.I)),
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
                 "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت|آکروبات|پشتک|ژیمناستیک|نمایش دیدنی)", item_text, re.I)),
                 "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after)", item_text, re.I)),
