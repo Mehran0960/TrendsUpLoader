@@ -36,8 +36,9 @@ DEMAND_EMERGENCY_THRESHOLD = 88.0
 # When Telegram exposes only views, require stronger demand, a specific
 # broad-interest cue, and a real visual hook; views and clickbait wording alone
 # are not enough for general-audience distribution.
-MIN_SINGLE_METRIC_TELEGRAM_DEMAND = 58.0
-MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY = 60.0
+MIN_SINGLE_METRIC_TELEGRAM_DEMAND = 51.0
+MIN_EVENT_ONLY_TELEGRAM_DEMAND = 58.0
+MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY = 48.0
 MIN_SINGLE_METRIC_TELEGRAM_VIEWS = 50000
 MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS = 24.0
 MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION = 55.0
@@ -630,7 +631,7 @@ SENSITIVE_HARM_CONTENT = re.compile(
 )
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
 RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره")
-SURPRISE_CUES = ("عجیب", "باورنکردنی", "غافلگیر", "غیرمنتظره", "آخرش", "ناگهان", "چطور ممکن", "چطوری", "راز", "قبل و بعد", "تغییر باورنکردنی", "این شکلی")
+SURPRISE_CUES = ("عجیب", "باورنکردنی", "غافلگیر", "غیرمنتظره", "آخرش", "ناگهان", "چطور ممکن", "چطوری", "راز", "قبل و بعد", "تغییر باورنکردنی", "این شکلی", "شوکه", "شوک", "انتظارشو نداشتم", "انتظار نداشتم")
 
 
 def content_shareability_proxy(item):
@@ -1675,19 +1676,26 @@ def main():
             broad_interest_cues = {
                 "humor_or_reaction": bool(re.search(r"(خنده.?دار|طنز|شوخی|سوتی|بامزه|میم|واکنش بامزه|prank|funny|fail)", item_text, re.I)),
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
-                "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت)", item_text, re.I)),
+                "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت|آکروبات|پشتک|ژیمناستیک|نمایش دیدنی)", item_text, re.I)),
                 "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after)", item_text, re.I)),
-                "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|ربات|هوش مصنوعی|صحنه آخر)", item_text, re.I)),
+                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش مصنوعی|ربات|گجت|تکنولوژی|گوشی)", item_text, re.I)),
+                "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|صحنه آخر)", item_text, re.I)),
             }
             entertainment_cue = any(
                 broad_interest_cues[name]
-                for name in ("humor_or_reaction", "animals", "sports_or_skill", "transformation_or_satisfying")
+                for name in ("humor_or_reaction", "animals", "sports_or_skill", "transformation_or_satisfying", "relatable_or_tech")
             )
-            required_shareability = 48.0 if entertainment_cue else MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY
+            if broad_interest_cues["relatable_or_tech"]:
+                required_shareability = 45.0
+            elif entertainment_cue:
+                required_shareability = MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY
+            else:
+                required_shareability = 60.0
             required_attraction = MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION if entertainment_cue else 65.0
+            required_demand = MIN_SINGLE_METRIC_TELEGRAM_DEMAND if entertainment_cue else MIN_EVENT_ONLY_TELEGRAM_DEMAND
             if single_metric_telegram:
-                if demand < MIN_SINGLE_METRIC_TELEGRAM_DEMAND:
-                    appeal_failures.append("demand_score_below_floor")
+                if demand < required_demand:
+                    appeal_failures.append("demand_score_below_category_floor")
                 if shareability < required_shareability:
                     appeal_failures.append("shareability_below_category_floor")
                 if int(dm.get("views") or 0) < MIN_SINGLE_METRIC_TELEGRAM_VIEWS:
@@ -1729,7 +1737,7 @@ def main():
                 "entertainment_cue": entertainment_cue if single_metric_telegram else False,
                 "required_shareability": required_shareability if single_metric_telegram else None,
                 "required_attraction": required_attraction if single_metric_telegram else None,
-                "minimum_demand": MIN_SINGLE_METRIC_TELEGRAM_DEMAND if single_metric_telegram else None,
+                "required_demand": required_demand if single_metric_telegram else None,
                 "minimum_views": MIN_SINGLE_METRIC_TELEGRAM_VIEWS if single_metric_telegram else None,
                 "maximum_age_hours": MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS if single_metric_telegram else None,
             }
