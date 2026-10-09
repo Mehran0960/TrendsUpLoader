@@ -33,6 +33,10 @@ ATTRACTION_MODEL_VERSION = "visual_hook_v2"
 ATTRACTION_FLOOR = 48.0
 ATTRACTION_EMERGENCY_FLOOR = 40.0
 DEMAND_EMERGENCY_THRESHOLD = 88.0
+# When Telegram exposes only views, require stronger demand plus a usable
+# title/caption shareability signal; views alone are not general-audience proof.
+MIN_SINGLE_METRIC_TELEGRAM_DEMAND = 55.0
+MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY = 55.0
 ACQUISITION_REVIEW_LIMIT = 8
 MIRROR_SEARCH_CANDIDATE_LIMIT = 4
 YOUTUBE_BOTWALL_DETECTED = False
@@ -1636,12 +1640,44 @@ def main():
                 and demand >= DEMAND_EMERGENCY_THRESHOLD
                 and attraction >= ATTRACTION_EMERGENCY_FLOOR
             )
-            publishable = bool(cq.get("available")) and (
-                bool(cq.get("passed")) or emergency_ok
+
+            # A Telegram view count is a useful demand signal, but not enough
+            # on its own to establish broad appeal. Tighten this path when no
+            # second native engagement metric is available.
+            single_metric_telegram = (
+                str(item.get("source") or "") == "telegram_native_video"
+                and int(dm.get("metric_fields") or 0) < 2
+            )
+            shareability = float(item.get("shareability_proxy_score") or 0.0)
+            appeal_failures = []
+            if single_metric_telegram:
+                if demand < MIN_SINGLE_METRIC_TELEGRAM_DEMAND:
+                    appeal_failures.append("demand_score_below_floor")
+                if shareability < MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY:
+                    appeal_failures.append("shareability_below_floor")
+            general_audience_gate = {
+                "applied": single_metric_telegram,
+                "passed": not appeal_failures,
+                "reason": appeal_failures or (["not_single_metric_telegram"] if not single_metric_telegram else []),
+                "minimum_demand": MIN_SINGLE_METRIC_TELEGRAM_DEMAND if single_metric_telegram else None,
+                "minimum_shareability": MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY if single_metric_telegram else None,
+            }
+            if single_metric_telegram and appeal_failures:
+                print("SINGLE_METRIC_TELEGRAM_GUARD_REJECT", json.dumps({
+                    "title": item.get("title"),
+                    "demand_score": round(float(demand), 2),
+                    "metric_fields": dm.get("metric_fields"),
+                    "shareability_proxy_score": round(shareability, 2),
+                    **general_audience_gate,
+                }, ensure_ascii=False))
+
+            publishable = (
+                bool(cq.get("available"))
+                and general_audience_gate["passed"]
+                and (bool(cq.get("passed")) or emergency_ok)
             )
 
             retention_proxy = float(cq.get("retention_proxy_score") or 0.0)
-            shareability = float(item.get("shareability_proxy_score") or 0.0)
             shareability_flags = item.get("shareability_flags") or {}
             trend_score = float(item.get("trend_score") or 0.0)
             # Retention proxy now has material weight; trend is only a small bonus.
@@ -1671,6 +1707,7 @@ def main():
                 "trend_score": round(trend_score, 2),
                 "trend_topic": item.get("trend_topic", ""),
                 "publish_score": publish_score,
+                "general_audience_gate": general_audience_gate,
                 "publishable": publishable,
             })
 
@@ -1681,7 +1718,8 @@ def main():
                     "demand_score": demand,
                     "attraction_score": attraction,
                     "publish_score": publish_score,
-                    "result": "attraction_rejected",
+                    "result": "general_audience_gate_rejected" if not general_audience_gate["passed"] else "attraction_rejected",
+                    "general_audience_gate": general_audience_gate,
                     "attraction_metrics": cq,
                 })
                 os.unlink(path)
