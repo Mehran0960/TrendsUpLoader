@@ -608,6 +608,12 @@ def public_demand_score(item, corroboration=1):
     comments = max(0, int(item.get("comments") or 0))
     shares = max(0, int(item.get("shares") or 0))
     age_h = max(0.25, float(item.get("age_hours") or 999999.0))
+    source_tag = str(item.get("source") or "")
+    telegram_native_video_evidence = (
+        source_tag == "telegram_native_video"
+        and views >= 30_000
+        and age_h <= 36.0
+    )
     telegram_repost_views = max(0, int(item.get("telegram_repost_views") or 0))
     raw_repost_channels = item.get("telegram_repost_channels") or []
     if isinstance(raw_repost_channels, str):
@@ -658,7 +664,7 @@ def public_demand_score(item, corroboration=1):
     )
     native_evidence = metric_fields >= 2 and (strong_absolute or views >= 2_000)
     relay_evidence = metric_fields >= 1 and telegram_repost_views >= 10_000 and telegram_repost_channels >= 2
-    evidence = native_evidence or relay_evidence
+    evidence = native_evidence or relay_evidence or telegram_native_video_evidence
     return round(total, 2), {
         "evidence": evidence,
         "metric_fields": metric_fields,
@@ -679,6 +685,7 @@ def public_demand_score(item, corroboration=1):
         "telegram_repost_channels": telegram_repost_channels,
         "telegram_repost_score": round(telegram_repost_score, 2),
         "relay_evidence": relay_evidence,
+        "telegram_native_video_evidence": telegram_native_video_evidence,
         "score": round(total, 2),
     }
 
@@ -1360,6 +1367,7 @@ def main():
                 "age_hours": float(s.get("age_hours") or 999999.0),
                 "telegram_repost_views": int(s.get("telegram_repost_views") or 0),
                 "telegram_repost_channels": list(s.get("telegram_repost_channels") or []),
+                "telegram_channel": str(s.get("telegram_channel") or ""),
                 "views": int(s.get("views") or 0),
                 "likes": int(s.get("likes") or 0),
                 "comments": int(s.get("comments") or 0),
@@ -1448,7 +1456,8 @@ def main():
         demand, dm = public_demand_score(x, corroboration)
         if not dm.get("evidence"):
             continue
-        if demand < 60.0:
+        telegram_native_hot = bool(dm.get("telegram_native_video_evidence"))
+        if demand < 60.0 and not (telegram_native_hot and demand >= 45.0):
             continue
         for u in vids:
             ranked.append((x, u, corroboration, demand, dm))
@@ -1659,7 +1668,8 @@ def main():
             (float(z[3]) for z in ranked if z[0].get("key") == item.get("key") and z[1] == url),
             0.0,
         )
-    sent = send_video(path, item["title"], item["source"] or urlparse(item["link"]).netloc)
+    attribution = str(item.get("telegram_channel") or item.get("source") or urlparse(item["link"]).netloc)
+    sent = send_video(path, item["title"], attribution)
     entry = {
         "at": datetime.now(timezone.utc).isoformat(),
         "title": item["title"], "article": item["link"], "video": url,
@@ -1677,7 +1687,7 @@ def main():
             + 0.20 * float(cq.get("retention_proxy_score") or 0.0)
             + 0.05 * float(item.get("trend_score") or 0.0), 2
         ),
-        "cross_sources": cross, "platform": platform_of(url), "duration": mi["duration"],
+        "cross_sources": cross, "platform": platform_of(url), "telegram_channel": item.get("telegram_channel", ""), "duration": mi["duration"],
         "width": mi["width"], "height": mi["height"]
     }
     state["seen_keys"].append(item["key"])
