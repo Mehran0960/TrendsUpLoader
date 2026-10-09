@@ -45,6 +45,11 @@ MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION = 55.0
 MIN_SINGLE_METRIC_TELEGRAM_FIRST_EVENT = 38.0
 MIN_SINGLE_METRIC_TELEGRAM_EVENT = 48.0
 MIN_SINGLE_METRIC_TELEGRAM_STRUCTURE = 54.0
+# Small, fresh comedy clips get one exploratory download slot, but face a
+# stricter visual attraction/hook bar before any delivery.
+MIN_COMEDY_EXPLORATION_VIEWS = 10000
+MIN_COMEDY_EXPLORATION_DEMAND = 43.0
+MIN_COMEDY_EXPLORATION_ATTRACTION = 62.0
 ACQUISITION_REVIEW_LIMIT = 8
 MIRROR_SEARCH_CANDIDATE_LIMIT = 4
 YOUTUBE_BOTWALL_DETECTED = False
@@ -661,6 +666,24 @@ def content_shareability_proxy(item):
     }
 
 
+def telegram_comedy_exploration_candidate(item):
+    """Fresh, views-only native Telegram comedy lead; not proof of quality."""
+    if str(item.get("source") or "") != "telegram_native_video":
+        return False
+    try:
+        views = int(item.get("views") or 0)
+        age_h = float(item.get("age_hours") or 999999.0)
+    except (TypeError, ValueError):
+        return False
+    if views < MIN_COMEDY_EXPLORATION_VIEWS or age_h > 24.0:
+        return False
+    blob = " ".join([str(item.get("title") or ""), str(item.get("description") or "")]).lower()
+    return bool(re.search(
+        r"(😂|🤣|😅|😆|خنده.?دار|طنز|شوخی|سوتی|بامزه|مستر.?بین|میم|خوش.?شانس|بدشانس|شانس.?ترین|اوضاع.{0,12}خرابه)",
+        blob, re.I,
+    ))
+
+
 def public_demand_score(item, corroboration=1):
     """Demand-first score. Duration/topic/visual aesthetics do not influence rank."""
     import math
@@ -670,10 +693,11 @@ def public_demand_score(item, corroboration=1):
     shares = max(0, int(item.get("shares") or 0))
     age_h = max(0.25, float(item.get("age_hours") or 999999.0))
     source_tag = str(item.get("source") or "")
+    telegram_comedy_exploration = telegram_comedy_exploration_candidate(item)
     telegram_native_video_evidence = (
         source_tag == "telegram_native_video"
-        and views >= 30_000
         and age_h <= 36.0
+        and (views >= 30_000 or telegram_comedy_exploration)
     )
     telegram_repost_views = max(0, int(item.get("telegram_repost_views") or 0))
     raw_repost_channels = item.get("telegram_repost_channels") or []
@@ -747,6 +771,7 @@ def public_demand_score(item, corroboration=1):
         "telegram_repost_score": round(telegram_repost_score, 2),
         "relay_evidence": relay_evidence,
         "telegram_native_video_evidence": telegram_native_video_evidence,
+        "telegram_comedy_exploration": telegram_comedy_exploration,
         "score": round(total, 2),
     }
 
@@ -1541,7 +1566,12 @@ def main():
         if not dm.get("evidence"):
             continue
         telegram_native_hot = bool(dm.get("telegram_native_video_evidence"))
-        if demand < 60.0 and not (telegram_native_hot and demand >= 45.0):
+        comedy_explore = bool(dm.get("telegram_comedy_exploration"))
+        if (
+            demand < 60.0
+            and not (telegram_native_hot and demand >= 45.0)
+            and not (comedy_explore and demand >= MIN_COMEDY_EXPLORATION_DEMAND)
+        ):
             continue
         for u in vids:
             ranked.append((x, u, corroboration, demand, dm))
@@ -1598,16 +1628,41 @@ def main():
         -int(z[0].get("views") or 0),
         float(z[0].get("age_hours") or 999999),
     ))
-    native_review = native_review[:min(4, ACQUISITION_REVIEW_LIMIT)]
+    # Keep the main native lane concentrated on strong public demand, but leave
+    # one separate slot for fresh comedy from another channel when possible.
+    native_review = native_review[:min(3, ACQUISITION_REVIEW_LIMIT)]
     native_keys = {str(z[0].get("key") or "") for z in native_review}
+    recent_channels = {
+        str(h.get("telegram_channel") or "").lower()
+        for h in (state.get("history") or [])[-4:]
+        if str(h.get("telegram_channel") or "").strip()
+    }
+    comedy_review = [
+        z for z in ranked
+        if str(z[0].get("source") or "") == "telegram_native_video"
+        and bool(z[4].get("telegram_comedy_exploration"))
+        and str(z[0].get("key") or "") not in native_keys
+        and float(z[3]) >= MIN_COMEDY_EXPLORATION_DEMAND
+    ]
+    comedy_review.sort(key=lambda z: (
+        0 if str(z[0].get("telegram_channel") or "").lower() not in recent_channels else 1,
+        -(0.55 * float(z[0].get("shareability_proxy_score") or 0.0) + 0.45 * float(z[3])),
+        -int(z[0].get("views") or 0),
+        float(z[0].get("age_hours") or 999999),
+    ))
+    comedy_review = comedy_review[:1]
+    comedy_keys = {str(z[0].get("key") or "") for z in comedy_review}
     general_review = [
         z for z in ranked
-        if str(z[0].get("key") or "") not in native_keys
+        if str(z[0].get("key") or "") not in native_keys | comedy_keys
     ]
-    review_queue = native_review + general_review[:max(0, ACQUISITION_REVIEW_LIMIT - len(native_review))]
+    review_queue = native_review + comedy_review + general_review[
+        :max(0, ACQUISITION_REVIEW_LIMIT - len(native_review) - len(comedy_review))
+    ]
     print("ACQUISITION_LANE_ALLOCATION", json.dumps({
         "telegram_native_video": len(native_review),
-        "general_viral": len(review_queue) - len(native_review),
+        "telegram_comedy_exploration": len(comedy_review),
+        "general_viral": len(review_queue) - len(native_review) - len(comedy_review),
         "budget": ACQUISITION_REVIEW_LIMIT,
     }, ensure_ascii=False))
     print("CONTENT_FILTER_REJECTIONS", json.dumps(lane_rejections, ensure_ascii=False))
