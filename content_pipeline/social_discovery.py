@@ -126,7 +126,6 @@ def bing_search(query, limit=12, timeout=14):
             continue
         seen.add(dest)
         title = re.sub(r"<[^>]+>", " ", unescape(hm.group(2)))
-            title = re.sub(r"\s+", " ", title).strip()
         pm = re.search(r"<p[^>]*>(.*?)</p>", block, re.I | re.S)
         desc = ""
         if pm:
