@@ -1,7 +1,50 @@
 {
   "version": 2,
-  "updated_at": "2026-10-09T05:46:29.831727+00:00",
+  "updated_at": "2026-10-09T05:49:54.772602+00:00",
   "status": "bing_fallback",
-  "count": 0,
-  "items": []
+  "count": 2,
+  "items": [
+    {
+      "id": "58ff7ba579c2b09025dd445d492f8f15bbbed1f09444bc83d7aed8b058a8e240",
+      "url": "https://www.instagram.com/reel/DSDRPKYjCG_/",
+      "title": "۳۰ تا پک #رایگان ۱۰ ملیون ریالی برای شما شرایط از این راحت تر؟ 👇 https://www.instagram.com/reel/DSDRPKYjCG_/?igsh=Ync5NTlxYWh4NWJ0",
+      "description": "۳۰ تا پک #رایگان ۱۰ ملیون ریالی برای شما شرایط از این راحت تر؟ 👇 https://www.instagram.com/reel/DSDRPKYjCG_/?igsh=Ync5NTlxYWh4NWJ0",
+      "platform": "instagram",
+      "views": 788,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "telegram_repost_views": 788,
+      "telegram_repost_channels": [
+        "aranbidgoliha"
+      ],
+      "published_at": "2025-12-24T05:48:22+00:00",
+      "age_hours": 6936.0265636272225,
+      "persian_signal": true,
+      "discovered_at": "2026-10-09T05:49:54.772602+00:00",
+      "source": "telegram_public_repost",
+      "query": 1
+    },
+    {
+      "id": "b5333bba9ba20cd2e5eee89aeb58864df8cc7b3f398e181d5ee55316f38c5bcd",
+      "url": "https://www.instagram.com/reel/DceHBWnqR64/",
+      "title": "ویدئویی از کاشان که همه ایران دیدن 😍 👇 👇 https://www.instagram.com/reel/DceHBWnqR64/?igsi=MXJ3ZGcwb2oyNmIwdw==",
+      "description": "ویدئویی از کاشان که همه ایران دیدن 😍 👇 👇 https://www.instagram.com/reel/DceHBWnqR64/?igsi=MXJ3ZGcwb2oyNmIwdw==",
+      "platform": "instagram",
+      "views": 296,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "telegram_repost_views": 296,
+      "telegram_repost_channels": [
+        "aranbidgoliha"
+      ],
+      "published_at": "2026-09-05T19:21:40+00:00",
+      "age_hours": 802.4715654969444,
+      "persian_signal": true,
+      "discovered_at": "2026-10-09T05:49:54.772602+00:00",
+      "source": "telegram_public_repost",
+      "query": 1
+    }
+  ]
 }
