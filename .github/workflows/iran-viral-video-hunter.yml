@@ -11,6 +11,7 @@ on:
   push:
     paths:
       - "content_pipeline/iran_video_hunter.py"
+      - "attention_state/social_discovery.json"
       - ".github/workflows/iran-viral-video-hunter.yml"
 
 jobs:
