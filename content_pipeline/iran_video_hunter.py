@@ -417,6 +417,8 @@ def platform_of(url):
         return "x"
     if "aparat.com" in host:
         return "aparat"
+    if "t.me" in host or "telegram.me" in host:
+        return "telegram"
     return "web"
 
 def extract_public_platform_metrics(item):
@@ -731,7 +733,7 @@ def article_candidates(item, timeout=12):
     # Social/video platform URLs can be handed directly to yt-dlp.
     if any(x in host for x in [
         "youtube.com","youtu.be","tiktok.com","instagram.com",
-        "x.com","twitter.com","aparat.com"
+        "x.com","twitter.com","aparat.com","t.me","telegram.me"
     ]):
         return [item["link"]]
     try:
@@ -1036,7 +1038,7 @@ def local_download(url):
     host = urlparse(url).netloc.lower()
     social = any(x in host for x in [
         "youtube.com", "youtu.be", "tiktok.com", "instagram.com",
-        "x.com", "twitter.com", "aparat.com"
+        "x.com", "twitter.com", "aparat.com", "t.me", "telegram.me"
     ])
 
     if social:
