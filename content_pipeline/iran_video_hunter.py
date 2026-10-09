@@ -1913,6 +1913,8 @@ def main():
     }
     state["seen_keys"].append(item["key"])
     state["seen_hashes"].append(h)
+    state["last_scan"] = datetime.now(timezone.utc).isoformat()
+    state["last_result"] = "selected"
     state["last_copy"] = entry
     state["history"].append(entry)
     save(state)
