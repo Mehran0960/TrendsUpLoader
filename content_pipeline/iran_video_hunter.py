@@ -31,6 +31,7 @@ ATTRACTION_FLOOR = 48.0
 ATTRACTION_EMERGENCY_FLOOR = 40.0
 DEMAND_EMERGENCY_THRESHOLD = 88.0
 ACQUISITION_REVIEW_LIMIT = 8
+MIRROR_SEARCH_CANDIDATE_LIMIT = 4
 YOUTUBE_BOTWALL_DETECTED = False
 
 SOURCE_DOMAINS = [
@@ -681,7 +682,7 @@ def public_demand_score(item, corroboration=1):
         "score": round(total, 2),
     }
 
-def article_candidates(item):
+def article_candidates(item, timeout=12):
     host = urlparse(item["link"]).netloc.lower()
     # Social/video platform URLs can be handed directly to yt-dlp.
     if any(x in host for x in [
@@ -690,7 +691,7 @@ def article_candidates(item):
     ]):
         return [item["link"]]
     try:
-        r = session.get(item["link"], timeout=20, allow_redirects=True)
+        r = session.get(item["link"], timeout=timeout, allow_redirects=True)
         if r.status_code >= 400:
             return []
         text = r.text
@@ -913,16 +914,15 @@ def search_web_mirror_routes(title, limit=5):
     compact = " ".join(tokens[:5])
 
     queries = [
-        f'"{title[:180]}"',
+        f'"{title[:140]}"',
         f'"{compact}" ویدئو' if compact else "",
-        f'{compact} ویدیو' if compact else "",
     ]
     routes = []
     seen = set()
 
     for q in [x for x in queries if x]:
         try:
-            for item in rss_items(q):
+            for item in rss_items(q, timeout=8):
                 link = str(item.get("link") or "").strip()
                 if not link or platform_of(link) != "web":
                     continue
@@ -933,7 +933,7 @@ def search_web_mirror_routes(title, limit=5):
                 # mirror page. This is discovery matching, not demand ranking.
                 if tokens and not any(t in page_text for t in tokens[:3]):
                     try:
-                        rr = session.get(link, timeout=12, allow_redirects=True)
+                        rr = session.get(link, timeout=6, allow_redirects=True)
                         if rr.ok:
                             probe = rr.text[:1_500_000]
                             if not any(t in probe for t in tokens[:3]):
@@ -941,7 +941,7 @@ def search_web_mirror_routes(title, limit=5):
                     except Exception:
                         continue
 
-                for route in article_candidates(item):
+                for route in article_candidates(item, timeout=8):
                     if route not in seen:
                         seen.add(route)
                         routes.append(route)
@@ -1468,7 +1468,7 @@ def main():
     # mirrors. This preserves demand-first ranking while adding alternate MP4 routes.
     expanded = list(ranked)
     mirror_seen = set()
-    for base in ranked[:20]:
+    for base in ranked[:MIRROR_SEARCH_CANDIDATE_LIMIT]:
         x, original_url, cross, demand, dm = base
         if platform_of(original_url) not in {"youtube", "tiktok", "instagram", "x"}:
             continue
