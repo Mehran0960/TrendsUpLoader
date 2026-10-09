@@ -202,9 +202,15 @@ def main():
         found = []
         for q in query_variants[:5]:
             try:
-                found.extend(bing_search(q, limit=12))
+                batch = bing_search(q, limit=12)
+                found.extend(batch)
+                print("BING_QUERY_RESULTS", json.dumps({
+                    "query": q,
+                    "count": len(batch),
+                    "sample": [{"url": x["url"], "title": x["title"][:100]} for x in batch[:5]],
+                }, ensure_ascii=False))
             except Exception as exc:
-                print("BING_SEARCH_FAIL", type(exc).__name__)
+                print("BING_SEARCH_FAIL", type(exc).__name__, q[:100])
         results = []
         seen_urls = set()
         for x in found:
