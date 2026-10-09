@@ -91,7 +91,49 @@ def save(s):
     s["seen_keys"] = list(dict.fromkeys(s.get("seen_keys", [])))[-2000:]
     s["seen_hashes"] = list(dict.fromkeys(s.get("seen_hashes", [])))[-1000:]
     s["history"] = s.get("history", [])[-200:]
+    rejections = s.get("quality_rejections", {})
+    if isinstance(rejections, dict) and len(rejections) > 1000:
+        s["quality_rejections"] = dict(sorted(
+            rejections.items(),
+            key=lambda kv: str((kv[1] or {}).get("at") or ""),
+            reverse=True,
+        )[:1000])
     STATE_PATH.write_text(json.dumps(s, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+def record_quality_rejection(state, key, reason, attraction=None):
+    """Temporarily cool down a downloaded clip that already failed quality gates."""
+    cooldown_hours = {
+        "media_rejected": 8.0,
+        "general_audience_gate_rejected": 10.0,
+        "attraction_rejected": 18.0,
+    }.get(str(reason), 12.0)
+    record = {
+        "at": datetime.now(timezone.utc).isoformat(),
+        "reason": str(reason),
+        "cooldown_hours": cooldown_hours,
+    }
+    if attraction is not None:
+        record["attraction_score"] = round(float(attraction), 2)
+    state.setdefault("quality_rejections", {})[str(key)] = record
+
+
+def active_quality_rejection(state, key):
+    """Return true for a recent quality rejection; expire old records automatically."""
+    rejections = state.setdefault("quality_rejections", {})
+    record = rejections.get(str(key))
+    if not isinstance(record, dict):
+        return False
+    try:
+        rejected_at = datetime.fromisoformat(str(record.get("at") or "").replace("Z", "+00:00"))
+        age_hours = (datetime.now(timezone.utc) - rejected_at).total_seconds() / 3600.0
+        cooldown_hours = max(0.0, float(record.get("cooldown_hours") or 12.0))
+    except (TypeError, ValueError):
+        rejections.pop(str(key), None)
+        return False
+    if age_hours < cooldown_hours:
+        return True
+    rejections.pop(str(key), None)
+    return False
 
 def text_of(el):
     return " ".join((el.text or "").split()) if el is not None else ""
@@ -1342,6 +1384,7 @@ def main():
     if not TOKEN or not TARGET:
         raise RuntimeError("Telegram secrets missing")
     state = load()
+    state.setdefault("quality_rejections", {})
     seen_keys = set(state.get("seen_keys", []))
     seen_hashes = set(state.get("seen_hashes", []))
 
@@ -1506,7 +1549,7 @@ def main():
     # viral video remains a top candidate while alternate URLs for the same
     # underlying item are collected from corroborating web/social sources.
     ranked = []
-    lane_rejections = {"promotion": 0, "hard_news": 0, "sensitive_harm": 0, "low_shareability": 0}
+    lane_rejections = {"promotion": 0, "hard_news": 0, "sensitive_harm": 0, "low_shareability": 0, "quality_cooldown": 0}
     title_buckets = {}
     signature_by_key = {}
     for x in items.values():
@@ -1533,6 +1576,9 @@ def main():
 
     for x in all_items:
         if x["key"] in seen_keys:
+            continue
+        if active_quality_rejection(state, x["key"]):
+            lane_rejections["quality_cooldown"] += 1
             continue
 
         shareability, shareability_flags = content_shareability_proxy(x)
@@ -1757,6 +1803,7 @@ def main():
                     "title": item["title"], "platform": platform_of(url),
                     "demand_score": demand, "result": "media_rejected"
                 })
+                record_quality_rejection(state, item["key"], "media_rejected")
                 os.unlink(path)
                 continue
 
@@ -1926,19 +1973,22 @@ def main():
             })
 
             if not publishable:
+                rejection_reason = "general_audience_gate_rejected" if not general_audience_gate["passed"] else "attraction_rejected"
                 acquisition_attempts.append({
                     "title": item["title"],
                     "platform": platform_of(url),
                     "demand_score": demand,
                     "attraction_score": attraction,
                     "publish_score": publish_score,
-                    "result": "general_audience_gate_rejected" if not general_audience_gate["passed"] else "attraction_rejected",
+                    "result": rejection_reason,
                     "general_audience_gate": general_audience_gate,
                     "attraction_metrics": cq,
                 })
+                record_quality_rejection(state, item["key"], rejection_reason, attraction)
                 os.unlink(path)
                 continue
 
+            state.setdefault("quality_rejections", {}).pop(str(item["key"]), None)
             item["demand_metrics"] = dm
             item["content_quality_score"] = attraction
             item["content_quality_metrics"] = cq
