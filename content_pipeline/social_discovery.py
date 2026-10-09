@@ -147,7 +147,7 @@ def telegram_repost_candidates():
         "bandaranzali_aliabad",
     ]
     link_re = re.compile(
-        r"(?:https?://)?(?:(?:www|dd)\.)?instagram\.com/(?:reel|reels|p|tv)/[A-Za-z0-9_-]+",
+        r"(?:https?://)?(?:(?:www\.)|dd)?instagram\.com/(?:reel|reels|p|tv)/[A-Za-z0-9_-]+",
         re.I,
     )
     out = []
@@ -313,7 +313,11 @@ def main():
             if x["url"] in seen_urls:
                 continue
             seen_urls.add(x["url"])
-            views, likes, comments, shares = extract_metrics(x)
+            if str((x.get("raw") or {}).get("source") or "") == "telegram_public_repost":
+                # Telegram relay views are not native Instagram counters.
+                views, likes, comments, shares = 0, 0, 0, 0
+            else:
+                views, likes, comments, shares = extract_metrics(x)
             text_blob = x["title"] + " " + x["description"]
             persian = len(re.findall(r"[؀-ۿ]", text_blob))
             results.append({
@@ -352,11 +356,11 @@ def main():
         OUT.write_text(json.dumps({
             "version": 2,
             "updated_at": now.isoformat(),
-            "status": "bing_fallback",
+            "status": "public_telegram_repost_and_bing_fallback",
             "count": len(items),
             "items": items,
         }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print("BING_FALLBACK_ITEMS", len(results))
+        print("SOCIAL_DISCOVERY_ITEMS", json.dumps({"new_results": len(results), "total_video_urls": len(items), "telegram_repost_candidates": sum(1 for x in results if x.get("source") == "telegram_public_repost")}, ensure_ascii=False))
         return 0
 
     now = datetime.now(timezone.utc)
