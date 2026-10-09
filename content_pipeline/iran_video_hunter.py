@@ -607,6 +607,11 @@ def public_demand_score(item, corroboration=1):
     comments = max(0, int(item.get("comments") or 0))
     shares = max(0, int(item.get("shares") or 0))
     age_h = max(0.25, float(item.get("age_hours") or 999999.0))
+    telegram_repost_views = max(0, int(item.get("telegram_repost_views") or 0))
+    raw_repost_channels = item.get("telegram_repost_channels") or []
+    if isinstance(raw_repost_channels, str):
+        raw_repost_channels = [raw_repost_channels]
+    telegram_repost_channels = len(set(str(x) for x in raw_repost_channels if str(x).strip()))
 
     # Public counters are the core evidence. We score absolute scale and growth
     # separately so a fresh breakout can beat an old video with a larger lifetime total.
@@ -632,17 +637,27 @@ def public_demand_score(item, corroboration=1):
     cross_score = min(10.0, 2.0 * max(0, corroboration - 1))
     freshness = 5.0 * max(0.0, 1.0 - min(age_h / 96.0, 1.0))
 
+    # Telegram repost reach is a separate discovery signal, not Instagram views.
+    # It adds a small bonus and can corroborate a post only when multiple public
+    # channels relay it and at least one native platform metric is also available.
+    telegram_repost_score = (
+        min(3.0, 0.75 * math.log10(max(1, telegram_repost_views)))
+        + min(4.0, 2.0 * math.log10(max(1, telegram_repost_channels)))
+    )
     total = min(
         100.0,
         volume + velocity_score + like_volume + share_volume +
         comment_volume + engagement_quality + cross_score + freshness
+        + telegram_repost_score
     )
 
     metric_fields = sum(1 for v in (views, likes, comments, shares) if v > 0)
     strong_absolute = (
         views >= 10_000 or likes >= 1_000 or shares >= 300 or comments >= 500
     )
-    evidence = metric_fields >= 2 and (strong_absolute or views >= 2_000)
+    native_evidence = metric_fields >= 2 and (strong_absolute or views >= 2_000)
+    relay_evidence = metric_fields >= 1 and telegram_repost_views >= 10_000 and telegram_repost_channels >= 2
+    evidence = native_evidence or relay_evidence
     return round(total, 2), {
         "evidence": evidence,
         "metric_fields": metric_fields,
@@ -659,6 +674,10 @@ def public_demand_score(item, corroboration=1):
         "comment_rate": round(comment_rate, 6),
         "age_hours": round(age_h, 2),
         "metric_source": item.get("metric_source", "youtube_api" if item.get("video_id") else "unknown"),
+        "telegram_repost_views": telegram_repost_views,
+        "telegram_repost_channels": telegram_repost_channels,
+        "telegram_repost_score": round(telegram_repost_score, 2),
+        "relay_evidence": relay_evidence,
         "score": round(total, 2),
     }
 
@@ -1333,10 +1352,14 @@ def main():
             x = {
                 "title": title,
                 "link": link,
-                "source": "social discovery",
+                "source": str(s.get("source") or "social discovery"),
+                "description": str(s.get("description") or ""),
                 "platform": s.get("platform"),
-                "pub": "",
-                "age_hours": 999999.0,
+                "pub": str(s.get("published_at") or ""),
+                "published_at": str(s.get("published_at") or ""),
+                "age_hours": float(s.get("age_hours") or 999999.0),
+                "telegram_repost_views": int(s.get("telegram_repost_views") or 0),
+                "telegram_repost_channels": list(s.get("telegram_repost_channels") or []),
                 "views": int(s.get("views") or 0),
                 "likes": int(s.get("likes") or 0),
                 "comments": int(s.get("comments") or 0),
