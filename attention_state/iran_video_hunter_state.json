@@ -3,14 +3,16 @@
   "seen_keys": [
     "1b8be5022b491b34698ff1a26215105fd37ac72163f8276249782ba7627d07c3",
     "881637f9bdbafc5a657e189044a57b9ac59c8db188833a4d29b101cb670ad250",
-    "1909ddc38d2e4ea10bf02e154f575a9b1de80f5a2b8270a52ef3265a4a440ad3"
+    "1909ddc38d2e4ea10bf02e154f575a9b1de80f5a2b8270a52ef3265a4a440ad3",
+    "e7a302136d8a95d04fcbaf90b367c2fc35b7c72b13c5a5fff7972fd05f353a90"
   ],
   "seen_hashes": [
     "492240c1a9e2a0db81b28adad7c9587fae4571796b3eb094a3abe944aa00342d",
     "6b75dcc6bccc6c9037195e448c6d6e71e1133ed6e7cc2b9b64026ea182da1720",
     "9153e92d5d8b575c9b226d5d60d98fa4f1820742abcd1dea137fe4ee99200e76",
     "41b9960c4c847a357dbb5aee8f806ca53e5d62eb6d86b055c37747f3fe5fb006",
-    "41fcaa088cda15398c4286b870ea00bd051fb831a741a6980963cca69ddfc2f7"
+    "41fcaa088cda15398c4286b870ea00bd051fb831a741a6980963cca69ddfc2f7",
+    "050b31716df28c2155d22deb45bf4434c25f9bb8b29c867cf999b6857b55aeac"
   ],
   "history": [
     {
@@ -278,42 +280,77 @@
       "duration": 115.432167,
       "width": 360,
       "height": 640
-    }
-  ],
-  "last_scan": "2026-10-09T13:53:12.387414+00:00",
-  "last_result": "no_high_demand_video_acquired",
-  "last_copy": {
-    "at": "2026-10-09T07:40:42.695786+00:00",
-    "title": "در اینستاگرام فارسی چه میگذرد؟ 😂 🆔 @GizmizTel 💯",
-    "article": "https://t.me/gizmiztel/162995",
-    "video": "https://t.me/gizmiztel/162995",
-    "sha256": "41fcaa088cda15398c4286b870ea00bd051fb831a741a6980963cca69ddfc2f7",
-    "telegram_message_id": 43,
-    "score": 53.73,
-    "demand_score": 53.73,
-    "demand_metrics": {
-      "evidence": true,
-      "metric_fields": 1,
-      "views": 29400,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "velocity_views_per_hour": 30204.95,
-      "observed_views_per_hour": 0.0,
-      "observed_likes_per_hour": 0.0,
-      "observed_shares_per_hour": 0.0,
-      "like_rate": 0.0,
-      "share_rate": 0.0,
-      "comment_rate": 0.0,
-      "age_hours": 0.97,
-      "metric_source": "social_discovery",
-      "telegram_repost_views": 0,
-      "telegram_repost_channels": 0,
-      "telegram_repost_score": 0.0,
-      "relay_evidence": false,
-      "telegram_native_video_evidence": true,
-      "telegram_comedy_exploration": true,
-      "score": 53.73,
+    },
+    {
+      "at": "2026-10-09T16:26:29.717551+00:00",
+      "title": "تاثیر سخنرانی آخوند بر ما 😂 😂 Join ➪ 🆔 @vaybabamumad",
+      "article": "https://t.me/vaybabamumad/179877",
+      "video": "https://t.me/vaybabamumad/179877",
+      "sha256": "050b31716df28c2155d22deb45bf4434c25f9bb8b29c867cf999b6857b55aeac",
+      "telegram_message_id": 44,
+      "score": 43.98,
+      "demand_score": 43.98,
+      "demand_metrics": {
+        "evidence": true,
+        "metric_fields": 1,
+        "views": 17700,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "velocity_views_per_hour": 1470.48,
+        "observed_views_per_hour": 0.0,
+        "observed_likes_per_hour": 0.0,
+        "observed_shares_per_hour": 0.0,
+        "like_rate": 0.0,
+        "share_rate": 0.0,
+        "comment_rate": 0.0,
+        "age_hours": 12.04,
+        "metric_source": "social_discovery",
+        "telegram_repost_views": 0,
+        "telegram_repost_channels": 0,
+        "telegram_repost_score": 0.0,
+        "relay_evidence": false,
+        "telegram_native_video_evidence": true,
+        "telegram_comedy_exploration": true,
+        "score": 43.98,
+        "shareability_proxy_score": 51.0,
+        "shareability_flags": {
+          "promotional": false,
+          "hard_news": false,
+          "sensitive_harm": false,
+          "humor_cue_count": 1,
+          "relatable_cue_count": 0,
+          "surprise_cue_count": 0,
+          "technology_cue_count": 0,
+          "animal_cue_count": 0,
+          "puzzle_cue_count": 0,
+          "skill_cue_count": 0,
+          "satisfying_cue_count": 0
+        },
+        "trend_score": 0.0,
+        "trend_topic": ""
+      },
+      "attraction_score": 72.05,
+      "content_quality_score": 72.05,
+      "content_quality_metrics": {
+        "model_version": "visual_hook_v2",
+        "available": true,
+        "attraction_score": 72.05,
+        "visual_score": 71.7,
+        "hook_event_score": 58.13,
+        "hook_first_event_score": 85.21,
+        "hook_structure_score": 71.49,
+        "visual_novelty_score": 58.18,
+        "retention_proxy_score": 77.3,
+        "retention_proxy_is_actual_watch_time": false,
+        "sustained_activity_score": 86.01,
+        "motion_coverage": 1.0,
+        "novelty_coverage": 0.8,
+        "static_penalty": 0.0,
+        "duration_seconds": 19.5,
+        "passed": true
+      },
+      "retention_proxy_score": 77.3,
       "shareability_proxy_score": 51.0,
       "shareability_flags": {
         "promotional": false,
@@ -321,32 +358,96 @@
         "sensitive_harm": false,
         "humor_cue_count": 1,
         "relatable_cue_count": 0,
-        "surprise_cue_count": 0
+        "surprise_cue_count": 0,
+        "technology_cue_count": 0,
+        "animal_cue_count": 0,
+        "puzzle_cue_count": 0,
+        "skill_cue_count": 0,
+        "satisfying_cue_count": 0
+      },
+      "trend_score": 0.0,
+      "trend_topic": "",
+      "publish_score": 54.76,
+      "cross_sources": 1,
+      "platform": "telegram",
+      "telegram_channel": "vaybabamumad",
+      "duration": 19.501905,
+      "width": 720,
+      "height": 1280
+    }
+  ],
+  "last_scan": "2026-10-09T16:26:29.717601+00:00",
+  "last_result": "selected",
+  "last_copy": {
+    "at": "2026-10-09T16:26:29.717551+00:00",
+    "title": "تاثیر سخنرانی آخوند بر ما 😂 😂 Join ➪ 🆔 @vaybabamumad",
+    "article": "https://t.me/vaybabamumad/179877",
+    "video": "https://t.me/vaybabamumad/179877",
+    "sha256": "050b31716df28c2155d22deb45bf4434c25f9bb8b29c867cf999b6857b55aeac",
+    "telegram_message_id": 44,
+    "score": 43.98,
+    "demand_score": 43.98,
+    "demand_metrics": {
+      "evidence": true,
+      "metric_fields": 1,
+      "views": 17700,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "velocity_views_per_hour": 1470.48,
+      "observed_views_per_hour": 0.0,
+      "observed_likes_per_hour": 0.0,
+      "observed_shares_per_hour": 0.0,
+      "like_rate": 0.0,
+      "share_rate": 0.0,
+      "comment_rate": 0.0,
+      "age_hours": 12.04,
+      "metric_source": "social_discovery",
+      "telegram_repost_views": 0,
+      "telegram_repost_channels": 0,
+      "telegram_repost_score": 0.0,
+      "relay_evidence": false,
+      "telegram_native_video_evidence": true,
+      "telegram_comedy_exploration": true,
+      "score": 43.98,
+      "shareability_proxy_score": 51.0,
+      "shareability_flags": {
+        "promotional": false,
+        "hard_news": false,
+        "sensitive_harm": false,
+        "humor_cue_count": 1,
+        "relatable_cue_count": 0,
+        "surprise_cue_count": 0,
+        "technology_cue_count": 0,
+        "animal_cue_count": 0,
+        "puzzle_cue_count": 0,
+        "skill_cue_count": 0,
+        "satisfying_cue_count": 0
       },
       "trend_score": 0.0,
       "trend_topic": ""
     },
-    "attraction_score": 77.41,
-    "content_quality_score": 77.41,
+    "attraction_score": 72.05,
+    "content_quality_score": 72.05,
     "content_quality_metrics": {
       "model_version": "visual_hook_v2",
       "available": true,
-      "attraction_score": 77.41,
-      "visual_score": 75.89,
-      "hook_event_score": 81.75,
-      "hook_first_event_score": 90.87,
-      "hook_structure_score": 35.06,
-      "visual_novelty_score": 91.82,
-      "retention_proxy_score": 81.52,
+      "attraction_score": 72.05,
+      "visual_score": 71.7,
+      "hook_event_score": 58.13,
+      "hook_first_event_score": 85.21,
+      "hook_structure_score": 71.49,
+      "visual_novelty_score": 58.18,
+      "retention_proxy_score": 77.3,
       "retention_proxy_is_actual_watch_time": false,
-      "sustained_activity_score": 96.26,
+      "sustained_activity_score": 86.01,
       "motion_coverage": 1.0,
-      "novelty_coverage": 1.0,
+      "novelty_coverage": 0.8,
       "static_penalty": 0.0,
-      "duration_seconds": 115.43,
+      "duration_seconds": 19.5,
       "passed": true
     },
-    "retention_proxy_score": 81.52,
+    "retention_proxy_score": 77.3,
     "shareability_proxy_score": 51.0,
     "shareability_flags": {
       "promotional": false,
@@ -354,45 +455,50 @@
       "sensitive_harm": false,
       "humor_cue_count": 1,
       "relatable_cue_count": 0,
-      "surprise_cue_count": 0
+      "surprise_cue_count": 0,
+      "technology_cue_count": 0,
+      "animal_cue_count": 0,
+      "puzzle_cue_count": 0,
+      "skill_cue_count": 0,
+      "satisfying_cue_count": 0
     },
     "trend_score": 0.0,
     "trend_topic": "",
-    "publish_score": 61.06,
+    "publish_score": 54.76,
     "cross_sources": 1,
     "platform": "telegram",
-    "telegram_channel": "gizmiztel",
-    "duration": 115.432167,
-    "width": 360,
-    "height": 640
+    "telegram_channel": "vaybabamumad",
+    "duration": 19.501905,
+    "width": 720,
+    "height": 1280
   },
   "observations": {
     "youtube:5EQyPC2tY_U": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 34831109,
-      "likes": 420192,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 34881730,
+      "likes": 420940,
       "comments": 1919,
       "shares": 0
     },
     "youtube:MSPVq-5sbCg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 34604634,
-      "likes": 725597,
-      "comments": 6090,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 35159772,
+      "likes": 743524,
+      "comments": 6145,
       "shares": 0
     },
     "youtube:bJkVNDRksDY": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 66848059,
-      "likes": 1356093,
-      "comments": 5180,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 67320711,
+      "likes": 1367345,
+      "comments": 5226,
       "shares": 0
     },
     "youtube:1xI_lsZ4sxI": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 31937955,
-      "likes": 876320,
-      "comments": 4262,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 32023906,
+      "likes": 878846,
+      "comments": 4279,
       "shares": 0
     },
     "youtube:8tVozXGS33k": {
@@ -403,73 +509,73 @@
       "shares": 0
     },
     "youtube:plN7JMbadRg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 197494534,
-      "likes": 3469969,
-      "comments": 128804,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 199358604,
+      "likes": 3490857,
+      "comments": 129589,
       "shares": 0
     },
     "youtube:_1R5FKG_MC0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 6064536,
-      "likes": 287488,
-      "comments": 4674,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 6093074,
+      "likes": 288717,
+      "comments": 4691,
       "shares": 0
     },
     "youtube:ssRH9gJdJdM": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 7971102,
-      "likes": 128747,
-      "comments": 584,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 8061146,
+      "likes": 130114,
+      "comments": 592,
       "shares": 0
     },
     "youtube:aN8dInVmhV0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 13034216,
-      "likes": 297327,
-      "comments": 9515,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 13114886,
+      "likes": 299333,
+      "comments": 9587,
       "shares": 0
     },
     "youtube:rZPvGAiRYlo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 18609593,
-      "likes": 575147,
-      "comments": 4644,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 18880650,
+      "likes": 582809,
+      "comments": 4675,
       "shares": 0
     },
     "youtube:zP3iyQFKfaU": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 4270312,
-      "likes": 102244,
-      "comments": 565,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4309286,
+      "likes": 103315,
+      "comments": 569,
       "shares": 0
     },
     "youtube:7Az0iUaWsSw": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 10367774,
-      "likes": 124974,
-      "comments": 644,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 10588971,
+      "likes": 127914,
+      "comments": 650,
       "shares": 0
     },
     "youtube:aaGyayYKfMk": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 3998614,
-      "likes": 35193,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4187373,
+      "likes": 36486,
       "comments": 219,
       "shares": 0
     },
     "youtube:NlZpr4B59aE": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 33859592,
-      "likes": 760166,
-      "comments": 11882,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 33923269,
+      "likes": 761897,
+      "comments": 11900,
       "shares": 0
     },
     "youtube:C-GZdIT1_I0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 13169768,
-      "likes": 553400,
-      "comments": 7180,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 13618762,
+      "likes": 568617,
+      "comments": 7310,
       "shares": 0
     },
     "youtube:48xCRlB3QRA": {
@@ -480,10 +586,10 @@
       "shares": 0
     },
     "youtube:-oVQgcuw_sk": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 4148271,
-      "likes": 57334,
-      "comments": 310,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4186523,
+      "likes": 57940,
+      "comments": 314,
       "shares": 0
     },
     "youtube:V1-mpBqKErE": {
@@ -501,10 +607,10 @@
       "shares": 0
     },
     "youtube:m40siw6NUn4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 7812968,
-      "likes": 128121,
-      "comments": 360,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 7904062,
+      "likes": 129806,
+      "comments": 361,
       "shares": 0
     },
     "youtube:_k2w1cC69qY": {
@@ -522,17 +628,17 @@
       "shares": 0
     },
     "youtube:Cw8z4CkJrio": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 18538791,
-      "likes": 403001,
-      "comments": 1376,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 18685986,
+      "likes": 409628,
+      "comments": 1392,
       "shares": 0
     },
     "youtube:zVVh37YkWtU": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 16660198,
-      "likes": 171230,
-      "comments": 2047,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 16706003,
+      "likes": 171485,
+      "comments": 2049,
       "shares": 0
     },
     "youtube:sF9X6u1QG7A": {
@@ -543,45 +649,45 @@
       "shares": 0
     },
     "youtube:NBiYnk1VuOo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 9622433,
-      "likes": 370077,
-      "comments": 4370,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 9703352,
+      "likes": 372631,
+      "comments": 4403,
       "shares": 0
     },
     "youtube:PaBLPgZt-WE": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 5279510,
-      "likes": 175810,
-      "comments": 2774,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 5339391,
+      "likes": 178223,
+      "comments": 2805,
       "shares": 0
     },
     "youtube:1b8cx1EqW_g": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 10597769,
-      "likes": 239000,
-      "comments": 179,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 10598497,
+      "likes": 239011,
+      "comments": 181,
       "shares": 0
     },
     "youtube:XHdTdHE8EWU": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1877423,
-      "likes": 41249,
-      "comments": 2067,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1905493,
+      "likes": 41885,
+      "comments": 2104,
       "shares": 0
     },
     "youtube:XIr-C83fYwU": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 7451133,
-      "likes": 89472,
-      "comments": 767,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 7491705,
+      "likes": 89761,
+      "comments": 768,
       "shares": 0
     },
     "youtube:5vdzBxLjVqU": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 8518131,
-      "likes": 112049,
-      "comments": 268,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 8653984,
+      "likes": 115897,
+      "comments": 277,
       "shares": 0
     },
     "youtube:FW_PPcr1sPE": {
@@ -592,17 +698,17 @@
       "shares": 0
     },
     "youtube:Xmq5Dtek2lg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 8699612,
-      "likes": 204834,
-      "comments": 864,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 8799522,
+      "likes": 210557,
+      "comments": 873,
       "shares": 0
     },
     "youtube:7lHS-C6mIqo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 2169730,
-      "likes": 42485,
-      "comments": 718,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 2212798,
+      "likes": 43559,
+      "comments": 733,
       "shares": 0
     },
     "youtube:lS4DJMtQTBs": {
@@ -627,10 +733,10 @@
       "shares": 0
     },
     "youtube:xSPgFH5yBRE": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 19088482,
-      "likes": 222765,
-      "comments": 17013,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 19238880,
+      "likes": 224021,
+      "comments": 17098,
       "shares": 0
     },
     "youtube:3d7oVagsV_g": {
@@ -641,10 +747,10 @@
       "shares": 0
     },
     "youtube:3d6HPLENFt4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1178182,
-      "likes": 23751,
-      "comments": 2199,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1196528,
+      "likes": 23918,
+      "comments": 2209,
       "shares": 0
     },
     "youtube:CH6WrSKvNOY": {
@@ -655,80 +761,80 @@
       "shares": 0
     },
     "youtube:AOzvvHLDcV0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 3424198,
-      "likes": 36934,
-      "comments": 634,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 3459952,
+      "likes": 37498,
+      "comments": 639,
       "shares": 0
     },
     "youtube:3DpCX_bXDlY": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 2077726,
-      "likes": 43203,
-      "comments": 728,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 2095334,
+      "likes": 43407,
+      "comments": 729,
       "shares": 0
     },
     "youtube:UI4Xat5hmOg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 5526798,
-      "likes": 209284,
-      "comments": 974,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 5738482,
+      "likes": 216651,
+      "comments": 991,
       "shares": 0
     },
     "youtube:Rz_SB57gSA4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 5767672,
-      "likes": 33178,
-      "comments": 482,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 5908521,
+      "likes": 34167,
+      "comments": 488,
       "shares": 0
     },
     "youtube:lGUnJhOdzKQ": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1541354,
-      "likes": 35465,
-      "comments": 29,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1584912,
+      "likes": 36514,
+      "comments": 30,
       "shares": 0
     },
     "youtube:aH-yY0Lttj4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 5349642,
-      "likes": 119507,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 5370327,
+      "likes": 119696,
       "comments": 411,
       "shares": 0
     },
     "youtube:QXDCp7jVO8M": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 22828652,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 23360316,
       "likes": 0,
-      "comments": 1080,
+      "comments": 1103,
       "shares": 0
     },
     "youtube:fVOleLZYAQo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 39357018,
-      "likes": 207878,
-      "comments": 32,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 40361708,
+      "likes": 214198,
+      "comments": 34,
       "shares": 0
     },
     "youtube:Uxx0p2ER-pk": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 3367880,
-      "likes": 18883,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 3369809,
+      "likes": 18890,
       "comments": 2914,
       "shares": 0
     },
     "youtube:LDPKbvZw2aA": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 2857809,
-      "likes": 124830,
-      "comments": 3282,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 2876444,
+      "likes": 125502,
+      "comments": 3325,
       "shares": 0
     },
     "youtube:Jrzx0YYH43I": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 15818934,
-      "likes": 76697,
-      "comments": 41,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 17609321,
+      "likes": 86473,
+      "comments": 47,
       "shares": 0
     },
     "youtube:Fhx0TUWY5hk": {
@@ -753,10 +859,10 @@
       "shares": 0
     },
     "youtube:9z3a7Nb4QSk": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1912261,
-      "likes": 38448,
-      "comments": 105,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1947706,
+      "likes": 39325,
+      "comments": 112,
       "shares": 0
     },
     "youtube:2iyXoJN3p2c": {
@@ -781,17 +887,17 @@
       "shares": 0
     },
     "youtube:tIp8K20dUU8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 15464874,
-      "likes": 196654,
-      "comments": 316,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 15541648,
+      "likes": 198478,
+      "comments": 319,
       "shares": 0
     },
     "youtube:LsJlzH9ihIo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 47503674,
-      "likes": 952541,
-      "comments": 888,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 47742395,
+      "likes": 961047,
+      "comments": 895,
       "shares": 0
     },
     "youtube:mwDwps_Rss4": {
@@ -802,10 +908,10 @@
       "shares": 0
     },
     "youtube:tsUJ8RMTv1o": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 6316633,
-      "likes": 302636,
-      "comments": 14431,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 6382611,
+      "likes": 306813,
+      "comments": 14612,
       "shares": 0
     },
     "youtube:nJMztbwLAFE": {
@@ -823,17 +929,17 @@
       "shares": 0
     },
     "youtube:K27LaEAR6YU": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 4106218,
-      "likes": 26456,
-      "comments": 250,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4210007,
+      "likes": 27210,
+      "comments": 253,
       "shares": 0
     },
     "youtube:beBJi_YKB9s": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 8894965,
-      "likes": 142974,
-      "comments": 1291,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 9030433,
+      "likes": 145632,
+      "comments": 1311,
       "shares": 0
     },
     "youtube:3NF5i5o127s": {
@@ -844,10 +950,10 @@
       "shares": 0
     },
     "youtube:BvdVQC2Ff7c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 545150,
-      "likes": 6666,
-      "comments": 28,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 644117,
+      "likes": 7795,
+      "comments": 31,
       "shares": 0
     },
     "youtube:W-6RfYYx6JQ": {
@@ -858,17 +964,17 @@
       "shares": 0
     },
     "youtube:Vfe7xUFaYEg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 4847473,
-      "likes": 104296,
-      "comments": 414,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4901322,
+      "likes": 106652,
+      "comments": 418,
       "shares": 0
     },
     "youtube:Lt2RT2UaGRo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 2706579,
-      "likes": 41270,
-      "comments": 750,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 2802124,
+      "likes": 42274,
+      "comments": 767,
       "shares": 0
     },
     "youtube:tArTTwrusso": {
@@ -921,9 +1027,9 @@
       "shares": 0
     },
     "youtube:Oq4XgFTdKHM": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 9071652,
-      "likes": 58221,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 9210427,
+      "likes": 59169,
       "comments": 30,
       "shares": 0
     },
@@ -1124,17 +1230,17 @@
       "shares": 0
     },
     "youtube:Pduz6AVWgAc": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1029552,
-      "likes": 5626,
-      "comments": 111,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1046359,
+      "likes": 5717,
+      "comments": 113,
       "shares": 0
     },
     "youtube:G82Dx6qKUKM": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1623025,
-      "likes": 19530,
-      "comments": 156,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1651681,
+      "likes": 20049,
+      "comments": 159,
       "shares": 0
     },
     "youtube:vVoITvAys_U": {
@@ -1145,10 +1251,10 @@
       "shares": 0
     },
     "youtube:WIB8A4stKKs": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 15729057,
-      "likes": 107333,
-      "comments": 49,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 17288467,
+      "likes": 116786,
+      "comments": 51,
       "shares": 0
     },
     "youtube:zl19auDQQFg": {
@@ -1551,80 +1657,80 @@
       "shares": 0
     },
     "youtube:RnH6GJ6_lus": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 9827422,
-      "likes": 383901,
-      "comments": 1718119,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 10113292,
+      "likes": 394156,
+      "comments": 1759669,
       "shares": 0
     },
     "youtube:3J0D_JfwRAg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 5745427,
-      "likes": 106826,
-      "comments": 2961,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 5886543,
+      "likes": 111117,
+      "comments": 3083,
       "shares": 0
     },
     "youtube:pE8N2cWAOKE": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 4375466,
-      "likes": 87040,
-      "comments": 676,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4476595,
+      "likes": 88961,
+      "comments": 687,
       "shares": 0
     },
     "youtube:AvYFL4Aku_k": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 14555083,
-      "likes": 187787,
-      "comments": 7991,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 15158633,
+      "likes": 193401,
+      "comments": 8236,
       "shares": 0
     },
     "youtube:6VFonD1ZcPg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1577180,
-      "likes": 95332,
-      "comments": 3104,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1608127,
+      "likes": 96226,
+      "comments": 3133,
       "shares": 0
     },
     "youtube:znxkNGOKZr4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 2344468,
-      "likes": 139407,
-      "comments": 1276,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 2539852,
+      "likes": 149293,
+      "comments": 1371,
       "shares": 0
     },
     "youtube:E6yUH1iRRGc": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 8562782,
-      "likes": 200151,
-      "comments": 420,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 9078472,
+      "likes": 212564,
+      "comments": 435,
       "shares": 0
     },
     "youtube:SRjt8Wo9MNk": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 795819,
-      "likes": 18488,
-      "comments": 262,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 818601,
+      "likes": 19098,
+      "comments": 268,
       "shares": 0
     },
     "youtube:4Ng_fuNalmE": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 5922430,
-      "likes": 210418,
-      "comments": 1850,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 6054429,
+      "likes": 219172,
+      "comments": 1921,
       "shares": 0
     },
     "youtube:Q3y77PqZXlk": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 5968825,
-      "likes": 65415,
-      "comments": 294,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 6036089,
+      "likes": 66466,
+      "comments": 296,
       "shares": 0
     },
     "youtube:Z-TvJc7tBBo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1553779,
-      "likes": 9229,
-      "comments": 457,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1633722,
+      "likes": 9883,
+      "comments": 471,
       "shares": 0
     },
     "youtube:b9gYcFL6XnA": {
@@ -1642,87 +1748,87 @@
       "shares": 0
     },
     "youtube:U2-hZG0NmJo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1010916,
-      "likes": 46944,
-      "comments": 769,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1029846,
+      "likes": 48034,
+      "comments": 799,
       "shares": 0
     },
     "youtube:1STHqEO3JRA": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 3182004,
-      "likes": 160921,
-      "comments": 201,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 3350191,
+      "likes": 170258,
+      "comments": 213,
       "shares": 0
     },
     "youtube:vUXyYELaLpw": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 8854949,
-      "likes": 219626,
-      "comments": 8447,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 8969182,
+      "likes": 224462,
+      "comments": 8604,
       "shares": 0
     },
     "youtube:8LTseIpRhXY": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 877714,
-      "likes": 9905,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 882791,
+      "likes": 9986,
       "comments": 159,
       "shares": 0
     },
     "youtube:DsXHtJwkGBI": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 889125,
-      "likes": 26135,
-      "comments": 195,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 905503,
+      "likes": 26576,
+      "comments": 199,
       "shares": 0
     },
     "youtube:LbPQfh2GIxg": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 7688140,
-      "likes": 130728,
-      "comments": 2010,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 7793396,
+      "likes": 133207,
+      "comments": 2043,
       "shares": 0
     },
     "youtube:R16OMpCR3MU": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 3768001,
-      "likes": 155739,
-      "comments": 4355,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 3885231,
+      "likes": 160677,
+      "comments": 4390,
       "shares": 0
     },
     "youtube:AgvrNhF1Ew4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 4594833,
-      "likes": 69089,
-      "comments": 3140,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4773463,
+      "likes": 71775,
+      "comments": 3261,
       "shares": 0
     },
     "youtube:aS0xIZ1Dz1U": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 6327961,
-      "likes": 74523,
-      "comments": 837,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 6454528,
+      "likes": 76159,
+      "comments": 840,
       "shares": 0
     },
     "youtube:uoOhyU0_Bg8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 7539962,
-      "likes": 177173,
-      "comments": 1104,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 7834501,
+      "likes": 185678,
+      "comments": 1145,
       "shares": 0
     },
     "youtube:ZkKdJiCDlPo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 14664008,
-      "likes": 320418,
-      "comments": 534,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 15175156,
+      "likes": 342428,
+      "comments": 550,
       "shares": 0
     },
     "youtube:2kY4cHAu5a8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 4129072,
-      "likes": 209846,
-      "comments": 1153,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4388264,
+      "likes": 220390,
+      "comments": 1192,
       "shares": 0
     },
     "youtube:QaFHVR4VYhk": {
@@ -1901,17 +2007,17 @@
       "shares": 0
     },
     "youtube:sl2OzxJLIck": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 811691,
-      "likes": 41928,
-      "comments": 1935,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 887002,
+      "likes": 44944,
+      "comments": 2068,
       "shares": 0
     },
     "youtube:Rh5zgQD4bMg": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 713906,
-      "likes": 34125,
-      "comments": 1878,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 771979,
+      "likes": 36358,
+      "comments": 1958,
       "shares": 0
     },
     "youtube:k7aVk27l6sk": {
@@ -1936,9 +2042,9 @@
       "shares": 0
     },
     "youtube:maZy492QxFQ": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 346232,
-      "likes": 4844,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 350593,
+      "likes": 4879,
       "comments": 568,
       "shares": 0
     },
@@ -1950,10 +2056,10 @@
       "shares": 0
     },
     "youtube:_AUYXgdIPxg": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 351513,
-      "likes": 6617,
-      "comments": 20,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 376130,
+      "likes": 7085,
+      "comments": 23,
       "shares": 0
     },
     "youtube:jgwxYo0b9GY": {
@@ -1964,15 +2070,15 @@
       "shares": 0
     },
     "youtube:b62dU6PakNc": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 214827,
-      "likes": 2047,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 215494,
+      "likes": 2051,
       "comments": 213,
       "shares": 0
     },
     "youtube:x0rwkYJtrFY": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 205493,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 205901,
       "likes": 1970,
       "comments": 239,
       "shares": 0
@@ -1985,10 +2091,10 @@
       "shares": 0
     },
     "youtube:aP_XQz8EJ5g": {
-      "at": "2026-10-09T05:48:23.021365+00:00",
-      "views": 195442,
-      "likes": 4653,
-      "comments": 216,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 202831,
+      "likes": 4788,
+      "comments": 220,
       "shares": 0
     },
     "youtube:mQzJfNEA-yg": {
@@ -2076,24 +2182,24 @@
       "shares": 0
     },
     "youtube:AnJIAVXapv8": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 544714,
-      "likes": 20689,
-      "comments": 4487,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 557117,
+      "likes": 21078,
+      "comments": 4561,
       "shares": 0
     },
     "youtube:PtAZG1ic0LA": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 428440,
-      "likes": 5770,
-      "comments": 998,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 431206,
+      "likes": 5791,
+      "comments": 1009,
       "shares": 0
     },
     "youtube:8BZXArnrUU4": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 411580,
-      "likes": 5632,
-      "comments": 658,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 420374,
+      "likes": 5698,
+      "comments": 662,
       "shares": 0
     },
     "youtube:22AV9313zwQ": {
@@ -2104,9 +2210,9 @@
       "shares": 0
     },
     "youtube:cEErZcu8o-0": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 368862,
-      "likes": 4948,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 369740,
+      "likes": 4955,
       "comments": 648,
       "shares": 0
     },
@@ -2118,10 +2224,10 @@
       "shares": 0
     },
     "youtube:l_LHSWn0gJ4": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 432681,
-      "likes": 16940,
-      "comments": 326,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 456065,
+      "likes": 17696,
+      "comments": 339,
       "shares": 0
     },
     "youtube:olXFZPeu1w4": {
@@ -2132,52 +2238,52 @@
       "shares": 0
     },
     "youtube:5tno2N09LVQ": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 385714,
-      "likes": 18574,
-      "comments": 1147,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 402299,
+      "likes": 19371,
+      "comments": 1190,
       "shares": 0
     },
     "youtube:K1wU1EbVTeE": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 272658,
-      "likes": 4626,
-      "comments": 515,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 284410,
+      "likes": 4730,
+      "comments": 520,
       "shares": 0
     },
     "youtube:VsUmfmeAvtk": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 313127,
-      "likes": 13343,
-      "comments": 987,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 326157,
+      "likes": 14022,
+      "comments": 1036,
       "shares": 0
     },
     "youtube:3SPATd0BdDE": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 236538,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 237070,
       "likes": 1834,
       "comments": 341,
       "shares": 0
     },
     "youtube:y21971CK10M": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 221004,
-      "likes": 3516,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 221805,
+      "likes": 3519,
       "comments": 408,
       "shares": 0
     },
     "youtube:JppMqL7lVf0": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 269958,
-      "likes": 13185,
-      "comments": 400,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 272432,
+      "likes": 13263,
+      "comments": 401,
       "shares": 0
     },
     "youtube:LlHAsW4VS4A": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 294253,
-      "likes": 3772,
-      "comments": 243,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 304734,
+      "likes": 3889,
+      "comments": 249,
       "shares": 0
     },
     "youtube:H2Mm-X6I1UM": {
@@ -2188,24 +2294,24 @@
       "shares": 0
     },
     "youtube:vH_XG4N1FO8": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 219655,
-      "likes": 3369,
-      "comments": 147,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 223145,
+      "likes": 3410,
+      "comments": 148,
       "shares": 0
     },
     "youtube:BZ1XBF5H4dc": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 187229,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 187487,
       "likes": 1724,
-      "comments": 196,
+      "comments": 197,
       "shares": 0
     },
     "youtube:sGbGF9xfk-E": {
-      "at": "2026-10-09T06:24:59.173302+00:00",
-      "views": 191049,
-      "likes": 2849,
-      "comments": 237,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 192583,
+      "likes": 2865,
+      "comments": 238,
       "shares": 0
     },
     "youtube:UvVmtIzLdbM": {
@@ -2230,735 +2336,735 @@
       "shares": 0
     },
     "youtube:YHIz12-br6Q": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 14270547,
-      "likes": 29792,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 14271638,
+      "likes": 29795,
       "comments": 1049,
       "shares": 0
     },
     "c8ae5dbee7c44003042931c303e5377b57339623f5563fb2013928515cc9142e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 118000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "739260debe5773f6ce597443ebfd1983e5550f01737b051c6253e89d3b2a8848": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 112000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "39ac47845e43111e240c3b544992b94fb636a2d6c61650ef240605015edfdba1": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 116000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "cbd4974e4cc0d379d98dc75ca95884415e290c07881050cafc61c887aeecf5b5": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 114000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8938d74d9f61e91c5b027075e9069d9fa21d0cbf65ad4d6e91e5e68b7478f2d1": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 98600,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "e014c300a018dad3a8131cf2e822f2a6a34312dc70e3c053abbc1cf54fd2e6c7": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 104000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d1052f042e6ca35fad3daae36a67f2306eea2422a4ddf04dde3a74a196143e84": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 105000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4b639d723cc1562ac0f51de686d4742eb6a4151cb4a5903f3c7f4ef8c35c40e1": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 93500,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "fc6f0037d6d31890386d8b4eb3b0f0db424924fd3bad13c3e8d4cc3407b3f8af": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 95100,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "663ab2103e860eeb8f7a8c660aa5b975c5a11722b3ec7edc944045a8f06cdd3a": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 96700,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "1a0fb6b2d90a35dba717bb9db00b80358ba87acb061c37c1819eda4aa5c502dd": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 105000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "89efcb6bdcf08b157767dc8ece2132443fc657573815da004f1da2eaf98c1781": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 109000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "af18f8f063a55de6f87d1c626a9961626b5e654cb23f3752f7386eb290941901": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 115000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "cc6eafbde1607ef8c0c6591137eff72dc1837174fee3db94f21190005a41daed": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 112000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "b4861af1583dbe666d552f71541abf8a4dac94ef56d4430c9d859a8892867397": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 123000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "bd95a3aa3c6f924e0077640c7ef19267665f9969b5c850ca93cf4b153c93150e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 760,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "96937efb0fb95a5444a94e0a0d78c7743703c9852c11b8e6c473737226a243c6": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 696,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "70724c5afcc2119bd042a9b1457a86945a969ad58e47e2316ce4194ad5689dd7": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 708,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "588521c25997bac8b801835eda789c93b931243c710b8e8b800ed6969ac1f401": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 784,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "81bf349b7bf5aff5f51b8bfdad39d7d6386243d9ee2096ce819c50384206d5b4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 827,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8b5333fbaa1630e1b9a9b5af8725fd214767e2e750b8f7d849ff8276ff97b10a": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 695,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "0696a4cb237d915d2e0c099acdebc44b41babcbd753c933fb622f6929e0c7827": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 720,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4700258dfb9b1f927f20fac1c0231ea8a649c032bd01b682c120539de09c9b47": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 786,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "46e7a59e02a2c49fba541586cd264da12ded592c34668d49c4f7d00697fc043e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 761,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "fe749e1b3463e89f4d52032d631b133a2b8a11151d27604b87529e6fee01279f": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 802,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "6e8a259ca46c6d1d7fbaf13c32795b19c102faee93d93c5c5d6d653e54a0f4f8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7680,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "e68fe410ab373c3ddafd5167f6a440223c51b7b8547d757e73fb44fcc06294bb": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 546,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4434141d8390b5bed3773a69fed5da6af3729ff797632a0ff742b2e9e2a61e17": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 565,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "7d7902d54df551791173a3bd16446960eecaa86798472a820765cabd603d1430": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 600,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d0ef03a2eb29698b7b493ca190bcac3437914deb9e8b6cadc70598cded7cc0d9": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6420,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "b12346c0988bbf0c041551299df6404c5d4f573d373487159affdd96479ca2c5": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7590,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "861c8f1000bd9926055fe33d8e465c309d157502501c5cd043a182e16e2a6734": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6520,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "50ae273c5bbfcd96658f4821bb60951e51feb7b97825a6d734a56a86a1135cb3": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7550,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "1e1d2007835de2153a69585a9e893a01332a9cbcd0e9ca70a386a7a189249b65": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6150,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4dc8a6ab23bd790122a7be16dffcf3e04d54fe39e153bf436deb5241f2e6dfef": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6630,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "7af35852898ce0883819e3babad18e10630f5e0aaf47610b9de9f756345b7e5c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 9140,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "295e5ca7a2d20b53ca2fc1c801f4460acea2e67667ee5af98688e17ade526627": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8230,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "9e15bc2bade1579e0be1c64724184782d0f9193d4c3e51b20807465a91909427": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8430,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "a2ea997a6c0dd314ba0f3d1b9b76744b7037108ed78f5299fda4fd3f8da40601": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7640,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "ad2d950605baa8b2e7c60255510c9b9979349f7660102a30b85b499b04b4a2dd": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 5980,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "62a5ba243a72650b24fb9523d0a245155352309dadfef4269c13046a7413666e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6650,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "0a8e342b72e623db66d981e1d4670f1e1181e294082567f37098b0da5a585afb": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6140,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8550e3eeafc324cee05e487b2693e3d80bcfb7cfe984634f9af04c22a293e1bb": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7050,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d1b9d35f508b0f88a19df54e94f33e88bae7572cefee2007f887cc5988ea979e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6130,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "82b68108fe7ab9b9da69164ca9f147de779ad9c3bfbb6d4d2ac91c06a6c67e10": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6560,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "28a8f1d5a230da9a36b43efcb47b5ef6938afd5b16556ca22ab7f2e4610062c9": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6080,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f61a27d7461277bb67dd1c0402af1f619d364b3ba8b5a658a358e028c64e08c4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7660,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8d4b2eddacf363446a32ecb59c7df03bfc966e5983becee08ebd78f51d275591": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6210,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d0c680ce295ca45614e854afce177f1a18e5f7a6bd57d83e6ac1af26b9012777": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1880,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c23882ceaeec7c0d2b98ac53f6daf288f30866bd7bf537397b4e48b5c96c0029": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 2029,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "638dbd41f910f608b6158bdcbfc2c2aa7c9146b4d339acfefd8ed9ee3e09c302": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1930,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d980849da5a4faed8da711da7b4f843e73778475099bc8b460a709ae689e7df0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1790,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "47c2fac324323d62d0924148564d6aa6ff5b126815c20004bec28bc5d34fc4fa": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1690,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "2cf73ac2dc3de247e1de8ef2e876813d3924f703f097bfd6a6af263f8dc28412": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1480,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "80332fb288103d462760d2c78224c6bd1c81188d4f98b2f6361737850ac181c0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 17900,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "0b0a34d912278bab6c4ac4b7555406257af8f2b845e6e961e034b03812235f54": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 17700,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "86a110f80f3e2833eeeaadb8612aff1f7b6e6f33086c4c5d7f8fd971fb89682c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 18100,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "e82abad2398a2f3b0f462f190d11091d09095355c074c9cc53a243843809026b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 18500,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8a2e423b83e85e8c7f0a43effd76a24f9e887585308d79b91ad43a0cf78c66a1": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 18100,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3e3812815e74ab09f63b6818b864970a4bdddc2fea6fa0d5e3cacbc4e4c48099": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 15700,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "6246045cb1c883f7f7cd86b6c60f5f35353f05d214636329b24acde92f00a896": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 15500,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "7246fa5616cf149ac99adb0830a3a15ae59d689e574bf693e2f03109bd67fa0b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 15500,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d6d2d8f96b8908a31500874106460a5bd8e1e3978660006f2e379d4ae779681b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 15700,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8bf1aca1bc82516e00f702eac2f33f452896e635a2f7cf40ed2c564a8cd20ab0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 15700,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "fd5fcf3bbbc5033d8ac2ce92508ac249faad01d60107a42b77f8e60ebe1bba06": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 15400,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "005e1fd9e686825fe51bdcc2837306137226e294323fb925c8dab498ef937a9e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 15800,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "11e73fefddf8f6fc8fb24a339d11bdbdbdbfe21d34efca7d0eaa1c5a0fd813da": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 4180,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "1315f6ecc1a37cb21b8e0abd221c875f0e376c262d7640bd0afbb1731934ebd7": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 4300,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "78296b4b7a228f32ff864aad49af411b2f1568d93606ef6f554fcf809a6bedda": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8670,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3de4c5c75492e779efccbcca29cc19a3de1fd543c47fc83e19b9f5dbb119e733": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 10300,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4e508c1bcb743c8f2843ed049e70fbe9a007e12f2868c5a28ddc1696c4d44836": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8680,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "63c037f635729b402b4d2ea7ab3936cc6d2be190c1743655bb3ce1ded0609304": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 9200,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "00f4b275a02e8308cb9f351d8b775dc0b2d4fe9adc37121f97ccae6ff33deae4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 9730,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "55da404b4741fd9733d79974fcbef6231ced1e28175b64e3a3b760b5a04eccfd": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 10200,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3255db9dbde953a55c696bc76ad11e39da58b21fb3ec4109a7e9b4ab6e6e1ee6": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8730,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "e3cddbe48b6dd85927a722a82bfbb2ebba00cd47700a05a4501b22a20a9786c8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 672,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "61aa4ab10e81f34634b3d78cc2b6204209614896ed8c24a99f0099cdb606c103": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 605,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "ce1446580a014591b6647031ee148f842f64f85ad4263aa14447df467abd69fa": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 673,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "92790dd180fa98b9d35c490b39c3fe0fc5dabb7c05871229be0ee51d04b47d44": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 2500,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "29a6e26f1b0dd54811b8a40a32c54bad3a225c37a02bde71f515d9d74d7aa664": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 2300,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "1b1045f47792f170df1d9a1e6fd3bb94618ec0926a20711a8ddc20d0b336a028": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 735,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c6476e18608f53f96e4b07620f9598ca4b13c1a9751bda8f1a55f2a37a3c39d7": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 689,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "49778af52ec50c9fba7009339dcf71ff21d494c5c3dbfb027d32b603d4205ac8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 658,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4dc76d85084b5b8058430005f1b9571f052f024a131d3efebbd8c16b113a1262": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 927,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "721ecb5cc8a575aa78144ca62295ac4422bc1087b37b738c61e27764e1084a1c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 672,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3e99f7f220542b68990f88e74207b9de624ddaed153f3918370ca98fe22cd722": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 646,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f25f647edf868711fa8888538d4630267d622ff78e198a322324a31bbffb5fb5": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 608,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "1b6316edff0ca4c4cca0371984a46c57dba7729b1248083d94a72562d8b81681": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 601,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "2911627fca10639c94c1a9decf192927d04f747b4c9185ca5a6711247565dd7a": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 560,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "888eabaf00d69290ed941a367e75bfd84245a0c69841adbb9c525b9b358bddc2": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 292000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "dba88cff7d5cc29506b56c5dc7f7598c24ef0c02474940467584726c8449d5c9": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 270000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "bd297c6a4742917cdd4939fb5b83c11aba2eaf411f321b372669eb7f4c6be9ff": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6210,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c9de9758b35f3804211fb80d779bfbf874bf27e093a9b70396d01b4706ae3731": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 5440,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3123a622c1e16bb566fdd1af41a0e4292d8df68aae3ee682b37e717272dc0d23": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6310,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "bcbdf249d76759ebea7fa733a6adf93793daf0a5ffeb235d6434781f85378135": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6590,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "56f4e81c94f1d8cd4609aeac010aaa3083b162224e84add9528b0bfadb64c8e3": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6860,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "5eea6e262353af562d07ab4090402b412474820269c7fb3266ca7f9912615e9f": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 5720,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "9d21b6e66d0cbc6b4ee9fa84b11352e2a78d8b6fde5774516e5d73ce5c28e2a8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 556,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3bc015e233be16a36edfa78d077cdb3c575c10d42fbf3eff955abf9e20368273": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 417,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d3ad08dcfe1edfdf5fb785f6a03bcb22ac9cc971f25480e56664f6427991754d": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 317,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "abfb54c4674a4325ca3272719defc5b57b2e2463d3c7ec970d899bd1865a49a1": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 20,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d571370dbf6ecd10a219ea8f305756fb115ea9db2cae826da58e942b920247fa": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 19,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f033851233020d06de93217f4d1950dba54682537ce1f47aaa72e930afdfe2db": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 17,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "12769a330dd726bd42311a870e727a341749286c4f24b0a81d03128704a04182": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 10,
       "likes": 0,
       "comments": 0,
@@ -3182,70 +3288,70 @@
       "shares": 0
     },
     "d69c26b233fa19ba9dd837cbfa9d5da33c6c0a0821e262b9e404f9bbf50bbe3d": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 92900,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "028121ec904c9fccac2f56c67932ceb34cce5f3ba1fd3bf85d39fa08a0abc05e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 94000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4adce5eb21ce5e3ae41afffeeed9adfc6803381dbd03da4893878d38ba441620": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 97600,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "169b9000061e112ef7fa5e1ebeefc3fd42977b8f0d7907a863ea25ce59f86bfd": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 167000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8e4705ae95d60d697e46eb3679a8059b17b2a7e6fc630561e685ab484a0c45aa": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6070,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "be1606aee22a62a36036ef21c88b9209add6343289ee0a9ae67e7a15bed64134": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1370,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "b249b45d9347012b73365e71329957448fafe8f9a112bddfc8dc909e7c196455": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 10000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "a998b0ceaa4d78009f64dbd1bb8e51ed3c45e6c7db8ef9027a47b3845cedd94b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 9500,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "07eed6b3aef42860cffe9232d777512b8fc69451086f845acd981cc732c70993": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8940,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "1585b7f33847a04c54e22895dd52e19ddeaaf0ab3d34c622c826ab1ced63d2ee": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 451,
       "likes": 0,
       "comments": 0,
@@ -3420,38 +3526,38 @@
       "shares": 0
     },
     "youtube:qIZUB1UMCGA": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 3399259,
-      "likes": 65255,
-      "comments": 863,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 3912234,
+      "likes": 73963,
+      "comments": 928,
       "shares": 0
     },
     "youtube:PTYNiKgwlTI": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 1338551,
-      "likes": 25535,
-      "comments": 117,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 1386243,
+      "likes": 26054,
+      "comments": 119,
       "shares": 0
     },
     "youtube:UsB-F5-t_H0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 15898961,
-      "likes": 290265,
-      "comments": 698,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 18009876,
+      "likes": 322117,
+      "comments": 763,
       "shares": 0
     },
     "youtube:p52mbzhBsfw": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 6161496,
-      "likes": 243898,
-      "comments": 5505,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 6323437,
+      "likes": 250745,
+      "comments": 5576,
       "shares": 0
     },
     "youtube:5FyvFmj-OCo": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
-      "views": 688803,
-      "likes": 39674,
-      "comments": 363,
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 737099,
+      "likes": 43616,
+      "comments": 385,
       "shares": 0
     },
     "youtube:sZBSoO2o_wc": {
@@ -3469,430 +3575,472 @@
       "shares": 0
     },
     "706a40545a94a206bb7be9c13ce72c42bb397d23ba5c065d833a2e8cdba4a834": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 74200,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "e5c11f30097ca8c684f1a6f3656a98d38c8b01f94e048ed8fa7f7ef932d6bb73": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 75700,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "8ed7fd3d268c378a7ffaf1dd03e504f77f37a6be87ae8aac0bf1dd5879b07489": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 78300,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f17b4c9af022be43666d6b378ce47da8cef1350e171beaed35d9b3eb024c1c08": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 55200,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "94b691fe2971073cc2e316c042e40ace10a8f6c1410f97bae7e53f10eabd46db": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 57200,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c47fd0cd201758a2cd1f5f84d54ad0fb7f94cd2cefb75bb958a8c2608612cf4c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 57600,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "5b7837d3c5afd1fcfd5fe6bc32723fe992cd0c866666d6de8f58c077322e26b0": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 5770,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f3c2bacebbab5ddc9f46b996e9d0e8ffd57eb5cfef057b2c8df6ffddf28dfbb4": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6770,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "227db2c8a61dfc4f9ef65eb082096a88a3c07edb14b632d1153529692a83e039": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6240,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "73a560b0c15cbcd6c6e20e6831a61f3154d4099c137e3dc3d3af6f4c5768cd33": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1110,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "ba52b50b28471862c342bc211a9107925dfbc0377c8ac87df2dcb8ba190955ac": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1150,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "6e2075c1acee6d4b533f8987e7d83e7c2cf46daa6d452721b02be5da4d9db82a": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 881,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f0de70b6f1c64b26825846e5a3b48bcc56f97bcc19d473c8c4b3afedfbec37c3": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3730,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "15774acbbf58a3d4f286123ca9cfb9df6b3cda8b66c4131a4611462dbd36536a": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3690,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c1f5a015804fb41a4fb9dd9742216452fdd72d2483aaba345754e2102bf01d7e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3490,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "fad08e27e83d066d461eee3d999b6caa1050766d9ad3f7a1a4e91ccac69abe80": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3520,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "44a9f515c03e799ff7f467b9d61755740184c28ba816afe655d2202dfd91312a": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3550,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "4d93f7783aa45dffda5a59886be94f5a4b3063dde4803e5450bf13157d318090": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8000,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "bdf1c50b8b1c06e960d8f4720a7b113c1ebb39fe9c4cd3bf482391ecf0fecde5": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8150,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "80d7d26c199c5436d9234b45fe377840d28223633588389906cb17e3062a43b1": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8160,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "59e80be87bca5e2df85e124ebfd78610af967e43de1fcc61f2cc072f8570afe2": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8330,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "89a49512d7ca2b3a47b3e50314ac5b6806185134c6a258bec5e91b1b6ab6b7a3": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8620,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "634ca30a1378e7da56277cf8cfd4b1b9387ca8d3f54b775567ebf8434dce94c5": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8780,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "23bb19537dc38b927327f99a53ff9d7f913bbd6eb6e3f21936d179d040d27bd8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8890,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "02f5281406d704dbdc9d3b1f234c961e616116dfd52d91efae9fe1a887af967d": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8620,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "7b6734cb0a388273c9363db0f3b2085ef5a595d428b51b0e08497b87ceb31caa": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8510,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "7e8716dc3d915e9b1b4c8b05fb9b0f140c8d7c75d8067249c7106fcf433ea6d9": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 8270,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "e305eb69b266c07ed1dad970ce940cdc8fe9faf45be59f1cad1c072de2badb41": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6630,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "28713b6981df7d5b24a274055d47a84bc257ef4534c181223240efeb522d0dc3": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 430,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c459a033b0aa0cc3d2f5882836255e8cec44366c5e5f543321e68d8833c1270c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 13100,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "badffa2815a81b7475af9def1feed75af0f8dc6435eeca9c1835a35f94acfc55": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7540,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "00fa29df5ca4cd617f3a808aab8c909d8004e413fca29d8cb51c83844660bc92": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7840,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f2f4fa7ea55ab75dad6cf7bbe3fd6d9bae82cc788e76baee79771116ac8da216": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 1,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "2c64805165b2697aa8384044958302517f169721ce21d9a0d5af51cb08e9a5af": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 175,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "e7779943962cf4efcad0714a325a1577b1feb1ff4fc9958a2778d42ff9d8763b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 208,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "530eb4604df67fc068f372fd83a9889a37a52edff002b4bffe5e4e82bc4b3e85": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 230,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "023f446b35c943c6ce25f2ad34b4cd76679cfac1dbd227270339b3bdb7cfa113": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6900,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d885128cab695aa190d1c988aec983e8a4d16e8061cb2fd7ebc9263fce5f2cdf": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 5400,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "b03178418f97cd0625078a44129267753c8d8fc7d5ed22fc21e36f440158bf63": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3380,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "42409413abed2bdb4dfa020eccf5dc7915471009de4f8820194d22630da4b265": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3380,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c0e8aef232ec82fb7de34e24d603068771604e47eff40e9c847ab0a4efa693e8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3230,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c161a38e6d2a54848e6f03ddc467f74a56835e410f39646ebcd3407e33ed2a3b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3210,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "794a551439f3b67305975aa07da063d294f007d8ef4d1c47a832cb6d0ebf020c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3300,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "359d14f7f1a00594529d43252260e40df4e3cd525ab30059ac60cedfee52ff00": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3400,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "6cf4ba7a0a7e345da658bddf9b2cb20719fb1b00004642212396f6eb7d9e581a": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 3420,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3c7ccc9b8df7337513d27243d1c8a70813c3497e6b0543475da9e8d426e2d2ad": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 247,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "5f5f1746efcab339a2567f32ca60a60ceef5f5604301dec7609da3484070d8b2": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 33,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c5acbc45d9f2e1298ea72e0406da7bbc45620ef478fa39d6cb71009ef498b04c": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 7590,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "284fec323c67ecbed2c91bc0ed032096fb2f8f87cd1426d818b186739b4676a8": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 48900,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "d02ed6a6bbc300e3700132dfaccb27c7c5a907c11a4ee7143448e0985ad76776": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6760,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "66d9e49e04d0cfddb5057b8074a7d156c009f42a88c3ed858c2031d1fabacb4b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6630,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "9c56c51d2e8d126248579aa51d9639e6ff3b2afe719f0f755e8e29965c53ca11": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 6010,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "c131990503812c2694720dee6edf6f42c416dc5196a82add5b11f892b8fe861e": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 31100,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "28dc9dfa382fabfd1b8457584ee846822bdc5ebd9b88a21c6e301adc2a4b33d2": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 22700,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "fad8c3ae2a95a46660e51e61ba0d176bab7e307290ebe656775da38fe059925d": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 81,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "77832ecfd6f769e615e0fd166e5e8f21cad7103b4a441a720918ca2c7e719096": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 72,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "3f35a68c2a001e00712569caf2b4d3040668a0485d3a94775216183b05b7a8a5": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 65,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "cb2bfdbd0a6c098fab483e1f32864165bae0cec4e4881d8618e287aea3fa9393": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 49,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "594adf6e0bbc8bc8d611c4a98d07444c75bb04e7a279c9e5d6e31b9e47b33f24": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 384,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "004dc7e8068ef3b0709b51f2c3a8ddf4214e35d0e84122a863e0ac5ad7f1655b": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 368,
       "likes": 0,
       "comments": 0,
       "shares": 0
     },
     "f647d1bc5e89d050912597d0a0b4a56a09f6fb046d052fa1f12b17e8019e08ee": {
-      "at": "2026-10-09T13:51:23.410758+00:00",
+      "at": "2026-10-09T16:24:31.829544+00:00",
       "views": 244,
       "likes": 0,
       "comments": 0,
+      "shares": 0
+    },
+    "youtube:8YHp6-g-1jc": {
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 205377,
+      "likes": 12730,
+      "comments": 270,
+      "shares": 0
+    },
+    "youtube:6oMIXUzqXJI": {
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 241560,
+      "likes": 8961,
+      "comments": 591,
+      "shares": 0
+    },
+    "youtube:pzLr1RaQuDw": {
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 213359,
+      "likes": 12287,
+      "comments": 194,
+      "shares": 0
+    },
+    "youtube:1odzBsdKj3M": {
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 4439,
+      "likes": 75,
+      "comments": 3,
+      "shares": 0
+    },
+    "youtube:nWarF2dJUZI": {
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 20952,
+      "likes": 128,
+      "comments": 25,
+      "shares": 0
+    },
+    "youtube:VoGFp0j2VEI": {
+      "at": "2026-10-09T16:24:31.829544+00:00",
+      "views": 10846,
+      "likes": 465,
+      "comments": 18,
       "shares": 0
     }
   },
@@ -4836,155 +4984,11 @@
   ],
   "last_reviewed_candidates": [
     {
-      "title": "حالا ما بودیم عمرا می بردیم خونه این دوس داشتنیو چقدر خوشگل شد 😍 🆔 @GizmizTel 💯",
+      "title": "تاثیر سخنرانی آخوند بر ما 😂 😂 Join ➪ 🆔 @vaybabamumad",
       "platform": "telegram",
-      "demand_score": 54.48,
-      "attraction_score": 56.99,
-      "retention_proxy_score": 64.33,
-      "shareability_proxy_score": 43.0,
-      "shareability_flags": {
-        "promotional": false,
-        "hard_news": false,
-        "sensitive_harm": false,
-        "humor_cue_count": 0,
-        "relatable_cue_count": 0,
-        "surprise_cue_count": 0,
-        "technology_cue_count": 0,
-        "animal_cue_count": 0,
-        "puzzle_cue_count": 0,
-        "skill_cue_count": 0,
-        "satisfying_cue_count": 0
-      },
-      "trend_score": 0.0,
-      "trend_topic": "",
-      "publish_score": 53.08,
-      "general_audience_gate": {
-        "applied": true,
-        "passed": false,
-        "reason": [
-          "demand_score_below_category_floor",
-          "shareability_below_category_floor",
-          "no_specific_broad_interest_cue",
-          "visual_attraction_below_category_floor",
-          "longer_than_shareable_short_form"
-        ],
-        "demand_score": 54.48,
-        "shareability_proxy_score": 43.0,
-        "views": 78300,
-        "age_hours": 3.89,
-        "broad_interest_cues": {
-          "humor_or_reaction": false,
-          "animals": false,
-          "sports_or_skill": false,
-          "transformation_or_satisfying": false,
-          "relatable_moment": false,
-          "ai_or_tech_demo": false,
-          "puzzle_or_reveal": false,
-          "spectacle_or_event": false
-        },
-        "entertainment_cue": false,
-        "format_focus_gate": {
-          "applied": true,
-          "passed": false,
-          "reasons": [
-            "longer_than_shareable_short_form"
-          ],
-          "roundup_or_multi_story_title": false,
-          "duration_seconds": 100.91,
-          "maximum_routine_duration_seconds": 75.0,
-          "exceptional_hook_exception": false,
-          "first_event_score": 50.75,
-          "event_score": 72.07,
-          "structure_score": 36.86
-        },
-        "required_shareability": 60.0,
-        "required_attraction": 65.0,
-        "comedy_exploration": false,
-        "maximum_duration_seconds": null,
-        "required_demand": 58.0,
-        "minimum_views": 50000,
-        "maximum_age_hours": 24.0
-      },
-      "publishable": false
-    },
-    {
-      "title": "حالا ما بودیم عمرا می بردیم خونه این دوس داشتنیو چقدر خوشگل شد 😍 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "demand_score": 54.48,
-      "attraction_score": 56.99,
-      "retention_proxy_score": 64.33,
-      "shareability_proxy_score": 43.0,
-      "shareability_flags": {
-        "promotional": false,
-        "hard_news": false,
-        "sensitive_harm": false,
-        "humor_cue_count": 0,
-        "relatable_cue_count": 0,
-        "surprise_cue_count": 0,
-        "technology_cue_count": 0,
-        "animal_cue_count": 0,
-        "puzzle_cue_count": 0,
-        "skill_cue_count": 0,
-        "satisfying_cue_count": 0
-      },
-      "trend_score": 0.0,
-      "trend_topic": "",
-      "publish_score": 53.08,
-      "general_audience_gate": {
-        "applied": true,
-        "passed": false,
-        "reason": [
-          "demand_score_below_category_floor",
-          "shareability_below_category_floor",
-          "no_specific_broad_interest_cue",
-          "visual_attraction_below_category_floor",
-          "longer_than_shareable_short_form"
-        ],
-        "demand_score": 54.48,
-        "shareability_proxy_score": 43.0,
-        "views": 78300,
-        "age_hours": 3.89,
-        "broad_interest_cues": {
-          "humor_or_reaction": false,
-          "animals": false,
-          "sports_or_skill": false,
-          "transformation_or_satisfying": false,
-          "relatable_moment": false,
-          "ai_or_tech_demo": false,
-          "puzzle_or_reveal": false,
-          "spectacle_or_event": false
-        },
-        "entertainment_cue": false,
-        "format_focus_gate": {
-          "applied": true,
-          "passed": false,
-          "reasons": [
-            "longer_than_shareable_short_form"
-          ],
-          "roundup_or_multi_story_title": false,
-          "duration_seconds": 100.91,
-          "maximum_routine_duration_seconds": 75.0,
-          "exceptional_hook_exception": false,
-          "first_event_score": 50.75,
-          "event_score": 72.07,
-          "structure_score": 36.86
-        },
-        "required_shareability": 60.0,
-        "required_attraction": 65.0,
-        "comedy_exploration": false,
-        "maximum_duration_seconds": null,
-        "required_demand": 58.0,
-        "minimum_views": 50000,
-        "maximum_age_hours": 24.0
-      },
-      "publishable": false
-    },
-    {
-      "title": "این توریست خارجی این ویدیو رو در مورد ایران ساخته و نوشته : ایران عالی بود! عالی! راننده تاکسی بهش میگه قابل نداره، پول رو میذاره جیبش می‌ره، راننده می‌ دوئه دنبالش 😂 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "demand_score": 54.35,
-      "attraction_score": 42.44,
-      "retention_proxy_score": 52.32,
+      "demand_score": 43.98,
+      "attraction_score": 72.05,
+      "retention_proxy_score": 77.3,
       "shareability_proxy_score": 51.0,
       "shareability_flags": {
         "promotional": false,
@@ -5001,89 +5005,14 @@
       },
       "trend_score": 0.0,
       "trend_topic": "",
-      "publish_score": 48.51,
+      "publish_score": 54.76,
       "general_audience_gate": {
         "applied": true,
-        "passed": false,
-        "reason": [
-          "comedy_clip_too_long",
-          "visual_attraction_below_category_floor",
-          "longer_than_shareable_short_form",
-          "weak_narrative_structure_for_clip_length"
-        ],
-        "demand_score": 54.35,
+        "passed": true,
+        "reason": [],
+        "demand_score": 43.98,
         "shareability_proxy_score": 51.0,
-        "views": 57600,
-        "age_hours": 2.45,
-        "broad_interest_cues": {
-          "humor_or_reaction": true,
-          "animals": false,
-          "sports_or_skill": false,
-          "transformation_or_satisfying": false,
-          "relatable_moment": false,
-          "ai_or_tech_demo": false,
-          "puzzle_or_reveal": false,
-          "spectacle_or_event": false
-        },
-        "entertainment_cue": true,
-        "format_focus_gate": {
-          "applied": true,
-          "passed": false,
-          "reasons": [
-            "longer_than_shareable_short_form",
-            "weak_narrative_structure_for_clip_length"
-          ],
-          "roundup_or_multi_story_title": false,
-          "duration_seconds": 111.63,
-          "maximum_routine_duration_seconds": 75.0,
-          "exceptional_hook_exception": false,
-          "first_event_score": 25.14,
-          "event_score": 74.91,
-          "structure_score": 3.6
-        },
-        "required_shareability": 50.0,
-        "required_attraction": 62.0,
-        "comedy_exploration": true,
-        "maximum_duration_seconds": 60.0,
-        "required_demand": 43.0,
-        "minimum_views": 10000,
-        "maximum_age_hours": 24.0
-      },
-      "publishable": false
-    },
-    {
-      "title": "اوضاع خيلی خرابه 🤦🏻‍♂️ 🤣 Join ➪ 🆔 @vaybabamumad",
-      "platform": "telegram",
-      "demand_score": 44.08,
-      "attraction_score": 7.81,
-      "retention_proxy_score": 26.86,
-      "shareability_proxy_score": 51.0,
-      "shareability_flags": {
-        "promotional": false,
-        "hard_news": false,
-        "sensitive_harm": false,
-        "humor_cue_count": 1,
-        "relatable_cue_count": 0,
-        "surprise_cue_count": 0,
-        "technology_cue_count": 0,
-        "animal_cue_count": 0,
-        "puzzle_cue_count": 0,
-        "skill_cue_count": 0,
-        "satisfying_cue_count": 0
-      },
-      "trend_score": 0.0,
-      "trend_topic": "",
-      "publish_score": 31.87,
-      "general_audience_gate": {
-        "applied": true,
-        "passed": false,
-        "reason": [
-          "visual_attraction_below_category_floor",
-          "no_strong_visual_hook_for_category"
-        ],
-        "demand_score": 44.08,
-        "shareability_proxy_score": 51.0,
-        "views": 18100,
+        "views": 17700,
         "age_hours": 12.04,
         "broad_interest_cues": {
           "humor_or_reaction": true,
@@ -5101,12 +5030,12 @@
           "passed": true,
           "reasons": [],
           "roundup_or_multi_story_title": false,
-          "duration_seconds": 11.44,
+          "duration_seconds": 19.5,
           "maximum_routine_duration_seconds": 75.0,
           "exceptional_hook_exception": false,
-          "first_event_score": 18.01,
-          "event_score": 12.19,
-          "structure_score": 5.43
+          "first_event_score": 85.21,
+          "event_score": 58.13,
+          "structure_score": 71.49
         },
         "required_shareability": 50.0,
         "required_attraction": 62.0,
@@ -5114,6 +5043,145 @@
         "maximum_duration_seconds": 60.0,
         "required_demand": 43.0,
         "minimum_views": 10000,
+        "maximum_age_hours": 24.0
+      },
+      "publishable": true
+    },
+    {
+      "title": "انتقاد محمدرضا گلزار نسبت به برخورد امیرحسین قیاسی با ایرج طهماسب 🆔 @GizmizTel 💯",
+      "platform": "telegram",
+      "demand_score": 52.34,
+      "attraction_score": 41.82,
+      "retention_proxy_score": 45.65,
+      "shareability_proxy_score": 44.0,
+      "shareability_flags": {
+        "promotional": false,
+        "hard_news": false,
+        "sensitive_harm": false,
+        "humor_cue_count": 0,
+        "relatable_cue_count": 0,
+        "surprise_cue_count": 0,
+        "technology_cue_count": 0,
+        "animal_cue_count": 1,
+        "puzzle_cue_count": 0,
+        "skill_cue_count": 0,
+        "satisfying_cue_count": 0
+      },
+      "trend_score": 0.0,
+      "trend_topic": "",
+      "publish_score": 45.45,
+      "general_audience_gate": {
+        "applied": true,
+        "passed": false,
+        "reason": [
+          "demand_score_below_category_floor",
+          "shareability_below_category_floor",
+          "visual_attraction_below_category_floor",
+          "no_strong_visual_hook_for_category"
+        ],
+        "demand_score": 52.34,
+        "shareability_proxy_score": 44.0,
+        "views": 112000,
+        "age_hours": 13.44,
+        "broad_interest_cues": {
+          "humor_or_reaction": false,
+          "animals": false,
+          "sports_or_skill": false,
+          "transformation_or_satisfying": false,
+          "relatable_moment": false,
+          "ai_or_tech_demo": false,
+          "puzzle_or_reveal": false,
+          "spectacle_or_event": true
+        },
+        "entertainment_cue": false,
+        "format_focus_gate": {
+          "applied": true,
+          "passed": true,
+          "reasons": [],
+          "roundup_or_multi_story_title": false,
+          "duration_seconds": 53.68,
+          "maximum_routine_duration_seconds": 75.0,
+          "exceptional_hook_exception": false,
+          "first_event_score": 40.0,
+          "event_score": 32.45,
+          "structure_score": 46.27
+        },
+        "required_shareability": 60.0,
+        "required_attraction": 65.0,
+        "comedy_exploration": false,
+        "maximum_duration_seconds": null,
+        "required_demand": 58.0,
+        "minimum_views": 50000,
+        "maximum_age_hours": 24.0
+      },
+      "publishable": false
+    },
+    {
+      "title": "دیشب تو گیلان، یه نیسان گاوی و موتوری باهم درگیری لفظی پیدا میکنن که نتیجه اش رو ببینید 🆔 @GizmizTel 💯",
+      "platform": "telegram",
+      "demand_score": 52.36,
+      "attraction_score": 30.46,
+      "retention_proxy_score": 50.91,
+      "shareability_proxy_score": 44.0,
+      "shareability_flags": {
+        "promotional": false,
+        "hard_news": false,
+        "sensitive_harm": false,
+        "humor_cue_count": 0,
+        "relatable_cue_count": 0,
+        "surprise_cue_count": 0,
+        "technology_cue_count": 0,
+        "animal_cue_count": 1,
+        "puzzle_cue_count": 0,
+        "skill_cue_count": 0,
+        "satisfying_cue_count": 0
+      },
+      "trend_score": 0.0,
+      "trend_topic": "",
+      "publish_score": 44.24,
+      "general_audience_gate": {
+        "applied": true,
+        "passed": false,
+        "reason": [
+          "demand_score_below_category_floor",
+          "shareability_below_category_floor",
+          "no_specific_broad_interest_cue",
+          "visual_attraction_below_category_floor",
+          "no_strong_visual_hook_for_category"
+        ],
+        "demand_score": 52.36,
+        "shareability_proxy_score": 44.0,
+        "views": 98600,
+        "age_hours": 11.16,
+        "broad_interest_cues": {
+          "humor_or_reaction": false,
+          "animals": false,
+          "sports_or_skill": false,
+          "transformation_or_satisfying": false,
+          "relatable_moment": false,
+          "ai_or_tech_demo": false,
+          "puzzle_or_reveal": false,
+          "spectacle_or_event": false
+        },
+        "entertainment_cue": false,
+        "format_focus_gate": {
+          "applied": true,
+          "passed": true,
+          "reasons": [],
+          "roundup_or_multi_story_title": false,
+          "duration_seconds": 21.94,
+          "maximum_routine_duration_seconds": 75.0,
+          "exceptional_hook_exception": false,
+          "first_event_score": 33.67,
+          "event_score": 24.92,
+          "structure_score": 12.57
+        },
+        "required_shareability": 60.0,
+        "required_attraction": 65.0,
+        "comedy_exploration": false,
+        "maximum_duration_seconds": null,
+        "required_demand": 58.0,
+        "minimum_views": 50000,
         "maximum_age_hours": 24.0
       },
       "publishable": false
@@ -5197,6 +5265,18 @@
       "reason": "general_audience_gate_rejected",
       "cooldown_hours": 10.0,
       "attraction_score": 7.81
+    },
+    "697b8c43197f82e749663ab9c83c418255b1c7e2394a45b46955bfe326e77036": {
+      "at": "2026-10-09T16:26:18.223421+00:00",
+      "reason": "general_audience_gate_rejected",
+      "cooldown_hours": 10.0,
+      "attraction_score": 30.46
+    },
+    "fa0fbc53124e563a66fe7b3c8e05db3571e884221dd75778fe0474d3b7aa5be4": {
+      "at": "2026-10-09T16:26:22.163347+00:00",
+      "reason": "general_audience_gate_rejected",
+      "cooldown_hours": 10.0,
+      "attraction_score": 41.82
     }
   }
 }
