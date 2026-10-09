@@ -1690,11 +1690,16 @@ def main():
             )
             if broad_interest_cues["relatable_or_tech"]:
                 required_shareability = 45.0
+                # Everyday/AI clips can be compelling without fast motion;
+                # allow the normal visual gate to stand, but keep a 52-point
+                # category floor and the explicit hook-event requirement.
+                required_attraction = 52.0
             elif entertainment_cue:
                 required_shareability = MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY
+                required_attraction = MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION
             else:
                 required_shareability = 60.0
-            required_attraction = MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION if entertainment_cue else 65.0
+                required_attraction = 65.0
             required_demand = MIN_SINGLE_METRIC_TELEGRAM_DEMAND if entertainment_cue else MIN_EVENT_ONLY_TELEGRAM_DEMAND
             if single_metric_telegram:
                 if demand < required_demand:
