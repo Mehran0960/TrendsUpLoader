@@ -51,6 +51,18 @@ MIN_COMEDY_EXPLORATION_VIEWS = 10000
 MIN_COMEDY_EXPLORATION_DEMAND = 43.0
 MIN_COMEDY_EXPLORATION_ATTRACTION = 62.0
 MAX_COMEDY_EXPLORATION_DURATION_SECONDS = 60.0
+MAX_ROUTINE_SHORTFORM_SECONDS = 75.0
+# Roundups can look visually busy while lacking one memorable payoff.
+# They are allowed only when demand and the first/event/structure hooks are exceptional.
+COMPILATION_TITLE_RE = re.compile(
+    r"(?:\\b(?:compilation|roundup|recap|best\\s+of|top\\s*\\d+|"
+    r"funniest\\s+moments|multiple\\s+stories|three\\s+stories)\\b|"
+    r"(?:گلچین|گزیده|میکس|مروری\\s*بر|مجموعه\\s*(?:ای\\s*از|از)|"
+    r"(?:چند|سه|چهار|پنج)\\s+(?:ماجرا|داستان|اتفاق|کلیپ|ویدیو)|"
+    r"روایت\\s+(?:چند|سه|چهار|پنج)\\s+(?:ماجرا|داستان|اتفاق)|"
+    r"در.{0,20}چه\\s*می.?گذرد|چه\\s*می.?گذرد.{0,20}))",
+    re.I,
+)
 ACQUISITION_REVIEW_LIMIT = 8
 MIRROR_SEARCH_CANDIDATE_LIMIT = 4
 YOUTUBE_BOTWALL_DETECTED = False
@@ -65,7 +77,10 @@ QUERY_TERMS = [
     "ویدئو","ویدیو","فیلم","لحظه","جنجالی","پربازدید","عجیب","باورنکردنی",
     "واکنش","مردم","فوتبال","سلبریتی","ایران",
     "خنده دار","بامزه","سوتی","فیل","گربه","سگ","شوخی","درگیری","عکس العمل",
-    "عجیب ترین","غافلگیرکننده","اتفاق خنده دار","ویدئوی کوتاه"
+    "عجیب ترین","غافلگیرکننده","اتفاق خنده دار","ویدئوی کوتاه",
+    "هوش مصنوعی","AI","ربات","تکنولوژی","فناوری","ساخت ویدیو با هوش مصنوعی",
+    "ترفند کاربردی","قبل و بعد","تغییر باورنکردنی","معما","خطای دید",
+    "آزمایش علمی","تردستی","مهارت عجیب","ویدئوی رضایت بخش","حیوانات بامزه"
 ]
 BLOCK = re.compile(r"\b(porn|sex|sexual|nsfw|gore|self-harm)\b", re.I)
 VIDEO_EXT = re.compile(r"\.(?:mp4|webm|mov)(?:\?|#|$)", re.I)
@@ -681,6 +696,11 @@ SENSITIVE_HARM_CONTENT = re.compile(
 UNSAFE_BRAND_CONTENT = re.compile(r"(?<!\w)(?:گوه|کیر|کون|کس|کص|کصکش|کسکش|جنده|کثافت|حشری|سکس|پورن|زناشویی)(?!\w)|فحش\s*رکیک", re.I)
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
 RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره", "دوسم", "عاشق", "عشق", "رابطه", "دلتنگ", "خواستگار", "مجرد", "ازدواج", "دوست دختر", "دوست‌دختر", "دوست پسر", "دوست‌پسر")
+TECH_CUES = ("هوش مصنوعی", "هوش‌مصنوعی", "تکنولوژی", "فناوری", "ربات", "گجت", "چت جی پی تی", "چت‌جی‌پی‌تی", "sora", "veo", "gemini", "chatgpt", "robot", "ai")
+ANIMAL_CUES = ("گربه", "سگ", "حیوان", "میمون", "پرنده", "گاو", "اسب", "cat", "dog", "animal", "pet")
+PUZZLE_CUES = ("معما", "چیستان", "معمای تصویری", "خطای دید", "پیداش کن", "پیدا کن", "کدومش", "کدام یک", "spot the difference", "optical illusion", "puzzle", "brain teaser")
+SKILL_CUES = ("تردستی", "آکروبات", "پشتک", "مهارت عجیب", "حرکت دیدنی", "رکورد", "شکست رکورد", "ترفند", "نجاری", "کاردستی", "life hack", "magic trick", "skill")
+SATISFYING_CUES = ("قبل و بعد", "ترمیم", "بازسازی", "تمیزکاری", "رضایت بخش", "رضایت‌بخش", "برش دقیق", "آشپزی", "تبدیل", "restoration", "satisfying", "before and after")
 SURPRISE_CUES = ("عجیب", "باورنکردنی", "غافلگیر", "غیرمنتظره", "آخرش", "ناگهان", "چطور ممکن", "چطوری", "راز", "قبل و بعد", "تغییر باورنکردنی", "این شکلی", "شوکه", "شوک", "انتظارشو نداشتم", "انتظار نداشتم")
 
 
@@ -693,7 +713,22 @@ def content_shareability_proxy(item):
     humor_hits = sum(1 for cue in HUMOR_CUES if cue.lower() in blob)
     relatable_hits = sum(1 for cue in RELATABLE_CUES if cue.lower() in blob)
     surprise_hits = sum(1 for cue in SURPRISE_CUES if cue.lower() in blob)
-    score = 40.0 + min(25.0, humor_hits * 8.0) + min(15.0, relatable_hits * 5.0) + min(20.0, surprise_hits * 6.0)
+    tech_hits = sum(1 for cue in TECH_CUES if cue.lower() in blob)
+    animal_hits = sum(1 for cue in ANIMAL_CUES if cue.lower() in blob)
+    puzzle_hits = sum(1 for cue in PUZZLE_CUES if cue.lower() in blob)
+    skill_hits = sum(1 for cue in SKILL_CUES if cue.lower() in blob)
+    satisfying_hits = sum(1 for cue in SATISFYING_CUES if cue.lower() in blob)
+    score = (
+        40.0
+        + min(25.0, humor_hits * 8.0)
+        + min(15.0, relatable_hits * 5.0)
+        + min(20.0, surprise_hits * 6.0)
+        + min(8.0, tech_hits * 8.0)
+        + min(8.0, animal_hits * 4.0)
+        + min(8.0, puzzle_hits * 6.0)
+        + min(8.0, skill_hits * 4.0)
+        + min(8.0, satisfying_hits * 5.0)
+    )
     if re.search(r"[😂🤣😅😆😍🤯❤️🔥]", blob):
         score += 3.0
     if hard_news:
@@ -707,6 +742,11 @@ def content_shareability_proxy(item):
         "humor_cue_count": humor_hits,
         "relatable_cue_count": relatable_hits,
         "surprise_cue_count": surprise_hits,
+        "technology_cue_count": tech_hits,
+        "animal_cue_count": animal_hits,
+        "puzzle_cue_count": puzzle_hits,
+        "skill_cue_count": skill_hits,
+        "satisfying_cue_count": satisfying_hits,
     }
 
 
@@ -1348,6 +1388,47 @@ def content_quality_gate(path, item, mi):
     }
     return round(attraction, 2), metrics
 
+def single_payoff_gate(item, mi, cq, demand, attraction):
+    """Prefer a short, coherent clip with one memorable hook/payoff.
+
+    This is a conservative format heuristic; it does not claim to understand
+    the full story. Roundup-title and long-duration exceptions require strong
+    measured demand plus strong first/event/structure metrics.
+    """
+    title = str(item.get("title") or "")
+    duration = max(0.0, float(mi.get("duration") or 0.0))
+    first_event = float(cq.get("hook_first_event_score") or 0.0)
+    event = float(cq.get("hook_event_score") or 0.0)
+    structure = float(cq.get("hook_structure_score") or 0.0)
+    is_roundup = bool(COMPILATION_TITLE_RE.search(title))
+    exceptional = (
+        float(demand) >= 88.0
+        and float(attraction) >= 77.0
+        and first_event >= 68.0
+        and event >= 70.0
+        and structure >= 58.0
+    )
+    reasons = []
+    if is_roundup and not exceptional:
+        reasons.append("multi_story_or_roundup_title_without_exceptional_hook")
+    if duration > MAX_ROUTINE_SHORTFORM_SECONDS and not exceptional:
+        reasons.append("longer_than_shareable_short_form")
+    if duration > 55.0 and structure < 35.0 and not exceptional:
+        reasons.append("weak_narrative_structure_for_clip_length")
+    return {
+        "applied": True,
+        "passed": not reasons,
+        "reasons": reasons,
+        "roundup_or_multi_story_title": is_roundup,
+        "duration_seconds": round(duration, 2),
+        "maximum_routine_duration_seconds": MAX_ROUTINE_SHORTFORM_SECONDS,
+        "exceptional_hook_exception": exceptional,
+        "first_event_score": round(first_event, 2),
+        "event_score": round(event, 2),
+        "structure_score": round(structure, 2),
+    }
+
+
 def clean_display_title(title):
     """Remove repost handles/CTA clutter from the delivered caption, not from scoring."""
     value = str(title or "")
@@ -1830,19 +1911,26 @@ def main():
             broad_interest_cues = {
                 "humor_or_reaction": bool(re.search(r"(خنده.?دار|طنز|شوخی|سوتی|بامزه|میم|واکنش بامزه|prank|funny|fail|😂|🤣|😅|😆|خوش.?شانس|بدشانس|شانس.?ترین)", item_text, re.I)),
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
-                "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت|آکروبات|پشتک|ژیمناستیک|نمایش دیدنی)", item_text, re.I)),
-                "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after)", item_text, re.I)),
-                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش مصنوعی|ربات|گجت|تکنولوژی|گوشی|دوسم|عاشق|عشق|رابطه|دلتنگ|خواستگار|مجرد|ازدواج)", item_text, re.I)),
-                "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|صحنه آخر)", item_text, re.I)),
+                "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت|آکروبات|پشتک|ژیمناستیک|نمایش دیدنی|magic trick|skill)", item_text, re.I)),
+                "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after|satisfying)", item_text, re.I)),
+                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش.?مصنوعی|ربات|گجت|تکنولوژی|فناوری|گوشی|chatgpt|gemini|sora|veo|ai|دوسم|عاشق|عشق|رابطه|دلتنگ|خواستگار|مجرد|ازدواج)", item_text, re.I)),
+                "ai_or_tech_demo": bool(
+                    re.search(r"(هوش.?مصنوعی|\\bAI\\b|چت.?جی.?پی.?تی|chatgpt|gemini|sora|veo|ربات|robot|گجت|تکنولوژی|فناوری)", item_text, re.I)
+                    and re.search(r"(ساخت|تبدیل|تولید|واقعی|باورنکردنی|عجیب|تصویر|ویدیو|فیلم|صدا|قبل.{0,10}بعد|اجر|نمایش|سورا|veo|imagine|generat)", item_text, re.I)
+                ),
+                "puzzle_or_reveal": bool(re.search(r"(معما|چیستان|خطای دید|پیداش کن|پیدا کن|کدام یک|کدومش|جوابش|جواب معما|spot the difference|optical illusion|brain teaser|puzzle)", item_text, re.I)),
+                "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|صحنه آخر|ضربه باورنکردنی)", item_text, re.I)),
             }
             entertainment_cue = any(
                 broad_interest_cues[name]
-                for name in ("humor_or_reaction", "animals", "sports_or_skill", "transformation_or_satisfying", "relatable_or_tech")
+                for name in ("humor_or_reaction", "animals", "sports_or_skill", "transformation_or_satisfying",
+                             "relatable_or_tech", "ai_or_tech_demo", "puzzle_or_reveal")
             )
             comedy_exploration = (
                 bool(dm.get("telegram_comedy_exploration"))
                 and bool(broad_interest_cues["humor_or_reaction"])
             )
+            focus_gate = single_payoff_gate(item, mi, cq, demand, attraction)
             required_views = MIN_SINGLE_METRIC_TELEGRAM_VIEWS
             if comedy_exploration:
                 # Exploration lane is deliberately narrow: strong laugh/reaction
@@ -1851,10 +1939,16 @@ def main():
                 required_attraction = MIN_COMEDY_EXPLORATION_ATTRACTION
                 required_demand = MIN_COMEDY_EXPLORATION_DEMAND
                 required_views = MIN_COMEDY_EXPLORATION_VIEWS
+            elif broad_interest_cues["ai_or_tech_demo"] or broad_interest_cues["puzzle_or_reveal"]:
+                # A tech/puzzle title is not enough: the actual clip must show
+                # an unusually strong reveal or demo to earn a delivery slot.
+                required_shareability = 48.0
+                required_attraction = 60.0
+                required_demand = 54.0
             elif broad_interest_cues["relatable_or_tech"]:
                 required_shareability = 45.0
-                # Everyday/AI clips can be compelling without fast motion;
-                # keep a 52-point category floor and an explicit hook-event check.
+                # Everyday moments can be compelling without fast motion;
+                # however, hook and single-payoff checks still apply.
                 required_attraction = 52.0
                 required_demand = MIN_SINGLE_METRIC_TELEGRAM_DEMAND
             elif entertainment_cue:
@@ -1905,9 +1999,20 @@ def main():
                         )
                     if not strong_hook:
                         appeal_failures.append("no_strong_visual_hook_for_category")
+            if not focus_gate["passed"]:
+                for reason in focus_gate["reasons"]:
+                    if reason not in appeal_failures:
+                        appeal_failures.append(reason)
+                print("SINGLE_PAYOFF_GATE_REJECT", json.dumps({
+                    "title": item.get("title"),
+                    "demand_score": round(float(demand), 2),
+                    "attraction_score": round(float(attraction), 2),
+                    **focus_gate,
+                }, ensure_ascii=False))
+
             general_audience_gate = {
-                "applied": single_metric_telegram,
-                "passed": not appeal_failures,
+                "applied": single_metric_telegram or not focus_gate["passed"],
+                "passed": not appeal_failures and focus_gate["passed"],
                 "reason": appeal_failures or (["not_single_metric_telegram"] if not single_metric_telegram else []),
                 "demand_score": round(float(demand), 2),
                 "shareability_proxy_score": round(float(shareability), 2),
@@ -1915,6 +2020,7 @@ def main():
                 "age_hours": float(dm.get("age_hours") or 999999.0),
                 "broad_interest_cues": broad_interest_cues if single_metric_telegram else {},
                 "entertainment_cue": entertainment_cue if single_metric_telegram else False,
+                "format_focus_gate": focus_gate,
                 "required_shareability": required_shareability if single_metric_telegram else None,
                 "required_attraction": required_attraction if single_metric_telegram else None,
                 "comedy_exploration": comedy_exploration if single_metric_telegram else False,
@@ -1934,6 +2040,7 @@ def main():
 
             publishable = (
                 bool(cq.get("available"))
+                and focus_gate["passed"]
                 and general_audience_gate["passed"]
                 and (bool(cq.get("passed")) or emergency_ok)
             )
@@ -1973,7 +2080,10 @@ def main():
             })
 
             if not publishable:
-                rejection_reason = "general_audience_gate_rejected" if not general_audience_gate["passed"] else "attraction_rejected"
+                rejection_reason = (
+                    "single_payoff_gate_rejected" if not focus_gate["passed"]
+                    else ("general_audience_gate_rejected" if not general_audience_gate["passed"] else "attraction_rejected")
+                )
                 acquisition_attempts.append({
                     "title": item["title"],
                     "platform": platform_of(url),
