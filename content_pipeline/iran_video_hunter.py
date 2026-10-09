@@ -624,6 +624,10 @@ HARD_NEWS_CONTENT = re.compile(
     r"(?:وزیر\s+خارجه|برنامه\s+هسته.?ای|توافق\s+هسته.?ای|سلاح\s+هسته.?ای|ترامپ.{0,80}(?:ایران|سلاح)|ایران.{0,60}(?:سلاح\s+هسته|برنامه\s+هسته)|نماینده\s+مجلس|واگذاری.{0,30}خاک|خبر\s+فوری|رییس\s+جمهور|رئیس\s+جمهور|محسن\s+زنگنه|اعلام\s+کرد.{0,40}(?:ایران|مجلس|دولت|آمریکا)|سپاه.{0,30}(?:آمریکا|اسرائیل|جزیره))",
     re.I,
 )
+SENSITIVE_HARM_CONTENT = re.compile(
+    r"(?:جسد|کشته\s*شد|جان\s*باخت|مرگبار|خونین|قطع\s*عضو|تصادف\s*شدید|برق\s*گرفتگی|برق\s*گرفت|زیر\s*آوار|آوار\s*روی|چاقوکشی|تیراندازی|شلیک|کودک.?آزاری|تجاوز|آزار\s*جنسی|دیوار.{0,30}(?:میوفته|می.?افته|افتاد|می.?ریزه|فرو\s*ریخت).{0,18}(?:روشون|روی|سر|خانم|زن|مردم|آدم))",
+    re.I,
+)
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
 RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره")
 SURPRISE_CUES = ("عجیب", "باورنکردنی", "غافلگیر", "غیرمنتظره", "آخرش", "ناگهان", "چطور ممکن", "چطوری", "راز", "قبل و بعد", "تغییر باورنکردنی", "این شکلی")
@@ -634,6 +638,7 @@ def content_shareability_proxy(item):
     blob = " ".join([str(item.get("title") or ""), str(item.get("description") or "")]).lower()
     promotion = bool(PROMOTIONAL_CONTENT.search(blob))
     hard_news = bool(HARD_NEWS_CONTENT.search(blob))
+    sensitive_harm = bool(SENSITIVE_HARM_CONTENT.search(blob))
     humor_hits = sum(1 for cue in HUMOR_CUES if cue.lower() in blob)
     relatable_hits = sum(1 for cue in RELATABLE_CUES if cue.lower() in blob)
     surprise_hits = sum(1 for cue in SURPRISE_CUES if cue.lower() in blob)
@@ -647,6 +652,7 @@ def content_shareability_proxy(item):
     return round(max(0.0, min(100.0, score)), 2), {
         "promotional": promotion,
         "hard_news": hard_news,
+        "sensitive_harm": sensitive_harm,
         "humor_cue_count": humor_hits,
         "relatable_cue_count": relatable_hits,
         "surprise_cue_count": surprise_hits,
@@ -1068,10 +1074,12 @@ def local_download(url):
             print("YOUTUBE_BOTWALL_SKIP_REPEAT", youtube_video_id(url) or "")
             return None
 
-        # Cobalt is especially useful for TikTok/Instagram/X/Aparat.
-        cobalt_path = download_via_cobalt(url)
-        if cobalt_path:
-            return cobalt_path
+        # Do not send Telegram URLs to Cobalt: it rejects those links.
+        # Use Cobalt only for the social platforms it can actually resolve.
+        if platform_of(url) in {"tiktok", "instagram", "x", "aparat"}:
+            cobalt_path = download_via_cobalt(url)
+            if cobalt_path:
+                return cobalt_path
 
         if platform_of(url) == "instagram":
             # parth-dl uses multiple current logged-out Instagram paths and is
@@ -1442,7 +1450,7 @@ def main():
     # viral video remains a top candidate while alternate URLs for the same
     # underlying item are collected from corroborating web/social sources.
     ranked = []
-    lane_rejections = {"promotion": 0, "hard_news": 0, "low_shareability": 0}
+    lane_rejections = {"promotion": 0, "hard_news": 0, "sensitive_harm": 0, "low_shareability": 0}
     title_buckets = {}
     signature_by_key = {}
     for x in items.values():
@@ -1476,6 +1484,9 @@ def main():
         x["shareability_flags"] = shareability_flags
         if shareability_flags["promotional"]:
             lane_rejections["promotion"] += 1
+            continue
+        if shareability_flags.get("sensitive_harm"):
+            lane_rejections["sensitive_harm"] += 1
             continue
         if str(x.get("source") or "") == "telegram_native_video" and shareability_flags["hard_news"]:
             lane_rejections["hard_news"] += 1
