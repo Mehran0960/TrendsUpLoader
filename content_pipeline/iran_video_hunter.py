@@ -112,7 +112,7 @@ def google_trends_ir(limit=12):
             out, seen = [], set()
             for it in root.findall(".//item"):
                 topic = html.unescape(text_of(it.find("title"))).strip()
-                norm = re.sub(r"\\s+", " ", topic.lower()).strip()
+                norm = re.sub(r"\s+", " ", topic.lower()).strip()
                 if not topic or len(topic) > 100 or norm in seen or BLOCK.search(topic):
                     continue
                 seen.add(norm)
@@ -158,10 +158,10 @@ def google_trends_ir(limit=12):
 
 def trend_match_ratio(text, topic):
     """Return a conservative title/topic overlap ratio; never treat every hot topic as a video."""
-    norm_text = re.sub(r"[^\\w\\u0600-\\u06ff ]", " ", str(text or "").lower())
-    norm_text = re.sub(r"\\s+", " ", norm_text).strip()
-    norm_topic = re.sub(r"[^\\w\\u0600-\\u06ff ]", " ", str(topic or "").lower())
-    norm_topic = re.sub(r"\\s+", " ", norm_topic).strip()
+    norm_text = re.sub(r"[^\w\u0600-\u06ff ]", " ", str(text or "").lower())
+    norm_text = re.sub(r"\s+", " ", norm_text).strip()
+    norm_topic = re.sub(r"[^\w\u0600-\u06ff ]", " ", str(topic or "").lower())
+    norm_topic = re.sub(r"\s+", " ", norm_topic).strip()
     if not norm_text or not norm_topic:
         return 0.0
     if norm_topic in norm_text:
@@ -1267,7 +1267,7 @@ def main():
                 "pub": str(s.get("published_at") or ""),
                 "age_hours": max(0.0, float(s.get("age_hours") or 0.0)),
             }
-            key_text = re.sub(r"\\s+", " ", title.lower()) + "|" + link.split("?")[0]
+            key_text = re.sub(r"\s+", " ", title.lower()) + "|" + link.split("?")[0]
             x["key"] = hashlib.sha256(key_text.encode()).hexdigest()
             items[x["key"]] = x
     except Exception as e:
@@ -1296,7 +1296,7 @@ def main():
                 for x in rss_items(trend_query, timeout=12):
                     if trend_match_ratio(x.get("title"), term) < 0.50:
                         continue
-                    key_text = re.sub(r"\\s+", " ", x["title"].lower()) + "|" + x["link"].split("?")[0]
+                    key_text = re.sub(r"\s+", " ", x["title"].lower()) + "|" + x["link"].split("?")[0]
                     x["key"] = hashlib.sha256(key_text.encode()).hexdigest()
                     previous = items.get(x["key"])
                     if previous:
@@ -1449,6 +1449,7 @@ def main():
                 expanded.append((x, route, cross, demand, dm))
     expanded.sort(
         key=lambda z: (
+            -(z[3] + 0.05 * float(z[0].get("trend_score") or 0.0)),
             -z[3],
             -int(z[0].get("shares") or 0),
             -int(z[0].get("likes") or 0),
