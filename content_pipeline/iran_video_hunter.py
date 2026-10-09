@@ -10,11 +10,14 @@ import requests
 import xml.etree.ElementTree as ET
 
 # Reuse the mature visual/hook scorer from the existing pipeline.
+VISUAL_IMPORT_ERROR = ""
 try:
     from content_pipeline.attention_engine import visual_score, source_hook_score
-except Exception:
+except Exception as exc:
     visual_score = None
     source_hook_score = None
+    VISUAL_IMPORT_ERROR = f"{type(exc).__name__}: {exc}"
+    print("VISUAL_ENGINE_IMPORT_FAIL", VISUAL_IMPORT_ERROR)
 
 ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / "attention_state" / "iran_video_hunter_state.json"
@@ -1159,16 +1162,16 @@ def content_quality_gate(path, item, mi):
     stopping the scroll for?" This score is intentionally topic/duration agnostic.
     """
     if visual_score is None:
-        # Production should install the visual dependencies. Keep a neutral
-        # fallback so discovery does not silently become a hard failure if a
-        # future runner loses them.
-        return 50.0, {
+        # Fail closed: without the real visual model, there is no valid
+        # attraction result and this candidate must not be published.
+        return 0.0, {
             "model_version": ATTRACTION_MODEL_VERSION,
             "available": False,
             "reason": "visual_dependencies_unavailable",
-            "retention_proxy_score": 50.0,
+            "import_error": VISUAL_IMPORT_ERROR,
+            "retention_proxy_score": 0.0,
             "retention_proxy_is_actual_watch_time": False,
-            "passed": True,
+            "passed": False,
         }
 
     try:
@@ -1629,10 +1632,13 @@ def main():
 
             attraction, cq = content_quality_gate(path, item, mi)
             emergency_ok = (
-                demand >= DEMAND_EMERGENCY_THRESHOLD
+                bool(cq.get("available"))
+                and demand >= DEMAND_EMERGENCY_THRESHOLD
                 and attraction >= ATTRACTION_EMERGENCY_FLOOR
             )
-            publishable = bool(cq.get("passed")) or emergency_ok
+            publishable = bool(cq.get("available")) and (
+                bool(cq.get("passed")) or emergency_ok
+            )
 
             retention_proxy = float(cq.get("retention_proxy_score") or 0.0)
             shareability = float(item.get("shareability_proxy_score") or 0.0)
