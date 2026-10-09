@@ -54,6 +54,7 @@ MAX_COMEDY_EXPLORATION_DURATION_SECONDS = 60.0
 ACQUISITION_REVIEW_LIMIT = 8
 MIRROR_SEARCH_CANDIDATE_LIMIT = 4
 YOUTUBE_BOTWALL_DETECTED = False
+YOUTUBE_COBALT_FALLBACK_ATTEMPTED = False
 
 SOURCE_DOMAINS = [
     "hamshahrionline.ir","khabaronline.ir","mehrnews.com","isna.ir","irna.ir",
@@ -1080,6 +1081,7 @@ def download_youtube_via_ejs(url):
     return None
 
 def local_download(url):
+    global YOUTUBE_COBALT_FALLBACK_ATTEMPTED
     if M3U8.search(url):
         return None
 
@@ -1099,7 +1101,19 @@ def local_download(url):
             if ejs_path:
                 return ejs_path
         if is_youtube and YOUTUBE_BOTWALL_DETECTED:
-            print("YOUTUBE_BOTWALL_SKIP_REPEAT", youtube_video_id(url) or "")
+            # yt-dlp has hit YouTube's logged-out bot wall. Make one bounded
+            # attempt through the locally hosted Cobalt instance, which has its
+            # own yt-session-generator token source; don't repeat this fallback
+            # for every subsequent blocked YouTube candidate in the same scan.
+            if not YOUTUBE_COBALT_FALLBACK_ATTEMPTED:
+                YOUTUBE_COBALT_FALLBACK_ATTEMPTED = True
+                cobalt_path = download_via_cobalt(url)
+                if cobalt_path:
+                    print("YOUTUBE_COBALT_FALLBACK_ACQUIRED", youtube_video_id(url) or "")
+                    return cobalt_path
+                print("YOUTUBE_COBALT_FALLBACK_FAILED", youtube_video_id(url) or "")
+            else:
+                print("YOUTUBE_BOTWALL_SKIP_REPEAT", youtube_video_id(url) or "")
             return None
 
         # Do not send Telegram URLs to Cobalt: it rejects those links.
