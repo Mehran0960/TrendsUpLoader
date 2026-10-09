@@ -397,7 +397,12 @@ def main():
                 "shares": shares,
                 "telegram_repost_views": int((x.get("raw") or {}).get("telegram_repost_views") or 0),
                 "telegram_post_views": int((x.get("raw") or {}).get("telegram_post_views") or 0),
-                "telegram_repost_channels": list((x.get("raw") or {}).get("telegram_channels") or ([str((x.get("raw") or {}).get("telegram_channel") or "")] if (x.get("raw") or {}).get("telegram_channel") else [])),
+                "telegram_repost_channels": (
+                    list((x.get("raw") or {}).get("telegram_channels") or [])
+                    if source_tag == "telegram_public_repost" else []
+                ),
+                "telegram_channel": str((x.get("raw") or {}).get("telegram_channel") or ""),
+                "telegram_post_views": int((x.get("raw") or {}).get("telegram_post_views") or 0),
                 "published_at": str((x.get("raw") or {}).get("telegram_published_at") or ""),
                 "age_hours": float((x.get("raw") or {}).get("age_hours") or 999999.0),
                 "persian_signal": persian >= 3,
