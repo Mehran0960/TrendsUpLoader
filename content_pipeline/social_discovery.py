@@ -146,6 +146,7 @@ def telegram_repost_candidates():
     # native engagement and the media-quality gates still decide what can publish.
     channels = [
         "gizmiztel",
+        "regaplus",
         "insta_clip85",
         "comedi",
         "khandehabadd",
