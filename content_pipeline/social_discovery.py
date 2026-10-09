@@ -139,7 +139,18 @@ def bing_search(query, limit=12, timeout=14):
 def telegram_repost_candidates():
     """Read public Persian Telegram channels for direct Instagram video links."""
     from html import unescape
+    # Public Persian short-video and comedy channels. They only provide leads;
+    # native engagement and the media-quality gates still decide what can publish.
     channels = [
+        "gizmiztel",
+        "insta_clip85",
+        "comedi",
+        "khandehabadd",
+        "vaybabamumad",
+        "khandbazar20",
+        "bikhiyalbaba",
+        "kafeh_khande",
+        "nicebest",
         "teacheryar",
         "VahidOnline",
         "tanzolemareh_t",
