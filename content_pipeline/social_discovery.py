@@ -136,6 +136,97 @@ def bing_search(query, limit=12, timeout=14):
             break
     return out
 
+def telegram_repost_candidates():
+    """Read public Persian Telegram channels for direct Instagram video links."""
+    from html import unescape
+    channels = [
+        "teacheryar",
+        "VahidOnline",
+        "tanzolemareh_t",
+        "aranbidgoliha",
+        "bandaranzali_aliabad",
+    ]
+    link_re = re.compile(
+        r"(?:https?://)?(?:(?:www|dd)\.)?instagram\.com/(?:reel|reels|p|tv)/[A-Za-z0-9_-]+",
+        re.I,
+    )
+    out = []
+    seen = set()
+    for channel in channels:
+        try:
+            r = requests.get(
+                "https://t.me/s/" + channel,
+                headers={"User-Agent": UA, "Accept-Language": "fa-IR,fa;q=0.9,en;q=0.6"},
+                timeout=12,
+            )
+            if not r.ok:
+                print("TELEGRAM_REPOST_FAIL", channel, r.status_code)
+                continue
+            page = r.text[:8_000_000]
+            blocks = re.split(r'(?=<div class="tgme_widget_message_wrap\b)', page)
+            channel_count = 0
+            for block in blocks[1:]:
+                message_id = re.search(r'data-post="([^"]+)"', block[:16000])
+                if not message_id:
+                    continue
+                view_match = re.search(
+                    r'class="tgme_widget_message_views"[^>]*>(.*?)</span>',
+                    block[:30000], re.I | re.S,
+                )
+                relay_views = parse_num(re.sub(r"<[^>]+>", " ", unescape(view_match.group(1)))) if view_match else 0
+                time_match = re.search(r'<time[^>]+datetime="([^"]+)"', block[:30000], re.I)
+                published_at = time_match.group(1) if time_match else ""
+                age_hours = 999999.0
+                if published_at:
+                    try:
+                        age_hours = max(0.0, (datetime.now(timezone.utc) -
+                            datetime.fromisoformat(published_at.replace("Z", "+00:00"))).total_seconds()/3600.0)
+                    except Exception:
+                        pass
+                caption_match = re.search(
+                    r'<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>',
+                    block[:60000], re.I | re.S,
+                )
+                caption = ""
+                if caption_match:
+                    caption = unescape(re.sub(r"<br\s*/?>", " ", caption_match.group(1), flags=re.I))
+                    caption = re.sub(r"<[^>]+>", " ", caption)
+                    caption = re.sub(r"\s+", " ", caption).strip()
+                if len(re.findall(r"[\u0600-\u06ff]", caption)) < 3:
+                    continue
+                for raw_url in link_re.findall(block[:60000]):
+                    raw_url = unescape(raw_url).replace("&amp;", "&")
+                    m = re.search(r"/(reel|reels|p|tv)/([A-Za-z0-9_-]+)", raw_url, re.I)
+                    if not m:
+                        continue
+                    kind, shortcode = m.group(1).lower(), m.group(2)
+                    kind = "reel" if kind == "reels" else kind
+                    url = f"https://www.instagram.com/{kind}/{shortcode}/"
+                    if url in seen:
+                        continue
+                    seen.add(url)
+                    out.append({
+                        "url": url,
+                        "title": caption[:260],
+                        "description": caption[:1800],
+                        "raw": {
+                            "source": "telegram_public_repost",
+                            "telegram_channel": channel,
+                            "telegram_post": message_id.group(1),
+                            "telegram_repost_views": relay_views,
+                            "telegram_published_at": published_at,
+                            "age_hours": age_hours,
+                        },
+                    })
+                    channel_count += 1
+            print("TELEGRAM_REPOST_CHANNEL", json.dumps({
+                "channel": channel, "candidates": channel_count,
+            }, ensure_ascii=False))
+        except Exception as exc:
+            print("TELEGRAM_REPOST_FAIL", channel, type(exc).__name__)
+    return out
+
+
 def flatten_results(obj):
     found = []
     def walk(x):
@@ -199,7 +290,7 @@ def main():
             'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) (خنده OR طنز OR بامزه OR پربازدید)',
             'site:aparat.com/v (ایران OR ایرانی) (بازدید OR پربازدید OR وایرال)',
         ]
-        found = []
+        found = telegram_repost_candidates()
         for q in query_variants[:5]:
             try:
                 batch = bing_search(q, limit=12)
@@ -235,9 +326,13 @@ def main():
                 "likes": likes,
                 "comments": comments,
                 "shares": shares,
+                "telegram_repost_views": int((x.get("raw") or {}).get("telegram_repost_views") or 0),
+                "telegram_repost_channels": [str((x.get("raw") or {}).get("telegram_channel") or "")] if (x.get("raw") or {}).get("telegram_channel") else [],
+                "published_at": str((x.get("raw") or {}).get("telegram_published_at") or ""),
+                "age_hours": float((x.get("raw") or {}).get("age_hours") or 999999.0),
                 "persian_signal": persian >= 3,
                 "discovered_at": now.isoformat(),
-                "source": "bing_search",
+                "source": str((x.get("raw") or {}).get("source") or "bing_search"),
                 "query": qidx,
             })
         previous = []
