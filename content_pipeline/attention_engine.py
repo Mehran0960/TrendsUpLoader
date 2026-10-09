@@ -1538,8 +1538,39 @@ def visual_score(path):
         0.55*payoff_direction + 0.30*peak_isolation + 0.15*profile_spread,
     )
 
+    # Public watch-time/retention is not available for other creators' videos.
+    # This transparent visual proxy rewards activity and novelty across the whole
+    # timeline instead of looking only at the strongest 3.8-second window.
+    np = __import__("numpy")
+    motion_segments = np.array_split(np.asarray(motions, dtype=float), min(5, max(1, len(motions))))
+    novelty_segments = np.array_split(np.asarray(novelties, dtype=float), len(motion_segments))
+    bucket_motion = [float(np.mean(seg)) if len(seg) else 0.0 for seg in motion_segments]
+    bucket_novelty = [
+        float(np.percentile(seg, 75)) if len(seg) else 0.0
+        for seg in novelty_segments
+    ]
+    motion_threshold = max(0.015, mean_motion * 0.45)
+    motion_coverage = sum(1 for value in bucket_motion if value >= motion_threshold) / max(1, len(bucket_motion))
+    novelty_coverage = sum(1 for value in bucket_novelty if value >= 0.07) / max(1, len(bucket_novelty))
+    mean_motion_signal = min(max(mean_motion / 0.12, 0.0), 1.0)
+    sustained_activity_score = 100.0 * (
+        0.45 * motion_coverage
+        + 0.35 * novelty_coverage
+        + 0.20 * mean_motion_signal
+    )
+    retention_proxy_score = (
+        0.30 * first_event_score
+        + 0.30 * sustained_activity_score
+        + 0.20 * hook_structure_score
+        + 0.20 * visual_novelty_score
+    )
+
     return {
         "score":round(min(best[0],99.0),2),
+        "retention_proxy_score":round(min(max(retention_proxy_score,0.0),99.0),2),
+        "sustained_activity_score":round(min(max(sustained_activity_score,0.0),99.0),2),
+        "motion_coverage":round(motion_coverage,3),
+        "novelty_coverage":round(novelty_coverage,3),
         "best_start":round(best[1],3),
         "best_duration":round(min(3.8,duration),3),
         "hook_event_score":round(min(event_score,99.0),2),
