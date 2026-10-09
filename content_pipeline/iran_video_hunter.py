@@ -33,10 +33,17 @@ ATTRACTION_MODEL_VERSION = "visual_hook_v2"
 ATTRACTION_FLOOR = 48.0
 ATTRACTION_EMERGENCY_FLOOR = 40.0
 DEMAND_EMERGENCY_THRESHOLD = 88.0
-# When Telegram exposes only views, require stronger demand plus a usable
-# title/caption shareability signal; views alone are not general-audience proof.
-MIN_SINGLE_METRIC_TELEGRAM_DEMAND = 55.0
-MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY = 55.0
+# When Telegram exposes only views, require stronger demand, a specific
+# broad-interest cue, and a real visual hook; views and clickbait wording alone
+# are not enough for general-audience distribution.
+MIN_SINGLE_METRIC_TELEGRAM_DEMAND = 58.0
+MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY = 60.0
+MIN_SINGLE_METRIC_TELEGRAM_VIEWS = 50000
+MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS = 24.0
+MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION = 55.0
+MIN_SINGLE_METRIC_TELEGRAM_FIRST_EVENT = 38.0
+MIN_SINGLE_METRIC_TELEGRAM_EVENT = 48.0
+MIN_SINGLE_METRIC_TELEGRAM_STRUCTURE = 54.0
 ACQUISITION_REVIEW_LIMIT = 8
 MIRROR_SEARCH_CANDIDATE_LIMIT = 4
 YOUTUBE_BOTWALL_DETECTED = False
@@ -1650,17 +1657,50 @@ def main():
             )
             shareability = float(item.get("shareability_proxy_score") or 0.0)
             appeal_failures = []
+            item_text = " ".join([
+                str(item.get("title") or ""),
+                str(item.get("description") or ""),
+            ]).lower()
+            broad_interest_cues = [
+                "humor_or_reaction": bool(re.search(r"(خنده.?دار|طنز|شوخی|سوتی|بامزه|میم|واکنش بامزه|prank|funny|fail)", item_text, re.I)),
+                "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
+                "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|ترفند|مهارت|رکورد|غیرمنتظره|باورنکردنی|فوتبال|گل تاریخی|حرکت عجیب|هوش مصنوعی|ربات|تبدیل|قبل.{0,12}بعد|صحنه آخر)", item_text, re.I)),
+            ]
             if single_metric_telegram:
                 if demand < MIN_SINGLE_METRIC_TELEGRAM_DEMAND:
                     appeal_failures.append("demand_score_below_floor")
                 if shareability < MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY:
                     appeal_failures.append("shareability_below_floor")
+                if int(dm.get("views") or 0) < MIN_SINGLE_METRIC_TELEGRAM_VIEWS:
+                    appeal_failures.append("views_below_floor")
+                if float(dm.get("age_hours") or 999999.0) > MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS:
+                    appeal_failures.append("too_old")
+                if not any(broad_interest_cues.values()):
+                    appeal_failures.append("no_specific_broad_interest_cue")
+                if not bool(cq.get("available")):
+                    appeal_failures.append("visual_model_unavailable")
+                else:
+                    if float(cq.get("attraction_score") or attraction) < MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION:
+                        appeal_failures.append("visual_attraction_below_floor")
+                    if not (
+                        float(cq.get("hook_first_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_FIRST_EVENT
+                        or float(cq.get("hook_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_EVENT
+                        or float(cq.get("hook_structure_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_STRUCTURE
+                    ):
+                        appeal_failures.append("no_strong_visual_hook")
             general_audience_gate = {
                 "applied": single_metric_telegram,
                 "passed": not appeal_failures,
                 "reason": appeal_failures or (["not_single_metric_telegram"] if not single_metric_telegram else []),
+                "demand_score": round(float(demand), 2),
+                "shareability_proxy_score": round(float(shareability), 2),
+                "views": int(dm.get("views") or 0),
+                "age_hours": float(dm.get("age_hours") or 999999.0),
+                "broad_interest_cues": broad_interest_cues if single_metric_telegram else {},
                 "minimum_demand": MIN_SINGLE_METRIC_TELEGRAM_DEMAND if single_metric_telegram else None,
                 "minimum_shareability": MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY if single_metric_telegram else None,
+                "minimum_views": MIN_SINGLE_METRIC_TELEGRAM_VIEWS if single_metric_telegram else None,
+                "maximum_age_hours": MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS if single_metric_telegram else None,
             }
             if single_metric_telegram and appeal_failures:
                 print("SINGLE_METRIC_TELEGRAM_GUARD_REJECT", json.dumps({
