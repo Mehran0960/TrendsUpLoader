@@ -607,7 +607,7 @@ PROMOTIONAL_CONTENT = re.compile(
     re.I,
 )
 HARD_NEWS_CONTENT = re.compile(
-    r"(?:وزیر\s+خارجه|برنامه\s+هسته.?ای|توافق\s+هسته.?ای|واگذاری.{0,30}خاک|خبر\s+فوری|رییس\s+جمهور|رئیس\s+جمهور|محسن\s+زنگنه|اعلام\s+کرد.{0,40}(?:ایران|مجلس|دولت|آمریکا)|سپاه.{0,30}(?:آمریکا|اسرائیل|جزیره))",
+    r"(?:وزیر\s+خارجه|برنامه\s+هسته.?ای|توافق\s+هسته.?ای|سلاح\s+هسته.?ای|ترامپ.{0,80}(?:ایران|سلاح)|ایران.{0,60}(?:سلاح\s+هسته|برنامه\s+هسته)|نماینده\s+مجلس|واگذاری.{0,30}خاک|خبر\s+فوری|رییس\s+جمهور|رئیس\s+جمهور|محسن\s+زنگنه|اعلام\s+کرد.{0,40}(?:ایران|مجلس|دولت|آمریکا)|سپاه.{0,30}(?:آمریکا|اسرائیل|جزیره))",
     re.I,
 )
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
@@ -1556,6 +1556,31 @@ def main():
     )
     ranked = expanded
 
+    # Reserve part of the bounded download budget for native Telegram videos.
+    # Their posts expose source-native view counts and often offer a more
+    # accessible media route than YouTube links blocked by anti-bot challenges.
+    native_review = [
+        z for z in ranked
+        if str(z[0].get("source") or "") == "telegram_native_video"
+        and bool(z[4].get("telegram_native_video_evidence"))
+    ]
+    native_review.sort(key=lambda z: (
+        -(0.75 * float(z[3]) + 0.25 * float(z[0].get("shareability_proxy_score") or 0.0)),
+        -int(z[0].get("views") or 0),
+        float(z[0].get("age_hours") or 999999),
+    ))
+    native_review = native_review[:min(4, ACQUISITION_REVIEW_LIMIT)]
+    native_keys = {str(z[0].get("key") or "") for z in native_review}
+    general_review = [
+        z for z in ranked
+        if str(z[0].get("key") or "") not in native_keys
+    ]
+    review_queue = native_review + general_review[:max(0, ACQUISITION_REVIEW_LIMIT - len(native_review))]
+    print("ACQUISITION_LANE_ALLOCATION", json.dumps({
+        "telegram_native_video": len(native_review),
+        "general_viral": len(review_queue) - len(native_review),
+        "budget": ACQUISITION_REVIEW_LIMIT,
+    }, ensure_ascii=False))
     print("CONTENT_FILTER_REJECTIONS", json.dumps(lane_rejections, ensure_ascii=False))
     print("DISCOVERED_ARTICLES", len(items),
           "PERSIAN_IDENTITY_REJECTIONS", identity_rejections,
@@ -1568,7 +1593,7 @@ def main():
     # Review several of the strongest demand candidates instead of publishing
     # the first file that happens to download. This preserves "viral first"
     # while allowing the file itself to prove that it is watchable.
-    for item, url, cross, demand, dm in ranked[:ACQUISITION_REVIEW_LIMIT]:
+    for item, url, cross, demand, dm in review_queue:
         path = local_download(url)
         if not path:
             acquisition_attempts.append({
