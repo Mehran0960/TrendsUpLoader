@@ -74,6 +74,43 @@ jobs:
           python -m pip install --disable-pip-version-check requests pillow numpy opencv-python-headless "yt-dlp[default]" yt-dlp-ejs bgutil-ytdlp-pot-provider parth-dl
           deno --version
           yt-dlp --version
+      - name: Verify visual quality engine before hunting
+        run: |
+          PYTHONPATH="$GITHUB_WORKSPACE" python - <<'PY'
+          import json
+          import os
+          import cv2
+          import numpy as np
+          from content_pipeline.attention_engine import visual_score
+
+          path = "/tmp/visual-engine-preflight.mp4"
+          writer = cv2.VideoWriter(
+              path,
+              cv2.VideoWriter_fourcc(*"mp4v"),
+              24.0,
+              (320, 480),
+          )
+          if not writer.isOpened():
+              raise SystemExit("VISUAL_ENGINE_SELF_TEST_FAIL: VideoWriter unavailable")
+
+          for i in range(72):
+              frame = np.zeros((480, 320, 3), dtype=np.uint8)
+              x = 12 + (i * 4) % 250
+              cv2.rectangle(frame, (x, 120), (min(x + 45, 319), 180), (255, 255, 255), -1)
+              if 12 <= i <= 17 or 50 <= i <= 54:
+                  frame[:] = 255
+              writer.write(frame)
+          writer.release()
+
+          metrics = visual_score(path)
+          required = ("score", "hook_event_score", "hook_first_event_score", "hook_structure_score", "visual_novelty_score")
+          if not isinstance(metrics, dict) or any(k not in metrics for k in required):
+              raise SystemExit("VISUAL_ENGINE_SELF_TEST_FAIL: required metrics missing")
+          if not all(np.isfinite(float(metrics[k])) for k in required):
+              raise SystemExit("VISUAL_ENGINE_SELF_TEST_FAIL: non-finite metrics")
+          print("VISUAL_ENGINE_SELF_TEST_OK", json.dumps(metrics, sort_keys=True))
+          os.unlink(path)
+          PY
       - name: Hunt and publish one new viral candidate
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
