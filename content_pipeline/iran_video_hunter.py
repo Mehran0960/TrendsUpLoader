@@ -1915,7 +1915,7 @@ def main():
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
                 "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت|آکروبات|پشتک|ژیمناستیک|نمایش دیدنی|magic trick|skill)", item_text, re.I)),
                 "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after|satisfying)", item_text, re.I)),
-                "relatable_or_tech": bool(re.search(r"(مامان|مادر|بابا|خانواده|رفیق|دوست|زندگی روزمره|همسر|هوش.?مصنوعی|ربات|گجت|تکنولوژی|فناوری|گوشی|chatgpt|gemini|sora|veo|\bAI\b|دوسم|عاشق|عشق|رابطه|دلتنگ|خواستگار|مجرد|ازدواج)", item_text, re.I)),
+                "relatable_moment": bool(re.search(r"(مامان|مادر|بابا|مدرسه|معلم|کلاس|خانواده|رفیق|دوست|زندگی روزمره|همسر|شوهر|کار روزمره|دوسم|عاشق|عشق|رابطه|دلتنگ|خواستگار|مجرد|ازدواج)", item_text, re.I)),
                 "ai_or_tech_demo": bool(
                     re.search(r"(هوش.?مصنوعی|\bAI\b|چت.?جی.?پی.?تی|chatgpt|gemini|sora|veo|ربات|robot|گجت|تکنولوژی|فناوری)", item_text, re.I)
                     and re.search(r"(ساخت|تبدیل|تولید|واقعی|باورنکردنی|عجیب|تصویر|ویدیو|فیلم|صدا|قبل.{0,10}بعد|اجر|نمایش|سورا|veo|imagine|generat)", item_text, re.I)
@@ -1926,7 +1926,7 @@ def main():
             entertainment_cue = any(
                 broad_interest_cues[name]
                 for name in ("humor_or_reaction", "animals", "sports_or_skill", "transformation_or_satisfying",
-                             "relatable_or_tech", "ai_or_tech_demo", "puzzle_or_reveal")
+                             "relatable_moment", "ai_or_tech_demo", "puzzle_or_reveal")
             )
             comedy_exploration = (
                 bool(dm.get("telegram_comedy_exploration"))
@@ -1947,7 +1947,7 @@ def main():
                 required_shareability = 48.0
                 required_attraction = 60.0
                 required_demand = 54.0
-            elif broad_interest_cues["relatable_or_tech"]:
+            elif broad_interest_cues["relatable_moment"]:
                 required_shareability = 45.0
                 # Everyday moments can be compelling without fast motion;
                 # however, hook and single-payoff checks still apply.
