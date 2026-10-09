@@ -31,6 +31,7 @@ ATTRACTION_FLOOR = 48.0
 ATTRACTION_EMERGENCY_FLOOR = 40.0
 DEMAND_EMERGENCY_THRESHOLD = 88.0
 ACQUISITION_REVIEW_LIMIT = 8
+YOUTUBE_BOTWALL_DETECTED = False
 
 SOURCE_DOMAINS = [
     "hamshahrionline.ir","khabaronline.ir","mehrnews.com","isna.ir","irna.ir",
@@ -777,7 +778,7 @@ def download_via_cobalt(url):
             timeout=35,
         )
         if not r.ok:
-            print("COBALT_HTTP_FAIL", r.status_code)
+            print("COBALT_HTTP_FAIL", r.status_code, re.sub(r"\\s+", " ", r.text[:800]))
             return None
         data = r.json()
         status = str(data.get("status") or "")
@@ -933,7 +934,8 @@ def search_web_mirror_routes(title, limit=5):
     return routes
 
 def download_youtube_via_ejs(url):
-    """Primary YouTube acquisition via bgutil PO tokens + Deno/EJS."""
+    """Try a TV/web-Safari player mix before slower mirror fallbacks."""
+    global YOUTUBE_BOTWALL_DETECTED
     outdir = tempfile.mkdtemp(prefix="ytdlp-pot-")
     try:
         p = subprocess.run(
@@ -941,7 +943,7 @@ def download_youtube_via_ejs(url):
                 "yt-dlp", "--no-playlist", "--no-warnings",
                 "--js-runtimes", "deno",
                 "--extractor-args", f"youtubepot-bgutilhttp:base_url={BGUTIL_POT_URL}",
-                "--extractor-args", "youtube:player-client=mweb",
+                "--extractor-args", "youtube:player_client=tv,web_safari",
                 "--max-filesize", "50M",
                 "-f", "bv*[ext=mp4][height<=720]+ba[ext=m4a]/b[ext=mp4]/b",
                 "--merge-output-format", "mp4",
@@ -955,7 +957,11 @@ def download_youtube_via_ejs(url):
             if candidates:
                 print("YOUTUBE_POT_ACQUIRED", youtube_video_id(url) or "")
                 return str(candidates[0])
-        print("YOUTUBE_POT_FAIL", p.stderr[-1200:])
+        error_text = str(p.stderr or "")
+        if re.search(r"sign in to confirm|login_required|confirm you.?re not a bot", error_text, re.I):
+            YOUTUBE_BOTWALL_DETECTED = True
+            print("YOUTUBE_BOTWALL_DETECTED", youtube_video_id(url) or "")
+        print("YOUTUBE_POT_FAIL", error_text[-900:])
     except Exception as exc:
         print("YOUTUBE_POT_ERROR", type(exc).__name__)
     return None
@@ -973,12 +979,15 @@ def local_download(url):
     if social:
         is_youtube = "youtube.com" in host or "youtu.be" in host
 
-        # YouTube gets the current official yt-dlp EJS path first; this is
-        # faster and avoids depending on third-party mirror availability.
-        if is_youtube:
+        # Use one current yt-dlp client strategy; repeated identical anti-bot
+        # failures are not worth several more minutes per candidate.
+        if is_youtube and not YOUTUBE_BOTWALL_DETECTED:
             ejs_path = download_youtube_via_ejs(url)
             if ejs_path:
                 return ejs_path
+        if is_youtube and YOUTUBE_BOTWALL_DETECTED:
+            print("YOUTUBE_BOTWALL_SKIP_REPEAT", youtube_video_id(url) or "")
+            return None
 
         # Cobalt is especially useful for TikTok/Instagram/X/Aparat.
         cobalt_path = download_via_cobalt(url)
@@ -1451,6 +1460,7 @@ def main():
         key=lambda z: (
             -(z[3] + 0.05 * float(z[0].get("trend_score") or 0.0)),
             -z[3],
+            0 if (platform_of(z[1]) == "web" and VIDEO_EXT.search(z[1])) else 1,
             -int(z[0].get("shares") or 0),
             -int(z[0].get("likes") or 0),
             -int(z[0].get("views") or 0),
