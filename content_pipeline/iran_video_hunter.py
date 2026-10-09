@@ -626,7 +626,7 @@ HARD_NEWS_CONTENT = re.compile(
 )
 HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
 RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره")
-SURPRISE_CUES = ("وایرال", "عجیب", "باورنکردنی", "لحظه", "نتیجه", "آخرش", "ببینید", "ناگهان", "برخورد", "صاعقه", "سکانس", "همه دیدن", "این شکلی", "هوش مصنوعی")
+SURPRISE_CUES = ("عجیب", "باورنکردنی", "غافلگیر", "غیرمنتظره", "آخرش", "ناگهان", "چطور ممکن", "چطوری", "راز", "قبل و بعد", "تغییر باورنکردنی", "این شکلی")
 
 
 def content_shareability_proxy(item):
@@ -1664,13 +1664,21 @@ def main():
             broad_interest_cues = {
                 "humor_or_reaction": bool(re.search(r"(خنده.?دار|طنز|شوخی|سوتی|بامزه|میم|واکنش بامزه|prank|funny|fail)", item_text, re.I)),
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
-                "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|ترفند|مهارت|رکورد|غیرمنتظره|باورنکردنی|فوتبال|گل تاریخی|حرکت عجیب|هوش مصنوعی|ربات|تبدیل|قبل.{0,12}بعد|صحنه آخر)", item_text, re.I)),
+                "sports_or_skill": bool(re.search(r"(فوتبال|گل تاریخی|کشتی|بسکتبال|ورزش|ترفند|مهارت|رکورد|تردستی|حرکت دیدنی|شوت)", item_text, re.I)),
+                "transformation_or_satisfying": bool(re.search(r"(قبل.{0,12}بعد|تبدیل|ترمیم|بازسازی|تمیزکاری|آشپزی|غذای خیابانی|رضایت.?بخش|restoration|before.{0,8}after)", item_text, re.I)),
+                "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|ربات|هوش مصنوعی|صحنه آخر)", item_text, re.I)),
             }
+            entertainment_cue = any(
+                broad_interest_cues[name]
+                for name in ("humor_or_reaction", "animals", "sports_or_skill", "transformation_or_satisfying")
+            )
+            required_shareability = 48.0 if entertainment_cue else MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY
+            required_attraction = MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION if entertainment_cue else 65.0
             if single_metric_telegram:
                 if demand < MIN_SINGLE_METRIC_TELEGRAM_DEMAND:
                     appeal_failures.append("demand_score_below_floor")
-                if shareability < MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY:
-                    appeal_failures.append("shareability_below_floor")
+                if shareability < required_shareability:
+                    appeal_failures.append("shareability_below_category_floor")
                 if int(dm.get("views") or 0) < MIN_SINGLE_METRIC_TELEGRAM_VIEWS:
                     appeal_failures.append("views_below_floor")
                 if float(dm.get("age_hours") or 999999.0) > MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS:
@@ -1680,14 +1688,24 @@ def main():
                 if not bool(cq.get("available")):
                     appeal_failures.append("visual_model_unavailable")
                 else:
-                    if float(cq.get("attraction_score") or attraction) < MIN_SINGLE_METRIC_TELEGRAM_ATTRACTION:
-                        appeal_failures.append("visual_attraction_below_floor")
-                    if not (
-                        float(cq.get("hook_first_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_FIRST_EVENT
-                        or float(cq.get("hook_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_EVENT
-                        or float(cq.get("hook_structure_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_STRUCTURE
-                    ):
-                        appeal_failures.append("no_strong_visual_hook")
+                    if float(cq.get("attraction_score") or attraction) < required_attraction:
+                        appeal_failures.append("visual_attraction_below_category_floor")
+                    if entertainment_cue:
+                        strong_hook = (
+                            float(cq.get("hook_first_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_FIRST_EVENT
+                            or float(cq.get("hook_event_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_EVENT
+                            or float(cq.get("hook_structure_score") or 0.0) >= MIN_SINGLE_METRIC_TELEGRAM_STRUCTURE
+                        )
+                    else:
+                        # News-like spectacle needs a much more obvious visual
+                        # payoff than a broadly entertaining animal/comedy clip.
+                        strong_hook = (
+                            float(cq.get("hook_first_event_score") or 0.0) >= 50.0
+                            or float(cq.get("hook_event_score") or 0.0) >= 58.0
+                            or float(cq.get("hook_structure_score") or 0.0) >= 60.0
+                        )
+                    if not strong_hook:
+                        appeal_failures.append("no_strong_visual_hook_for_category")
             general_audience_gate = {
                 "applied": single_metric_telegram,
                 "passed": not appeal_failures,
@@ -1697,8 +1715,10 @@ def main():
                 "views": int(dm.get("views") or 0),
                 "age_hours": float(dm.get("age_hours") or 999999.0),
                 "broad_interest_cues": broad_interest_cues if single_metric_telegram else {},
+                "entertainment_cue": entertainment_cue if single_metric_telegram else False,
+                "required_shareability": required_shareability if single_metric_telegram else None,
+                "required_attraction": required_attraction if single_metric_telegram else None,
                 "minimum_demand": MIN_SINGLE_METRIC_TELEGRAM_DEMAND if single_metric_telegram else None,
-                "minimum_shareability": MIN_SINGLE_METRIC_TELEGRAM_SHAREABILITY if single_metric_telegram else None,
                 "minimum_views": MIN_SINGLE_METRIC_TELEGRAM_VIEWS if single_metric_telegram else None,
                 "maximum_age_hours": MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS if single_metric_telegram else None,
             }
