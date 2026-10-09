@@ -239,7 +239,11 @@ def main():
             previous = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
         except Exception:
             pass
-        merged = {str(x.get("id")): x for x in previous}
+        # Do not carry legacy profile URLs forward as if they were video candidates.
+        merged = {
+            str(x.get("id")): x for x in previous
+            if is_video_post(x.get("url"))
+        }
         for x in results:
             merged[x["id"]] = x
         items = list(merged.values())[:500]
