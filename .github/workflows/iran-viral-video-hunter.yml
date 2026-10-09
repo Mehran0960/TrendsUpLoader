@@ -81,7 +81,7 @@ jobs:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           COBALT_API_URL: http://127.0.0.1:9000
           BGUTIL_POT_URL: http://127.0.0.1:4416
-        run: python content_pipeline/iran_video_hunter.py
+        run: PYTHONPATH="$GITHUB_WORKSPACE" python content_pipeline/iran_video_hunter.py
       - name: Stop local Cobalt services
         if: ${{ always() }}
         run: |
