@@ -62,6 +62,7 @@ def platform(url):
     if "youtube.com" in h or "youtu.be" in h: return "youtube"
     if "x.com" in h or "twitter.com" in h: return "x"
     if "aparat.com" in h: return "aparat"
+    if h in {"t.me", "telegram.me"}: return "telegram"
     return "web"
 
 
@@ -83,6 +84,8 @@ def is_video_post(url):
         return bool(re.search(r"/status/\d+", path))
     if p == "aparat":
         return bool(re.match(r"^/v/[A-Za-z0-9]+", path))
+    if p == "telegram":
+        return bool(re.match(r"^/[A-Za-z0-9_]+/\d+/?$", path))
     return False
 
 
@@ -206,7 +209,36 @@ def telegram_repost_candidates():
                     caption = re.sub(r"\s+", " ", caption).strip()
                 if len(re.findall(r"[\u0600-\u06ff]", caption)) < 3:
                     continue
-                for raw_url in link_re.findall(block[:60000]):
+                raw_social_urls = link_re.findall(block[:60000])
+                has_video_marker = bool(re.search(
+                    r"tgme_widget_message_video_(?:player|thumb|wrap)|<video\b",
+                    block[:60000], re.I,
+                ))
+                if has_video_marker and not raw_social_urls:
+                    # This is a directly hosted Telegram video post, not an
+                    # Instagram relay. The hunter must still extract and gate media.
+                    post_id = message_id.group(1).split("/")[-1]
+                    post_url = f"https://t.me/{channel}/{post_id}"
+                    if post_url not in seen:
+                        seen.add(post_url)
+                        item = {
+                            "url": post_url,
+                            "title": caption[:260],
+                            "description": caption[:1800],
+                            "raw": {
+                                "source": "telegram_native_video",
+                                "telegram_channel": channel,
+                                "telegram_channels": [channel],
+                                "telegram_post": message_id.group(1),
+                                "telegram_post_views": relay_views,
+                                "telegram_published_at": published_at,
+                                "age_hours": age_hours,
+                            },
+                        }
+                        out.append(item)
+                        by_url[post_url] = item
+                        channel_count += 1
+                for raw_url in raw_social_urls:
                     raw_url = unescape(raw_url).replace("&amp;", "&")
                     m = re.search(r"/(reel|reels|p|tv)/([A-Za-z0-9_-]+)", raw_url, re.I)
                     if not m:
@@ -334,16 +366,21 @@ def main():
         seen_urls = set()
         for x in found:
             p = platform(x["url"])
-            if p not in {"tiktok","instagram","youtube","x","aparat"}:
+            if p not in {"tiktok","instagram","youtube","x","aparat","telegram"}:
                 continue
             if not is_video_post(x["url"]):
                 continue
             if x["url"] in seen_urls:
                 continue
             seen_urls.add(x["url"])
-            if str((x.get("raw") or {}).get("source") or "") == "telegram_public_repost":
+            source_tag = str((x.get("raw") or {}).get("source") or "")
+            if source_tag == "telegram_public_repost":
                 # Telegram relay views are not native Instagram counters.
                 views, likes, comments, shares = 0, 0, 0, 0
+            elif source_tag == "telegram_native_video":
+                # View count belongs to the Telegram video post itself.
+                views = int((x.get("raw") or {}).get("telegram_post_views") or 0)
+                likes, comments, shares = 0, 0, 0
             else:
                 views, likes, comments, shares = extract_metrics(x)
             text_blob = x["title"] + " " + x["description"]
@@ -359,6 +396,7 @@ def main():
                 "comments": comments,
                 "shares": shares,
                 "telegram_repost_views": int((x.get("raw") or {}).get("telegram_repost_views") or 0),
+                "telegram_post_views": int((x.get("raw") or {}).get("telegram_post_views") or 0),
                 "telegram_repost_channels": list((x.get("raw") or {}).get("telegram_channels") or ([str((x.get("raw") or {}).get("telegram_channel") or "")] if (x.get("raw") or {}).get("telegram_channel") else [])),
                 "published_at": str((x.get("raw") or {}).get("telegram_published_at") or ""),
                 "age_hours": float((x.get("raw") or {}).get("age_hours") or 999999.0),
@@ -388,7 +426,7 @@ def main():
             "count": len(items),
             "items": items,
         }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        print("SOCIAL_DISCOVERY_ITEMS", json.dumps({"new_results": len(results), "total_video_urls": len(items), "telegram_repost_candidates": sum(1 for x in results if x.get("source") == "telegram_public_repost")}, ensure_ascii=False))
+        print("SOCIAL_DISCOVERY_ITEMS", json.dumps({"new_results": len(results), "total_video_urls": len(items), "telegram_repost_candidates": sum(1 for x in results if x.get("source") == "telegram_public_repost"), "telegram_native_video_candidates": sum(1 for x in results if x.get("source") == "telegram_native_video")}, ensure_ascii=False))
         return 0
 
     now = datetime.now(timezone.utc)
