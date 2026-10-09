@@ -600,6 +600,43 @@ def persian_identity_score(item):
         score += 0.10
     return round(min(1.0, score), 3)
 
+PROMOTIONAL_CONTENT = re.compile(
+    r"(?:casino|betting|gambling|شرط\s*بندی|قمار|کازینو|بلک\s*جک|بونوس|کد\s*تخفیف|سفارش\s*تبلیغ|برای\s*تبلیغ|بازگشت\s*نقدی|برگشت\s*نقدی|پک\s*رایگان|لینک\s*خرید|ثبت\s*نام|عضو\s*شو|کسب\s*درآمد|میلیون\s*ریالی)",
+    re.I,
+)
+HARD_NEWS_CONTENT = re.compile(
+    r"(?:وزیر\s+خارجه|برنامه\s+هسته.?ای|توافق\s+هسته.?ای|واگذاری.{0,30}خاک|خبر\s+فوری|رییس\s+جمهور|رئیس\s+جمهور|محسن\s+زنگنه|اعلام\s+کرد.{0,40}(?:ایران|مجلس|دولت|آمریکا)|سپاه.{0,30}(?:آمریکا|اسرائیل|جزیره))",
+    re.I,
+)
+HUMOR_CUES = ("😂", "🤣", "😅", "😆", "خنده دار", "خنده‌دار", "طنز", "شوخی", "سوتی", "بامزه", "مستر بین", "میم", "فان")
+RELATABLE_CUES = ("مامان", "مادر", "بابام", "بابا", "مدرسه", "معلم", "کلاس", "خانواده", "همسر", "شوهر", "رفیق", "دوست", "کار ", "پسرا", "دخترا", "زندگی روزمره")
+SURPRISE_CUES = ("وایرال", "عجیب", "باورنکردنی", "لحظه", "نتیجه", "آخرش", "ببینید", "ناگهان", "برخورد", "صاعقه", "سکانس", "همه دیدن", "این شکلی", "هوش مصنوعی")
+
+
+def content_shareability_proxy(item):
+    """Caption/title heuristic, not a semantic model or a measured share rate."""
+    blob = " ".join([str(item.get("title") or ""), str(item.get("description") or "")]).lower()
+    promotion = bool(PROMOTIONAL_CONTENT.search(blob))
+    hard_news = bool(HARD_NEWS_CONTENT.search(blob))
+    humor_hits = sum(1 for cue in HUMOR_CUES if cue.lower() in blob)
+    relatable_hits = sum(1 for cue in RELATABLE_CUES if cue.lower() in blob)
+    surprise_hits = sum(1 for cue in SURPRISE_CUES if cue.lower() in blob)
+    score = 40.0 + min(25.0, humor_hits * 8.0) + min(15.0, relatable_hits * 5.0) + min(20.0, surprise_hits * 6.0)
+    if re.search(r"[😂🤣😅😆😍🤯❤️🔥]", blob):
+        score += 3.0
+    if hard_news:
+        score -= 14.0
+    if promotion:
+        score -= 50.0
+    return round(max(0.0, min(100.0, score)), 2), {
+        "promotional": promotion,
+        "hard_news": hard_news,
+        "humor_cue_count": humor_hits,
+        "relatable_cue_count": relatable_hits,
+        "surprise_cue_count": surprise_hits,
+    }
+
+
 def public_demand_score(item, corroboration=1):
     """Demand-first score. Duration/topic/visual aesthetics do not influence rank."""
     import math
@@ -1389,6 +1426,7 @@ def main():
     # viral video remains a top candidate while alternate URLs for the same
     # underlying item are collected from corroborating web/social sources.
     ranked = []
+    lane_rejections = {"promotion": 0, "hard_news": 0, "low_shareability": 0}
     title_buckets = {}
     signature_by_key = {}
     for x in items.values():
@@ -1415,6 +1453,19 @@ def main():
 
     for x in all_items:
         if x["key"] in seen_keys:
+            continue
+
+        shareability, shareability_flags = content_shareability_proxy(x)
+        x["shareability_proxy_score"] = shareability
+        x["shareability_flags"] = shareability_flags
+        if shareability_flags["promotional"]:
+            lane_rejections["promotion"] += 1
+            continue
+        if str(x.get("source") or "") == "telegram_native_video" and shareability_flags["hard_news"]:
+            lane_rejections["hard_news"] += 1
+            continue
+        if str(x.get("source") or "") == "telegram_native_video" and shareability < 48.0:
+            lane_rejections["low_shareability"] += 1
             continue
 
         norm = re.sub(r"[^\w\u0600-\u06ff ]", " ", str(x.get("title") or "").lower())
@@ -1454,6 +1505,8 @@ def main():
             continue
 
         demand, dm = public_demand_score(x, corroboration)
+        dm["shareability_proxy_score"] = float(x.get("shareability_proxy_score") or 0.0)
+        dm["shareability_flags"] = x.get("shareability_flags") or {}
         if not dm.get("evidence"):
             continue
         telegram_native_hot = bool(dm.get("telegram_native_video_evidence"))
@@ -1464,7 +1517,7 @@ def main():
 
     ranked.sort(
         key=lambda z: (
-            -(z[3] + 0.05 * float(z[0].get("trend_score") or 0.0)),
+            -(0.85 * z[3] + 0.10 * float(z[0].get("shareability_proxy_score") or 0.0) + 0.05 * float(z[0].get("trend_score") or 0.0)),
             -z[3],
             -int(z[0].get("shares") or 0),
             -int(z[0].get("likes") or 0),
@@ -1490,7 +1543,7 @@ def main():
                 expanded.append((x, route, cross, demand, dm))
     expanded.sort(
         key=lambda z: (
-            -(z[3] + 0.05 * float(z[0].get("trend_score") or 0.0)),
+            -(0.85 * z[3] + 0.10 * float(z[0].get("shareability_proxy_score") or 0.0) + 0.05 * float(z[0].get("trend_score") or 0.0)),
             -z[3],
             0 if (platform_of(z[1]) == "web" and VIDEO_EXT.search(z[1])) else 1,
             -int(z[0].get("shares") or 0),
@@ -1501,6 +1554,7 @@ def main():
     )
     ranked = expanded
 
+    print("CONTENT_FILTER_REJECTIONS", json.dumps(lane_rejections, ensure_ascii=False))
     print("DISCOVERED_ARTICLES", len(items),
           "PERSIAN_IDENTITY_REJECTIONS", identity_rejections,
           "MEASURABLE_HIGH_DEMAND_CANDIDATES", len(ranked))
@@ -1554,18 +1608,22 @@ def main():
             publishable = bool(cq.get("passed")) or emergency_ok
 
             retention_proxy = float(cq.get("retention_proxy_score") or 0.0)
+            shareability = float(item.get("shareability_proxy_score") or 0.0)
+            shareability_flags = item.get("shareability_flags") or {}
             trend_score = float(item.get("trend_score") or 0.0)
             # Retention proxy now has material weight; trend is only a small bonus.
             publish_score = round(
-                0.55 * float(demand)
+                0.45 * float(demand)
                 + 0.20 * float(attraction)
                 + 0.20 * retention_proxy
+                + 0.10 * shareability
                 + 0.05 * trend_score,
                 2,
             )
 
             dm["trend_score"] = round(trend_score, 2)
             dm["trend_topic"] = item.get("trend_topic", "")
+            dm["shareability_proxy_score"] = round(shareability, 2)
             print("DEMAND_METRICS", json.dumps(dm, ensure_ascii=False))
             print("ATTRACTION_METRICS", json.dumps(cq, ensure_ascii=False))
 
@@ -1575,6 +1633,8 @@ def main():
                 "demand_score": round(float(demand), 2),
                 "attraction_score": round(float(attraction), 2),
                 "retention_proxy_score": round(retention_proxy, 2),
+                "shareability_proxy_score": round(shareability, 2),
+                "shareability_flags": shareability_flags,
                 "trend_score": round(trend_score, 2),
                 "trend_topic": item.get("trend_topic", ""),
                 "publish_score": publish_score,
@@ -1679,12 +1739,15 @@ def main():
         "content_quality_score": round(float(attraction), 2),
         "content_quality_metrics": cq,
         "retention_proxy_score": round(float(cq.get("retention_proxy_score") or 0.0), 2),
+        "shareability_proxy_score": round(float(item.get("shareability_proxy_score") or 0.0), 2),
+        "shareability_flags": item.get("shareability_flags") or {},
         "trend_score": round(float(item.get("trend_score") or 0.0), 2),
         "trend_topic": item.get("trend_topic", ""),
         "publish_score": round(
-            0.55 * float(demand_score)
+            0.45 * float(demand_score)
             + 0.20 * float(attraction)
             + 0.20 * float(cq.get("retention_proxy_score") or 0.0)
+            + 0.10 * float(item.get("shareability_proxy_score") or 0.0)
             + 0.05 * float(item.get("trend_score") or 0.0), 2
         ),
         "cross_sources": cross, "platform": platform_of(url), "telegram_channel": item.get("telegram_channel", ""), "duration": mi["duration"],
