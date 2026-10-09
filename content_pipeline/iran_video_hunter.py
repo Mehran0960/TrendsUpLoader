@@ -50,6 +50,7 @@ MIN_SINGLE_METRIC_TELEGRAM_STRUCTURE = 54.0
 MIN_COMEDY_EXPLORATION_VIEWS = 10000
 MIN_COMEDY_EXPLORATION_DEMAND = 43.0
 MIN_COMEDY_EXPLORATION_ATTRACTION = 62.0
+MAX_COMEDY_EXPLORATION_DURATION_SECONDS = 60.0
 ACQUISITION_REVIEW_LIMIT = 8
 MIRROR_SEARCH_CANDIDATE_LIMIT = 4
 YOUTUBE_BOTWALL_DETECTED = False
@@ -1291,9 +1292,23 @@ def content_quality_gate(path, item, mi):
     }
     return round(attraction, 2), metrics
 
+def clean_display_title(title):
+    """Remove repost handles/CTA clutter from the delivered caption, not from scoring."""
+    value = str(title or "")
+    value = re.sub(r"Join\s*➪\s*(?:🆔\s*)?@[A-Za-z0-9_]+", "", value, flags=re.I)
+    value = re.sub(r"🆔\s*@[A-Za-z0-9_]+", "", value)
+    value = re.sub(r"@[A-Za-z0-9_]{3,}", "", value)
+    value = value.replace("💯", "")
+    value = re.sub(r"[ \t]{2,}", " ", value)
+    value = re.sub(r"\s+([،,:؛.!؟])", r"\1", value)
+    value = re.sub(r"([،,:؛])\s*([،,:؛])+", r"\1", value)
+    return value.strip(" \t\n-|•")
+
+
 def send_video(path, title, source):
-    cap = ("🔥 ویدئوی داغ ایران\n\n" + title[:700] + "\n\n" +
-           "منبع کشف: " + source[:120]).strip()
+    display_title = clean_display_title(title)[:700]
+    cap = ("🎬 ویدئوی منتخب امروز\n\n" + display_title + "\n\n" +
+           "منبع: " + source[:120]).strip()
     with open(path, "rb") as f:
         r = session.post(
             f"https://api.telegram.org/bot{TOKEN}/sendVideo",
@@ -1798,6 +1813,8 @@ def main():
                     appeal_failures.append("views_below_floor")
                 if float(dm.get("age_hours") or 999999.0) > MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS:
                     appeal_failures.append("too_old")
+                if comedy_exploration and float(mi.get("duration") or 0.0) > MAX_COMEDY_EXPLORATION_DURATION_SECONDS:
+                    appeal_failures.append("comedy_clip_too_long")
                 if not any(broad_interest_cues.values()):
                     appeal_failures.append("no_specific_broad_interest_cue")
                 if not bool(cq.get("available")):
@@ -1840,6 +1857,7 @@ def main():
                 "required_shareability": required_shareability if single_metric_telegram else None,
                 "required_attraction": required_attraction if single_metric_telegram else None,
                 "comedy_exploration": comedy_exploration if single_metric_telegram else False,
+                "maximum_duration_seconds": MAX_COMEDY_EXPLORATION_DURATION_SECONDS if comedy_exploration else None,
                 "required_demand": required_demand if single_metric_telegram else None,
                 "minimum_views": required_views if single_metric_telegram else None,
                 "maximum_age_hours": MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS if single_metric_telegram else None,
