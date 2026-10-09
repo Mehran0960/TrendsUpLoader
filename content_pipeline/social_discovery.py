@@ -19,11 +19,14 @@ KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
 QUERIES = [
-    'site:tiktok.com/@ ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید")',
+    'site:tiktok.com/@ ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (وایرال OR عجیب OR بامزه OR ترفند)',
     'site:instagram.com/reel ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید")',
     'site:x.com ("ویدئو" OR "ویدیو") ("ایران" OR "ایرانی" OR "فارسی")',
     'site:youtube.com/shorts ("فارسی" OR "ایران" OR "ایرانی")',
     'site:aparat.com/v ("بازدید" OR "پربازدید" OR "وایرال")',
+    'site:youtube.com/shorts ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری) (ویدیو OR کلیپ OR عجیب OR تبدیل)',
+    'site:instagram.com/reel ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری OR قبل و بعد) (ایرانی OR فارسی OR ایران)',
+    'site:aparat.com/v ("هوش مصنوعی" OR ربات OR ترفند OR آزمایش OR معما OR قبل و بعد) (پربازدید OR وایرال OR عجیب)',
 ]
 
 def normalize_digits(s):
@@ -160,6 +163,12 @@ def telegram_repost_candidates():
         "tanzolemareh_t",
         "aranbidgoliha",
         "bandaranzali_aliabad",
+        # Verified public Persian technology/AI feeds; candidates still pass
+        # the same demand, visual-hook, safety and single-payoff gates.
+        "thezoomit",
+        "farda_ai",
+        "AIpersianChannel",
+        "simorghai",
     ]
     link_re = re.compile(
         r"(?:https?://)?(?:(?:www\.)|dd)?instagram\.com/(?:reel|reels|p|tv)/[A-Za-z0-9_-]+",
@@ -346,13 +355,15 @@ def main():
         qidx = int(now.timestamp() // (30 * 60)) % len(QUERIES)
         query_variants = [
             'site:instagram.com/reel/ (خنده OR خنده‌دار OR طنز OR سوتی OR بامزه OR غافلگیرکننده)',
-            'site:instagram.com/p/ (طنز OR خنده دار OR سوتی OR دابسمش OR ایرانی)',
+            'site:instagram.com/reel/ ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری) (تبدیل OR ساخت OR عجیب OR باورنکردنی)',
+            'site:instagram.com/reel/ (حیوانات OR گربه OR سگ OR ترفند OR قبل و بعد OR رضایت‌بخش) (وایرال OR پربازدید OR عجیب)',
             QUERIES[qidx],
-            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) (خنده OR طنز OR بامزه OR پربازدید)',
-            'site:aparat.com/v (ایران OR ایرانی) (بازدید OR پربازدید OR وایرال)',
+            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR آزمایش OR معما)',
+            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) (حیوانات OR مهارت OR تردستی OR قبل و بعد OR اتفاق عجیب)',
+            'site:aparat.com/v (ایران OR ایرانی OR فارسی) ("هوش مصنوعی" OR تکنولوژی OR ترفند OR معما OR قبل و بعد) (بازدید OR وایرال OR پربازدید)',
         ]
         found = telegram_repost_candidates()
-        for q in query_variants[:5]:
+        for q in query_variants[:7]:
             try:
                 batch = bing_search(q, limit=12)
                 found.extend(batch)
