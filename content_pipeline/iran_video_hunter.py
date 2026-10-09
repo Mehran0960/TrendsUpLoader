@@ -72,9 +72,9 @@ def save(s):
 def text_of(el):
     return " ".join((el.text or "").split()) if el is not None else ""
 
-def rss_items(query):
+def rss_items(query, timeout=20):
     url = f"https://news.google.com/rss/search?q={quote_plus(query)}&hl=fa&gl=IR&ceid=IR:fa"
-    r = session.get(url, timeout=20)
+    r = session.get(url, timeout=timeout)
     r.raise_for_status()
     root = ET.fromstring(r.content)
     out = []
@@ -96,6 +96,107 @@ def rss_items(query):
             pass
         out.append({"title": title, "link": link, "source": source, "pub": pub, "age_hours": age_h})
     return out
+
+
+def google_trends_ir(limit=12):
+    """Fetch public Iran Trending Now topics through Google's RSS fallback (no API key)."""
+    urls = [
+        "https://trends.google.com/trending/rss?geo=IR&hl=fa",
+        "https://trends.google.com/trending/rss?geo=IR",
+    ]
+    for url in urls:
+        try:
+            r = session.get(url, timeout=12)
+            r.raise_for_status()
+            root = ET.fromstring(r.content)
+            out, seen = [], set()
+            for it in root.findall(".//item"):
+                topic = html.unescape(text_of(it.find("title"))).strip()
+                norm = re.sub(r"\\s+", " ", topic.lower()).strip()
+                if not topic or len(topic) > 100 or norm in seen or BLOCK.search(topic):
+                    continue
+                seen.add(norm)
+                pub = text_of(it.find("pubDate"))
+                age_h = 9999.0
+                try:
+                    age_h = max(0.0, (datetime.now(timezone.utc) -
+                        parsedate_to_datetime(pub).astimezone(timezone.utc)).total_seconds()/3600.0)
+                except Exception:
+                    pass
+                traffic_node = it.find("{http://www.google.com/trends/hottrends}approx_traffic")
+                traffic_label = text_of(traffic_node)
+                traffic = normalize_public_number(traffic_label)
+                position = len(out) + 1
+                rank_score = max(45.0, 100.0 - 7.0 * (position - 1))
+                if traffic:
+                    import math
+                    volume_score = min(100.0, 28.0 + 8.0 * math.log10(max(1, traffic)))
+                    rank_score = 0.75 * rank_score + 0.25 * volume_score
+                out.append({
+                    "query": topic,
+                    "position": position,
+                    "trend_score": round(rank_score, 2),
+                    "search_volume": traffic,
+                    "search_volume_label": traffic_label,
+                    "published_at": pub,
+                    "age_hours": round(age_h, 2),
+                    "source": "Google Trends Iran RSS",
+                })
+                if len(out) >= max(1, int(limit)):
+                    break
+            print("GOOGLE_TRENDS_IR", json.dumps({
+                "status": "ok" if out else "empty",
+                "count": len(out),
+                "topics": [{"query": x["query"], "score": x["trend_score"]} for x in out[:8]],
+            }, ensure_ascii=False))
+            if out:
+                return out
+        except Exception as exc:
+            print("GOOGLE_TRENDS_IR_FAIL", type(exc).__name__)
+    return []
+
+
+def trend_match_ratio(text, topic):
+    """Return a conservative title/topic overlap ratio; never treat every hot topic as a video."""
+    norm_text = re.sub(r"[^\\w\\u0600-\\u06ff ]", " ", str(text or "").lower())
+    norm_text = re.sub(r"\\s+", " ", norm_text).strip()
+    norm_topic = re.sub(r"[^\\w\\u0600-\\u06ff ]", " ", str(topic or "").lower())
+    norm_topic = re.sub(r"\\s+", " ", norm_topic).strip()
+    if not norm_text or not norm_topic:
+        return 0.0
+    if norm_topic in norm_text:
+        return 1.0
+    tokens = [t for t in norm_topic.split() if len(t) > 2]
+    if not tokens:
+        return 0.0
+    text_tokens = set(norm_text.split())
+    hits = sum(1 for t in set(tokens) if t in text_tokens)
+    return hits / max(1, len(set(tokens)))
+
+
+def apply_trend_signals(items, topics):
+    """Attach trend metadata only where the candidate title supports topic relevance."""
+    matched = 0
+    for item in items.values():
+        title = str(item.get("title") or "")
+        best_score, best_topic = 0.0, ""
+        matching_topics = []
+        for topic in topics:
+            ratio = trend_match_ratio(title, topic.get("query"))
+            if ratio < 0.50:
+                continue
+            matching_topics.append(topic.get("query"))
+            score = float(topic.get("trend_score") or 0.0) * (0.65 + 0.35 * ratio)
+            if score > best_score:
+                best_score, best_topic = score, str(topic.get("query") or "")
+        item["trend_score"] = round(best_score, 2)
+        item["trend_topic"] = best_topic
+        item["trend_topics"] = list(dict.fromkeys(matching_topics))[:4]
+        if best_score > 0:
+            item["discovery_lane"] = "trend_and_viral" if item.get("metric_source") else "trend_discovery"
+            matched += 1
+    print("TREND_MATCHED_CANDIDATES", matched)
+
 
 def youtube_video_id(url):
     host = urlparse(str(url or "")).netloc.lower()
@@ -991,6 +1092,8 @@ def content_quality_gate(path, item, mi):
             "model_version": ATTRACTION_MODEL_VERSION,
             "available": False,
             "reason": "visual_dependencies_unavailable",
+            "retention_proxy_score": 50.0,
+            "retention_proxy_is_actual_watch_time": False,
             "passed": True,
         }
 
@@ -1002,6 +1105,8 @@ def content_quality_gate(path, item, mi):
             "model_version": ATTRACTION_MODEL_VERSION,
             "available": False,
             "reason": type(exc).__name__,
+            "retention_proxy_score": 0.0,
+            "retention_proxy_is_actual_watch_time": False,
             "passed": False,
         }
 
@@ -1010,6 +1115,9 @@ def content_quality_gate(path, item, mi):
     event = float(visual.get("hook_event_score") or 0.0)
     structure = float(visual.get("hook_structure_score") or 0.0)
     novelty = float(visual.get("visual_novelty_score") or 0.0)
+    retention_proxy = float(visual.get("retention_proxy_score") or (
+        0.30 * first_event + 0.30 * event + 0.20 * structure + 0.20 * novelty
+    ))
 
     # The first seconds and a real event arc matter more than generic visual
     # polish. This is a proxy for scroll-stop potential, not a beauty score.
@@ -1049,6 +1157,11 @@ def content_quality_gate(path, item, mi):
         "hook_first_event_score": round(first_event, 2),
         "hook_structure_score": round(structure, 2),
         "visual_novelty_score": round(novelty, 2),
+        "retention_proxy_score": round(min(max(retention_proxy, 0.0), 99.0), 2),
+        "retention_proxy_is_actual_watch_time": False,
+        "sustained_activity_score": round(float(visual.get("sustained_activity_score") or 0.0), 2),
+        "motion_coverage": float(visual.get("motion_coverage") or 0.0),
+        "novelty_coverage": float(visual.get("novelty_coverage") or 0.0),
         "static_penalty": static_penalty,
         "duration_seconds": round(float(mi.get("duration") or 0.0), 2),
         "passed": passed,
@@ -1134,6 +1247,7 @@ def main():
         '("ویدئو" OR "ویدیو") ("بازدید بالا" OR "بازدید میلیونی") ایران',
     ])
     queries.extend(platform_queries)
+    trend_topics = google_trends_ir(limit=12)
     items = {}
 
     # Feed fresh YouTube chart discoveries from the global radar into the
@@ -1167,6 +1281,32 @@ def main():
         except Exception as e:
             print("RSS_FAIL", q, type(e).__name__)
 
+    # Trend-led discovery is an additional lane, not a replacement for the
+    # independent viral lane. Only title-relevant trend results enter the queue.
+    for topic in trend_topics[:3]:
+        term = str(topic.get("query") or "").strip()
+        if not term:
+            continue
+        trend_queries = [
+            f'"{term}" (ویدئو OR ویدیو OR کلیپ OR واکنش OR فیلم) (ایران OR ایرانی OR فارسی)',
+            f'(site:youtube.com/shorts OR site:instagram.com/reel OR site:aparat.com/v) "{term}"',
+        ]
+        for trend_query in trend_queries:
+            try:
+                for x in rss_items(trend_query, timeout=12):
+                    if trend_match_ratio(x.get("title"), term) < 0.50:
+                        continue
+                    key_text = re.sub(r"\\s+", " ", x["title"].lower()) + "|" + x["link"].split("?")[0]
+                    x["key"] = hashlib.sha256(key_text.encode()).hexdigest()
+                    previous = items.get(x["key"])
+                    if previous:
+                        previous["trend_query_seen"] = True
+                    else:
+                        x["trend_query_seen"] = True
+                        items[x["key"]] = x
+            except Exception as exc:
+                print("GOOGLE_TRENDS_VIDEO_SEARCH_FAIL", type(exc).__name__)
+
     for yt_item in discover_youtube_public_candidates(limit=25):
         items[yt_item["key"]] = yt_item
 
@@ -1199,6 +1339,7 @@ def main():
     except Exception as exc:
         print("SOCIAL_DISCOVERY_FEED_FAIL", type(exc).__name__)
 
+    apply_trend_signals(items, trend_topics)
     enrich_youtube_metrics(items)
     enrich_public_platform_metrics(items, limit=35)
     apply_observed_momentum(items, state)
@@ -1282,6 +1423,7 @@ def main():
 
     ranked.sort(
         key=lambda z: (
+            -(z[3] + 0.05 * float(z[0].get("trend_score") or 0.0)),
             -z[3],
             -int(z[0].get("shares") or 0),
             -int(z[0].get("likes") or 0),
@@ -1368,12 +1510,19 @@ def main():
             )
             publishable = bool(cq.get("passed")) or emergency_ok
 
+            retention_proxy = float(cq.get("retention_proxy_score") or 0.0)
+            trend_score = float(item.get("trend_score") or 0.0)
+            # Retention proxy now has material weight; trend is only a small bonus.
             publish_score = round(
-                0.72 * float(demand)
-                + 0.28 * float(attraction),
+                0.55 * float(demand)
+                + 0.20 * float(attraction)
+                + 0.20 * retention_proxy
+                + 0.05 * trend_score,
                 2,
             )
 
+            dm["trend_score"] = round(trend_score, 2)
+            dm["trend_topic"] = item.get("trend_topic", "")
             print("DEMAND_METRICS", json.dumps(dm, ensure_ascii=False))
             print("ATTRACTION_METRICS", json.dumps(cq, ensure_ascii=False))
 
@@ -1382,6 +1531,9 @@ def main():
                 "platform": platform_of(url),
                 "demand_score": round(float(demand), 2),
                 "attraction_score": round(float(attraction), 2),
+                "retention_proxy_score": round(retention_proxy, 2),
+                "trend_score": round(trend_score, 2),
+                "trend_topic": item.get("trend_topic", ""),
                 "publish_score": publish_score,
                 "publishable": publishable,
             })
@@ -1453,6 +1605,8 @@ def main():
                 "platform": platform_of(z[1]),
                 "demand_score": z[3],
                 "demand_metrics": z[4],
+                "trend_score": z[0].get("trend_score", 0.0),
+                "trend_topic": z[0].get("trend_topic", ""),
                 "persian_identity_score": z[0].get("persian_identity_score"),
                 "link": z[0].get("link"),
             }
@@ -1480,7 +1634,15 @@ def main():
         "attraction_score": round(float(attraction), 2),
         "content_quality_score": round(float(attraction), 2),
         "content_quality_metrics": cq,
-        "publish_score": round(0.72 * float(demand_score) + 0.28 * float(attraction), 2),
+        "retention_proxy_score": round(float(cq.get("retention_proxy_score") or 0.0), 2),
+        "trend_score": round(float(item.get("trend_score") or 0.0), 2),
+        "trend_topic": item.get("trend_topic", ""),
+        "publish_score": round(
+            0.55 * float(demand_score)
+            + 0.20 * float(attraction)
+            + 0.20 * float(cq.get("retention_proxy_score") or 0.0)
+            + 0.05 * float(item.get("trend_score") or 0.0), 2
+        ),
         "cross_sources": cross, "platform": platform_of(url), "duration": mi["duration"],
         "width": mi["width"], "height": mi["height"]
     }
