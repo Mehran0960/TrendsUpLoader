@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updated_at": "2026-10-09T05:55:08.811711+00:00",
+  "updated_at": "2026-10-09T05:56:03.666311+00:00",
   "status": "public_telegram_repost_and_bing_fallback",
   "count": 125,
   "items": [
@@ -19,10 +19,11 @@
       "telegram_repost_channels": [
         "aranbidgoliha"
       ],
+      "telegram_channel": "aranbidgoliha",
       "published_at": "2025-12-24T05:48:22+00:00",
-      "age_hours": 6936.115325661945,
+      "age_hours": 6936.130636684445,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_public_repost",
       "query": 1
     },
@@ -41,10 +42,11 @@
       "telegram_repost_channels": [
         "aranbidgoliha"
       ],
+      "telegram_channel": "aranbidgoliha",
       "published_at": "2026-09-05T19:21:40+00:00",
-      "age_hours": 802.5603283305555,
+      "age_hours": 802.5756387705555,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_public_repost",
       "query": 1
     },
@@ -79,13 +81,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 118000,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T15:29:05+00:00",
-      "age_hours": 14.434594106666665,
+      "age_hours": 14.44985351611111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -101,13 +102,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 112000,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T15:48:37+00:00",
-      "age_hours": 14.109038938611112,
+      "age_hours": 14.1242982475,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -123,13 +123,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 116000,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T15:48:41+00:00",
-      "age_hours": 14.107928062777777,
+      "age_hours": 14.123187317500001,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -145,13 +144,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 114000,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T16:30:54+00:00",
-      "age_hours": 13.404317186944445,
+      "age_hours": 13.419576399444443,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -161,19 +159,18 @@
       "title": "دیشب تو گیلان، یه نیسان گاوی و موتوری باهم درگیری لفظی پیدا میکنن که نتیجه اش رو ببینید 🆔 @GizmizTel 💯",
       "description": "دیشب تو گیلان، یه نیسان گاوی و موتوری باهم درگیری لفظی پیدا میکنن که نتیجه اش رو ببینید 🆔 @GizmizTel 💯",
       "platform": "telegram",
-      "views": 98300,
+      "views": 98600,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 98300,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_post_views": 98600,
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T18:46:38+00:00",
-      "age_hours": 11.142095389722224,
+      "age_hours": 11.15735450888889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -189,13 +186,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 98000,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T18:46:38+00:00",
-      "age_hours": 11.142095617777777,
+      "age_hours": 11.157354694722223,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -211,13 +207,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 99300,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T18:46:38+00:00",
-      "age_hours": 11.142095857222222,
+      "age_hours": 11.157354880833335,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -227,19 +222,18 @@
       "title": "باهنر: ایرانی که صداوسیما نشان می‌دهد کجاست که ما به آن پناهنده شویم؟! 🆔 @GizmizTel 💯",
       "description": "باهنر: ایرانی که صداوسیما نشان می‌دهد کجاست که ما به آن پناهنده شویم؟! 🆔 @GizmizTel 💯",
       "platform": "telegram",
-      "views": 83900,
+      "views": 84200,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 83900,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_post_views": 84200,
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T20:11:24+00:00",
-      "age_hours": 9.729318511666667,
+      "age_hours": 9.744577448333335,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -255,13 +249,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 85800,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T20:11:25+00:00",
-      "age_hours": 9.729040965,
+      "age_hours": 9.744299851666666,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -277,13 +270,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 87100,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T20:11:46+00:00",
-      "age_hours": 9.723207839444443,
+      "age_hours": 9.738466686666666,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -293,19 +285,18 @@
       "title": "گوه شانس ترین فرد تاریخ ایران 😂 🆔 @GizmizTel 💯",
       "description": "گوه شانس ترین فرد تاریخ ایران 😂 🆔 @GizmizTel 💯",
       "platform": "telegram",
-      "views": 68800,
+      "views": 69100,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 68800,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_post_views": 69100,
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T21:33:23+00:00",
-      "age_hours": 8.362930725,
+      "age_hours": 8.378189424722223,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -315,19 +306,18 @@
       "title": "فرش قرمز وسط خیابون ارم پهن شد… ❤️ 🔥 ولی چیزی که اصلاً انتظارشو نداشتم این بود که این دختر بیاد وسط و با چندتا حرکت آکروباتیک و پشتک وارو، همه‌مونو شوکه کنه! 🆔 @GizmizTel 💯",
       "description": "فرش قرمز وسط خیابون ارم پهن شد… ❤️ 🔥 ولی چیزی که اصلاً انتظارشو نداشتم این بود که این دختر بیاد وسط و با چندتا حرکت آکروباتیک و پشتک وارو، همه‌مونو شوکه کنه! 🆔 @GizmizTel 💯",
       "platform": "telegram",
-      "views": 70600,
+      "views": 70900,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 70600,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_post_views": 70900,
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T21:46:18+00:00",
-      "age_hours": 8.147653376944444,
+      "age_hours": 8.162911993333333,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -337,19 +327,18 @@
       "title": "تصاویری که ادعا می‌شود مربوط به تست مین هوایی سپاه در یکی از جزایر ایرانی است که برای جلوگیری از پیاده سازی نیرو توسط بالگرد کاربرد دارد 🆔 @GizmizTel 💯",
       "description": "تصاویری که ادعا می‌شود مربوط به تست مین هوایی سپاه در یکی از جزایر ایرانی است که برای جلوگیری از پیاده سازی نیرو توسط بالگرد کاربرد دارد 🆔 @GizmizTel 💯",
       "platform": "telegram",
-      "views": 74300,
+      "views": 74600,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 74300,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_post_views": 74600,
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T21:46:31+00:00",
-      "age_hours": 8.144042536944445,
+      "age_hours": 8.159301096388889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -365,13 +354,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 70200,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T21:56:43+00:00",
-      "age_hours": 7.9740428575,
+      "age_hours": 7.989301280833334,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -381,19 +369,18 @@
       "title": "یه گزارشگر تو شهر وان ترکیه طی یه گزارشِ خیابونی، نظر مردم این شهر رو درباره گردشگران ایرانی پرسیده که حسابی وایرال شده؛ ■ بعضی‌هاشون حضور ایرانی‌ها رو مثبت و مؤثر تو رونق اقتصادی شهرشون میدونن. ■ بعضی دیگه‌شونم نسبت به وضعیت پوشش ایرانی‌ها تو این شهر انتقاد ک",
       "description": "یه گزارشگر تو شهر وان ترکیه طی یه گزارشِ خیابونی، نظر مردم این شهر رو درباره گردشگران ایرانی پرسیده که حسابی وایرال شده؛ ■ بعضی‌هاشون حضور ایرانی‌ها رو مثبت و مؤثر تو رونق اقتصادی شهرشون میدونن. ■ بعضی دیگه‌شونم نسبت به وضعیت پوشش ایرانی‌ها تو این شهر انتقاد کردن! + وان تو شرق ترکیه چسبیده به مرز ایرانه و اقتصادِ گردشگریش خیلی به ایرانی ها وابسته شده، مثلاً تو نیمه اول 2024، بالای 431 هزار گردشگر ایرانی به وان رفته بودن... 🆔 @GizmizTel 💯",
       "platform": "telegram",
-      "views": 71300,
+      "views": 71600,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 71300,
-      "telegram_repost_channels": [
-        "gizmiztel"
-      ],
+      "telegram_post_views": 71600,
+      "telegram_repost_channels": [],
+      "telegram_channel": "gizmiztel",
       "published_at": "2026-10-08T21:56:43+00:00",
-      "age_hours": 7.9740430997222225,
+      "age_hours": 7.989301466944445,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -409,13 +396,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 743,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T07:03:31+00:00",
-      "age_hours": 46.860901659722224,
+      "age_hours": 46.87615497777778,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -431,13 +417,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 715,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T11:09:18+00:00",
-      "age_hours": 42.76451298222222,
+      "age_hours": 42.77976625555556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -447,19 +432,18 @@
       "title": "هنر همگانی 😂 .",
       "description": "هنر همگانی 😂 .",
       "platform": "telegram",
-      "views": 714,
+      "views": 715,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 714,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_post_views": 715,
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T11:09:19+00:00",
-      "age_hours": 42.764235428333336,
+      "age_hours": 42.77948864944444,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -475,13 +459,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 738,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T11:09:19+00:00",
-      "age_hours": 42.764235625277784,
+      "age_hours": 42.77948881888889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -497,13 +480,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 776,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T11:09:20+00:00",
-      "age_hours": 42.763958052777774,
+      "age_hours": 42.77921120138889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -519,13 +501,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 673,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T18:59:35+00:00",
-      "age_hours": 34.92645844083333,
+      "age_hours": 34.94171150555556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -541,13 +522,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 689,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T18:59:36+00:00",
-      "age_hours": 34.926180875,
+      "age_hours": 34.94143389805556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -563,13 +543,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 709,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-07T18:59:36+00:00",
-      "age_hours": 34.92618108305555,
+      "age_hours": 34.94143405277778,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -585,13 +564,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 699,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-08T04:44:50+00:00",
-      "age_hours": 25.172292385555558,
+      "age_hours": 25.187545311944447,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -607,13 +585,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 726,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-08T04:44:50+00:00",
-      "age_hours": 25.172292585555557,
+      "age_hours": 25.187545471944443,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -623,19 +600,18 @@
       "title": "🔴 روزهای بلک جک فارسی در Berrybet 💸 بازگشت نقدی: معادل 0️⃣ 1️⃣ 🔣 از خالص باخت 💎 حداکثر بازگشت نقدی: ۱۰,۰۰۰,۰۰۰ تومان ❤️ 🤌 حداقل شرط واجد شرایط: ۷۵۰,۰۰۰ تومان 🩷 بازی‌های واجد شرایط: فقط میزهای بلک جک فارسی از ارائه‌دهنده Creedroomz ⏰ روزهای واجد شرایط: دوشنبه، ",
       "description": "🔴 روزهای بلک جک فارسی در Berrybet 💸 بازگشت نقدی: معادل 0️⃣ 1️⃣ 🔣 از خالص باخت 💎 حداکثر بازگشت نقدی: ۱۰,۰۰۰,۰۰۰ تومان ❤️ 🤌 حداقل شرط واجد شرایط: ۷۵۰,۰۰۰ تومان 🩷 بازی‌های واجد شرایط: فقط میزهای بلک جک فارسی از ارائه‌دهنده Creedroomz ⏰ روزهای واجد شرایط: دوشنبه، پنج‌شنبه و جمعه 🌐 ورود به سایت: ➡️ https://yewirkxojf.shop/fa/affiliates/?btag=914641_l303106 🌐 تلگرام ما:g16 🅰 ➡️ https://t.me/BerryBetOfficial",
       "platform": "telegram",
-      "views": 390,
+      "views": 392,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 390,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_post_views": 392,
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-08T17:57:55+00:00",
-      "age_hours": 11.954237245833333,
+      "age_hours": 11.969490083055554,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -651,13 +627,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 406,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-08T18:00:15+00:00",
-      "age_hours": 11.915348677222221,
+      "age_hours": 11.930601449444445,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -673,13 +648,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 418,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-08T18:00:16+00:00",
-      "age_hours": 11.915071184999999,
+      "age_hours": 11.930323889722223,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -689,19 +663,18 @@
       "title": "👵🏻 🍝 😋 حاج خانم فداکار زرنگ 😂 😂 .",
       "description": "👵🏻 🍝 😋 حاج خانم فداکار زرنگ 😂 😂 .",
       "platform": "telegram",
-      "views": 434,
+      "views": 437,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 434,
-      "telegram_repost_channels": [
-        "insta_clip85"
-      ],
+      "telegram_post_views": 437,
+      "telegram_repost_channels": [],
+      "telegram_channel": "insta_clip85",
       "published_at": "2026-10-08T18:00:16+00:00",
-      "age_hours": 11.915071416388889,
+      "age_hours": 11.93032407,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -717,13 +690,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6420,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T04:30:06+00:00",
-      "age_hours": 25.418024029444442,
+      "age_hours": 25.433307994722224,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -739,13 +711,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 7570,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T05:39:43+00:00",
-      "age_hours": 24.2577464525,
+      "age_hours": 24.273030380833333,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -761,13 +732,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6450,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T07:23:15+00:00",
-      "age_hours": 22.53219110361111,
+      "age_hours": 22.547474996666665,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -783,13 +753,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 7500,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T08:34:00+00:00",
-      "age_hours": 21.3530246475,
+      "age_hours": 21.368308489444445,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -805,13 +774,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6100,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T09:46:28+00:00",
-      "age_hours": 20.14524709194444,
+      "age_hours": 20.16053088861111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -827,13 +795,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6530,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T10:14:18+00:00",
-      "age_hours": 19.681358440833336,
+      "age_hours": 19.696642188333332,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -849,13 +816,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 9030,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T11:14:17+00:00",
-      "age_hours": 18.68163643777778,
+      "age_hours": 18.69692014027778,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -871,13 +837,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 8090,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T12:04:23+00:00",
-      "age_hours": 17.84663662138889,
+      "age_hours": 17.861920284444444,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -893,13 +858,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 8290,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T13:23:48+00:00",
-      "age_hours": 16.523025696666664,
+      "age_hours": 16.5383093125,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -915,13 +879,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 7490,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T14:39:56+00:00",
-      "age_hours": 15.254136995833333,
+      "age_hours": 15.269420574722222,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -937,13 +900,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5830,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T15:21:18+00:00",
-      "age_hours": 14.56469275638889,
+      "age_hours": 14.57997629527778,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -959,13 +921,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6460,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T16:30:32+00:00",
-      "age_hours": 13.410804075,
+      "age_hours": 13.426087569722222,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -981,13 +942,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5950,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T17:25:55+00:00",
-      "age_hours": 12.487749014166667,
+      "age_hours": 12.503032408888888,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1003,13 +963,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6870,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T17:43:10+00:00",
-      "age_hours": 12.200249211666668,
+      "age_hours": 12.215532569722223,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1025,13 +984,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5900,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T18:17:42+00:00",
-      "age_hours": 11.624693851666667,
+      "age_hours": 11.639977168055555,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1047,13 +1005,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6320,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T19:06:46+00:00",
-      "age_hours": 10.806916273611112,
+      "age_hours": 10.82219955388889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1069,13 +1026,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5780,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T19:44:05+00:00",
-      "age_hours": 10.184972040833333,
+      "age_hours": 10.200255277777778,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1091,13 +1047,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5970,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-08T20:26:10+00:00",
-      "age_hours": 9.483583372222222,
+      "age_hours": 9.49886657111111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1113,13 +1068,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5600,
-      "telegram_repost_channels": [
-        "comedi"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "comedi",
       "published_at": "2026-10-09T05:21:09+00:00",
-      "age_hours": 0.5671947219444444,
+      "age_hours": 0.5824778630555555,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1135,13 +1089,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 1880,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-08T10:47:09+00:00",
-      "age_hours": 19.134017856944443,
+      "age_hours": 19.1493085325,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1157,13 +1110,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 2029,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-08T11:19:05+00:00",
-      "age_hours": 18.601796054444446,
+      "age_hours": 18.617086640555556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1179,13 +1131,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 2380,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-08T14:17:15+00:00",
-      "age_hours": 15.632352506666667,
+      "age_hours": 15.647642895833334,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1201,13 +1152,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 1850,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-08T14:18:42+00:00",
-      "age_hours": 15.608186334444444,
+      "age_hours": 15.623476606111112,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1223,13 +1173,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 1680,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-08T16:34:02+00:00",
-      "age_hours": 13.352630995,
+      "age_hours": 13.367921213055554,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1239,19 +1188,18 @@
       "title": "🔴 روزهای بلک جک فارسی در Berrybet 💸 بازگشت نقدی: معادل 0️⃣ 1️⃣ 🔣 از خالص باخت 💎 حداکثر بازگشت نقدی: ۱۰,۰۰۰,۰۰۰ تومان ❤️ 🤌 حداقل شرط واجد شرایط: ۷۵۰,۰۰۰ تومان 🩷 بازی‌های واجد شرایط: فقط میزهای بلک جک فارسی از ارائه‌دهنده Creedroomz ⏰ روزهای واجد شرایط: دوشنبه، ",
       "description": "🔴 روزهای بلک جک فارسی در Berrybet 💸 بازگشت نقدی: معادل 0️⃣ 1️⃣ 🔣 از خالص باخت 💎 حداکثر بازگشت نقدی: ۱۰,۰۰۰,۰۰۰ تومان ❤️ 🤌 حداقل شرط واجد شرایط: ۷۵۰,۰۰۰ تومان 🩷 بازی‌های واجد شرایط: فقط میزهای بلک جک فارسی از ارائه‌دهنده Creedroomz ⏰ روزهای واجد شرایط: دوشنبه، پنج‌شنبه و جمعه 🌐 ورود به سایت: ➡️ https://yewirkxojf.shop/fa/affiliates/?btag=914641_l303106 🌐 تلگرام ما:g16 🅰 ➡️ https://t.me/BerryBetOfficial",
       "platform": "telegram",
-      "views": 398,
+      "views": 401,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 398,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_post_views": 401,
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-08T18:50:29+00:00",
-      "age_hours": 11.078464705833333,
+      "age_hours": 11.093754843611112,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1267,13 +1215,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 1200,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-08T18:52:30+00:00",
-      "age_hours": 11.044854086111112,
+      "age_hours": 11.060144113055555,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1283,19 +1230,18 @@
       "title": "اینجا سرزمین بزرگ مردان کوچک است... @khandehabadd",
       "description": "اینجا سرزمین بزرگ مردان کوچک است... @khandehabadd",
       "platform": "telegram",
-      "views": 186,
+      "views": 190,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 186,
-      "telegram_repost_channels": [
-        "khandehabadd"
-      ],
+      "telegram_post_views": 190,
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandehabadd",
       "published_at": "2026-10-09T05:32:03+00:00",
-      "age_hours": 0.38568863166666667,
+      "age_hours": 0.40097838444444445,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1311,13 +1257,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 17400,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T19:28:48+00:00",
-      "age_hours": 10.440039203333333,
+      "age_hours": 10.455327161666666,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1333,13 +1278,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 17700,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T19:29:02+00:00",
-      "age_hours": 10.436150571944443,
+      "age_hours": 10.4514384775,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1355,13 +1299,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 17100,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T19:29:32+00:00",
-      "age_hours": 10.427817767222223,
+      "age_hours": 10.443105565555555,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1377,13 +1320,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 17600,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T19:29:32+00:00",
-      "age_hours": 10.427818006111112,
+      "age_hours": 10.443105755833333,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1399,13 +1341,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 17900,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T19:29:32+00:00",
-      "age_hours": 10.427818240555554,
+      "age_hours": 10.44310593888889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1421,13 +1362,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 17600,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T19:29:33+00:00",
-      "age_hours": 10.427540705555556,
+      "age_hours": 10.442828346111112,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1437,19 +1377,18 @@
       "title": "پدر پايه تمام ماجراست ❤️ 😁 Join ➪ 🆔 @vaybabamumad",
       "description": "پدر پايه تمام ماجراست ❤️ 😁 Join ➪ 🆔 @vaybabamumad",
       "platform": "telegram",
-      "views": 14700,
+      "views": 14800,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 14700,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_post_views": 14800,
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T21:57:45+00:00",
-      "age_hours": 7.957540945277778,
+      "age_hours": 7.9728285352777775,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1465,13 +1404,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 14500,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T21:57:52+00:00",
-      "age_hours": 7.955596736111111,
+      "age_hours": 7.970884278611111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1487,13 +1425,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 14600,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T21:58:08+00:00",
-      "age_hours": 7.951152552777778,
+      "age_hours": 7.966440045833333,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1509,13 +1446,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 14700,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T21:58:10+00:00",
-      "age_hours": 7.950597230555556,
+      "age_hours": 7.965884677222222,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1531,13 +1467,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 14800,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T21:58:49+00:00",
-      "age_hours": 7.939764129722223,
+      "age_hours": 7.955051525,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1553,13 +1488,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 14500,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T21:59:02+00:00",
-      "age_hours": 7.936153471388889,
+      "age_hours": 7.951440771111111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1575,13 +1509,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 14900,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-08T21:59:02+00:00",
-      "age_hours": 7.9361537150000006,
+      "age_hours": 7.951440958888888,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1591,19 +1524,18 @@
       "title": "صبحتون بخیر و شادی ♥️ ‎‌‌‌‌‌‌‌ ☀️ | @vaybabamumad | 🌈",
       "description": "صبحتون بخیر و شادی ♥️ ‎‌‌‌‌‌‌‌ ☀️ | @vaybabamumad | 🌈",
       "platform": "telegram",
-      "views": 1890,
+      "views": 1920,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 1890,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_post_views": 1920,
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-09T03:32:56+00:00",
-      "age_hours": 2.3711545166666665,
+      "age_hours": 2.386441595277778,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1619,13 +1551,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 1950,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-09T03:32:56+00:00",
-      "age_hours": 2.371154755277778,
+      "age_hours": 2.3864417733333334,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1635,19 +1566,18 @@
       "title": "تو ۲۴ ساعت اخیر تسلط زیاد این داشمون به روخونی قرآن همه رو شکه کرده 😂 😂 Join ➪ 🆔 @vaybabamumad",
       "description": "تو ۲۴ ساعت اخیر تسلط زیاد این داشمون به روخونی قرآن همه رو شکه کرده 😂 😂 Join ➪ 🆔 @vaybabamumad",
       "platform": "telegram",
-      "views": 1980,
+      "views": 2009,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 1980,
-      "telegram_repost_channels": [
-        "vaybabamumad"
-      ],
+      "telegram_post_views": 2009,
+      "telegram_repost_channels": [],
+      "telegram_channel": "vaybabamumad",
       "published_at": "2026-10-09T03:32:56+00:00",
-      "age_hours": 2.3711550236111107,
+      "age_hours": 2.3864419725,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1663,13 +1593,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 10300,
-      "telegram_repost_channels": [
-        "khandbazar20"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandbazar20",
       "published_at": "2026-10-08T13:58:37+00:00",
-      "age_hours": 15.9432546,
+      "age_hours": 15.958543685555556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1685,13 +1614,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 8650,
-      "telegram_repost_channels": [
-        "khandbazar20"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandbazar20",
       "published_at": "2026-10-08T15:38:20+00:00",
-      "age_hours": 14.281310705277779,
+      "age_hours": 14.29659967,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1707,13 +1635,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 8940,
-      "telegram_repost_channels": [
-        "khandbazar20"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandbazar20",
       "published_at": "2026-10-08T20:16:13+00:00",
-      "age_hours": 9.649923777777778,
+      "age_hours": 9.665212310277779,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1723,19 +1650,18 @@
       "title": "اتفاقی که برای رفیقم میوفته وقتی دوست دخترش بهش زنگ‌ میزنه : @khandbazar20 / 😁 بازار",
       "description": "اتفاقی که برای رفیقم میوفته وقتی دوست دخترش بهش زنگ‌ میزنه : @khandbazar20 / 😁 بازار",
       "platform": "telegram",
-      "views": 2540,
+      "views": 2570,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 2540,
-      "telegram_repost_channels": [
-        "khandbazar20"
-      ],
+      "telegram_post_views": 2570,
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandbazar20",
       "published_at": "2026-10-09T04:42:49+00:00",
-      "age_hours": 1.2065906380555556,
+      "age_hours": 1.2218791313888888,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1745,19 +1671,18 @@
       "title": "صبح خودتون رو با تماشای این هموطن زیبای متوازی الاضلاع شروع کنید(: @khandbazar20 / 😁 بازار",
       "description": "صبح خودتون رو با تماشای این هموطن زیبای متوازی الاضلاع شروع کنید(: @khandbazar20 / 😁 بازار",
       "platform": "telegram",
-      "views": 2009,
+      "views": 2040,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 2009,
-      "telegram_repost_channels": [
-        "khandbazar20"
-      ],
+      "telegram_post_views": 2040,
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandbazar20",
       "published_at": "2026-10-09T04:58:57+00:00",
-      "age_hours": 0.9377019408333334,
+      "age_hours": 0.9529903866666666,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1767,19 +1692,18 @@
       "title": "وضعیت این روز های پروازهای ایران: @khandbazar20 / 😁 بازار",
       "description": "وضعیت این روز های پروازهای ایران: @khandbazar20 / 😁 بازار",
       "platform": "telegram",
-      "views": 300,
+      "views": 335,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 300,
-      "telegram_repost_channels": [
-        "khandbazar20"
-      ],
+      "telegram_post_views": 335,
+      "telegram_repost_channels": [],
+      "telegram_channel": "khandbazar20",
       "published_at": "2026-10-09T05:49:57+00:00",
-      "age_hours": 0.08770215222222223,
+      "age_hours": 0.10299055138888889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1795,13 +1719,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 671,
-      "telegram_repost_channels": [
-        "bikhiyalbaba"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bikhiyalbaba",
       "published_at": "2026-01-08T07:52:02+00:00",
-      "age_hours": 6574.053146911667,
+      "age_hours": 6574.068428490556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1817,13 +1740,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 605,
-      "telegram_repost_channels": [
-        "bikhiyalbaba"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bikhiyalbaba",
       "published_at": "2026-01-08T08:58:03+00:00",
-      "age_hours": 6572.952869349445,
+      "age_hours": 6572.968150885278,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1839,13 +1761,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 673,
-      "telegram_repost_channels": [
-        "bikhiyalbaba"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bikhiyalbaba",
       "published_at": "2026-01-08T08:58:03+00:00",
-      "age_hours": 6572.952869561111,
+      "age_hours": 6572.968151054444,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1861,13 +1782,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 1290,
-      "telegram_repost_channels": [
-        "bikhiyalbaba"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bikhiyalbaba",
       "published_at": "2026-01-08T14:19:51+00:00",
-      "age_hours": 6567.589536656388,
+      "age_hours": 6567.604818066667,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1883,13 +1803,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 2300,
-      "telegram_repost_channels": [
-        "bikhiyalbaba"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bikhiyalbaba",
       "published_at": "2026-01-08T16:06:02+00:00",
-      "age_hours": 6565.819814708333,
+      "age_hours": 6565.835096059722,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1905,13 +1824,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 2500,
-      "telegram_repost_channels": [
-        "bikhiyalbaba"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bikhiyalbaba",
       "published_at": "2026-01-08T16:06:03+00:00",
-      "age_hours": 6565.819537141944,
+      "age_hours": 6565.834818445833,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1927,13 +1845,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 725,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T07:03:34+00:00",
-      "age_hours": 46.86111387138889,
+      "age_hours": 46.87640815527777,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1949,13 +1866,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 654,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T11:09:25+00:00",
-      "age_hours": 42.763614070833334,
+      "age_hours": 42.77890831361111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1971,13 +1887,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 670,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T11:09:25+00:00",
-      "age_hours": 42.763614275555554,
+      "age_hours": 42.77890847138889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -1993,13 +1908,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 745,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T11:09:26+00:00",
-      "age_hours": 42.76333668638889,
+      "age_hours": 42.77863084249999,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2015,13 +1929,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 784,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T11:09:26+00:00",
-      "age_hours": 42.76333688972222,
+      "age_hours": 42.77863099388889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2037,13 +1950,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 625,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T18:59:40+00:00",
-      "age_hours": 34.926115038333336,
+      "age_hours": 34.941409066666665,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2059,13 +1971,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 640,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T18:59:40+00:00",
-      "age_hours": 34.92611524611111,
+      "age_hours": 34.941409229722225,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2081,13 +1992,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 706,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-07T18:59:41+00:00",
-      "age_hours": 34.92583765777778,
+      "age_hours": 34.94113160388889,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2103,13 +2013,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 678,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-08T04:44:52+00:00",
-      "age_hours": 25.1727822725,
+      "age_hours": 25.188076183611113,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2125,13 +2034,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 718,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-08T04:44:52+00:00",
-      "age_hours": 25.172782469722225,
+      "age_hours": 25.188076338055556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2147,13 +2055,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5590,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-08T17:57:35+00:00",
-      "age_hours": 11.960838223888889,
+      "age_hours": 11.976132049722223,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2163,19 +2070,18 @@
       "title": "این ویدیوی قدیمی ، آواز خوندنی دختر کوچولو رو یادتونه ؟ ایشون بهار گودرزی هستن همون دختربچه‌ ای که یه زمانی ویدیوی آواز خوندنش تو کلاس وایرال شده بود. حالا بزرگ شده و این هنر رو خلق کرده 👏 👌 .",
       "description": "این ویدیوی قدیمی ، آواز خوندنی دختر کوچولو رو یادتونه ؟ ایشون بهار گودرزی هستن همون دختربچه‌ ای که یه زمانی ویدیوی آواز خوندنش تو کلاس وایرال شده بود. حالا بزرگ شده و این هنر رو خلق کرده 👏 👌 .",
       "platform": "telegram",
-      "views": 380,
+      "views": 381,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 380,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_post_views": 381,
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-08T18:00:23+00:00",
-      "age_hours": 11.914171863611113,
+      "age_hours": 11.929465635000001,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2185,19 +2091,18 @@
       "title": "راهکار نگو بگو شاهکار... 😂 😂 😂 .",
       "description": "راهکار نگو بگو شاهکار... 😂 😂 😂 .",
       "platform": "telegram",
-      "views": 405,
+      "views": 406,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 405,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_post_views": 406,
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-08T18:00:23+00:00",
-      "age_hours": 11.914172124166667,
+      "age_hours": 11.929465842777779,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2213,13 +2118,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 424,
-      "telegram_repost_channels": [
-        "kafeh_khande"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "kafeh_khande",
       "published_at": "2026-10-08T18:00:24+00:00",
-      "age_hours": 11.91389456,
+      "age_hours": 11.929188235277778,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2235,13 +2139,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 735,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-07T17:04:00+00:00",
-      "age_hours": 36.854066545833334,
+      "age_hours": 36.86936558944445,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2257,13 +2160,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 677,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T06:16:48+00:00",
-      "age_hours": 23.640733988333334,
+      "age_hours": 23.656032867222223,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2273,19 +2175,18 @@
       "title": "👵🏻 🍝 😋 حاج خانم فداکار زرنگ 😂 😂 💞 @NiceBesT 💞",
       "description": "👵🏻 🍝 😋 حاج خانم فداکار زرنگ 😂 😂 💞 @NiceBesT 💞",
       "platform": "telegram",
-      "views": 609,
+      "views": 611,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 609,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_post_views": 611,
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T09:15:22+00:00",
-      "age_hours": 20.66462325,
+      "age_hours": 20.6799220525,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2301,13 +2202,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 810,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T09:33:57+00:00",
-      "age_hours": 20.35490125222222,
+      "age_hours": 20.370200009722225,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2317,19 +2217,18 @@
       "title": "دهه نودیا همچنان حماسه می‌آفرینن 😂 💞 @NiceBesT 💞",
       "description": "دهه نودیا همچنان حماسه می‌آفرینن 😂 💞 @NiceBesT 💞",
       "platform": "telegram",
-      "views": 581,
+      "views": 582,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 581,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_post_views": 582,
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T11:20:01+00:00",
-      "age_hours": 18.58712390333333,
+      "age_hours": 18.602422565555553,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2339,19 +2238,18 @@
       "title": "عصبانیت شدید قاضی‌پور از سوال مجری درباره زنوزی! زنوزی این همه پول از کجا آورده؟! 💞 @NiceBesT 💞",
       "description": "عصبانیت شدید قاضی‌پور از سوال مجری درباره زنوزی! زنوزی این همه پول از کجا آورده؟! 💞 @NiceBesT 💞",
       "platform": "telegram",
-      "views": 578,
+      "views": 580,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 578,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_post_views": 580,
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T11:30:02+00:00",
-      "age_hours": 18.420179673055557,
+      "age_hours": 18.43547829361111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2361,19 +2259,18 @@
       "title": "ما هم همینطور گربه، ما هم همینطور 💞 @NiceBesT 💞",
       "description": "ما هم همینطور گربه، ما هم همینطور 💞 @NiceBesT 💞",
       "platform": "telegram",
-      "views": 429,
+      "views": 431,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 429,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_post_views": 431,
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T19:04:26+00:00",
-      "age_hours": 10.846847083611111,
+      "age_hours": 10.862145546388888,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2383,19 +2280,18 @@
       "title": "وقتی کار رو به‌جای اوسا بنا میدن دست اوس موسی نتیجش این شکلی میشه؛ این دوتا خانوم رفته بودن برای طراحی داخلی یه ساختمون که در یه اتفاق منطقی‌ دیوار میوفته روشون: 💞 @NiceBesT 💞",
       "description": "وقتی کار رو به‌جای اوسا بنا میدن دست اوس موسی نتیجش این شکلی میشه؛ این دوتا خانوم رفته بودن برای طراحی داخلی یه ساختمون که در یه اتفاق منطقی‌ دیوار میوفته روشون: 💞 @NiceBesT 💞",
       "platform": "telegram",
-      "views": 419,
+      "views": 422,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 419,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_post_views": 422,
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T19:10:21+00:00",
-      "age_hours": 10.74823617138889,
+      "age_hours": 10.763534592777779,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2405,19 +2301,18 @@
       "title": "من فقط با تو زندم ♥️ 💞 @NiceBesT 💞",
       "description": "من فقط با تو زندم ♥️ 💞 @NiceBesT 💞",
       "platform": "telegram",
-      "views": 325,
+      "views": 327,
       "likes": 0,
       "comments": 0,
       "shares": 0,
       "telegram_repost_views": 0,
-      "telegram_post_views": 325,
-      "telegram_repost_channels": [
-        "nicebest"
-      ],
+      "telegram_post_views": 327,
+      "telegram_repost_channels": [],
+      "telegram_channel": "nicebest",
       "published_at": "2026-10-08T20:30:01+00:00",
-      "age_hours": 9.420458791666666,
+      "age_hours": 9.435757128888888,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2433,13 +2328,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 289000,
-      "telegram_repost_channels": [
-        "VahidOnline"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "VahidOnline",
       "published_at": "2026-10-07T12:52:38+00:00",
-      "age_hours": 41.043867622499995,
+      "age_hours": 41.05916310944444,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2455,13 +2349,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 238000,
-      "telegram_repost_channels": [
-        "VahidOnline"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "VahidOnline",
       "published_at": "2026-10-08T16:12:37+00:00",
-      "age_hours": 13.71081542527778,
+      "age_hours": 13.726110178888888,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2477,13 +2370,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6210,
-      "telegram_repost_channels": [
-        "tanzolemareh_t"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "tanzolemareh_t",
       "published_at": "2026-07-22T16:27:07+00:00",
-      "age_hours": 1885.4693294580554,
+      "age_hours": 1885.4846060980556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2499,13 +2391,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5440,
-      "telegram_repost_channels": [
-        "tanzolemareh_t"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "tanzolemareh_t",
       "published_at": "2026-07-23T14:31:26+00:00",
-      "age_hours": 1863.3973852444444,
+      "age_hours": 1863.4126618330556,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2521,13 +2412,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6310,
-      "telegram_repost_channels": [
-        "tanzolemareh_t"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "tanzolemareh_t",
       "published_at": "2026-07-24T18:09:50+00:00",
-      "age_hours": 1835.7573854622221,
+      "age_hours": 1835.7726620044446,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2543,13 +2433,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6580,
-      "telegram_repost_channels": [
-        "tanzolemareh_t"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "tanzolemareh_t",
       "published_at": "2026-07-25T19:07:41+00:00",
-      "age_hours": 1810.793219045,
+      "age_hours": 1810.8084955250001,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2565,13 +2454,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 6840,
-      "telegram_repost_channels": [
-        "tanzolemareh_t"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "tanzolemareh_t",
       "published_at": "2026-08-10T15:50:53+00:00",
-      "age_hours": 1430.0732193600002,
+      "age_hours": 1430.0884957691667,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2587,13 +2475,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 5700,
-      "telegram_repost_channels": [
-        "tanzolemareh_t"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "tanzolemareh_t",
       "published_at": "2026-08-17T16:41:54+00:00",
-      "age_hours": 1261.222941825,
+      "age_hours": 1261.2382181769444,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2609,13 +2496,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 556,
-      "telegram_repost_channels": [
-        "aranbidgoliha"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "aranbidgoliha",
       "published_at": "2025-12-19T15:54:39+00:00",
-      "age_hours": 7046.010603053888,
+      "age_hours": 7046.025914153055,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2631,13 +2517,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 417,
-      "telegram_repost_channels": [
-        "aranbidgoliha"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "aranbidgoliha",
       "published_at": "2026-07-18T15:05:53+00:00",
-      "age_hours": 1982.823382596389,
+      "age_hours": 1982.83869332,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2653,13 +2538,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 317,
-      "telegram_repost_channels": [
-        "aranbidgoliha"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "aranbidgoliha",
       "published_at": "2026-07-28T18:15:56+00:00",
-      "age_hours": 1739.6558830605557,
+      "age_hours": 1739.6711936833335,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2675,13 +2559,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 20,
-      "telegram_repost_channels": [
-        "bandaranzali_aliabad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bandaranzali_aliabad",
       "published_at": "2026-07-23T18:21:24+00:00",
-      "age_hours": 1859.5649546986112,
+      "age_hours": 1859.5802820813888,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2697,13 +2580,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 19,
-      "telegram_repost_channels": [
-        "bandaranzali_aliabad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bandaranzali_aliabad",
       "published_at": "2026-07-30T20:27:25+00:00",
-      "age_hours": 1689.464677581389,
+      "age_hours": 1689.4800048236111,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2719,13 +2601,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 17,
-      "telegram_repost_channels": [
-        "bandaranzali_aliabad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bandaranzali_aliabad",
       "published_at": "2026-08-06T18:15:08+00:00",
-      "age_hours": 1523.6694000100001,
+      "age_hours": 1523.68472721,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     },
@@ -2741,13 +2622,12 @@
       "shares": 0,
       "telegram_repost_views": 0,
       "telegram_post_views": 10,
-      "telegram_repost_channels": [
-        "bandaranzali_aliabad"
-      ],
+      "telegram_repost_channels": [],
+      "telegram_channel": "bandaranzali_aliabad",
       "published_at": "2026-09-22T14:57:05+00:00",
-      "age_hours": 398.97023557194444,
+      "age_hours": 398.98556227916663,
       "persian_signal": true,
-      "discovered_at": "2026-10-09T05:55:08.811711+00:00",
+      "discovered_at": "2026-10-09T05:56:03.666311+00:00",
       "source": "telegram_native_video",
       "query": 1
     }
