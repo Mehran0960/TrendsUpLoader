@@ -64,6 +64,28 @@ def platform(url):
     if "aparat.com" in h: return "aparat"
     return "web"
 
+
+def is_video_post(url):
+    """Reject profile/search pages: downstream must receive an actual post/video URL."""
+    from urllib.parse import urlparse
+    p = platform(url)
+    parsed = urlparse(str(url or ""))
+    path = parsed.path or "/"
+    if p == "instagram":
+        return bool(re.match(r"^/(?:reel|reels|p|tv)/[A-Za-z0-9_-]+/?$", path))
+    if p == "tiktok":
+        return bool(re.search(r"/video/\d+", path))
+    if p == "youtube":
+        return bool(re.match(r"^/shorts/[A-Za-z0-9_-]+", path) or
+                    (re.match(r"^/watch$", path) and bool(parsed.query)) or
+                    "youtu.be" in parsed.netloc)
+    if p == "x":
+        return bool(re.search(r"/status/\d+", path))
+    if p == "aparat":
+        return bool(re.match(r"^/v/[A-Za-z0-9]+", path))
+    return False
+
+
 def decode_bing_url(value):
     """Decode Bing's signed redirect URL into the real destination."""
     from base64 import urlsafe_b64decode
@@ -80,13 +102,13 @@ def decode_bing_url(value):
     except Exception:
         return ""
 
-def bing_search(query, limit=12):
+def bing_search(query, limit=12, timeout=14):
     """Zero-key fallback discovery using Bing's public HTML results."""
     from html import unescape
     from urllib.parse import quote_plus
     headers = {"User-Agent": UA, "Accept-Language": "fa-IR,fa;q=0.9,en;q=0.7"}
     url = "https://www.bing.com/search?count=%d&q=%s" % (limit, quote_plus(query))
-    r = requests.get(url, headers=headers, timeout=25)
+    r = requests.get(url, headers=headers, timeout=timeout)
     r.raise_for_status()
     text = r.text
     out = []
@@ -104,12 +126,12 @@ def bing_search(query, limit=12):
             continue
         seen.add(dest)
         title = re.sub(r"<[^>]+>", " ", unescape(hm.group(2)))
-        title = re.sub(r"\\s+", " ", title).strip()
+            title = re.sub(r"\s+", " ", title).strip()
         pm = re.search(r"<p[^>]*>(.*?)</p>", block, re.I | re.S)
         desc = ""
         if pm:
             desc = re.sub(r"<[^>]+>", " ", unescape(pm.group(1)))
-            desc = re.sub(r"\\s+", " ", desc).strip()
+            desc = re.sub(r"\s+", " ", desc).strip()
         out.append({"url": dest, "title": title, "description": desc, "raw": {"source":"bing_search"}})
         if len(out) >= limit:
             break
@@ -172,14 +194,14 @@ def main():
         # This is discovery-only; media acquisition still happens downstream.
         qidx = int(now.timestamp() // (30 * 60)) % len(QUERIES)
         query_variants = [
+            'site:instagram.com/reel/ (خنده OR خنده‌دار OR طنز OR سوتی OR بامزه OR غافلگیرکننده)',
+            'site:instagram.com/p/ (طنز OR خنده دار OR سوتی OR دابسمش OR ایرانی)',
             QUERIES[qidx],
-            'site:instagram.com/reel (فارسی OR ایرانی OR ایران) (لایک OR likes OR پربازدید)',
-            'site:tiktok.com/@ (فارسی OR ایرانی OR ایران) (views OR لایک OR پربازدید)',
+            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) (خنده OR طنز OR بامزه OR پربازدید)',
             'site:aparat.com/v (ایران OR ایرانی) (بازدید OR پربازدید OR وایرال)',
-            'site:x.com (ویدئو OR ویدیو) (ایران OR ایرانی OR فارسی) (views OR likes)',
         ]
         found = []
-        for q in query_variants[:3]:
+        for q in query_variants[:5]:
             try:
                 found.extend(bing_search(q, limit=12))
             except Exception as exc:
@@ -189,6 +211,8 @@ def main():
         for x in found:
             p = platform(x["url"])
             if p not in {"tiktok","instagram","youtube","x","aparat"}:
+                continue
+            if not is_video_post(x["url"]):
                 continue
             if x["url"] in seen_urls:
                 continue
