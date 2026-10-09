@@ -1661,11 +1661,11 @@ def main():
                 str(item.get("title") or ""),
                 str(item.get("description") or ""),
             ]).lower()
-            broad_interest_cues = [
+            broad_interest_cues = {
                 "humor_or_reaction": bool(re.search(r"(خنده.?دار|طنز|شوخی|سوتی|بامزه|میم|واکنش بامزه|prank|funny|fail)", item_text, re.I)),
                 "animals": bool(re.search(r"(گربه|سگ|حیوان|میمون|پرنده|cat|dog|animal|pet)", item_text, re.I)),
                 "spectacle_or_event": bool(re.search(r"(صاعقه|رعد.?وبرق|آتش|انفجار|سقوط|تصادف|نجات|برخورد|سیل|زلزله|توفان|ترفند|مهارت|رکورد|غیرمنتظره|باورنکردنی|فوتبال|گل تاریخی|حرکت عجیب|هوش مصنوعی|ربات|تبدیل|قبل.{0,12}بعد|صحنه آخر)", item_text, re.I)),
-            ]
+            }
             if single_metric_telegram:
                 if demand < MIN_SINGLE_METRIC_TELEGRAM_DEMAND:
                     appeal_failures.append("demand_score_below_floor")
