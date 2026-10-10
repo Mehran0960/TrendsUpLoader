@@ -11,6 +11,7 @@ from content_pipeline.send_review_videos import (
     canonical_media_url,
     media_fingerprints_match,
     duration_content_gate,
+    SPECIFIC_LONG_CLIP_LANES,
 )
 
 
@@ -165,6 +166,26 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "age_hours": 48,
         }
         self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
+    def test_accepts_recent_topic_specific_firecrawl_result_for_private_review(self):
+        candidate = {
+            "id": "recent-firecrawl-home-tip",
+            "url": "https://www.instagram.com/reel/organize123/",
+            "platform": "instagram",
+            "source": "firecrawl_search",
+            "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+            "age_hours": 24,
+            "title": "A practical life hack to organize a tiny desk",
+            "description": "A clear home organization tip.",
+            "views": 0,
+            "likes": 0,
+            "comments": 0,
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["score_confidence"], "low")
+        self.assertLess(selected[0]["follow_growth_score"], 42)
+        self.assertTrue(set(selected[0]["hook_signals"]).intersection(SPECIFIC_LONG_CLIP_LANES))
 
     def test_skips_youtube_file_relay_while_runner_has_antibot_block(self):
         candidate = {
