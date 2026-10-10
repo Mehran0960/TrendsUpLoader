@@ -35,7 +35,6 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertGreater(ranked[0]["follow_growth_score"], ranked[1]["follow_growth_score"])
         self.assertEqual(ranked[0]["candidate_action"], "prioritize_for_visual_and_rights_review")
         self.assertEqual(ranked[0]["rights_status"], "not_assessed")
-        self.assertEqual(ranked[0]["rights_status"], "not_assessed")
 
     def test_unknown_metrics_are_low_confidence_and_never_auto_publishable(self):
         result = annotate_candidate({
@@ -48,6 +47,17 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertEqual(result["candidate_action"], "manual_review")
         self.assertEqual(result["rights_status"], "not_assessed")
         self.assertIn("animals", result["hook_signals"])
+
+    def test_protest_driven_current_affairs_is_flagged_as_news(self):
+        result = annotate_candidate({
+            "url": "https://t.me/example/124",
+            "platform": "telegram",
+            "title": "مسابقات لغو شد؛ تجمع، شعار و اعتراض شرکت‌کنندگان",
+            "views": 90000,
+            "age_hours": 2,
+        })
+        self.assertTrue(result["news_risk_signal"])
+        self.assertEqual(result["content_lane"], "news_or_current_affairs")
 
     def test_sensitive_risk_is_rejected_for_review(self):
         result = annotate_candidate({
