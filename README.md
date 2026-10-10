@@ -1,35 +1,42 @@
 # TrendsUpLoader
 
-## Primary objective: grow followers on-platform
+## Primary objective: aggregate audience and monetize indirectly
 
-The content pipeline is designed to discover already compelling short-form videos and grow followers on the same platform where each post appears. Platform ad revenue is not a goal, and directing viewers to an external destination is not required.
+This project uses social platforms as audience-acquisition channels, then guides interested people—when appropriate and voluntary—to a central destination that the project controls as much as practical. Direct creator payouts and platform advertising revenue are explicitly out of scope.
 
-Project requirements and remaining stages are documented in [PROJECT_OBJECTIVE.md](PROJECT_OBJECTIVE.md).
+Intended future monetization includes affiliate referrals, sponsorships, qualified leads, and useful digital products with automated delivery. Views and follower counts are intermediate signals, not the business model.
 
-## Content pipeline
+Full requirements and current limitations: [PROJECT_OBJECTIVE.md](PROJECT_OBJECTIVE.md).
 
-- Multi-platform public discovery looks for video-post URLs from Instagram, TikTok, YouTube, X, Aparat, and public Telegram channels. Public search is a lead source, not direct access to a user's Instagram Explore feed.
-- When `YOUTUBE_API_KEY` is configured, the discovery lane uses the official YouTube Data API to find fresh videos within a rolling 36-hour window and record native views, likes, and comments.
-- Candidates receive a heuristic follower-growth priority score, confidence label, content lane, and separate safety/news/weapon/compilation review flags. Generic roundups are deprioritized in favor of one clear moment and payoff. The score is for triage only; it does not verify media ownership, publication rights, visual quality, or actual follower gains.
-- A scheduled workflow can send up to three deduplicated, recent candidate links to the configured internal Telegram chat for review. These messages are private review alerts, not instructions to funnel an audience to Telegram and not automatic public reposts.
-- The viral video hunter and a rights-gated original-video prototype are separate workflows. Automatic publication is not yet a universal multi-platform publisher; account/API access and platform-specific analytics still need to be connected where authorized.
-- Reuse or cross-posting is allowed only after platform-specific rights, safety, media quality, and format checks. A high discovery score alone never grants permission to publish.
+## Content discovery
 
-## Trend Radar data collector
+- Multi-platform public discovery searches for video-post URLs from Instagram, TikTok, YouTube, X, Aparat, and public Telegram channels. Public search is a lead source, not access to a user's private feed.
+- When `YOUTUBE_API_KEY` is configured, the discovery lane uses the official YouTube Data API for fresh videos and native public metrics.
+- Candidates receive a heuristic priority score, confidence label, content lane, and safety/news/weapon/compilation/promotional review flags. The score is for triage only and does not predict actual growth or establish publication rights.
+- A scheduled workflow can send up to three deduplicated, recent candidate links to the private internal Telegram review chat. These messages are operational alerts—not public reposts and not the audience funnel.
+- Candidate discovery and original-video creation are separate. Reusing a third-party video requires a license, permission, or platform-native reuse route that supports the intended use.
 
-The companion collector tracks trends and signals using Google Trends Trending Now (US + Iran) and the Hacker News official Firebase API.
+## Destination-specific publishing
+
+Every destination is evaluated separately. Rights, current platform rules, and account/API access are distinct checks; passing one does not pass the others.
+
+- `content_pipeline/distribution_plan.py` creates a per-platform readiness manifest next to the generated video's metadata.
+- Telegram has an official Bot API publishing adapter, but public audience publishing is **off by default** and requires separate channel credentials plus explicit opt-in.
+- YouTube, TikTok, Instagram, Aparat, and X publishing adapters are not yet connected in this repository. Until an authorized, sustainable route is verified, the workflow packages an MP4 for export instead of pretending automatic publishing is ready.
+- The original-short workflow no longer depends on Make or a 5 MB relay. It builds a portable distribution bundle and does not publish to any public destination.
+- No discovered third-party clip is automatically republished based only on its ranking score.
+
+See [DISTRIBUTION_ARCHITECTURE.md](DISTRIBUTION_ARCHITECTURE.md) for the platform-by-platform implementation roadmap.
+
+## Trend Radar collector
+
+The companion collector tracks Google Trends Trending Now (US + Iran) and Hacker News signals.
 
 - Storage: Cloudflare D1 (`trend-radar-core`).
 - Endpoints: `GET /`, `GET /health`, and `GET /status`.
 - Collection schedule: every 15 minutes.
-- No paid provider is required for the core trend collector.
-
-## YouTube publishing
-
-A Make intake scenario has been created but is currently inactive and only has a webhook trigger. The planned path is to send a compressed, rights-gated original short from GitHub Actions to Make, then upload it to the authorized YouTube channel as **private**. It does not publish third-party discoveries.
-
-See [YOUTUBE_PUBLISH_SETUP.md](YOUTUBE_PUBLISH_SETUP.md) for the one-time account authorization, repository secret, and harmless `probe` workflow steps. Do not use the `upload` mode until the Make scenario has been fully wired and verified.
+- The core trend collector does not require a paid provider.
 
 ## Automation
 
-GitHub Actions workflows run discovery, quality and rights tests, and eligible publishing tasks. See the Actions tab for the current status of individual runs.
+GitHub Actions runs discovery, quality/rights checks, distribution-manifest creation, and opt-in publishing workflows. Check the Actions tab for individual run status.
