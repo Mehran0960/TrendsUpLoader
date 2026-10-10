@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-relay:
+  build-and-package:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -38,6 +38,7 @@ jobs:
             sudo apt-get install -y -qq ffmpeg
           fi
           ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
 
       - name: Cache Persian Gyro voice
         uses: actions/cache@v4
@@ -79,7 +80,7 @@ jobs:
               raise SystemExit("PUBLICATION_RIGHTS_GATE_FAILED")
           if float(meta.get("duration_seconds") or 0) < 16:
               raise SystemExit("VIDEO_TOO_SHORT")
-          print("YOUTUBE_ORIGINAL_RELAY_GATES_OK")
+          print("ORIGINAL_DISTRIBUTION_GATES_OK")
           PY
 
       - name: Prepare portable MP4 for multi-platform distribution
