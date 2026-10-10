@@ -75,7 +75,7 @@ def main():
         }, ensure_ascii=False))
         return 0
     duration = float(meta.get("duration_seconds") or 0)
-    if duration < 18:
+    if duration < 16:
         print(f"Telegram publish skipped: video too short ({duration:.2f}s).")
         return 0
     script_quality = str(meta.get("script_quality") or "")
