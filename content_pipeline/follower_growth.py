@@ -58,10 +58,10 @@ PLATFORM_DISTRIBUTION_GUIDANCE = {
         "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
     },
     "youtube": {
-        "preferred_route": "original story, native Remix where eligible, or licensed use with meaningful original value",
-        "do_not_assume": "a license alone guarantees recommendation reach or clears every platform rule",
-        "publishing_automation": "not_connected; export bundle only",
-        "policy_reference": "https://support.google.com/youtube/answer/1311392",
+        "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
+        "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
+        "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
+        "policy_reference": "https://support.google.com/youtube/answer/2801973",
     },
     "telegram": {
         "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
