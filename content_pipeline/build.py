@@ -15,7 +15,10 @@ from html import unescape
 from PIL import Image, ImageDraw, ImageFont, ImageOps, features
 import arabic_reshaper
 from bidi.algorithm import get_display
-from publication_rights import build_rights_manifest
+try:
+    from .publication_rights import build_rights_manifest
+except ImportError:
+    from publication_rights import build_rights_manifest
 
 RADAR_URL = os.environ.get("RADAR_URL", "https://trend-radar.m-hoseyni-6966.workers.dev/candidates")
 OUT = Path("out")
@@ -834,6 +837,19 @@ def split_sentences(text: str):
     return parts
 
 CURATED_STORIES = {
+    "AI Demo: One photo becomes video": {
+        "title_fa": "یک عکس؛ چطور هوش مصنوعی ازش ویدئو می‌سازه؟",
+        "script": (
+            "این چالش رو تصور کن: فقط یک عکس داری، اما می‌خوای ازش یک صحنهٔ متحرک بسازی. "
+            "مدل‌های ویدیوساز مثل Veo می‌تونن از متن یا تصویر، ویدئوی تازه تولید کنن؛ حتی حرکت دوربین و صدا هم می‌تونه بخشی از خروجی باشه. "
+            "اما طبیعی به نظر رسیدن تصویر ثابت نمی‌کنه که اتفاق واقعاً رخ داده؛ ممکنه تمام حرکت ساختهٔ مدل باشه. "
+            "پس قبل از شیر کردن یک کلیپ عجیب، منبع اصلیش رو پیدا کن و ببین نشانه‌ای از تولید با هوش مصنوعی داره یا نه. "
+            "آخرین ویدئویی که دیدی و شک کردی واقعی نیست، چی بود؟"
+        ),
+        "visuals": ["ai_network", "ai_chat", "ai_agent", "ai_human"],
+        "labels": ["چالش تصویری", "متن به ویدئو", "واقعی یا ساخته‌شده؟", "نظر تو چیه؟"],
+        "original_visuals_only": True,
+    },
     "Several vulnerabilities have been discovered in the Linux kernel": {
         "title_fa": "هشدار امنیتی جدید برای هسته لینوکس",
         "script": (
@@ -1093,7 +1109,7 @@ def main():
         candidates = [{
             "source": "visual_test",
             "title": test_title,
-            "url": "https://lwn.net/Articles/1097401/",
+            "url": os.environ.get("CONTENT_TEST_URL", "https://lwn.net/Articles/1097401/"),
             "score": 75.0,
             "content_fit": 10.0,
             "velocity_pct": 0,
@@ -1180,12 +1196,18 @@ def main():
     video_dir = Path("out") / "commons_video"
     openverse_dir = Path("out") / "openverse"
     commons_dir = Path("out") / "commons"
-    video_assets = download_commons_videos(title, video_dir, limit=2)
-    visual_assets = download_openverse_visuals(title, openverse_dir, limit=4)
-    if not visual_assets:
-        visual_assets = download_commons_visuals(title, commons_dir, limit=3)
-
     curated = CURATED_STORIES.get(title)
+    if curated and curated.get("original_visuals_only"):
+        # This prototype uses only programmatically rendered original illustrations.
+        # Do not fetch third-party video or image assets for this item.
+        video_assets = []
+        visual_assets = []
+        print("ORIGINAL_VISUALS_ONLY", title)
+    else:
+        video_assets = download_commons_videos(title, video_dir, limit=2)
+        visual_assets = download_openverse_visuals(title, openverse_dir, limit=4)
+        if not visual_assets:
+            visual_assets = download_commons_visuals(title, commons_dir, limit=3)
     sentences = split_sentences(script)
     sentences = sentences[:6] if len(sentences) > 1 else sentences
     if not sentences:
