@@ -415,7 +415,7 @@ def discover_youtube_public_candidates(now=None, limit=50):
         return []
     now = now or datetime.now(timezone.utc)
     query, language = youtube_query_for_time(now)
-    published_after = (now - timedelta(days=7)).isoformat().replace("+00:00", "Z")
+    published_after = (now - timedelta(hours=36)).isoformat().replace("+00:00", "Z")
     try:
         response = requests.get(
             "https://www.googleapis.com/youtube/v3/search",
@@ -484,7 +484,7 @@ def discover_youtube_public_candidates(now=None, limit=50):
             except (TypeError, ValueError):
                 pass
         views = int(stats.get("viewCount") or 0)
-        if age_hours > 168:
+        if age_hours > 36:
             rejected_age += 1
             continue
         if views < 2000:
