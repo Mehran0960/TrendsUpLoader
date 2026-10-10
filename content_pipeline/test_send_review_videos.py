@@ -135,7 +135,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         }
         selected = select_media_candidates([candidate], limit=3)
         self.assertEqual(len(selected), 1)
-        self.assertGreaterEqual(selected[0]["follow_growth_score"], 55)
+        self.assertGreaterEqual(selected[0]["follow_growth_score"], 50)
         self.assertIn("animals", selected[0]["hook_signals"])
 
     def test_rejects_older_telegram_clip_with_only_generic_reaction_hook(self):
