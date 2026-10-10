@@ -46,14 +46,14 @@ YOUTUBE_QUERIES = [
 ]
 
 QUERIES = [
-    'site:tiktok.com inurl:video (خنده OR طنز OR حیوانات OR گربه OR سگ OR ترفند OR آشپزی OR شگفت‌انگیز OR satisfying)',
-    'site:x.com inurl:status (ویدیو OR ویدئو OR video) (طنز OR حیوانات OR ترفند OR غذا OR مهارت OR طبیعت OR ورزش OR satisfying)',
-    'site:aparat.com/v (طنز OR حیوانات OR گربه OR آشپزی OR ترفند OR حیات وحش OR آزمایش OR کاردستی)',
-    'site:tiktok.com inurl:video (هوش مصنوعی OR فناوری OR ربات OR قبل و بعد OR نظافت OR کاردستی OR مهارت OR ترفند کاربردی)',
+    'site:aparat.com/v (طنز OR کلیپ بامزه OR حیوانات جالب OR گربه OR سگ OR آشپزی OR ترفند کاربردی)',
+    'site:x.com inurl:status (ویدیو OR ویدئو OR video) (طنز OR حیوانات OR ترفند OR غذا OR مهارت OR طبیعت OR ورزش)',
     'site:aparat.com/v (قبل و بعد OR تمیزکاری OR نظم‌دهی OR مهارت OR شوت تماشایی OR موسیقی OR نوازندگی OR رقص)',
     'site:x.com inurl:status (animal OR funny OR trick OR skill OR cooking OR wildlife OR science OR DIY OR satisfying) (video OR clip)',
-    'site:tiktok.com inurl:video (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)',
-    'site:aparat.com/v (ویدیو کوتاه OR کلیپ بامزه OR حیوانات جالب OR ترفند کاربردی OR فناوری OR علم OR طبیعت OR غذا)',
+    'site:aparat.com/v (هوش مصنوعی OR فناوری OR ربات OR آزمایش علمی OR کاردستی OR حیات وحش OR دستور پخت)',
+    'site:aparat.com/v (غذای خیابانی OR ترفند خانه OR لحظه غافلگیرکننده OR اجرای موسیقی OR رقص OR حیوانات)',
+    'site:x.com inurl:status (funny animals OR unexpected moment OR life hack OR food recipe OR sports skill OR satisfying) (video OR clip)',
+    'site:aparat.com/v (ویدیو کوتاه OR لحظه جالب OR ترفند OR طبیعت OR خانواده OR مهارت OR علم OR آشپزی)',
 ]
 
 
