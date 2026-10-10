@@ -1,0 +1,293 @@
+#!/usr/bin/env python3
+"""Download a small, private-review shortlist and send the actual video files to Telegram.
+
+This is a curator-only step. It does not publish to public social platforms, and a
+successful download does not grant rights to repost the original creator's work.
+"""
+import html
+import json
+import os
+import re
+import subprocess
+import tempfile
+from datetime import datetime, timezone
+from pathlib import Path
+from urllib.parse import urlparse
+
+import requests
+
+ROOT = Path(__file__).resolve().parents[1]
+INPUT = ROOT / "attention_state" / "social_discovery.json"
+STATE = ROOT / "attention_state" / "social_discovery_notification_state.json"
+TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+TARGET = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+MAX_AGE_HOURS = 36.0
+MIN_SCORE = 48.0
+MAX_VIDEO_BYTES = 48 * 1024 * 1024
+MAX_SENDS = 3
+MAX_TRIES = 12
+SUPPORTED = {"telegram", "youtube", "tiktok", "instagram", "aparat", "x"}
+UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
+
+
+def load_json(path, default):
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        return value if isinstance(value, type(default)) else default
+    except Exception:
+        return default
+
+
+def candidate_id(item):
+    return str(item.get("id") or item.get("url") or "").strip()
+
+
+def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES):
+    """Return recent, score-qualified individual clips, favoring platform diversity."""
+    now = now or datetime.now(timezone.utc)
+    reviewed = {str(x) for x in (reviewed_ids or [])}
+    eligible = []
+    for item in items if isinstance(items, list) else []:
+        if not isinstance(item, dict):
+            continue
+        ident = candidate_id(item)
+        url = str(item.get("url") or "").strip()
+        platform = str(item.get("platform") or "").strip().lower()
+        if not ident or ident in reviewed or not url.startswith(("https://", "http://")):
+            continue
+        if platform not in SUPPORTED:
+            continue
+        try:
+            score = float(item.get("follow_growth_score") or 0)
+            age = float(item.get("age_hours"))
+        except (TypeError, ValueError):
+            continue
+        if score < MIN_SCORE or age < 0 or age > MAX_AGE_HOURS:
+            continue
+        if item.get("score_confidence") not in {"medium", "high"}:
+            continue
+        if any(item.get(k) for k in (
+            "news_risk_signal", "sensitive_risk_signal", "safety_review_signal",
+            "compilation_signal", "promotional_signal",
+        )):
+            continue
+        item = dict(item)
+        item["_review_id"] = ident
+        eligible.append(item)
+
+    eligible.sort(key=lambda x: (
+        float(x.get("follow_growth_score") or 0),
+        -float(x.get("age_hours") or 0),
+    ), reverse=True)
+
+    selected, seen_platforms, seen_ids = [], set(), set()
+    # First pass: get a mix of sources when there are enough eligible candidates.
+    for item in eligible:
+        platform = str(item.get("platform") or "unknown").lower()
+        if platform in seen_platforms:
+            continue
+        selected.append(item)
+        seen_platforms.add(platform)
+        seen_ids.add(item["_review_id"])
+        if len(selected) >= limit:
+            return selected
+    for item in eligible:
+        if item["_review_id"] in seen_ids:
+            continue
+        selected.append(item)
+        seen_ids.add(item["_review_id"])
+        if len(selected) >= limit:
+            break
+    return selected
+
+
+def download_direct_telegram_post(url, destination):
+    """Attempt to fetch the embedded MP4 from a public Telegram post page."""
+    parsed = urlparse(url)
+    match = re.match(r"^/([A-Za-z0-9_]+)/([0-9]+)/?$", parsed.path or "")
+    if not match or parsed.netloc.lower() not in {"t.me", "www.t.me", "telegram.me"}:
+        return False
+    channel, post_id = match.groups()
+    page_url = f"https://t.me/s/{channel}/{post_id}"
+    try:
+        response = requests.get(page_url, headers={"User-Agent": UA}, timeout=25)
+        response.raise_for_status()
+        page = response.text[:8_000_000]
+    except Exception as exc:
+        print("TELEGRAM_SOURCE_PAGE_FAIL", channel, type(exc).__name__)
+        return False
+
+    video_tags = re.findall(r"<video\b[^>]*>", page, flags=re.I | re.S)
+    media_urls = []
+    for tag in video_tags:
+        for attr in ("src", "data-src"):
+            found = re.search(rf"{attr}\s*=\s*[\"']([^\"']+)", tag, flags=re.I)
+            if found:
+                media_url = html.unescape(found.group(1)).replace("&amp;", "&")
+                if media_url.startswith("https://"):
+                    media_urls.append(media_url)
+    # A second pattern covers the player URL embedded in Telegram's page markup.
+    for value in re.findall(r"https://[^\\\"'<> ]+\.(?:mp4|m4v)(?:\?[^\\\"'<> ]*)?", page, flags=re.I):
+        media_urls.append(html.unescape(value).replace("&amp;", "&"))
+
+    for media_url in dict.fromkeys(media_urls):
+        try:
+            with requests.get(media_url, headers={"User-Agent": UA}, stream=True, timeout=40) as response:
+                response.raise_for_status()
+                length = int(response.headers.get("Content-Length") or 0)
+                if length and length > MAX_VIDEO_BYTES:
+                    print("VIDEO_TOO_LARGE_SKIP", channel, length)
+                    continue
+                total = 0
+                with open(destination, "wb") as output:
+                    for chunk in response.iter_content(chunk_size=1024 * 256):
+                        if not chunk:
+                            continue
+                        total += len(chunk)
+                        if total > MAX_VIDEO_BYTES:
+                            output.close()
+                            Path(destination).unlink(missing_ok=True)
+                            print("VIDEO_TOO_LARGE_SKIP", channel, total)
+                            break
+                        output.write(chunk)
+                if Path(destination).is_file() and Path(destination).stat().st_size > 100_000:
+                    return True
+        except Exception as exc:
+            print("TELEGRAM_MEDIA_URL_FAIL", type(exc).__name__)
+            Path(destination).unlink(missing_ok=True)
+    return False
+
+
+def download_with_ytdlp(url, workdir):
+    """Use yt-dlp for supported public individual-post URLs; never downloads playlists."""
+    output_template = str(Path(workdir) / "%(id)s.%(ext)s")
+    command = [
+        "yt-dlp", "--no-warnings", "--no-progress", "--no-playlist",
+        "--retries", "2", "--fragment-retries", "2", "--socket-timeout", "20",
+        "--max-filesize", "48M",
+        "-f",
+        "bv*[height<=720][ext=mp4][filesize<48000000]+ba[ext=m4a]/"
+        "b[height<=720][ext=mp4][filesize<48000000]/b[ext=mp4][filesize<48000000]/"
+        "best[filesize<48000000]",
+        "--merge-output-format", "mp4", "-o", output_template, url,
+    ]
+    result = subprocess.run(command, capture_output=True, text=True, timeout=180)
+    if result.returncode != 0:
+        print("YTDLP_DOWNLOAD_FAIL", url[:120], (result.stderr or result.stdout or "")[-500:].replace("\n", " "))
+        return None
+    files = [p for p in Path(workdir).glob("*") if p.is_file() and p.suffix.lower() == ".mp4"]
+    files = [p for p in files if p.stat().st_size > 100_000 and p.stat().st_size <= MAX_VIDEO_BYTES]
+    return max(files, key=lambda p: p.stat().st_mtime) if files else None
+
+
+def render_caption(item):
+    title = re.sub(r"\s+", " ", str(item.get("title") or "ویدئوی منتخب").strip())[:240]
+    url = str(item.get("url") or "")
+    platform = str(item.get("platform") or "نامشخص")
+    try:
+        score = float(item.get("follow_growth_score") or 0)
+        age = float(item.get("age_hours") or 0)
+    except (TypeError, ValueError):
+        score, age = 0, 0
+    caption = (
+        f"{title}\n"
+        f"منبع: {platform} | امتیاز غربالگری: {score:.0f}/100 | سن تقریبی: {age:.1f} ساعت\n"
+        f"لینک اصلی: {url}\n"
+        "صرفاً برای بازبینی خصوصی؛ مجوز بازنشر محسوب نمی‌شود."
+    )
+    return caption[:1024]
+
+
+def send_video(path, item):
+    endpoint = f"https://api.telegram.org/bot{TOKEN}/sendVideo"
+    with open(path, "rb") as video:
+        response = requests.post(
+            endpoint,
+            data={
+                "chat_id": TARGET,
+                "caption": render_caption(item),
+                "supports_streaming": "true",
+            },
+            files={"video": (Path(path).name, video, "video/mp4")},
+            timeout=(30, 150),
+        )
+    response.raise_for_status()
+    payload = response.json()
+    if not payload.get("ok"):
+        raise RuntimeError("Telegram sendVideo returned ok=false")
+    return (payload.get("result") or {}).get("message_id")
+
+
+def main():
+    if not TOKEN or not TARGET:
+        print("MEDIA_REVIEW_SEND_SKIPPED: Telegram credentials not configured.")
+        return 0
+
+    data = load_json(INPUT, {})
+    state = load_json(STATE, {"version": 1, "notified_ids": []})
+    reviewed = [str(x) for x in state.get("media_reviewed_ids", [])]
+    candidates = select_media_candidates(data.get("items", []), reviewed)
+    if not candidates:
+        print("MEDIA_REVIEW_EMPTY: no new recent, qualified video candidates.")
+        return 0
+
+    sent_ids = []
+    with tempfile.TemporaryDirectory(prefix="short-review-") as workdir:
+        for item in candidates:
+            if len(sent_ids) >= MAX_SENDS:
+                break
+            url = str(item.get("url") or "")
+            video_path = Path(workdir) / "telegram-upload.mp4"
+            video_path.unlink(missing_ok=True)
+            downloaded = False
+            if str(item.get("platform") or "").lower() == "telegram":
+                downloaded = download_direct_telegram_post(url, str(video_path))
+
+            if not downloaded:
+                media_path = download_with_ytdlp(url, workdir)
+                if media_path:
+                    video_path = media_path
+                    downloaded = True
+
+            if not downloaded or not video_path.is_file():
+                print("MEDIA_REVIEW_DOWNLOAD_SKIPPED", item.get("platform"), url[:140])
+                continue
+            size = video_path.stat().st_size
+            if size > MAX_VIDEO_BYTES:
+                print("MEDIA_REVIEW_SIZE_GUARD", size)
+                continue
+
+            try:
+                message_id = send_video(str(video_path), item)
+                ident = item["_review_id"]
+                sent_ids.append(ident)
+                print(json.dumps({
+                    "MEDIA_REVIEW_VIDEO_SENT": True,
+                    "message_id": message_id,
+                    "platform": item.get("platform"),
+                    "title": str(item.get("title") or "")[:150],
+                    "url": url,
+                    "bytes": size,
+                }, ensure_ascii=False))
+            except Exception as exc:
+                print("MEDIA_REVIEW_TELEGRAM_SEND_FAIL", url[:140], type(exc).__name__, str(exc)[:240])
+            finally:
+                # Keep the workspace clean before the next source is downloaded.
+                if video_path.exists():
+                    video_path.unlink(missing_ok=True)
+
+    if sent_ids:
+        state.update({
+            "version": 1,
+            "media_review_updated_at": datetime.now(timezone.utc).isoformat(),
+            "media_reviewed_ids": list(dict.fromkeys(reviewed + sent_ids))[-1000:],
+            "media_review_last_count": len(sent_ids),
+        })
+        STATE.parent.mkdir(parents=True, exist_ok=True)
+        STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({"MEDIA_REVIEW_TOTAL_SENT": len(sent_ids)}, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
