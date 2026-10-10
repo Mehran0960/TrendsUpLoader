@@ -261,10 +261,24 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
             reject("invalid_score_or_age", item)
             continue
 
-        if score < MIN_SCORE:
+        native_telegram = platform == "telegram" and str(item.get("source") or "").lower() == "telegram_native_video"
+        # Firecrawl's explicit qdr:d search filter is a defensible recency bound
+        # for private review, but not proof of engagement or publication rights.
+        # Allow only concrete subject lanes, a conservative minimum score, and
+        # download/visual-QC checks downstream; never use this for auto-publishing.
+        fresh_firecrawl_review_ok = (
+            str(item.get("source") or "").lower() == "firecrawl_search"
+            and platform in {"instagram", "tiktok", "aparat", "x"}
+            and str(item.get("freshness_basis") or "") in {
+                "published_date", "firecrawl_tbs_qdr_d_upper_bound"
+            }
+            and 0 <= age <= 24
+            and score >= 25
+            and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
+        )
+        if score < MIN_SCORE and not fresh_firecrawl_review_ok:
             reject("score_below_minimum", item)
             continue
-        native_telegram = platform == "telegram" and str(item.get("source") or "").lower() == "telegram_native_video"
         age_limit = MAX_TELEGRAM_REVIEW_AGE_HOURS if native_telegram else MAX_AGE_HOURS
         if age < 0 or age > age_limit:
             reject("outside_age_window", item)
@@ -287,7 +301,8 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
             and confidence == "low"
             and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
         )
-        if confidence not in {"medium", "high"} and not low_confidence_telegram_ok:
+        low_confidence_fresh_firecrawl_ok = fresh_firecrawl_review_ok and confidence == "low"
+        if confidence not in {"medium", "high"} and not low_confidence_telegram_ok and not low_confidence_fresh_firecrawl_ok:
             reject("insufficient_engagement_confidence", item)
             continue
         if any(item.get(k) for k in (
