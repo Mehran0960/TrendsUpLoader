@@ -24,3 +24,4 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check requests
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_viral_quality_gates -v
+          PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_publication_rights -v
