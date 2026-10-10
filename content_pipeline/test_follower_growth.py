@@ -215,6 +215,16 @@ class FollowerGrowthTests(unittest.TestCase):
                 self.assertIn(expected_lane, result["hook_signals"])
                 self.assertFalse(result["news_risk_signal"])
 
+    def test_persia_name_does_not_trigger_jump_skill_lane(self):
+        result = annotate_candidate({
+            "url": "https://t.me/example/persia",
+            "platform": "telegram",
+            "title": "مدل ایرانی با لباسی به نام پرشیا روی صحنه رفت",
+            "views": 25000,
+            "age_hours": 2,
+        })
+        self.assertNotIn("skill_or_spectacle", result["hook_signals"])
+
     def test_current_affairs_still_flagged_even_when_title_uses_comedy_hook(self):
         result = annotate_candidate({
             "url": "https://t.me/example/comedy-news",
