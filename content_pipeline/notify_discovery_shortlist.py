@@ -25,10 +25,10 @@ def load_json(path, default):
         return default
 
 def select_shortlist(items, notified_ids=None, now=None):
-    """Select recent, promising, non-sensitive leads without claiming rights."""
+    """Select recent, promising leads with platform diversity where available."""
     notified = set(str(x) for x in (notified_ids or []))
     now = now or datetime.now(timezone.utc)
-    selected = []
+    eligible = []
     for item in items if isinstance(items, list) else []:
         if not isinstance(item, dict):
             continue
@@ -51,7 +51,30 @@ def select_shortlist(items, notified_ids=None, now=None):
             continue
         if not str(item.get("url") or "").startswith(("https://", "http://")):
             continue
+        eligible.append(item)
+
+    # First pass preserves ranking while avoiding one platform filling every slot.
+    selected = []
+    selected_ids = set()
+    seen_platforms = set()
+    for item in eligible:
+        ident = str(item.get("id") or item.get("url") or "")
+        platform = str(item.get("platform") or "unknown").strip().lower() or "unknown"
+        if platform in seen_platforms:
+            continue
         selected.append(item)
+        selected_ids.add(ident)
+        seen_platforms.add(platform)
+        if len(selected) >= MAX_ITEMS:
+            return selected
+
+    # If fewer platforms have eligible leads, fill the remaining slots in rank order.
+    for item in eligible:
+        ident = str(item.get("id") or item.get("url") or "")
+        if ident in selected_ids:
+            continue
+        selected.append(item)
+        selected_ids.add(ident)
         if len(selected) >= MAX_ITEMS:
             break
     return selected
