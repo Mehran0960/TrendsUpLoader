@@ -13,6 +13,11 @@ from pathlib import Path
 
 import requests
 
+try:
+    from content_pipeline.follower_growth import expected_platform_for_query, rank_candidates
+except ModuleNotFoundError:
+    from follower_growth import expected_platform_for_query, rank_candidates
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
@@ -396,6 +401,10 @@ def main():
         for q in query_variants[:7]:
             try:
                 batch = bing_search(q, limit=12)
+                for candidate in batch:
+                    raw = candidate.setdefault("raw", {})
+                    if isinstance(raw, dict):
+                        raw["search_query"] = q
                 found.extend(batch)
                 print("BING_QUERY_RESULTS", json.dumps({
                     "query": q,
@@ -412,6 +421,15 @@ def main():
                 continue
             if not is_video_post(x["url"]):
                 continue
+            source_tag = str((x.get("raw") or {}).get("source") or "")
+            if source_tag in {"bing_search", "firecrawl_search"}:
+                raw = x.get("raw") if isinstance(x.get("raw"), dict) else {}
+                expected = expected_platform_for_query(raw.get("search_query") or x.get("discovery_query") or "")
+                if expected and p != expected:
+                    print("SOCIAL_DISCOVERY_DOMAIN_MISMATCH_REJECT", json.dumps({
+                        "expected": expected, "actual": p, "url": x["url"],
+                    }, ensure_ascii=False))
+                    continue
             if x["url"] in seen_urls:
                 continue
             seen_urls.add(x["url"])
@@ -478,7 +496,7 @@ def main():
                     item["age_hours"] = max(0.0, (now - published).total_seconds() / 3600.0)
                 except Exception:
                     pass
-        items = sort_discovery_items(merged.values(), limit=500)
+        items = rank_candidates(merged.values(), limit=500)
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps({
             "version": 2,
@@ -503,6 +521,7 @@ def main():
 
     results = []
     for x in flatten_results(data):
+        x["discovery_query"] = q
         p = platform(x["url"])
         if p not in {"tiktok","instagram","youtube","x","aparat"}:
             continue
@@ -534,7 +553,7 @@ def main():
     merged = {str(x.get("id")): x for x in previous}
     for x in results:
         merged[x["id"]] = x
-    items = sort_discovery_items(merged.values(), limit=500)
+    items = rank_candidates(merged.values(), limit=500)
 
     OUT.write_text(json.dumps({
         "version": 1,
