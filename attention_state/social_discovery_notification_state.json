@@ -79,5 +79,7 @@
     "cffffd5c9e47acda9b6e6710e201c8097042064aaecfc0a446b750a00a1b0b73",
     "718e35f93217ea0155080ad114855af1ed534d68ae4357cd99f59675d996fc7e"
   ],
-  "media_review_last_count": 1
+  "media_review_last_count": 1,
+  "media_reviewed_urls": [],
+  "media_reviewed_fingerprints": []
 }
