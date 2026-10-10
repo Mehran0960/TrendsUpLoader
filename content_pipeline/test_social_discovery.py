@@ -90,7 +90,7 @@ class SocialDiscoveryTests(unittest.TestCase):
                 patch.object(social_discovery, "telegram_repost_candidates", return_value=[]),
             ):
                 self.assertEqual(social_discovery.main(), 0)
-                firecrawl.assert_called_once()
+                self.assertEqual(firecrawl.call_count, 2)
                 bing.assert_not_called()
                 self.assertTrue(output.is_file())
                 payload = json.loads(output.read_text(encoding="utf-8"))
