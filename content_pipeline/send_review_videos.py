@@ -209,13 +209,17 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         "insufficient_engagement_confidence": 0,
         "safety_news_compilation_or_promo": 0,
     }
-    telegram_near_misses = []
+    telegram_near_misses = {reason: [] for reason in rejection_reasons}
 
     def reject(reason, item=None):
         rejection_reasons[reason] += 1
-        if isinstance(item, dict) and str(item.get("platform") or "").lower() == "telegram" and len(telegram_near_misses) < 12:
-            telegram_near_misses.append({
-                "reason": reason,
+        if (
+            isinstance(item, dict)
+            and str(item.get("platform") or "").lower() == "telegram"
+            and reason in telegram_near_misses
+            and len(telegram_near_misses[reason]) < 3
+        ):
+            telegram_near_misses[reason].append({
                 "source": str(item.get("source") or ""),
                 "title": str(item.get("title") or "")[:110],
                 "score": item.get("follow_growth_score"),
@@ -279,7 +283,17 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
             and score >= 25
             and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
         )
-        if score < MIN_SCORE and not fresh_firecrawl_review_ok:
+        # Give genuinely specific, very recent native Telegram clips a
+        # private-review path even without reach counters. We require a concrete
+        # subject lane and score >=30; vague surprise/reaction titles and older
+        # clips still face the regular/higher bar.
+        fresh_native_telegram_review_ok = (
+            native_telegram
+            and 0 <= age <= MAX_AGE_HOURS
+            and score >= 30
+            and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
+        )
+        if score < MIN_SCORE and not fresh_firecrawl_review_ok and not fresh_native_telegram_review_ok:
             reject("score_below_minimum", item)
             continue
         age_limit = MAX_TELEGRAM_REVIEW_AGE_HOURS if native_telegram else MAX_AGE_HOURS
@@ -327,7 +341,7 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
             "rejected_non_target_or_hashtag_only": rejected_topic,
             "rejected_duplicate_urls_or_reviewed": rejected_duplicates,
             "rejection_reasons": rejection_reasons,
-            "telegram_rejection_samples": telegram_near_misses,
+            "telegram_rejection_samples": {key: value for key, value in telegram_near_misses.items() if value},
         }
     }, ensure_ascii=False))
     eligible.sort(key=lambda x: (
