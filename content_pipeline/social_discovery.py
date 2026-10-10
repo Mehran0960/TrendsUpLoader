@@ -24,15 +24,15 @@ KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "follower_growth_v2"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_QUERIES = [
-    ("لحظه عجیب واقعی واکنش غیرمنتظره ویدیو کوتاه", "fa"),
-    ("گربه واکنش خنده دار کلیپ کوتاه", "fa"),
-    ("ویدیو پربازدید ایرانی اتفاق عجیب کوتاه", "fa"),
-    ("unexpected real life moment caught on camera short -compilation -ranking -top", "en"),
-    ("single animal reaction funny short video -compilation -ranking", "en"),
-    ("satisfying restoration one project before after short -compilation", "en"),
-    ("AI demo one photo to video short", "en"),
-    ("impossible skill one take short video", "en"),
-    ("close call caught on camera single moment short -compilation -ranking", "en"),
+    ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
+    ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
+    ("ویدیو کوتاه پربازدید ایران اتفاق عجیب", "fa"),
+    ("funny unexpected moment caught on camera short", "en"),
+    ("cat dog funny reaction short video", "en"),
+    ("satisfying transformation before after short", "en"),
+    ("AI photo animation demo short", "en"),
+    ("amazing one take skill trick short", "en"),
+    ("close call caught on camera short", "en"),
 ]
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
@@ -424,7 +424,7 @@ def discover_youtube_public_candidates(now=None, limit=50):
         print("YOUTUBE_PUBLIC_API_SKIPPED_NO_KEY")
         return []
     now = now or datetime.now(timezone.utc)
-    selected_queries = youtube_queries_for_time(now, count=2)
+    selected_queries = youtube_queries_for_time(now, count=3)
     published_after = (now - timedelta(hours=36)).isoformat().replace("+00:00", "Z")
     video_ids = []
     query_for_video = {}
@@ -443,7 +443,7 @@ def discover_youtube_public_candidates(now=None, limit=50):
                     "publishedAfter": published_after,
                     "regionCode": "IR",
                     "relevanceLanguage": language,
-                    "maxResults": 25,
+                    "maxResults": 18,
                 },
                 timeout=25,
             )
