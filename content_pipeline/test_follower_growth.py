@@ -33,7 +33,8 @@ class FollowerGrowthTests(unittest.TestCase):
         ranked = rank_candidates(rows)
         self.assertEqual(ranked[0]["url"], "https://www.instagram.com/reel/fun123/")
         self.assertGreater(ranked[0]["follow_growth_score"], ranked[1]["follow_growth_score"])
-        self.assertEqual(ranked[0]["candidate_action"], "manual_review")
+        self.assertEqual(ranked[0]["candidate_action"], "prioritize_for_visual_and_rights_review")
+        self.assertEqual(ranked[0]["rights_status"], "not_assessed")
         self.assertEqual(ranked[0]["rights_status"], "not_assessed")
 
     def test_unknown_metrics_are_low_confidence_and_never_auto_publishable(self):
