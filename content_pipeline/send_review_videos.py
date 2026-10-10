@@ -101,8 +101,42 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
     return selected
 
 
+def find_telegram_post_block(page, channel, post_id):
+    """Return only the HTML block for the exact Telegram post, never a nearby post."""
+    expected = f"{channel}/{post_id}".strip("/")
+    blocks = re.split(r'(?=<div\b[^>]*class="[^"]*\btgme_widget_message_wrap\b)', page, flags=re.I)
+    for block in blocks:
+        marker = re.search(r"""data-post=["']([^"']+)["']""", block[:30000], flags=re.I)
+        if marker and marker.group(1).strip("/") == expected:
+            return block
+    return ""
+
+
+def extract_telegram_post_video_urls(post_block):
+    """Extract video URLs only from a verified single-post HTML block."""
+    if not post_block:
+        return []
+    media_urls = []
+    for tag in re.findall(r"<video\b[^>]*>", post_block, flags=re.I | re.S):
+        for attr in ("src", "data-src"):
+            found = re.search(rf"""{attr}\s*=\s*["']([^"']+)""", tag, flags=re.I)
+            if found:
+                media_url = html.unescape(found.group(1)).replace("&amp;", "&")
+                if media_url.startswith("https://"):
+                    media_urls.append(media_url)
+    # Some Telegram layouts expose the media URL elsewhere inside the same post.
+    # Deliberately never search the surrounding channel page.
+    for value in re.findall(
+        r"""https://[^\\\"'<> ]+\.(?:mp4|m4v)(?:\?[^\\\"'<> ]*)?""",
+        post_block,
+        flags=re.I,
+    ):
+        media_urls.append(html.unescape(value).replace("&amp;", "&"))
+    return list(dict.fromkeys(media_urls))
+
+
 def download_direct_telegram_post(url, destination):
-    """Attempt to fetch the embedded MP4 from a public Telegram post page."""
+    """Download video media only when it belongs to the exact Telegram post URL."""
     parsed = urlparse(url)
     match = re.match(r"^/([A-Za-z0-9_]+)/([0-9]+)/?$", parsed.path or "")
     if not match or parsed.netloc.lower() not in {"t.me", "www.t.me", "telegram.me"}:
@@ -117,20 +151,17 @@ def download_direct_telegram_post(url, destination):
         print("TELEGRAM_SOURCE_PAGE_FAIL", channel, type(exc).__name__)
         return False
 
-    video_tags = re.findall(r"<video\b[^>]*>", page, flags=re.I | re.S)
-    media_urls = []
-    for tag in video_tags:
-        for attr in ("src", "data-src"):
-            found = re.search(rf"{attr}\s*=\s*[\"']([^\"']+)", tag, flags=re.I)
-            if found:
-                media_url = html.unescape(found.group(1)).replace("&amp;", "&")
-                if media_url.startswith("https://"):
-                    media_urls.append(media_url)
-    # A second pattern covers the player URL embedded in Telegram's page markup.
-    for value in re.findall(r"https://[^\\\"'<> ]+\.(?:mp4|m4v)(?:\?[^\\\"'<> ]*)?", page, flags=re.I):
-        media_urls.append(html.unescape(value).replace("&amp;", "&"))
+    post_block = find_telegram_post_block(page, channel, post_id)
+    if not post_block:
+        # Fail closed rather than risk sending the media from an adjacent post.
+        print("TELEGRAM_TARGET_POST_NOT_FOUND", f"{channel}/{post_id}")
+        return False
+    media_urls = extract_telegram_post_video_urls(post_block)
+    if not media_urls:
+        print("TELEGRAM_TARGET_POST_HAS_NO_EXTRACTABLE_VIDEO", f"{channel}/{post_id}")
+        return False
 
-    for media_url in dict.fromkeys(media_urls):
+    for media_url in media_urls:
         try:
             with requests.get(media_url, headers={"User-Agent": UA}, stream=True, timeout=40) as response:
                 response.raise_for_status()
@@ -156,7 +187,6 @@ def download_direct_telegram_post(url, destination):
             print("TELEGRAM_MEDIA_URL_FAIL", type(exc).__name__)
             Path(destination).unlink(missing_ok=True)
     return False
-
 
 def download_with_ytdlp(url, workdir):
     """Use yt-dlp for supported public individual-post URLs; never downloads playlists."""
@@ -190,7 +220,7 @@ def render_caption(item):
     except (TypeError, ValueError):
         score, age = 0, 0
     caption = (
-        f"{title}\n"
+        f"عنوان ثبت‌شده در پست منبع: {title}\n"
         f"منبع: {platform} | امتیاز غربالگری: {score:.0f}/100 | سن تقریبی: {age:.1f} ساعت\n"
         f"لینک اصلی: {url}\n"
         "صرفاً برای بازبینی خصوصی؛ مجوز بازنشر محسوب نمی‌شود."
