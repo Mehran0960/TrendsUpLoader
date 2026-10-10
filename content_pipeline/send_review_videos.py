@@ -232,7 +232,17 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         if score < MIN_SCORE or age < 0 or age > MAX_AGE_HOURS:
             rejected_other += 1
             continue
-        if item.get("score_confidence") not in {"medium", "high"}:
+        confidence = item.get("score_confidence")
+        # For private review only, fresh native Telegram clips can still be useful
+        # when view counters are missing. Require a strong score and a concrete
+        # subject lane; generic surprise/reaction-only titles do not qualify.
+        low_confidence_telegram_ok = (
+            platform == "telegram"
+            and str(item.get("source") or "").lower() == "telegram_native_video"
+            and confidence == "low"
+            and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
+        )
+        if confidence not in {"medium", "high"} and not low_confidence_telegram_ok:
             rejected_other += 1
             continue
         if any(item.get(k) for k in (
