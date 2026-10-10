@@ -357,7 +357,7 @@ def download_with_ytdlp(url, workdir):
 
 
 def render_caption(item):
-    title = re.sub(r"\s+", " ", str(item.get("title") or "ویدئوی منتخب").strip())[:240]
+    title = re.sub(r"\s+", " ", str(item.get("source_post_caption") or item.get("title") or "ویدئوی منتخب").strip())[:240]
     url = str(item.get("url") or "")
     platform = str(item.get("platform") or "نامشخص")
     try:
