@@ -1,7 +1,7 @@
 """Tests for freshness-aware multi-platform candidate retention."""
 import unittest
 
-from content_pipeline.social_discovery import sort_discovery_items
+from content_pipeline.social_discovery import parse_youtube_duration, sort_discovery_items
 
 
 class SocialDiscoveryTests(unittest.TestCase):
@@ -36,6 +36,12 @@ class SocialDiscoveryTests(unittest.TestCase):
         ]
         kept = sort_discovery_items(rows)
         self.assertEqual(kept[0]["url"], "https://example.com/known/")
+
+    def test_youtube_iso_duration_is_parsed(self):
+        self.assertEqual(parse_youtube_duration("PT17S"), 17)
+        self.assertEqual(parse_youtube_duration("PT1M30S"), 90)
+        self.assertEqual(parse_youtube_duration("PT2H3M4S"), 7384)
+        self.assertIsNone(parse_youtube_duration("invalid"))
 
     def test_limit_is_respected(self):
         rows = [
