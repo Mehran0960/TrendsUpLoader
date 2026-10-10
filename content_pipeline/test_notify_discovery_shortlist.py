@@ -31,6 +31,7 @@ class DiscoveryShortlistTests(unittest.TestCase):
             self.candidate("old", age_hours=90),
             self.candidate("news", news_risk_signal=True),
             self.candidate("sensitive", sensitive_risk_signal=True),
+            self.candidate("weapons", safety_review_signal=True),
             self.candidate("unknown", score_confidence="low"),
             self.candidate("new-good"),
         ]
