@@ -15,6 +15,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
+from PIL import Image, ImageChops, ImageStat
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "attention_state" / "social_discovery.json"
@@ -135,6 +136,128 @@ def extract_telegram_post_video_urls(post_block):
     return list(dict.fromkeys(media_urls))
 
 
+def evaluate_video_metrics(duration, width, height, frame_metrics):
+    """Fail closed on broken/black videos; score only observable technical signals."""
+    try:
+        duration = float(duration)
+        width = int(width)
+        height = int(height)
+    except (TypeError, ValueError):
+        return {"passed": False, "score": 0, "reason": "invalid_metadata"}
+
+    if duration < 4 or duration > 120:
+        return {"passed": False, "score": 0, "reason": "duration_out_of_range"}
+    if width < 320 or height < 240 or width > 7680 or height > 7680:
+        return {"passed": False, "score": 0, "reason": "resolution_out_of_range"}
+    ratio = width / max(1, height)
+    if ratio < 0.25 or ratio > 3.0:
+        return {"passed": False, "score": 0, "reason": "aspect_ratio_out_of_range"}
+    if len(frame_metrics) < 3:
+        return {"passed": False, "score": 0, "reason": "insufficient_decodable_frames"}
+
+    black_count = sum(1 for row in frame_metrics if row.get("mean_luma", 0) < 12 and row.get("std_luma", 0) < 7)
+    black_ratio = black_count / len(frame_metrics)
+    if black_ratio >= 0.6:
+        return {
+            "passed": False, "score": 0, "reason": "mostly_black_frames",
+            "duration_seconds": round(duration, 2), "width": width, "height": height,
+            "sampled_frames": len(frame_metrics), "black_frame_ratio": round(black_ratio, 2),
+        }
+
+    differences = []
+    for index in range(1, len(frame_metrics)):
+        try:
+            differences.append(float(frame_metrics[index].get("difference_from_previous", 0)))
+        except (TypeError, ValueError):
+            pass
+    mean_difference = sum(differences) / len(differences) if differences else 0.0
+
+    if width >= 720 and height >= 720:
+        resolution_points = 25
+    elif width >= 480 and height >= 480:
+        resolution_points = 18
+    else:
+        resolution_points = 10
+    diversity_points = min(15, mean_difference / 5)
+    score = round(max(0, min(100, 60 + resolution_points + diversity_points - black_ratio * 30)), 1)
+    return {
+        "passed": True,
+        "score": score,
+        "reason": "technical_checks_passed",
+        "duration_seconds": round(duration, 2),
+        "width": width,
+        "height": height,
+        "sampled_frames": len(frame_metrics),
+        "black_frame_ratio": round(black_ratio, 2),
+        "mean_frame_difference": round(mean_difference, 2),
+        "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
+    }
+
+
+def inspect_video_quality(video_path):
+    """Use ffprobe/ffmpeg samples to reject technically broken media before Telegram upload."""
+    try:
+        probe = subprocess.run(
+            [
+                "ffprobe", "-v", "error", "-select_streams", "v:0",
+                "-show_entries", "stream=width,height,duration:format=duration",
+                "-of", "json", str(video_path),
+            ],
+            capture_output=True, text=True, timeout=20,
+        )
+        if probe.returncode != 0:
+            return {"passed": False, "score": 0, "reason": "ffprobe_failed"}
+        payload = json.loads(probe.stdout or "{}")
+        streams = payload.get("streams") or []
+        if not streams:
+            return {"passed": False, "score": 0, "reason": "no_video_stream"}
+        stream = streams[0]
+        duration_raw = (payload.get("format") or {}).get("duration") or stream.get("duration")
+        duration = float(duration_raw)
+        width, height = int(stream.get("width") or 0), int(stream.get("height") or 0)
+    except (OSError, subprocess.TimeoutExpired, ValueError, TypeError, json.JSONDecodeError) as exc:
+        return {"passed": False, "score": 0, "reason": f"metadata_error:{type(exc).__name__}"}
+
+    frame_metrics = []
+    # Uniformly inspect the beginning, middle, and end rather than just the opening.
+    with tempfile.TemporaryDirectory(prefix="video-frames-") as frame_dir:
+        for index, fraction in enumerate((0.08, 0.28, 0.50, 0.72, 0.92)):
+            frame_path = Path(frame_dir) / f"frame-{index}.jpg"
+            timestamp = max(0.05, min(duration - 0.05, duration * fraction))
+            result = subprocess.run(
+                [
+                    "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                    "-ss", f"{timestamp:.3f}", "-i", str(video_path),
+                    "-frames:v", "1", "-vf",
+                    "scale=96:96:force_original_aspect_ratio=decrease,"
+                    "pad=96:96:(ow-iw)/2:(oh-ih)/2",
+                    str(frame_path),
+                ],
+                capture_output=True, text=True, timeout=25,
+            )
+            if result.returncode != 0 or not frame_path.is_file() or frame_path.stat().st_size == 0:
+                continue
+            try:
+                with Image.open(frame_path) as opened:
+                    image = opened.convert("RGB")
+                gray_stats = ImageStat.Stat(image.convert("L"))
+                row = {"mean_luma": gray_stats.mean[0], "std_luma": gray_stats.stddev[0]}
+                if frame_metrics:
+                    previous_path = Path(frame_dir) / "previous-frame.jpg"
+                    # Keep the previous decoded frame in memory for exact same-size comparison.
+                    with Image.open(previous_path) as previous_opened:
+                        previous = previous_opened.convert("RGB")
+                    row["difference_from_previous"] = sum(ImageStat.Stat(
+                        ImageChops.difference(previous, image)
+                    ).mean) / 3
+                frame_metrics.append(row)
+                image.save(Path(frame_dir) / "previous-frame.jpg", format="JPEG")
+            except (OSError, ValueError):
+                continue
+
+    return evaluate_video_metrics(duration, width, height, frame_metrics)
+
+
 def download_direct_telegram_post(url, destination):
     """Download video media only when it belongs to the exact Telegram post URL."""
     parsed = urlparse(url)
@@ -221,9 +344,9 @@ def render_caption(item):
         score, age = 0, 0
     caption = (
         f"عنوان ثبت‌شده در پست منبع: {title}\n"
-        f"منبع: {platform} | امتیاز غربالگری: {score:.0f}/100 | سن تقریبی: {age:.1f} ساعت\n"
+        f"منبع: {platform}\n"
         f"لینک اصلی: {url}\n"
-        "صرفاً برای بازبینی خصوصی؛ مجوز بازنشر محسوب نمی‌شود."
+        "عنوان، نقل از منبع است؛ توضیح محتواییِ تولیدشده نیست. بازبینی خصوصی."
     )
     return caption[:1024]
 
@@ -287,6 +410,17 @@ def main():
             size = video_path.stat().st_size
             if size > MAX_VIDEO_BYTES:
                 print("MEDIA_REVIEW_SIZE_GUARD", size)
+                continue
+
+            visual_qc = inspect_video_quality(video_path)
+            print(json.dumps({
+                "MEDIA_REVIEW_VISUAL_QC": visual_qc,
+                "platform": item.get("platform"),
+                "title": str(item.get("title") or "")[:150],
+                "url": url,
+            }, ensure_ascii=False))
+            if not visual_qc.get("passed"):
+                print("MEDIA_REVIEW_VISUAL_QC_REJECT", visual_qc.get("reason"), url[:140])
                 continue
 
             try:
