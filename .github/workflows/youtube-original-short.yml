@@ -4,16 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "probe = test the Make webhook safely; upload = send the cleared short for private upload after the Make scenario is ready"
+        description: "Build a rights-gated original short and export a portable distribution bundle"
         required: true
         type: choice
-        default: probe
+        default: package
         options:
-          - probe
-          - upload
+          - package
 
 concurrency:
-  group: youtube-make-relay
+  group: original-short-export
   cancel-in-progress: false
 
 jobs:
@@ -50,16 +49,6 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check --retries 2 --timeout 30             piper-tts pillow arabic-reshaper python-bidi requests
 
-      - name: Check Make webhook secret
-        env:
-          MAKE_YOUTUBE_UPLOAD_WEBHOOK_URL: ${{ secrets.MAKE_YOUTUBE_UPLOAD_WEBHOOK_URL }}
-        run: |
-          set -euo pipefail
-          test -n "$MAKE_YOUTUBE_UPLOAD_WEBHOOK_URL" || {
-            echo "Missing Actions secret: MAKE_YOUTUBE_UPLOAD_WEBHOOK_URL"
-            exit 1
-          }
-
       - name: Build original curated Persian short
         env:
           CONTENT_TEST_TITLE: "AI Demo: One photo becomes video"
@@ -93,98 +82,32 @@ jobs:
           print("YOUTUBE_ORIGINAL_RELAY_GATES_OK")
           PY
 
-      - name: Prepare small MP4 for Make Free-compatible file transfer
-        env:
-          MODE: ${{ inputs.mode }}
+      - name: Prepare portable MP4 for multi-platform distribution
         run: |
           set -euo pipefail
-          dir="$(dirname "$(find out -type f -name video.mp4 -print -quit)")"
-          mkdir -p out/relay
-          if [ "$MODE" = "probe" ]; then
-            ffmpeg -hide_banner -loglevel error -y \
-              -f lavfi -i color=c=black:s=360x640:r=12 \
-              -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
-              -t 1.5 -vf "format=yuv420p" -c:v libx264 -preset ultrafast -b:v 120k \
-              -c:a aac -b:a 32k -shortest out/relay/webhook-probe.mp4
-            RELAY_VIDEO="out/relay/webhook-probe.mp4"
-            RELAY_TITLE="SCHEMA PROBE - DO NOT PUBLISH"
-            RELAY_DESCRIPTION="Webhook file-schema test only; not a final video."
-          else
-            src="$(find out -type f -name video.mp4 -print -quit)"
-            ffmpeg -hide_banner -loglevel error -y -i "$src" \
-              -vf "scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=24,format=yuv420p" \
-              -c:v libx264 -preset veryfast -b:v 760k -maxrate 850k -bufsize 1700k \
-              -c:a aac -b:a 64k -movflags +faststart -fs 4200000 out/relay/original-short.mp4
-            RELAY_VIDEO="out/relay/original-short.mp4"
-            RELAY_TITLE="$(python -c 'import json;from pathlib import Path;p=next(Path("out").glob("**/metadata.json"));print(json.loads(p.read_text(encoding="utf-8")).get("display_title_fa","")[:100])')"
-            RELAY_DESCRIPTION="محتوای اصیل فارسی؛ ارسال خصوصی برای بررسی اولیه."
-          fi
-          {
-            printf 'RELAY_VIDEO=%s\n' "$RELAY_VIDEO"
-            printf 'RELAY_TITLE=%s\n' "$RELAY_TITLE"
-            printf 'RELAY_DESCRIPTION=%s\n' "$RELAY_DESCRIPTION"
-          } >> "$GITHUB_ENV"
-          size="$(stat -c%s "$RELAY_VIDEO")"
-          echo "RELAY_FILE_SIZE_BYTES=$size"
-          if [ "$size" -gt 4400000 ]; then
-            echo "MAKE_FREE_FILE_LIMIT_GUARD_FAILED: compressed file exceeds safety margin."
+          src="$(find out -type f -name video.mp4 -print -quit)"
+          test -n "$src"
+          mkdir -p out/distribution
+          ffmpeg -hide_banner -loglevel error -y -i "$src" \
+            -vf "scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=24,format=yuv420p" \
+            -c:v libx264 -preset veryfast -b:v 1800k -maxrate 2000k -bufsize 4000k \
+            -c:a aac -b:a 96k -movflags +faststart -fs 42000000 \
+            out/distribution/distribution-master.mp4
+          size="$(stat -c%s out/distribution/distribution-master.mp4)"
+          echo "DISTRIBUTION_MASTER_SIZE_BYTES=$size"
+          if [ "$size" -gt 42000000 ]; then
+            echo "DISTRIBUTION_FILE_LIMIT_GUARD_FAILED"
             exit 1
           fi
 
-      - name: Send file and metadata to the inactive Make intake
-        env:
-          MAKE_YOUTUBE_UPLOAD_WEBHOOK_URL: ${{ secrets.MAKE_YOUTUBE_UPLOAD_WEBHOOK_URL }}
-          MODE: ${{ inputs.mode }}
-        run: |
-          python - <<'PY'
-          import json, os, sys
-          from pathlib import Path
-          import requests
+      - name: Build independent destination readiness plan
+        run: python content_pipeline/distribution_plan.py
 
-          mode = os.environ.get("MODE", "probe")
-          if mode not in {"probe", "upload"}:
-              raise SystemExit("INVALID_RELAY_MODE")
-          video = Path(os.environ["RELAY_VIDEO"])
-          title = os.environ["RELAY_TITLE"]
-          description = os.environ["RELAY_DESCRIPTION"]
-          meta_files = list(Path("out").glob("**/metadata.json"))
-          meta = json.loads(meta_files[0].read_text(encoding="utf-8"))
-          rights_files = list(Path("out").glob("**/rights_manifest.json"))
-          rights = json.loads(rights_files[0].read_text(encoding="utf-8"))
-          fields = {
-              "mode": mode,
-              "title": title,
-              "description": description,
-              "categoryId": "22",
-              "privacyStatus": "private",
-              "selfDeclaredMadeForKids": "false",
-              "containsSyntheticMedia": "true",
-              "contentKey": str(meta.get("content_key") or ""),
-              "rightsStatus": str(rights.get("media_status") or ""),
-              "scriptMode": str(meta.get("script_mode") or ""),
-          }
-          with video.open("rb") as stream:
-              response = requests.post(
-                  os.environ["MAKE_YOUTUBE_UPLOAD_WEBHOOK_URL"],
-                  data=fields,
-                  files={"video": (video.name, stream, "video/mp4")},
-                  timeout=(15, 120),
-              )
-          print(json.dumps({
-              "MAKE_WEBHOOK_HTTP_STATUS": response.status_code,
-              "mode": mode,
-              "file_name": video.name,
-              "file_size_bytes": video.stat().st_size,
-              "response_preview": response.text[:500],
-          }, ensure_ascii=False))
-          response.raise_for_status()
-          PY
-
-      - name: Upload build and relay artifact
+      - name: Upload original short distribution bundle
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: youtube-original-short-relay
+          name: original-short-distribution-bundle
           path: out/
           if-no-files-found: warn
           retention-days: 7
