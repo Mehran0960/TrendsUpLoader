@@ -26,12 +26,13 @@ YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_QUERIES = [
     ("لحظه عجیب واقعی واکنش غیرمنتظره ویدیو کوتاه", "fa"),
     ("گربه واکنش خنده دار کلیپ کوتاه", "fa"),
-    ("Persian funny reaction caught on camera short", "fa"),
+    ("ویدیو پربازدید ایرانی اتفاق عجیب کوتاه", "fa"),
     ("unexpected real life moment caught on camera short -compilation -ranking -top", "en"),
     ("single animal reaction funny short video -compilation -ranking", "en"),
-    ("satisfying restoration one project before after short", "en"),
+    ("satisfying restoration one project before after short -compilation", "en"),
     ("AI demo one photo to video short", "en"),
     ("impossible skill one take short video", "en"),
+    ("close call caught on camera single moment short -compilation -ranking", "en"),
 ]
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
@@ -405,52 +406,76 @@ def parse_youtube_duration(value):
     return hours * 3600 + minutes * 60 + seconds
 
 
+def youtube_queries_for_time(now, count=2):
+    """Rotate a small batch of distinct queries while staying within the default daily search-call budget."""
+    start = int(now.timestamp() // (30 * 60)) % len(YOUTUBE_QUERIES)
+    amount = min(max(1, int(count)), len(YOUTUBE_QUERIES))
+    return [YOUTUBE_QUERIES[(start + offset) % len(YOUTUBE_QUERIES)] for offset in range(amount)]
+
+
 def youtube_query_for_time(now):
-    """Rotate the query more frequently than the workflow schedule to avoid repeating a bad query on retries."""
-    return YOUTUBE_QUERIES[int(now.timestamp() // (30 * 60)) % len(YOUTUBE_QUERIES)]
+    """Compatibility helper used by tests and diagnostics."""
+    return youtube_queries_for_time(now, count=1)[0]
 
 
 def discover_youtube_public_candidates(now=None, limit=50):
-    """Use the free YouTube Data API search and native counters when a key is configured."""
+    """Use the official YouTube Data API for fresh short videos and native engagement counters."""
     if not YOUTUBE_KEY:
         print("YOUTUBE_PUBLIC_API_SKIPPED_NO_KEY")
         return []
     now = now or datetime.now(timezone.utc)
-    query, language = youtube_query_for_time(now)
+    selected_queries = youtube_queries_for_time(now, count=2)
     published_after = (now - timedelta(hours=36)).isoformat().replace("+00:00", "Z")
+    video_ids = []
+    query_for_video = {}
+    query_counts = []
+    for query, language in selected_queries:
+        try:
+            response = requests.get(
+                "https://www.googleapis.com/youtube/v3/search",
+                params={
+                    "key": YOUTUBE_KEY,
+                    "part": "snippet",
+                    "q": query,
+                    "type": "video",
+                    "videoDuration": "short",
+                    "order": "viewCount",
+                    "publishedAfter": published_after,
+                    "regionCode": "IR",
+                    "relevanceLanguage": language,
+                    "maxResults": 25,
+                },
+                timeout=25,
+            )
+            response.raise_for_status()
+            data = response.json()
+        except Exception as exc:
+            print("YOUTUBE_PUBLIC_SEARCH_FAIL", type(exc).__name__, json.dumps({"query": query}, ensure_ascii=False))
+            query_counts.append({"query": query, "returned": 0, "error": type(exc).__name__})
+            continue
+        found_ids = []
+        for row in (data.get("items") or []):
+            video_id = str((row.get("id") or {}).get("videoId") or "").strip()
+            if not video_id:
+                continue
+            found_ids.append(video_id)
+            if video_id not in query_for_video:
+                query_for_video[video_id] = query
+        video_ids.extend(found_ids)
+        query_counts.append({"query": query, "returned": len(found_ids), "language": language})
+
+    video_ids = list(dict.fromkeys(video_ids))[:50]
+    if not video_ids:
+        print("YOUTUBE_PUBLIC_API_EMPTY", json.dumps({"queries": query_counts}, ensure_ascii=False))
+        return []
+
     try:
-        response = requests.get(
-            "https://www.googleapis.com/youtube/v3/search",
-            params={
-                "key": YOUTUBE_KEY,
-                "part": "snippet",
-                "q": query,
-                "type": "video",
-                "videoDuration": "short",
-                "order": "viewCount",
-                "publishedAfter": published_after,
-                "regionCode": "IR",
-                "relevanceLanguage": language,
-                "maxResults": min(50, max(1, int(limit))),
-            },
-            timeout=25,
-        )
-        response.raise_for_status()
-        search_data = response.json()
-        video_ids = list(dict.fromkeys(
-            str(row.get("id", {}).get("videoId") or "").strip()
-            for row in (search_data.get("items") or [])
-            if row.get("id", {}).get("videoId")
-        ))
-        if not video_ids:
-            print("YOUTUBE_PUBLIC_API_EMPTY", json.dumps({"query": query}, ensure_ascii=False))
-            return []
         details = requests.get(
             "https://www.googleapis.com/youtube/v3/videos",
             params={
                 "key": YOUTUBE_KEY,
                 "part": "snippet,contentDetails,statistics",
-                "id": ",".join(video_ids[:50]),
+                "id": ",".join(video_ids),
                 "maxResults": 50,
             },
             timeout=25,
@@ -458,7 +483,7 @@ def discover_youtube_public_candidates(now=None, limit=50):
         details.raise_for_status()
         detail_data = details.json()
     except Exception as exc:
-        print("YOUTUBE_PUBLIC_API_FAIL", type(exc).__name__, json.dumps({"query": query}, ensure_ascii=False))
+        print("YOUTUBE_PUBLIC_DETAILS_FAIL", type(exc).__name__, json.dumps({"query_count": len(selected_queries)}, ensure_ascii=False))
         return []
 
     results = []
@@ -513,20 +538,19 @@ def discover_youtube_public_candidates(now=None, limit=50):
             "source": "youtube_public_api",
             "metric_evidence": "native_youtube_api_statistics",
             "duration_seconds": duration,
-            "youtube_query": query,
+            "youtube_query": query_for_video.get(video_id, ""),
         })
     print("YOUTUBE_PUBLIC_API_CANDIDATES", json.dumps({
-        "query": query,
-        "language": language,
+        "queries": query_counts,
         "returned": len(results),
         "raw_details": raw_video_count,
         "rejected_duration": rejected_duration,
         "rejected_reach": rejected_reach,
         "rejected_age": rejected_age,
         "metrics": "native_youtube_api_statistics",
+        "search_calls_this_run": len(selected_queries),
     }, ensure_ascii=False))
     return results
-
 
 def log_growth_summary(items):
     """Expose ranking quality and review queues in CI logs for iteration."""
