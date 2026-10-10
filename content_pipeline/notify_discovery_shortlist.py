@@ -104,7 +104,7 @@ def main():
         "last_count": len(candidates),
     })
     STATE.parent.mkdir(parents=True, exist_ok=True)
-    STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"DISCOVERY_SHORTLIST_SENT": len(candidates), "ids": new_ids}, ensure_ascii=False))
     return 0
 
