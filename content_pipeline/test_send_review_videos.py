@@ -241,6 +241,11 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(duration_content_gate(one_lane, qc), (False, "long_clip_requires_stronger_topic_fit"))
         low_score = {"follow_growth_score": 52, "hook_signals": ["animals", "comedy"]}
         self.assertEqual(duration_content_gate(low_score, qc), (False, "long_clip_requires_stronger_topic_fit"))
+        vague_topic = {
+            "follow_growth_score": 80,
+            "hook_signals": ["surprise_or_reveal", "human_reaction_or_relatable"],
+        }
+        self.assertEqual(duration_content_gate(vague_topic, qc), (False, "long_clip_requires_stronger_topic_fit"))
 
     def test_video_longer_than_60_seconds_is_rejected_by_technical_gate(self):
         rows = [{"mean_luma": 80, "std_luma": 20} for _ in range(5)]
