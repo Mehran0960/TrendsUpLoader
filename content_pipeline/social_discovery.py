@@ -24,37 +24,15 @@ KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "follower_growth_v3"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_QUERIES = [
-    ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
-    ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
-    ("ویدیو کوتاه پربازدید ایران اتفاق عجیب", "fa"),
-    ("funny unexpected moment caught on camera short", "en"),
-    ("cat dog funny reaction short video", "en"),
-    ("satisfying transformation before after short", "en"),
-    ("AI photo animation demo short", "en"),
-    ("amazing one take skill trick short", "en"),
-    ("close call caught on camera short", "en"),
-    ("ترفندهای کاربردی خانه و تمیزکاری ویدیو کوتاه", "fa"),
-    ("طرز تهیه غذای سریع و آشپزی رضایت بخش ویدیو کوتاه", "fa"),
-    ("حرکت ورزشی تماشایی فوتبال بسکتبال ویدیو کوتاه", "fa"),
-    ("حیات وحش و طبیعت شگفت انگیز ویدیو کوتاه", "fa"),
-    ("آزمایش علمی ساده و چطور کار می کند ویدیو کوتاه", "fa"),
-    ("ساخت کاردستی خلاقانه و قبل و بعد ویدیو کوتاه", "fa"),
-    ("اجرای موسیقی رقص و نوازندگی جالب ویدیو کوتاه", "fa"),
-    ("wholesome heartwarming family and animal moment short video", "en"),
-    ("easy food recipe everyday life hack satisfying cleaning short video", "en"),
-    ("amazing sports skill trick shot short video", "en"),
-]
+    'site:tiktok.com (خنده OR طنز OR حیوانات OR گربه OR سگ OR ترفند OR آشپزی OR شگفت‌انگیز OR satisfying)',
+    'site:x.com (ویدیو OR ویدئو OR video) (طنز OR حیوانات OR ترفند OR غذا OR مهارت OR طبیعت OR ورزش OR satisfying)',
+    'site:aparat.com/v (طنز OR حیوانات OR گربه OR آشپزی OR ترفند OR حیات وحش OR آزمایش OR کاردستی)',
+    'site:tiktok.com (هوش مصنوعی OR فناوری OR ربات OR قبل و بعد OR نظافت OR کاردستی OR مهارت OR ترفند کاربردی)',
+    'site:aparat.com/v (قبل و بعد OR تمیزکاری OR نظم‌دهی OR مهارت OR شوت تماشایی OR موسیقی OR نوازندگی OR رقص)',
+    'site:x.com (animal OR funny OR trick OR skill OR cooking OR wildlife OR science OR DIY OR satisfying) (video OR clip)',
+    'site:tiktok.com (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)',
+    'site:aparat.com/v (ویدیو کوتاه OR کلیپ بامزه OR حیوانات جالب OR ترفند کاربردی OR فناوری OR علم OR طبیعت OR غذا)',
 
-QUERIES = [
-    'site:tiktok.com/@ ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (وایرال OR عجیب OR بامزه OR ترفند OR غذا OR حیوانات)',
-    'site:instagram.com/reel ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (طنز OR آشپزی OR ترفند OR حیوانات OR ورزش OR حیات وحش OR علمی OR قبل و بعد OR رقص)',
-    'site:x.com ("ویدئو" OR "ویدیو") ("ایران" OR "ایرانی" OR "فارسی") (طنز OR آشپزی OR طبیعت OR حیوانات OR ترفند OR ورزش)',
-    'site:youtube.com/shorts ("فارسی" OR "ایران" OR "ایرانی") (طنز OR آشپزی OR ترفند OR حیوانات OR ورزش OR آزمایش OR کاردستی OR رقص OR نوازندگی)',
-    'site:aparat.com/v ("بازدید" OR "پربازدید" OR "وایرال") (طنز OR آشپزی OR ترفند OR حیوانات OR ورزش OR علمی OR قبل و بعد OR کاردستی)',
-    'site:youtube.com/shorts ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری) (ویدیو OR کلیپ OR عجیب OR تبدیل OR کاربردی)',
-    'site:instagram.com/reel ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری OR قبل و بعد OR نظافت OR کاردستی) (ایرانی OR فارسی OR ایران)',
-    'site:aparat.com/v (غذا OR آشپزی OR ترفند OR آزمایش OR حیات وحش OR ورزش OR کاردستی OR قبل و بعد) (پربازدید OR وایرال OR عجیب)',
-]
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
