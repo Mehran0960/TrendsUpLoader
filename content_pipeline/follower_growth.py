@@ -16,7 +16,7 @@ LANES = {
     "animals": re.compile(r"گربه|سگ|حیوان|پرنده|گربه.?سان|cat|dog|animal|pet", re.I),
     "surprise_or_reveal": re.compile(r"غافلگیر|باورنکردنی|غیرمنتظره|آخرش|نتیجه.?اش|راز|معما|عجیب|reveal|unexpected|plot.?twist|mystery|wait until", re.I),
     "transformation_or_satisfying": re.compile(r"قبل و بعد|تبدیل|تغییر|ترمیم|بازسازی|رضایت.?بخش|satisfying|transformation|before.?after|restoration", re.I),
-    "skill_or_spectacle": re.compile(r"تردستی|مهارت|حرکت عجیب|شگفت.?انگیز|رکورد|پرش|ترفند|trick|skill|stunt|spectacular|impossible", re.I),
+    "skill_or_spectacle": re.compile(r"تردستی|مهارت|حرکت عجیب|شگفت.?انگیز|رکورد|پرش(?![\u0600-\u06FF])|ترفند|trick|skill|stunt|spectacular|impossible", re.I),
     "technology_demo": re.compile(r"هوش مصنوعی|\bAI\b|ربات|فناوری|تکنولوژی|Veo|تولید ویدیو|ساخت تصویر|robot|AI demo|technology demo|gadget|smart device", re.I),
     "human_reaction_or_relatable": re.compile(r"واکنش|عکس.?العمل|باور نمی.?کنه|زندگی روزمره|آشناست|relatable|reaction|caught on camera|everyday moment", re.I),
     "food_cooking": re.compile(r"غذا|آشپزی|آشپز|دستور پخت|طرز تهیه|غذای خیابانی|نان خانگی|پخت و پز|کیک|شیرینی|دسر|food|cooking|recipe|baking|dessert|street food|chef|cuisine", re.I),
