@@ -1,5 +1,6 @@
 name: Multi-Platform Social Discovery
 # Smoke-test run trigger requested on 2026-10-11; no runtime behavior change.
+# Second manual end-to-end output check requested on 2026-10-11.
 
 concurrency:
   group: social-discovery
