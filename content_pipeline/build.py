@@ -15,6 +15,7 @@ from html import unescape
 from PIL import Image, ImageDraw, ImageFont, ImageOps, features
 import arabic_reshaper
 from bidi.algorithm import get_display
+from publication_rights import build_rights_manifest
 
 RADAR_URL = os.environ.get("RADAR_URL", "https://trend-radar.m-hoseyni-6966.workers.dev/candidates")
 OUT = Path("out")
@@ -1235,12 +1236,20 @@ def main():
     mp4 = base / "video.mp4"
     concat_segments(segment_files, mp4)
 
-    if visual_assets:
-        attribution_lines = []
-        for _,m in visual_assets:
-            attribution_lines.append(
-                f'Image: {m["title"]} — {m["artist"] or "author not stated"} — {m["license"]}. Source: {m["page_url"]}'
-            )
+    attribution_lines = []
+    for _,m in video_assets:
+        attribution_lines.append(
+            f'Video: {m.get("title") or "untitled"} — {m.get("artist") or "author not stated"} — '
+            f'{m.get("license") or "license unverified"}. Source: {m.get("page_url") or m.get("url") or ""}. '
+            f'License: {m.get("license_url") or "see source page"}'
+        )
+    for _,m in visual_assets:
+        attribution_lines.append(
+            f'Image: {m.get("title") or "untitled"} — {m.get("artist") or "author not stated"} — '
+            f'{m.get("license") or "license unverified"}. Source: {m.get("page_url") or m.get("url") or ""}. '
+            f'License: {m.get("license_url") or "see source page"}'
+        )
+    if attribution_lines:
         (base / "attribution.txt").write_text("\n".join(attribution_lines), encoding="utf-8")
 
     meta = {
@@ -1274,7 +1283,19 @@ def main():
 
         "segments": segment_meta,
     }
+    rights_manifest = build_rights_manifest(meta)
+    meta["rights_manifest"] = rights_manifest
+    (base / "rights_manifest.json").write_text(
+        json.dumps(rights_manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     (base / "metadata.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("PUBLICATION_RIGHTS_MANIFEST", json.dumps({
+        "media_status": rights_manifest["media_status"],
+        "assets_cleared": rights_manifest["assets_cleared"],
+        "script_status": rights_manifest["script_status"],
+        "automated_publishable": rights_manifest["automated_publishable"],
+        "recommended_action": rights_manifest["recommended_action"],
+    }, ensure_ascii=False))
     print(json.dumps(meta, ensure_ascii=False))
 
 if __name__ == "__main__":
