@@ -21,6 +21,7 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
+RANKING_VERSION = "follower_growth_v2"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
 QUERIES = [
@@ -524,6 +525,7 @@ def main():
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps({
             "version": 2,
+            "ranking_version": RANKING_VERSION,
             "updated_at": now.isoformat(),
             "status": "public_telegram_repost_and_bing_fallback",
             "count": len(items),
@@ -582,6 +584,7 @@ def main():
 
     OUT.write_text(json.dumps({
         "version": 1,
+        "ranking_version": RANKING_VERSION,
         "updated_at": now.isoformat(),
         "query": q,
         "count": len(items),
