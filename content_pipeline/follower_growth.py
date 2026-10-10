@@ -21,10 +21,10 @@ LANES = {
     "human_reaction_or_relatable": re.compile(r"واکنش|عکس.?العمل|باور نمی.?کنه|زندگی روزمره|آشناست|relatable|reaction|caught on camera", re.I),
 }
 NEWS_RISK = re.compile(
-    r"جنگ|انفجار|پدافند|موشک|حمله نظامی|تیراندازی|کشته|مجروح|سلاح هسته|"
+    r"جنگ|انفجار|پدافند|موشک|حمله نظامی|تیراندازی|کشته|مجروح|سلاح هسته|تجمع|اعتراض|شعار|سنگ.?پرونی|لغو.{0,12}(?:مسابقه|مراسم)|"
     r"ترامپ|رئیس.?جمهور|انتخابات|تحریم|حکومت|جمهوری اسلامی|سیاست|"
     r"war|explosion|air.?defen[cs]e|missile|shooting|killed|injured|nuclear weapon|"
-    r"president|election|sanction|government|politic",
+    r"president|election|sanction|government|politic|protest|demonstration|clash|cancelled after protest",
     re.I,
 )
 SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پورن|جنسی صریح|gore|self.?harm|porn|explicit sexual", re.I)
