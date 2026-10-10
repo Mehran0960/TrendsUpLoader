@@ -1,7 +1,8 @@
 """Tests for freshness-aware multi-platform candidate retention."""
 import unittest
+from datetime import datetime, timezone
 
-from content_pipeline.social_discovery import parse_youtube_duration, sort_discovery_items
+from content_pipeline.social_discovery import parse_youtube_duration, sort_discovery_items, youtube_query_for_time
 
 
 class SocialDiscoveryTests(unittest.TestCase):
@@ -42,6 +43,11 @@ class SocialDiscoveryTests(unittest.TestCase):
         self.assertEqual(parse_youtube_duration("PT1M30S"), 90)
         self.assertEqual(parse_youtube_duration("PT2H3M4S"), 7384)
         self.assertIsNone(parse_youtube_duration("invalid"))
+
+    def test_youtube_queries_rotate_between_half_hour_windows(self):
+        first = youtube_query_for_time(datetime(2026, 10, 10, 10, 0, tzinfo=timezone.utc))
+        second = youtube_query_for_time(datetime(2026, 10, 10, 10, 31, tzinfo=timezone.utc))
+        self.assertNotEqual(first, second)
 
     def test_limit_is_respected(self):
         rows = [
