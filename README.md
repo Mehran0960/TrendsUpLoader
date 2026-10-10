@@ -13,6 +13,7 @@ Full requirements and current limitations: [PROJECT_OBJECTIVE.md](PROJECT_OBJECT
 - Multi-platform public discovery searches for video-post URLs from Instagram, TikTok, YouTube, X, Aparat, and public Telegram channels. Public search is a lead source, not access to a user's private feed.
 - When `YOUTUBE_API_KEY` is configured, the discovery lane uses the official YouTube Data API for fresh videos and native public metrics.
 - Candidates receive a heuristic priority score, confidence label, content lane, and safety/news/weapon/compilation/promotional review flags. The score is for triage only and does not predict actual growth or establish publication rights.
+- Candidate records now carry separate guidance for Instagram, TikTok, YouTube, Telegram, Aparat, and X. This guidance favors native sharing where available, keeps manual/export routes for disconnected platforms, and never marks rights cleared or publication authorized by default. A stricter rule on one destination does not globally discard an otherwise useful lead.
 - A scheduled workflow can send up to three deduplicated, recent candidate links to the private internal Telegram review chat. These messages are operational alerts—not public reposts and not the audience funnel.
 - Candidate discovery and original-video creation are separate. Reusing a third-party video requires a license, permission, or platform-native reuse route that supports the intended use.
 
