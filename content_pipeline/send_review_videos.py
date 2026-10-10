@@ -17,6 +17,11 @@ from urllib.parse import urlparse
 import requests
 from PIL import Image, ImageChops, ImageStat
 
+try:
+    from content_pipeline.follower_growth import annotate_candidate
+except ModuleNotFoundError:
+    from follower_growth import annotate_candidate
+
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "attention_state" / "social_discovery.json"
 STATE = ROOT / "attention_state" / "social_discovery_notification_state.json"
@@ -43,46 +48,79 @@ def candidate_id(item):
     return str(item.get("id") or item.get("url") or "").strip()
 
 
+TARGET_LANES = {
+    "comedy",
+    "animals",
+    "surprise_or_reveal",
+    "transformation_or_satisfying",
+    "skill_or_spectacle",
+    "technology_demo",
+    "human_reaction_or_relatable",
+}
+
+
 def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES):
-    """Return recent, score-qualified individual clips, favoring platform diversity."""
-    now = now or datetime.now(timezone.utc)
+    """Select fresh clips with a substantive target-topic signal, not hashtag-only labels."""
     reviewed = {str(x) for x in (reviewed_ids or [])}
     eligible = []
-    for item in items if isinstance(items, list) else []:
-        if not isinstance(item, dict):
+    rejected_topic = 0
+    rejected_other = 0
+    for raw_item in items if isinstance(items, list) else []:
+        if not isinstance(raw_item, dict):
             continue
+
+        # Re-score against the current rules so stale saved hook signals cannot
+        # promote a generic title such as "Trend pada Bari #comedy #viral".
+        item = annotate_candidate(raw_item)
         ident = candidate_id(item)
         url = str(item.get("url") or "").strip()
         platform = str(item.get("platform") or "").strip().lower()
         if not ident or ident in reviewed or not url.startswith(("https://", "http://")):
             continue
         if platform not in SUPPORTED:
+            rejected_other += 1
+            continue
+
+        lanes = set(item.get("hook_signals") or [])
+        if not lanes.intersection(TARGET_LANES):
+            rejected_topic += 1
             continue
         try:
             score = float(item.get("follow_growth_score") or 0)
             age = float(item.get("age_hours"))
         except (TypeError, ValueError):
+            rejected_other += 1
             continue
         if score < MIN_SCORE or age < 0 or age > MAX_AGE_HOURS:
+            rejected_other += 1
             continue
         if item.get("score_confidence") not in {"medium", "high"}:
+            rejected_other += 1
             continue
         if any(item.get(k) for k in (
             "news_risk_signal", "sensitive_risk_signal", "safety_review_signal",
             "compilation_signal", "promotional_signal",
         )):
+            rejected_other += 1
             continue
-        item = dict(item)
+
         item["_review_id"] = ident
         eligible.append(item)
 
+    print(json.dumps({
+        "MEDIA_REVIEW_SELECTION": {
+            "eligible": len(eligible),
+            "rejected_non_target_or_hashtag_only": rejected_topic,
+            "rejected_freshness_confidence_or_safety": rejected_other,
+        }
+    }, ensure_ascii=False))
     eligible.sort(key=lambda x: (
         float(x.get("follow_growth_score") or 0),
         -float(x.get("age_hours") or 0),
     ), reverse=True)
 
     selected, seen_platforms, seen_ids = [], set(), set()
-    # First pass: get a mix of sources when there are enough eligible candidates.
+    # Prefer a mix of sources, then fill remaining slots by score.
     for item in eligible:
         platform = str(item.get("platform") or "unknown").lower()
         if platform in seen_platforms:
