@@ -269,5 +269,23 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(result["reason"], "duration_out_of_range")
 
 
+    def test_moderate_but_relevant_fresh_clip_is_kept_for_private_review(self):
+        candidate = {
+            "id": "moderate-cat",
+            "url": "https://t.me/funnycat/456",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "A cat sits quietly on a table",
+            "description": "",
+            "views": 1200,
+            "age_hours": 20,
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertIn("animals", selected[0]["hook_signals"])
+        self.assertGreaterEqual(selected[0]["follow_growth_score"], 42)
+        self.assertLess(selected[0]["follow_growth_score"], 48)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
