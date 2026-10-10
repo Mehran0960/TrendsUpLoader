@@ -110,6 +110,24 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(len(selected), 1)
         self.assertIn("animals", selected[0]["hook_signals"])
 
+    def test_accepts_fresh_specific_single_lane_telegram_clip_under_standard_score_floor(self):
+        candidate = {
+            "id": "fresh-science-low-reach",
+            "url": "https://t.me/scienceclips/456",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "آزمایش علمی ساده با آهنربا",
+            "description": "آزمایش علمی کوتاه و روشن.",
+            "views": 0,
+            "age_hours": 2,
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertLess(selected[0]["follow_growth_score"], 42)
+        self.assertGreaterEqual(selected[0]["follow_growth_score"], 30)
+        self.assertEqual(selected[0]["score_confidence"], "low")
+        self.assertIn("science_curiosity", selected[0]["hook_signals"])
+
     def test_accepts_strong_fresh_native_telegram_clip_without_view_counters(self):
         candidate = {
             "id": "fresh-telegram-low-confidence",
