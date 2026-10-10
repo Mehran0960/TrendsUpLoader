@@ -224,17 +224,20 @@ def inspect_video_quality(video_path):
         for index, fraction in enumerate((0.08, 0.28, 0.50, 0.72, 0.92)):
             frame_path = Path(frame_dir) / f"frame-{index}.jpg"
             timestamp = max(0.05, min(duration - 0.05, duration * fraction))
-            result = subprocess.run(
-                [
-                    "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-                    "-ss", f"{timestamp:.3f}", "-i", str(video_path),
-                    "-frames:v", "1", "-vf",
-                    "scale=96:96:force_original_aspect_ratio=decrease,"
-                    "pad=96:96:(ow-iw)/2:(oh-ih)/2",
-                    str(frame_path),
-                ],
-                capture_output=True, text=True, timeout=25,
-            )
+            try:
+                result = subprocess.run(
+                    [
+                        "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                        "-ss", f"{timestamp:.3f}", "-i", str(video_path),
+                        "-frames:v", "1", "-vf",
+                        "scale=96:96:force_original_aspect_ratio=decrease,"
+                        "pad=96:96:(ow-iw)/2:(oh-ih)/2",
+                        "-update", "1", str(frame_path),
+                    ],
+                    capture_output=True, text=True, timeout=25,
+                )
+            except (OSError, subprocess.TimeoutExpired):
+                continue
             if result.returncode != 0 or not frame_path.is_file() or frame_path.stat().st_size == 0:
                 continue
             try:
