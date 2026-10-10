@@ -12,7 +12,6 @@ on:
     paths:
       - "content_pipeline/social_discovery.py"
       - "content_pipeline/follower_growth.py"
-      - "content_pipeline/notify_discovery_shortlist.py"
       - "content_pipeline/send_review_videos.py"
       - "content_pipeline/test_send_review_videos.py"
       - ".github/workflows/social-discovery.yml"
@@ -43,12 +42,6 @@ jobs:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: python content_pipeline/social_discovery.py
-      - name: Send internal review shortlist
-        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' }}
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python content_pipeline/notify_discovery_shortlist.py
       - name: Download and send video files for private review
         if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' }}
         env:
