@@ -571,9 +571,9 @@ def main():
 
     data = load_json(INPUT, {})
     state = load_json(STATE, {"version": 1, "notified_ids": []})
-    reviewed = [str(x) for x in state.get("media_reviewed_ids", [])]
-    reviewed.extend(str(x) for x in state.get("media_reviewed_urls", []))
-    candidates = select_media_candidates(data.get("items", []), reviewed)
+    reviewed_ids = [str(x) for x in state.get("media_reviewed_ids", [])]
+    reviewed_urls = [str(x) for x in state.get("media_reviewed_urls", [])]
+    candidates = select_media_candidates(data.get("items", []), reviewed_ids + reviewed_urls)
     saved_fingerprints = state.get("media_reviewed_fingerprints", [])
     if not isinstance(saved_fingerprints, list):
         saved_fingerprints = []
@@ -689,7 +689,7 @@ def main():
         state.update({
             "version": 1,
             "media_review_updated_at": datetime.now(timezone.utc).isoformat(),
-            "media_reviewed_ids": list(dict.fromkeys(existing_ids + reviewed + sent_ids))[-1000:],
+            "media_reviewed_ids": list(dict.fromkeys(existing_ids + reviewed_ids + sent_ids))[-1000:],
             "media_reviewed_urls": list(dict.fromkeys(existing_urls + sent_urls))[-1000:],
             "media_reviewed_fingerprints": list(fingerprints_by_sha.values())[-300:],
             "media_review_last_count": len(sent_ids),
