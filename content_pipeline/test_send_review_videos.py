@@ -8,6 +8,9 @@ from content_pipeline.send_review_videos import (
     render_caption,
     evaluate_video_metrics,
     select_media_candidates,
+    canonical_media_url,
+    media_fingerprints_match,
+    duration_content_gate,
 )
 
 
@@ -187,6 +190,63 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "age_hours": 2,
         }
         self.assertEqual(select_media_candidates([candidate], limit=1), [])
+
+
+    def test_same_source_url_with_tracking_variants_is_selected_once(self):
+        base = {
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "A funny cat has a surprising reaction",
+            "description": "Unexpected animal reaction caught on camera.",
+            "views": 100000,
+            "age_hours": 2,
+        }
+        candidates = [
+            {**base, "id": "duplicate-a", "url": "https://t.me/example/301?single"},
+            {**base, "id": "duplicate-b", "url": "https://t.me/example/301/"},
+        ]
+        selected = select_media_candidates(candidates, limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(canonical_media_url(candidates[0]["url"]), canonical_media_url(candidates[1]["url"]))
+
+    def test_youtube_watch_and_short_urls_normalize_to_same_video(self):
+        watch = canonical_media_url("https://www.youtube.com/watch?v=abc123&utm_source=feed")
+        short = canonical_media_url("https://youtube.com/shorts/abc123?feature=share")
+        self.assertEqual(watch, short)
+
+    def test_perceptual_fingerprint_detects_same_clip_after_reencoding(self):
+        frames = [
+            "0000000000000000",
+            "0000000000000001",
+            "0000000000000003",
+            "0000000000000007",
+            "000000000000000f",
+        ]
+        self.assertTrue(media_fingerprints_match(
+            {"sha256": "original-file", "frame_hashes": frames},
+            {"sha256": "reencoded-file", "frame_hashes": frames},
+        ))
+
+    def test_perceptual_fingerprint_does_not_match_different_visuals(self):
+        self.assertFalse(media_fingerprints_match(
+            {"sha256": "file-a", "frame_hashes": ["0000000000000000"] * 5},
+            {"sha256": "file-b", "frame_hashes": ["ffffffffffffffff"] * 5},
+        ))
+
+    def test_long_clip_needs_stronger_topic_fit(self):
+        two_lanes = {"follow_growth_score": 70, "hook_signals": ["animals", "comedy"]}
+        qc = {"passed": True, "duration_seconds": 50}
+        self.assertEqual(duration_content_gate(two_lanes, qc), (True, "duration_and_topic_gate_passed"))
+        one_lane = {"follow_growth_score": 80, "hook_signals": ["animals"]}
+        self.assertEqual(duration_content_gate(one_lane, qc), (False, "long_clip_requires_stronger_topic_fit"))
+        low_score = {"follow_growth_score": 52, "hook_signals": ["animals", "comedy"]}
+        self.assertEqual(duration_content_gate(low_score, qc), (False, "long_clip_requires_stronger_topic_fit"))
+
+    def test_video_longer_than_60_seconds_is_rejected_by_technical_gate(self):
+        rows = [{"mean_luma": 80, "std_luma": 20} for _ in range(5)]
+        result = evaluate_video_metrics(75, 720, 1280, rows)
+        self.assertFalse(result["passed"])
+        self.assertEqual(result["reason"], "duration_out_of_range")
 
 
 if __name__ == "__main__":
