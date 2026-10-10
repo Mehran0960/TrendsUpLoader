@@ -595,8 +595,9 @@ def log_growth_summary(items):
 
 def main(force_fallback=False):
     now = datetime.now(timezone.utc)
-    if not KEY or force_fallback:
-        # Free fallback: Bing can expose public social URLs without an API key.
+    if force_fallback:
+        # Use Bing only if Firecrawl's keyless/API request actually fails.
+        # Firecrawl keyless currently provides a free monthly search allowance.
         # This is discovery-only; media acquisition still happens downstream.
         # Rotate by scheduled four-hour windows. A half-hour index combined
         # with a four-hour schedule would repeat the same query every run.
