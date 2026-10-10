@@ -113,6 +113,23 @@ class SocialDiscoveryTests(unittest.TestCase):
             kwargs = post.call_args.kwargs
             self.assertNotIn("Authorization", kwargs["headers"])
             self.assertEqual(kwargs["json"]["query"], "short video")
+            self.assertEqual(kwargs["json"]["tbs"], "qdr:d")
+
+    def test_search_result_freshness_uses_published_date_when_available(self):
+        now = datetime(2026, 10, 11, 18, 0, tzinfo=timezone.utc)
+        age, published, basis = social_discovery.search_result_freshness(
+            {"raw": {"publishedAt": "2026-10-11T15:00:00Z"}}, now
+        )
+        self.assertEqual(age, 3.0)
+        self.assertEqual(basis, "published_date")
+        self.assertTrue(published.startswith("2026-10-11T15:00:00"))
+
+    def test_search_result_freshness_uses_conservative_time_filter_bound_without_date(self):
+        now = datetime(2026, 10, 11, 18, 0, tzinfo=timezone.utc)
+        self.assertEqual(
+            social_discovery.search_result_freshness({"raw": {}}, now),
+            (24.0, "", "firecrawl_tbs_qdr_d_upper_bound"),
+        )
 
     def test_fallback_search_user_agent_is_configured(self):
         self.assertTrue(UA.startswith("Mozilla/"))
