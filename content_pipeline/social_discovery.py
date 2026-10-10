@@ -24,6 +24,28 @@ KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "follower_growth_v3"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_QUERIES = [
+    ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
+    ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
+    ("ویدیو کوتاه پربازدید ایران اتفاق عجیب", "fa"),
+    ("funny unexpected moment caught on camera short", "en"),
+    ("cat dog funny reaction short video", "en"),
+    ("satisfying transformation before after short", "en"),
+    ("AI photo animation demo short", "en"),
+    ("amazing one take skill trick short", "en"),
+    ("close call caught on camera short", "en"),
+    ("ترفندهای کاربردی خانه و تمیزکاری ویدیو کوتاه", "fa"),
+    ("طرز تهیه غذای سریع و آشپزی رضایت بخش ویدیو کوتاه", "fa"),
+    ("حرکت ورزشی تماشایی فوتبال بسکتبال ویدیو کوتاه", "fa"),
+    ("حیات وحش و طبیعت شگفت انگیز ویدیو کوتاه", "fa"),
+    ("آزمایش علمی ساده و چطور کار می کند ویدیو کوتاه", "fa"),
+    ("ساخت کاردستی خلاقانه و قبل و بعد ویدیو کوتاه", "fa"),
+    ("اجرای موسیقی رقص و نوازندگی جالب ویدیو کوتاه", "fa"),
+    ("wholesome heartwarming family and animal moment short video", "en"),
+    ("easy food recipe everyday life hack satisfying cleaning short video", "en"),
+    ("amazing sports skill trick shot short video", "en"),
+]
+
+QUERIES = [
     'site:tiktok.com (خنده OR طنز OR حیوانات OR گربه OR سگ OR ترفند OR آشپزی OR شگفت‌انگیز OR satisfying)',
     'site:x.com (ویدیو OR ویدئو OR video) (طنز OR حیوانات OR ترفند OR غذا OR مهارت OR طبیعت OR ورزش OR satisfying)',
     'site:aparat.com/v (طنز OR حیوانات OR گربه OR آشپزی OR ترفند OR حیات وحش OR آزمایش OR کاردستی)',
@@ -32,6 +54,7 @@ YOUTUBE_QUERIES = [
     'site:x.com (animal OR funny OR trick OR skill OR cooking OR wildlife OR science OR DIY OR satisfying) (video OR clip)',
     'site:tiktok.com (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)',
     'site:aparat.com/v (ویدیو کوتاه OR کلیپ بامزه OR حیوانات جالب OR ترفند کاربردی OR فناوری OR علم OR طبیعت OR غذا)',
+]
 
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
