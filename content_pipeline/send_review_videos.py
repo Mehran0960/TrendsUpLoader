@@ -29,6 +29,8 @@ STATE = ROOT / "attention_state" / "social_discovery_notification_state.json"
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TARGET = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 MAX_AGE_HOURS = 36.0
+MAX_TELEGRAM_REVIEW_AGE_HOURS = 72.0
+MIN_STALE_TELEGRAM_SCORE = 55.0
 MIN_SCORE = 42.0
 MAX_VIDEO_BYTES = 48 * 1024 * 1024
 MAX_SENDS = 3
@@ -229,7 +231,16 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         except (TypeError, ValueError):
             rejected_other += 1
             continue
-        if score < MIN_SCORE or age < 0 or age > MAX_AGE_HOURS:
+        native_telegram = platform == "telegram" and str(item.get("source") or "").lower() == "telegram_native_video"
+        age_limit = MAX_TELEGRAM_REVIEW_AGE_HOURS if native_telegram else MAX_AGE_HOURS
+        if score < MIN_SCORE or age < 0 or age > age_limit:
+            rejected_other += 1
+            continue
+        if age > MAX_AGE_HOURS and (
+            not native_telegram
+            or score < MIN_STALE_TELEGRAM_SCORE
+            or not lanes.intersection(SPECIFIC_LONG_CLIP_LANES)
+        ):
             rejected_other += 1
             continue
         confidence = item.get("score_confidence")
