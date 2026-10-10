@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 
-from content_pipeline.social_discovery import QUERIES, YOUTUBE_QUERIES, parse_youtube_duration, sort_discovery_items, youtube_query_for_time, youtube_queries_for_time
+from content_pipeline.social_discovery import QUERIES, UA, YOUTUBE_QUERIES, parse_youtube_duration, sort_discovery_items, youtube_query_for_time, youtube_queries_for_time
 
 
 class SocialDiscoveryTests(unittest.TestCase):
@@ -69,6 +69,11 @@ class SocialDiscoveryTests(unittest.TestCase):
         for keyword in ("آشپزی", "ترفند", "بسکتبال", "حیات وحش", "آزمایش علمی", "کاردستی", "نوازندگی", "heartwarming"):
             with self.subTest(keyword=keyword):
                 self.assertIn(keyword.lower(), searchable)
+
+
+    def test_fallback_search_user_agent_is_configured(self):
+        self.assertTrue(UA.startswith("Mozilla/"))
+        self.assertIn("Chrome/", UA)
 
 
 if __name__ == "__main__":
