@@ -49,11 +49,17 @@ def make_caption(meta):
     return out[:MAX_CAPTION]
 
 def main():
-    token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
-    chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
-    if not token or not chat_id:
-        print("Telegram publish skipped: secrets are not configured.")
+    enabled = os.environ.get("TELEGRAM_AUDIENCE_PUBLISH_ENABLED", "").strip().lower() == "true"
+    if not enabled:
+        print("TELEGRAM_AUDIENCE_PUBLISH_SKIPPED: explicit enable flag is not true.")
         return 0
+    token = os.environ.get("TELEGRAM_AUDIENCE_BOT_TOKEN", "").strip()
+    chat_id = os.environ.get("TELEGRAM_AUDIENCE_CHAT_ID", "").strip()
+    if not token or not chat_id:
+        raise RuntimeError(
+            "Audience publishing is enabled but TELEGRAM_AUDIENCE_BOT_TOKEN secret "
+            "or TELEGRAM_AUDIENCE_CHAT_ID variable is missing."
+        )
 
     found = find_latest()
     if found is None:
@@ -82,6 +88,16 @@ def main():
     if script_quality != "passed":
         print("Telegram publish skipped: script quality gate not passed.")
         return 0
+    publish_path = video.parent / "publish.json"
+    if publish_path.exists():
+        try:
+            prior = json.loads(publish_path.read_text(encoding="utf-8"))
+        except Exception:
+            prior = {}
+        if prior.get("platform") == "telegram" and prior.get("content_key") == meta.get("content_key"):
+            print("TELEGRAM_AUDIENCE_PUBLISH_SKIPPED_DUPLICATE: this content key already has a Telegram publish record.")
+            return 0
+
     size = video.stat().st_size
     if size > 50 * 1024 * 1024:
         raise RuntimeError(f"Video is {size} bytes; Telegram bot limit is 50 MB.")
@@ -111,8 +127,9 @@ def main():
         "video_path": str(video),
         "title": meta.get("display_title_fa") or meta.get("title"),
         "source_url": meta.get("source_url"),
+        "content_key": meta.get("content_key"),
     }
-    (video.parent / "publish.json").write_text(json.dumps(publish, ensure_ascii=False, indent=2), encoding="utf-8")
+    publish_path.write_text(json.dumps(publish, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps(publish, ensure_ascii=False))
     return 0
 
