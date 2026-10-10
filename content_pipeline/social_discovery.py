@@ -48,6 +48,36 @@ def parse_num(raw):
         "بیلیون":1e9, "تریلیون":1e12,
     }.get(unit, 1.0))
 
+def discovery_timestamp(item):
+    """Parse when a candidate was observed; unknown timestamps sort last."""
+    raw = str((item or {}).get("discovered_at") or "").strip()
+    if not raw:
+        return 0.0
+    try:
+        stamp = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return stamp.timestamp()
+    except Exception:
+        return 0.0
+
+
+def sort_discovery_items(items, limit=500):
+    """Keep the newest observed candidates so stale history cannot crowd out fresh leads."""
+    def engagement(item):
+        total = 0
+        for key in ("views", "likes", "comments", "shares", "telegram_repost_views", "telegram_post_views"):
+            try:
+                total += max(0, int(item.get(key) or 0))
+            except Exception:
+                pass
+        return total
+
+    rows = [x for x in items if isinstance(x, dict) and str(x.get("url") or "").strip()]
+    rows.sort(key=lambda x: (discovery_timestamp(x), engagement(x)), reverse=True)
+    return rows[:max(0, int(limit))]
+
+
 def metric(text, names):
     for name in names:
         p = rf"(?:{name})[^0-9۰-۹]{{0,30}}([0-9۰-۹][0-9۰-۹,\.\s]*\s*(?:[KkMmBb]|هزار|میلیون|میلیارد|بیلیون|تریلیون)?)"
@@ -434,7 +464,21 @@ def main():
         }
         for x in results:
             merged[x["id"]] = x
-        items = list(merged.values())[:500]
+        # Refresh Telegram-post age for retained candidates instead of trusting stale
+        # ages saved by an earlier run. This is the relay/native Telegram post age,
+        # not a claim about the original Instagram Reel's publication date.
+        for item in merged.values():
+            source_tag = str(item.get("source") or "")
+            published_at = str(item.get("published_at") or "").strip()
+            if source_tag in {"telegram_native_video", "telegram_public_repost"} and published_at:
+                try:
+                    published = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
+                    if published.tzinfo is None:
+                        published = published.replace(tzinfo=timezone.utc)
+                    item["age_hours"] = max(0.0, (now - published).total_seconds() / 3600.0)
+                except Exception:
+                    pass
+        items = sort_discovery_items(merged.values(), limit=500)
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps({
             "version": 2,
@@ -490,14 +534,7 @@ def main():
     merged = {str(x.get("id")): x for x in previous}
     for x in results:
         merged[x["id"]] = x
-    items = list(merged.values())
-    items.sort(key=lambda x: (
-        -int(x.get("shares") or 0),
-        -int(x.get("likes") or 0),
-        -int(x.get("views") or 0),
-        x.get("discovered_at",""),
-    ))
-    items = items[:500]
+    items = sort_discovery_items(merged.values(), limit=500)
 
     OUT.write_text(json.dumps({
         "version": 1,
