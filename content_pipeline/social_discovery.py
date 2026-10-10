@@ -223,6 +223,13 @@ def telegram_repost_candidates():
         "tanzolemareh_t",
         "aranbidgoliha",
         "bandaranzali_aliabad",
+        # Additional active public Persian humour/viral-video feeds. Captions and
+        # videos still pass the same topic, freshness, safety and duplicate gates.
+        "keereker",
+        "ersalihatun",
+        "clipsamii",
+        "naroo_somaye",
+        "winstnchannel",
         # Verified public Persian technology/AI feeds; candidates still pass
         # the same demand, visual-hook, safety and single-payoff gates.
         "thezoomit",
