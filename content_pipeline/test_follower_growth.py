@@ -191,5 +191,42 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertIn(result["candidate_action"], {"prioritize_for_visual_and_rights_review", "manual_review"})
 
 
+    def test_mainstream_evergreen_interests_are_classified(self):
+        examples = [
+            ("food", "طرز تهیه نان خانگی با چند ماده ساده", "food_cooking"),
+            ("tips", "یک ترفند کاربردی برای مرتب کردن وسایل خانه", "practical_tips_or_life_hacks"),
+            ("heartwarming", "دیدار دوباره پدر و دختر پس از سال‌ها", "wholesome_or_heartwarming"),
+            ("sports", "شوت تماشایی در بسکتبال", "sports_or_athletic_skill"),
+            ("nature", "تصاویر شگفت‌انگیز حیات وحش", "nature_and_wildlife"),
+            ("science", "یک آزمایش علمی ساده نشان می‌دهد چطور کار می‌کند", "science_curiosity"),
+            ("diy", "ساخت یک وسیله چوبی دست‌ساز از صفر", "diy_and_creativity"),
+            ("cleaning", "قبل و بعد نظافت عمیق آشپزخانه", "home_organization_or_cleaning"),
+            ("music", "اجرای زنده نوازندگی پیانو", "music_or_dance"),
+        ]
+        for slug, title, expected_lane in examples:
+            with self.subTest(topic=slug):
+                result = annotate_candidate({
+                    "url": f"https://t.me/example/{slug}",
+                    "platform": "telegram",
+                    "title": title,
+                    "views": 50000,
+                    "age_hours": 3,
+                })
+                self.assertIn(expected_lane, result["hook_signals"])
+                self.assertFalse(result["news_risk_signal"])
+
+    def test_current_affairs_still_flagged_even_when_title_uses_comedy_hook(self):
+        result = annotate_candidate({
+            "url": "https://t.me/example/comedy-news",
+            "platform": "telegram",
+            "title": "طنز درباره درگیری مرزی و بازداشت افراد",
+            "views": 90000,
+            "age_hours": 2,
+        })
+        self.assertIn("comedy", result["hook_signals"])
+        self.assertTrue(result["news_risk_signal"])
+        self.assertEqual(result["content_lane"], "news_or_current_affairs")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
