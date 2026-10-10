@@ -188,79 +188,113 @@ SPECIFIC_LONG_CLIP_LANES = TARGET_LANES - {
 
 
 def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES):
-    """Select fresh clips with a substantive target-topic signal, not hashtag-only labels."""
+    """Select unique, fresh, substantive clips and expose the actual rejection bottleneck."""
     reviewed = {str(x) for x in (reviewed_ids or [])}
     eligible = []
     seen_source_urls = set()
     rejected_topic = 0
-    rejected_other = 0
     rejected_duplicates = 0
+    rejection_reasons = {
+        "file_relay_unavailable": 0,
+        "already_reviewed_or_duplicate_url": 0,
+        "unsupported_platform": 0,
+        "no_target_topic_signal": 0,
+        "invalid_score_or_age": 0,
+        "score_below_minimum": 0,
+        "outside_age_window": 0,
+        "stale_telegram_not_strong_or_specific": 0,
+        "insufficient_engagement_confidence": 0,
+        "safety_news_compilation_or_promo": 0,
+    }
+    telegram_near_misses = []
+
+    def reject(reason, item=None):
+        rejection_reasons[reason] += 1
+        if isinstance(item, dict) and str(item.get("platform") or "").lower() == "telegram" and len(telegram_near_misses) < 12:
+            telegram_near_misses.append({
+                "reason": reason,
+                "source": str(item.get("source") or ""),
+                "title": str(item.get("title") or "")[:110],
+                "score": item.get("follow_growth_score"),
+                "age_hours": item.get("age_hours"),
+                "confidence": item.get("score_confidence"),
+                "lanes": list(item.get("hook_signals") or [])[:4],
+            })
+
     for raw_item in items if isinstance(items, list) else []:
         if not isinstance(raw_item, dict):
             continue
 
-        # Re-score against the current rules so stale saved hook signals cannot
-        # promote a generic title such as "Trend pada Bari #comedy #viral".
+        # Re-score against current rules; hashtags alone are not topic evidence.
         item = annotate_candidate(raw_item)
         ident = candidate_id(item)
         url = str(item.get("url") or "").strip()
         canonical_url = canonical_media_url(url)
         platform = str(item.get("platform") or "").strip().lower()
         if not ident or not url.startswith(("https://", "http://")):
+            rejection_reasons["invalid_score_or_age"] += 1
             continue
         if platform in UNAVAILABLE_FILE_RELAY_PLATFORMS:
-            rejected_other += 1
+            reject("file_relay_unavailable", item)
             continue
         if candidate_review_keys(item).intersection(reviewed):
             rejected_duplicates += 1
+            reject("already_reviewed_or_duplicate_url", item)
             continue
         if canonical_url and canonical_url in seen_source_urls:
             rejected_duplicates += 1
+            reject("already_reviewed_or_duplicate_url", item)
             continue
         if platform not in SUPPORTED:
-            rejected_other += 1
+            reject("unsupported_platform", item)
             continue
 
         lanes = set(item.get("hook_signals") or [])
         if not lanes.intersection(TARGET_LANES):
             rejected_topic += 1
+            reject("no_target_topic_signal", item)
             continue
         try:
             score = float(item.get("follow_growth_score") or 0)
             age = float(item.get("age_hours"))
         except (TypeError, ValueError):
-            rejected_other += 1
+            reject("invalid_score_or_age", item)
+            continue
+
+        if score < MIN_SCORE:
+            reject("score_below_minimum", item)
             continue
         native_telegram = platform == "telegram" and str(item.get("source") or "").lower() == "telegram_native_video"
         age_limit = MAX_TELEGRAM_REVIEW_AGE_HOURS if native_telegram else MAX_AGE_HOURS
-        if score < MIN_SCORE or age < 0 or age > age_limit:
-            rejected_other += 1
+        if age < 0 or age > age_limit:
+            reject("outside_age_window", item)
             continue
+        # Keep the wider 36-72h window narrow: only genuinely strong clips with
+        # a concrete topic, never generic reactions or stale reposts.
         if age > MAX_AGE_HOURS and (
             not native_telegram
             or score < MIN_STALE_TELEGRAM_SCORE
             or not lanes.intersection(SPECIFIC_LONG_CLIP_LANES)
         ):
-            rejected_other += 1
+            reject("stale_telegram_not_strong_or_specific", item)
             continue
+
         confidence = item.get("score_confidence")
-        # For private review only, fresh native Telegram clips can still be useful
-        # when view counters are missing. Require a strong score and a concrete
-        # subject lane; generic surprise/reaction-only titles do not qualify.
+        # Missing native view counters may still be reviewed privately when a
+        # concrete subject lane and score support the candidate.
         low_confidence_telegram_ok = (
-            platform == "telegram"
-            and str(item.get("source") or "").lower() == "telegram_native_video"
+            native_telegram
             and confidence == "low"
             and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
         )
         if confidence not in {"medium", "high"} and not low_confidence_telegram_ok:
-            rejected_other += 1
+            reject("insufficient_engagement_confidence", item)
             continue
         if any(item.get(k) for k in (
             "news_risk_signal", "sensitive_risk_signal", "safety_review_signal",
             "compilation_signal", "promotional_signal",
         )):
-            rejected_other += 1
+            reject("safety_news_compilation_or_promo", item)
             continue
 
         item["_review_id"] = ident
@@ -273,8 +307,9 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         "MEDIA_REVIEW_SELECTION": {
             "eligible": len(eligible),
             "rejected_non_target_or_hashtag_only": rejected_topic,
-            "rejected_freshness_confidence_or_safety": rejected_other,
             "rejected_duplicate_urls_or_reviewed": rejected_duplicates,
+            "rejection_reasons": rejection_reasons,
+            "telegram_rejection_samples": telegram_near_misses,
         }
     }, ensure_ascii=False))
     eligible.sort(key=lambda x: (
@@ -301,7 +336,6 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         if len(selected) >= limit:
             break
     return selected
-
 
 def find_telegram_post_block(page, channel, post_id):
     """Return only the HTML block for the exact Telegram post, never a nearby post."""
