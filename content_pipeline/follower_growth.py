@@ -85,17 +85,19 @@ def expected_platform_for_query(query):
 
 def _freshness(age):
     if age is None:
-        return 4.0
+        return 2.0
     if age <= 3:
-        return 20.0
+        return 24.0
     if age <= 12:
-        return 17.0
+        return 20.0
     if age <= 24:
-        return 14.0
+        return 16.0
+    if age <= 36:
+        return 12.0
     if age <= 72:
-        return 9.0
+        return 5.0
     if age <= 168:
-        return 3.0
+        return 1.0
     return 0.0
 
 
@@ -108,6 +110,7 @@ def annotate_candidate(item):
     platform = str(x.get("platform") or "").lower()
     source = str(x.get("source") or "").lower()
     age = _age_hours(x)
+    stale = age is not None and age > 36.0
 
     lanes = [name for name, pattern in LANES.items() if pattern.search(text)]
     is_news = bool(NEWS_RISK.search(text))
@@ -152,6 +155,13 @@ def annotate_candidate(item):
         score -= 10.0
     if compilation:
         score -= 16.0
+    if stale:
+        if age > 168:
+            score -= 28.0
+        elif age > 72:
+            score -= 18.0
+        else:
+            score -= 10.0
     score = round(max(0.0, min(100.0, score)), 1)
 
     if native_views and age is not None and (likes or comments or shares):
@@ -169,6 +179,8 @@ def annotate_candidate(item):
         action = "manual_review_current_affairs"
     elif compilation:
         action = "deprioritize_multi_story_roundup"
+    elif stale:
+        action = "deprioritize_stale_candidate"
     elif score >= 65 and confidence in {"medium", "high"}:
         action = "prioritize_for_visual_and_rights_review"
     elif score >= 42 or confidence == "low":
@@ -196,6 +208,7 @@ def annotate_candidate(item):
         "sensitive_risk_signal": is_sensitive,
         "safety_review_signal": safety_review,
         "compilation_signal": compilation,
+        "stale_signal": stale,
         "source_platform": platform,
         "candidate_action": action,
         "rights_status": "not_assessed",
