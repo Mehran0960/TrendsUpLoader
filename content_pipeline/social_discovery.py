@@ -689,10 +689,21 @@ def main():
         return 0
 
     results = []
+    expected_platform = expected_platform_for_query(q)
     for x in flatten_results(data):
         x["discovery_query"] = q
         p = platform(x["url"])
         if p not in {"tiktok","instagram","youtube","x","aparat"}:
+            continue
+        if not is_video_post(x["url"]):
+            print("SOCIAL_DISCOVERY_NON_VIDEO_URL_REJECT", json.dumps({
+                "platform": p, "url": x["url"],
+            }, ensure_ascii=False))
+            continue
+        if expected_platform and p != expected_platform:
+            print("SOCIAL_DISCOVERY_DOMAIN_MISMATCH_REJECT", json.dumps({
+                "expected": expected_platform, "actual": p, "url": x["url"],
+            }, ensure_ascii=False))
             continue
         views, likes, comments, shares = extract_metrics(x)
         text_blob = x["title"] + " " + x["description"]
