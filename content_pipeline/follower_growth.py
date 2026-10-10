@@ -42,6 +42,60 @@ SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پور�
 MANUAL_SAFETY_REVIEW = re.compile(r"سلاح|اسلحه|تفنگ|جنگ.?افزار|آموزش.?های.?نظامی|نیروی.?نظامی|weapon|firearm|\bgun\b|military training", re.I)
 
 
+# Guidance is destination-specific. It intentionally does not determine rights,
+# approve publication, or remove a candidate because another platform has stricter rules.
+PLATFORM_DISTRIBUTION_GUIDANCE = {
+    "instagram": {
+        "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
+        "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
+        "publishing_automation": "not_connected",
+        "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
+    },
+    "tiktok": {
+        "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
+        "do_not_assume": "For You eligibility and permission to publish are the same thing",
+        "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
+        "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
+    },
+    "youtube": {
+        "preferred_route": "original story, native Remix where eligible, or licensed use with meaningful original value",
+        "do_not_assume": "a license alone guarantees recommendation reach or clears every platform rule",
+        "publishing_automation": "not_connected; export bundle only",
+        "policy_reference": "https://support.google.com/youtube/answer/1311392",
+    },
+    "telegram": {
+        "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
+        "do_not_assume": "public availability means permission to copy the media file",
+        "publishing_automation": "Bot API route is opt-in and disabled by default",
+        "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
+    },
+    "aparat": {
+        "preferred_route": "rights-cleared original upload or a supported native share feature",
+        "do_not_assume": "a stable authorized upload API exists until verified",
+        "publishing_automation": "not_connected; export/manual fallback",
+        "policy_reference": "",
+    },
+    "x": {
+        "preferred_route": "native link/share with context, or a distinct localized post",
+        "do_not_assume": "repeated identical automated cross-posts are safe",
+        "publishing_automation": "not_connected",
+        "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
+    },
+}
+
+
+def platform_distribution_guidance():
+    """Return independent destination options without suppressing a candidate globally."""
+    return {
+        platform: {
+            **settings,
+            "rights_must_be_checked_for_file_reuse": True,
+            "publishing_authorized": False,
+        }
+        for platform, settings in PLATFORM_DISTRIBUTION_GUIDANCE.items()
+    }
+
+
 def _int(value):
     try:
         return max(0, int(float(value or 0)))
@@ -224,6 +278,7 @@ def annotate_candidate(item):
         "candidate_action": action,
         "rights_status": "not_assessed",
         "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
+        "distribution_guidance": platform_distribution_guidance(),
     })
     return x
 
