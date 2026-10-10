@@ -69,6 +69,13 @@ class SocialDiscoveryTests(unittest.TestCase):
         self.assertEqual(len(sort_discovery_items(rows, limit=3)), 3)
 
 
+    def test_firecrawl_query_bank_uses_downloadable_individual_post_platforms(self):
+        platforms = [social_discovery.expected_platform_for_query(query) for query in QUERIES]
+        self.assertEqual(set(platforms), {"tiktok", "x", "aparat"})
+        self.assertNotIn("instagram", platforms)
+        self.assertNotIn("youtube", platforms)
+        self.assertTrue(all("inurl:video" in query or "inurl:status" in query or "aparat.com/v" in query for query in QUERIES))
+
     def test_query_bank_covers_mainstream_evergreen_interests(self):
         searchable = " ".join([query for query, _language in YOUTUBE_QUERIES] + QUERIES).lower()
         for keyword in ("آشپزی", "ترفند", "بسکتبال", "حیات وحش", "آزمایش علمی", "کاردستی", "نوازندگی", "heartwarming"):
