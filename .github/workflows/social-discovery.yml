@@ -14,6 +14,7 @@ on:
       - "content_pipeline/follower_growth.py"
       - "content_pipeline/send_review_videos.py"
       - "content_pipeline/test_send_review_videos.py"
+      - "content_pipeline/test_follower_growth.py"
       - ".github/workflows/social-discovery.yml"
 
 jobs:
@@ -28,6 +29,8 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install --disable-pip-version-check requests yt-dlp pillow
+      - name: Run topic-selection regression tests
+        run: python -m unittest -v content_pipeline.test_follower_growth content_pipeline.test_send_review_videos
       - name: Verify frame-analysis tools
         run: |
           set -euo pipefail
