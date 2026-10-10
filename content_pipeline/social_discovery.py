@@ -583,9 +583,9 @@ def log_growth_summary(items):
     }, ensure_ascii=False))
 
 
-def main():
+def main(force_fallback=False):
     now = datetime.now(timezone.utc)
-    if not KEY:
+    if not KEY or force_fallback:
         # Free fallback: Bing can expose public social URLs without an API key.
         # This is discovery-only; media acquisition still happens downstream.
         # Rotate by scheduled four-hour windows. A half-hour index combined
@@ -723,7 +723,8 @@ def main():
         data = firecrawl_search(q, limit=10)
     except Exception as exc:
         print("FIRECRAWL_SEARCH_FAIL", type(exc).__name__)
-        return 0
+        print("FIRECRAWL_FALLBACK_TO_PUBLIC_BING_SEARCH")
+        return main(force_fallback=True)
 
     results = []
     expected_platform = expected_platform_for_query(q)
