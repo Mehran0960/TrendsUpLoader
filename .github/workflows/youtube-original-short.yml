@@ -1,4 +1,4 @@
-name: YouTube Short -> Make Relay (Private)
+name: Original Short Export Bundle (No External Relay)
 
 on:
   workflow_dispatch:
