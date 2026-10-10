@@ -24,6 +24,12 @@ The companion collector tracks trends and signals using Google Trends Trending N
 - Collection schedule: every 15 minutes.
 - No paid provider is required for the core trend collector.
 
+## YouTube publishing
+
+A Make intake scenario has been created but is currently inactive and only has a webhook trigger. The planned path is to send a compressed, rights-gated original short from GitHub Actions to Make, then upload it to the authorized YouTube channel as **private**. It does not publish third-party discoveries.
+
+See [YOUTUBE_PUBLISH_SETUP.md](YOUTUBE_PUBLISH_SETUP.md) for the one-time account authorization, repository secret, and harmless `probe` workflow steps. Do not use the `upload` mode until the Make scenario has been fully wired and verified.
+
 ## Automation
 
 GitHub Actions workflows run discovery, quality and rights tests, and eligible publishing tasks. See the Actions tab for the current status of individual runs.
