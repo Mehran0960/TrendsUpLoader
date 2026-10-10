@@ -24,12 +24,14 @@ KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "follower_growth_v2"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_QUERIES = [
-    ("ویدیو خنده دار وایرال", "fa"),
-    ("ترفند عجیب قبل و بعد", "fa"),
-    ("Persian funny viral short", "fa"),
-    ("amazing unexpected moments", "en"),
-    ("AI demo turns photo into video", "en"),
-    ("satisfying restoration skill animal", "en"),
+    ("لحظه عجیب واقعی واکنش غیرمنتظره ویدیو کوتاه", "fa"),
+    ("گربه واکنش خنده دار کلیپ کوتاه", "fa"),
+    ("Persian funny reaction caught on camera short", "fa"),
+    ("unexpected real life moment caught on camera short -compilation -ranking -top", "en"),
+    ("single animal reaction funny short video -compilation -ranking", "en"),
+    ("satisfying restoration one project before after short", "en"),
+    ("AI demo one photo to video short", "en"),
+    ("impossible skill one take short video", "en"),
 ]
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
