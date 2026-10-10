@@ -28,4 +28,5 @@ jobs:
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_social_discovery -v
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_follower_growth -v
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_notify_discovery_shortlist -v
+          PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_send_review_videos -v
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_publish_youtube -v
