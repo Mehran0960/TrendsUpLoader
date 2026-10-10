@@ -792,7 +792,7 @@ def telegram_tech_exploration_candidate(item):
         str(item.get("description") or ""),
     ]).lower()
     has_tech = bool(re.search(
-        r"(هوش.?مصنوعی|\\bAI\\b|chatgpt|gemini|sora|veo|ربات|گجت|تکنولوژی|فناوری|claude|runway|heygen)",
+        r"(هوش.?مصنوعی|\bAI\b|chatgpt|gemini|sora|veo|ربات|گجت|تکنولوژی|فناوری|claude|runway|heygen)",
         blob, re.I,
     ))
     has_demo = bool(re.search(
