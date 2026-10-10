@@ -56,6 +56,15 @@ TARGET_LANES = {
     "skill_or_spectacle",
     "technology_demo",
     "human_reaction_or_relatable",
+    "food_cooking",
+    "practical_tips_or_life_hacks",
+    "wholesome_or_heartwarming",
+    "sports_or_athletic_skill",
+    "nature_and_wildlife",
+    "science_curiosity",
+    "diy_and_creativity",
+    "home_organization_or_cleaning",
+    "music_or_dance",
 }
 
 
