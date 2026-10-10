@@ -28,6 +28,7 @@ jobs:
       - name: Discover cross-platform viral candidates
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
         run: python content_pipeline/social_discovery.py
       - name: Send internal review shortlist
         if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' }}
