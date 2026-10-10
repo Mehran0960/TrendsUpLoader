@@ -36,10 +36,13 @@ MAX_VIDEO_BYTES = 48 * 1024 * 1024
 MAX_SENDS = 3
 MAX_TRIES = 12
 SUPPORTED = {"telegram", "youtube", "tiktok", "instagram", "aparat", "x"}
-# YouTube remains discoverable/rankable, but direct file download from this runner
-# repeatedly fails with the platform's anti-bot challenge. Do not retry it until
-# the acquisition route changes; do not use private cookies or bypass controls.
-UNAVAILABLE_FILE_RELAY_PLATFORMS = {"youtube"}
+# These platforms remain discoverable, but this runner currently cannot
+# reliably acquire their video files: YouTube requires an anti-bot challenge,
+# Instagram extraction failed for all sampled reels, and TikTok returns a
+# JavaScript/browser-challenge response in yt-dlp. Keep them as discovery-only
+# until a supported public acquisition path works; do not use private cookies
+# or bypass platform challenges.
+UNAVAILABLE_FILE_RELAY_PLATFORMS = {"youtube", "instagram", "tiktok"}
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
 
