@@ -120,6 +120,39 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             )
         )
 
+    def test_allows_high_scoring_specific_telegram_clip_up_to_72_hours(self):
+        candidate = {
+            "id": "strong-telegram-48h",
+            "url": "https://t.me/funnycat/789",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "A funny cat has a surprising reaction to a toy",
+            "description": "One clear animal moment.",
+            "views": 200000,
+            "likes": 5000,
+            "comments": 200,
+            "age_hours": 48,
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertGreaterEqual(selected[0]["follow_growth_score"], 55)
+        self.assertIn("animals", selected[0]["hook_signals"])
+
+    def test_rejects_older_telegram_clip_with_only_generic_reaction_hook(self):
+        candidate = {
+            "id": "vague-telegram-48h",
+            "url": "https://t.me/example/790",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "A surprising human reaction caught on camera",
+            "description": "An unexpected reaction.",
+            "views": 500000,
+            "likes": 12000,
+            "comments": 500,
+            "age_hours": 48,
+        }
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
     def test_skips_youtube_file_relay_while_runner_has_antibot_block(self):
         candidate = {
             "id": "youtube-animal",
