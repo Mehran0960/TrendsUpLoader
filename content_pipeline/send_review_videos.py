@@ -273,7 +273,9 @@ def main():
             if str(item.get("platform") or "").lower() == "telegram":
                 downloaded = download_direct_telegram_post(url, str(video_path))
 
-            if not downloaded:
+            # Telegram candidates must pass the exact-post extractor above. Do not
+            # fall back to a generic page extractor if that match failed.
+            if not downloaded and str(item.get("platform") or "").lower() != "telegram":
                 media_path = download_with_ytdlp(url, workdir)
                 if media_path:
                     video_path = media_path
