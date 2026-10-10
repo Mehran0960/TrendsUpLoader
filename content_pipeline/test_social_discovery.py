@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 
-from content_pipeline.social_discovery import parse_youtube_duration, sort_discovery_items, youtube_query_for_time
+from content_pipeline.social_discovery import parse_youtube_duration, sort_discovery_items, youtube_query_for_time, youtube_queries_for_time
 
 
 class SocialDiscoveryTests(unittest.TestCase):
@@ -47,6 +47,13 @@ class SocialDiscoveryTests(unittest.TestCase):
     def test_youtube_queries_rotate_between_half_hour_windows(self):
         first = youtube_query_for_time(datetime(2026, 10, 10, 10, 0, tzinfo=timezone.utc))
         second = youtube_query_for_time(datetime(2026, 10, 10, 10, 31, tzinfo=timezone.utc))
+        self.assertNotEqual(first, second)
+
+    def test_youtube_batch_returns_distinct_queries_and_rotates(self):
+        first = youtube_queries_for_time(datetime(2026, 10, 10, 10, 0, tzinfo=timezone.utc), count=2)
+        second = youtube_queries_for_time(datetime(2026, 10, 10, 10, 31, tzinfo=timezone.utc), count=2)
+        self.assertEqual(len(first), 2)
+        self.assertEqual(len(set(first)), 2)
         self.assertNotEqual(first, second)
 
     def test_limit_is_respected(self):
