@@ -41,7 +41,7 @@ def select_shortlist(items, notified_ids=None, now=None):
             continue
         if score < MIN_SCORE or item.get("score_confidence") not in {"medium", "high"}:
             continue
-        if item.get("news_risk_signal") or item.get("sensitive_risk_signal") or item.get("safety_review_signal") or item.get("compilation_signal"):
+        if item.get("news_risk_signal") or item.get("sensitive_risk_signal") or item.get("safety_review_signal") or item.get("compilation_signal") or item.get("promotional_signal"):
             continue
         try:
             age = float(item.get("age_hours"))
