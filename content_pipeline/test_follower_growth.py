@@ -71,6 +71,18 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertTrue(result["compilation_signal"])
         self.assertEqual(result["candidate_action"], "deprioritize_multi_story_roundup")
 
+    def test_explicit_api_offer_is_flagged_as_promotional(self):
+        result = annotate_candidate({
+            "url": "https://t.me/thezoomit/103620",
+            "platform": "telegram",
+            "title": "دسترسی رایگان به API مدل هوش مصنوعی؛ برای استفاده به این لینک مراجعه کنید",
+            "description": "Qwen model API offer https://example.com/models",
+            "views": 6000,
+            "age_hours": 1,
+        })
+        self.assertTrue(result["promotional_signal"])
+        self.assertEqual(result["candidate_action"], "deprioritize_promotional")
+
     def test_stale_video_is_deprioritized_even_with_strong_metrics(self):
         result = annotate_candidate({
             "url": "https://www.youtube.com/watch?v=staleexample",
