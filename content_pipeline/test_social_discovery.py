@@ -2,7 +2,7 @@
 import unittest
 from datetime import datetime, timezone
 
-from content_pipeline.social_discovery import parse_youtube_duration, sort_discovery_items, youtube_query_for_time, youtube_queries_for_time
+from content_pipeline.social_discovery import QUERIES, YOUTUBE_QUERIES, parse_youtube_duration, sort_discovery_items, youtube_query_for_time, youtube_queries_for_time
 
 
 class SocialDiscoveryTests(unittest.TestCase):
@@ -62,6 +62,13 @@ class SocialDiscoveryTests(unittest.TestCase):
             for i in range(10)
         ]
         self.assertEqual(len(sort_discovery_items(rows, limit=3)), 3)
+
+
+    def test_query_bank_covers_mainstream_evergreen_interests(self):
+        searchable = " ".join([query for query, _language in YOUTUBE_QUERIES] + QUERIES).lower()
+        for keyword in ("آشپزی", "ترفند", "بسکتبال", "حیات وحش", "آزمایش علمی", "کاردستی", "نوازندگی", "heartwarming"):
+            with self.subTest(keyword=keyword):
+                self.assertIn(keyword.lower(), searchable)
 
 
 if __name__ == "__main__":
