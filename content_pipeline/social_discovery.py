@@ -403,14 +403,18 @@ def parse_youtube_duration(value):
     return hours * 3600 + minutes * 60 + seconds
 
 
+def youtube_query_for_time(now):
+    """Rotate the query more frequently than the workflow schedule to avoid repeating a bad query on retries."""
+    return YOUTUBE_QUERIES[int(now.timestamp() // (30 * 60)) % len(YOUTUBE_QUERIES)]
+
+
 def discover_youtube_public_candidates(now=None, limit=50):
     """Use the free YouTube Data API search and native counters when a key is configured."""
     if not YOUTUBE_KEY:
         print("YOUTUBE_PUBLIC_API_SKIPPED_NO_KEY")
         return []
     now = now or datetime.now(timezone.utc)
-    query_index = int(now.timestamp() // (4 * 3600)) % len(YOUTUBE_QUERIES)
-    query, language = YOUTUBE_QUERIES[query_index]
+    query, language = youtube_query_for_time(now)
     published_after = (now - timedelta(days=7)).isoformat().replace("+00:00", "Z")
     try:
         response = requests.get(
@@ -456,6 +460,10 @@ def discover_youtube_public_candidates(now=None, limit=50):
         return []
 
     results = []
+    raw_video_count = len(detail_data.get("items") or [])
+    rejected_duration = 0
+    rejected_reach = 0
+    rejected_age = 0
     for video in (detail_data.get("items") or []):
         video_id = str(video.get("id") or "").strip()
         if not video_id:
@@ -465,6 +473,7 @@ def discover_youtube_public_candidates(now=None, limit=50):
         content = video.get("contentDetails") or {}
         duration = parse_youtube_duration(content.get("duration"))
         if duration is None or duration > 180:
+            rejected_duration += 1
             continue
         published_at = str(snippet.get("publishedAt") or "")
         age_hours = 999999.0
@@ -475,7 +484,11 @@ def discover_youtube_public_candidates(now=None, limit=50):
             except (TypeError, ValueError):
                 pass
         views = int(stats.get("viewCount") or 0)
-        if views < 2000 or age_hours > 168:
+        if age_hours > 168:
+            rejected_age += 1
+            continue
+        if views < 2000:
+            rejected_reach += 1
             continue
         url = f"https://www.youtube.com/watch?v={video_id}"
         title = str(snippet.get("title") or "").strip()
@@ -504,6 +517,10 @@ def discover_youtube_public_candidates(now=None, limit=50):
         "query": query,
         "language": language,
         "returned": len(results),
+        "raw_details": raw_video_count,
+        "rejected_duration": rejected_duration,
+        "rejected_reach": rejected_reach,
+        "rejected_age": rejected_age,
         "metrics": "native_youtube_api_statistics",
     }, ensure_ascii=False))
     return results
