@@ -34,6 +34,10 @@ MAX_VIDEO_BYTES = 48 * 1024 * 1024
 MAX_SENDS = 3
 MAX_TRIES = 12
 SUPPORTED = {"telegram", "youtube", "tiktok", "instagram", "aparat", "x"}
+# YouTube remains discoverable/rankable, but direct file download from this runner
+# repeatedly fails with the platform's anti-bot challenge. Do not retry it until
+# the acquisition route changes; do not use private cookies or bypass controls.
+UNAVAILABLE_FILE_RELAY_PLATFORMS = {"youtube"}
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
 
@@ -201,6 +205,9 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         canonical_url = canonical_media_url(url)
         platform = str(item.get("platform") or "").strip().lower()
         if not ident or not url.startswith(("https://", "http://")):
+            continue
+        if platform in UNAVAILABLE_FILE_RELAY_PLATFORMS:
+            rejected_other += 1
             continue
         if candidate_review_keys(item).intersection(reviewed):
             rejected_duplicates += 1
