@@ -59,6 +59,17 @@ class FollowerGrowthTests(unittest.TestCase):
         })
         self.assertEqual(result["candidate_action"], "reject_sensitive_or_manual_safety_review")
 
+    def test_weapon_training_requires_manual_safety_review(self):
+        result = annotate_candidate({
+            "url": "https://t.me/example/123",
+            "platform": "telegram",
+            "title": "مهارت در باز و بسته کردن سلاح در آموزش نظامی",
+            "views": 80000,
+            "age_hours": 2,
+        })
+        self.assertTrue(result["safety_review_signal"])
+        self.assertEqual(result["candidate_action"], "manual_safety_review")
+
     def test_search_domain_mismatch_can_be_filtered(self):
         self.assertEqual(expected_platform_for_query('site:instagram.com/reel/ funny video'), "instagram")
         self.assertEqual(expected_platform_for_query('site:youtube.com/shorts amazing'), "youtube")
