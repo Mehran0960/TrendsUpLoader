@@ -62,6 +62,18 @@ def main():
     if str(meta.get("quality_gate") or "") != "passed_publish":
         print("Telegram publish skipped: metadata quality gate not passed.")
         return 0
+    rights_path = video.parent / "rights_manifest.json"
+    try:
+        rights = json.loads(rights_path.read_text(encoding="utf-8"))
+    except Exception:
+        rights = meta.get("rights_manifest") if isinstance(meta.get("rights_manifest"), dict) else {}
+    if not rights or not bool(rights.get("automated_publishable")):
+        print(json.dumps({
+            "TELEGRAM_PUBLISH_SKIPPED_RIGHTS_GATE": True,
+            "reason": "rights_manifest_missing_or_not_cleared",
+            "rights_manifest": rights,
+        }, ensure_ascii=False))
+        return 0
     duration = float(meta.get("duration_seconds") or 0)
     if duration < 18:
         print(f"Telegram publish skipped: video too short ({duration:.2f}s).")
