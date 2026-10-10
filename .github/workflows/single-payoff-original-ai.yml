@@ -30,9 +30,15 @@ jobs:
           set -euo pipefail
           echo "SYSTEM_MEDIA_SETUP_START"
           if ! command -v ffmpeg >/dev/null 2>&1; then
-            echo "FFMPEG_MISSING_INSTALLING"
-            timeout 90s sudo apt-get update -qq -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20
-            timeout 90s sudo apt-get install -y -qq ffmpeg
+            echo "FFMPEG_MISSING_TRY_CACHED_APT_INDEX"
+            if ! timeout 45s sudo apt-get install -y -qq ffmpeg; then
+              echo "FFMPEG_CACHED_INDEX_INSTALL_FAILED_REFRESH_BOUNDED"
+              timeout 35s sudo apt-get update -qq \
+                -o Acquire::http::Timeout=5 \
+                -o Acquire::https::Timeout=5 \
+                -o Acquire::Retries=0
+              timeout 45s sudo apt-get install -y -qq ffmpeg
+            fi
           fi
           ffmpeg -version | head -n 1
           if command -v fc-match >/dev/null 2>&1; then
