@@ -393,6 +393,36 @@ def flatten_results(obj):
         out.append(x)
     return out
 
+def search_result_freshness(item, now):
+    """Return source-backed publication age or a conservative 24h search-window bound."""
+    raw = item.get("raw") if isinstance(item, dict) and isinstance(item.get("raw"), dict) else {}
+    containers = [raw]
+    for key in ("metadata", "meta", "videoDetails"):
+        nested = raw.get(key)
+        if isinstance(nested, dict):
+            containers.append(nested)
+    date_keys = (
+        "publishedAt", "published_at", "publishedDate", "published_date",
+        "datePublished", "date_published", "uploadDate", "upload_date",
+    )
+    for container in containers:
+        for key in date_keys:
+            value = str(container.get(key) or "").strip()
+            if not value:
+                continue
+            try:
+                published = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                if published.tzinfo is None:
+                    published = published.replace(tzinfo=timezone.utc)
+                age = max(0.0, (now - published.astimezone(timezone.utc)).total_seconds() / 3600.0)
+                return round(age, 2), published.isoformat(), "published_date"
+            except (TypeError, ValueError):
+                continue
+    # This is an upper bound from the explicit search filter, not an asserted
+    # exact post age. Downstream permits it only for private review.
+    return 24.0, "", "firecrawl_tbs_qdr_d_upper_bound"
+
+
 def firecrawl_search(query, limit=10):
     headers = {"Content-Type":"application/json", "User-Agent":UA}
     if KEY:
@@ -401,6 +431,8 @@ def firecrawl_search(query, limit=10):
         "query": query,
         "limit": limit,
         "sources": [{"type":"web"}],
+        # Firecrawl's qdr:d filter restricts keyless-search results to the past day.
+        "tbs": "qdr:d",
     }
     r = requests.post("https://api.firecrawl.dev/v2/search", headers=headers, json=payload, timeout=35)
     r.raise_for_status()
@@ -769,6 +801,7 @@ def main(force_fallback=False):
                 }, ensure_ascii=False))
                 continue
             views, likes, comments, shares = extract_metrics(x)
+            age_hours, published_at, freshness_basis = search_result_freshness(x, now)
             text_blob = x["title"] + " " + x["description"]
             persian = len(re.findall(r"[\u0600-\u06ff]", text_blob))
             results.append({
@@ -782,6 +815,9 @@ def main(force_fallback=False):
                 "comments": comments,
                 "shares": shares,
                 "persian_signal": persian >= 3,
+                "published_at": published_at,
+                "age_hours": age_hours,
+                "freshness_basis": freshness_basis,
                 "discovered_at": now.isoformat(),
                 "source": "firecrawl_search",
                 "query": q,
