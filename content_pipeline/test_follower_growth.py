@@ -59,6 +59,31 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertTrue(result["news_risk_signal"])
         self.assertEqual(result["content_lane"], "news_or_current_affairs")
 
+    def test_compilation_roundups_are_downranked(self):
+        result = annotate_candidate({
+            "url": "https://www.youtube.com/watch?v=example123",
+            "platform": "youtube",
+            "title": "Ranking Best Eagle Moments",
+            "views": 7000,
+            "likes": 150,
+            "age_hours": 20,
+        })
+        self.assertTrue(result["compilation_signal"])
+        self.assertEqual(result["content_lane"], "multi_clip_roundup")
+        self.assertEqual(result["candidate_action"], "deprioritize_multi_story_roundup")
+
+    def test_geopolitical_current_affairs_is_flagged_as_news(self):
+        result = annotate_candidate({
+            "url": "https://t.me/example/125",
+            "platform": "telegram",
+            "title": "رائفی‌پور: آمریکا را پایین کشیدن کاری ندارد؛ روسیه باید پالایشگاه‌های آمریکا را هدف بگیرد تا حملات اوکراین متوقف شود",
+            "views": 102000,
+            "age_hours": 6,
+        })
+        self.assertTrue(result["news_risk_signal"])
+        self.assertEqual(result["content_lane"], "news_or_current_affairs")
+        self.assertEqual(result["candidate_action"], "manual_review_current_affairs")
+
     def test_sensitive_risk_is_rejected_for_review(self):
         result = annotate_candidate({
             "url": "https://www.youtube.com/shorts/abcdef",
