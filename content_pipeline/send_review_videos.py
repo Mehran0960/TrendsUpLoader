@@ -5,6 +5,7 @@ This is a curator-only step. It does not publish to public social platforms, and
 successful download does not grant rights to repost the original creator's work.
 """
 import html
+import hashlib
 import json
 import os
 import re
@@ -44,8 +45,109 @@ def load_json(path, default):
         return default
 
 
+def canonical_media_url(url):
+    """Normalize tracking variants so the same public post is reviewed only once."""
+    parsed = urlparse(str(url or "").strip())
+    host = (parsed.netloc or "").lower().removeprefix("www.")
+    path = re.sub(r"/+$", "", parsed.path or "") or "/"
+    if not host:
+        return ""
+    if host == "youtu.be":
+        video_id = path.strip("/").split("/", 1)[0]
+        return f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
+    if host in {"youtube.com", "m.youtube.com"}:
+        video_id = (parse_qs(parsed.query).get("v") or [""])[0]
+        if not video_id:
+            match = re.match(r"^/(?:shorts|embed|live)/([A-Za-z0-9_-]+)", path)
+            if match:
+                video_id = match.group(1)
+        if video_id:
+            return f"https://www.youtube.com/watch?v={video_id}"
+    if host == "instagram.com":
+        match = re.match(r"^/(?:reel|reels)/([A-Za-z0-9_-]+)$", path, re.I)
+        if match:
+            path = "/reel/" + match.group(1)
+    return f"https://{host}{path}"
+
+
 def candidate_id(item):
     return str(item.get("id") or item.get("url") or "").strip()
+
+
+def candidate_review_keys(item):
+    url = str(item.get("url") or "").strip()
+    canonical = canonical_media_url(url)
+    keys = {candidate_id(item), url, canonical}
+    if canonical:
+        keys.add(hashlib.sha256(canonical.encode("utf-8")).hexdigest())
+    return {key for key in keys if key}
+
+
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def difference_hash(image):
+    """Return a 64-bit perceptual hash, tolerant of minor encoding changes."""
+    gray = image.convert("L").resize((9, 8))
+    pixels = list(gray.getdata())
+    value = 0
+    bit = 0
+    for y in range(8):
+        row = y * 9
+        for x in range(8):
+            if pixels[row + x] > pixels[row + x + 1]:
+                value |= 1 << bit
+            bit += 1
+    return f"{value:016x}"
+
+
+def media_fingerprints_match(left, right, max_distance=8, min_matching_frames=4):
+    """Detect exact files or the same clip re-encoded with small visual changes."""
+    left_sha = str((left or {}).get("sha256") or "")
+    right_sha = str((right or {}).get("sha256") or "")
+    if left_sha and right_sha and left_sha == right_sha:
+        return True
+
+    a = [str(x) for x in (left or {}).get("frame_hashes", []) if re.fullmatch(r"[0-9a-fA-F]{16}", str(x))]
+    b = [str(x) for x in (right or {}).get("frame_hashes", []) if re.fullmatch(r"[0-9a-fA-F]{16}", str(x))]
+    if len(a) < min_matching_frames or len(b) < min_matching_frames:
+        return False
+
+    pairs = []
+    for i, ah in enumerate(a):
+        for j, bh in enumerate(b):
+            distance = (int(ah, 16) ^ int(bh, 16)).bit_count()
+            if distance <= max_distance:
+                pairs.append((distance, i, j))
+    pairs.sort()
+    used_a, used_b = set(), set()
+    for _distance, i, j in pairs:
+        if i not in used_a and j not in used_b:
+            used_a.add(i)
+            used_b.add(j)
+    return len(used_a) >= min_matching_frames
+
+
+def duration_content_gate(item, quality):
+    """Keep long clips only when duration and topic evidence justify the extra watch time."""
+    if not quality or not quality.get("passed"):
+        return False, "technical_qc_failed"
+    try:
+        duration = float(quality.get("duration_seconds") or 0)
+        score = float(item.get("follow_growth_score") or 0)
+    except (TypeError, ValueError):
+        return False, "missing_duration_or_score"
+    lanes = set(item.get("hook_signals") or [])
+    if duration > 60:
+        return False, "duration_over_60_seconds"
+    if duration > 45 and (score < 60 or len(lanes) < 2):
+        return False, "long_clip_requires_stronger_topic_fit"
+    return True, "duration_and_topic_gate_passed"
 
 
 TARGET_LANES = {
@@ -72,8 +174,10 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
     """Select fresh clips with a substantive target-topic signal, not hashtag-only labels."""
     reviewed = {str(x) for x in (reviewed_ids or [])}
     eligible = []
+    seen_source_urls = set()
     rejected_topic = 0
     rejected_other = 0
+    rejected_duplicates = 0
     for raw_item in items if isinstance(items, list) else []:
         if not isinstance(raw_item, dict):
             continue
@@ -83,8 +187,15 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         item = annotate_candidate(raw_item)
         ident = candidate_id(item)
         url = str(item.get("url") or "").strip()
+        canonical_url = canonical_media_url(url)
         platform = str(item.get("platform") or "").strip().lower()
-        if not ident or ident in reviewed or not url.startswith(("https://", "http://")):
+        if not ident or not url.startswith(("https://", "http://")):
+            continue
+        if candidate_review_keys(item).intersection(reviewed):
+            rejected_duplicates += 1
+            continue
+        if canonical_url and canonical_url in seen_source_urls:
+            rejected_duplicates += 1
             continue
         if platform not in SUPPORTED:
             rejected_other += 1
@@ -114,13 +225,17 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
             continue
 
         item["_review_id"] = ident
+        item["_canonical_media_url"] = canonical_url
         eligible.append(item)
+        if canonical_url:
+            seen_source_urls.add(canonical_url)
 
     print(json.dumps({
         "MEDIA_REVIEW_SELECTION": {
             "eligible": len(eligible),
             "rejected_non_target_or_hashtag_only": rejected_topic,
             "rejected_freshness_confidence_or_safety": rejected_other,
+            "rejected_duplicate_urls_or_reviewed": rejected_duplicates,
         }
     }, ensure_ascii=False))
     eligible.sort(key=lambda x: (
@@ -209,7 +324,7 @@ def evaluate_video_metrics(duration, width, height, frame_metrics):
     except (TypeError, ValueError):
         return {"passed": False, "score": 0, "reason": "invalid_metadata"}
 
-    if duration < 4 or duration > 120:
+    if duration < 4 or duration > 60:
         return {"passed": False, "score": 0, "reason": "duration_out_of_range"}
     if width < 320 or height < 240 or width > 7680 or height > 7680:
         return {"passed": False, "score": 0, "reason": "resolution_out_of_range"}
@@ -244,7 +359,7 @@ def evaluate_video_metrics(duration, width, height, frame_metrics):
         resolution_points = 10
     diversity_points = min(15, mean_difference / 5)
     score = round(max(0, min(100, 60 + resolution_points + diversity_points - black_ratio * 30)), 1)
-    return {
+    result = {
         "passed": True,
         "score": score,
         "reason": "technical_checks_passed",
@@ -256,6 +371,10 @@ def evaluate_video_metrics(duration, width, height, frame_metrics):
         "mean_frame_difference": round(mean_difference, 2),
         "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
     }
+    frame_hashes = [str(row["dhash"]) for row in frame_metrics if row.get("dhash")]
+    if len(frame_hashes) >= 4:
+        result["frame_hashes"] = frame_hashes
+    return result
 
 
 def inspect_video_quality(video_path):
@@ -308,7 +427,11 @@ def inspect_video_quality(video_path):
                 with Image.open(frame_path) as opened:
                     image = opened.convert("RGB")
                 gray_stats = ImageStat.Stat(image.convert("L"))
-                row = {"mean_luma": gray_stats.mean[0], "std_luma": gray_stats.stddev[0]}
+                row = {
+                    "mean_luma": gray_stats.mean[0],
+                    "std_luma": gray_stats.stddev[0],
+                    "dhash": difference_hash(image),
+                }
                 if frame_metrics:
                     previous_path = Path(frame_dir) / "previous-frame.jpg"
                     # Keep the previous decoded frame in memory for exact same-size comparison.
@@ -449,12 +572,19 @@ def main():
     data = load_json(INPUT, {})
     state = load_json(STATE, {"version": 1, "notified_ids": []})
     reviewed = [str(x) for x in state.get("media_reviewed_ids", [])]
+    reviewed.extend(str(x) for x in state.get("media_reviewed_urls", []))
     candidates = select_media_candidates(data.get("items", []), reviewed)
+    saved_fingerprints = state.get("media_reviewed_fingerprints", [])
+    if not isinstance(saved_fingerprints, list):
+        saved_fingerprints = []
     if not candidates:
         print("MEDIA_REVIEW_EMPTY: no new recent, qualified video candidates.")
         return 0
 
     sent_ids = []
+    sent_urls = []
+    sent_fingerprints = []
+    session_fingerprints = list(saved_fingerprints)
     with tempfile.TemporaryDirectory(prefix="short-review-") as workdir:
         for item in candidates:
             if len(sent_ids) >= MAX_SENDS:
@@ -493,10 +623,42 @@ def main():
                 print("MEDIA_REVIEW_VISUAL_QC_REJECT", visual_qc.get("reason"), url[:140])
                 continue
 
+            duration_ok, duration_reason = duration_content_gate(item, visual_qc)
+            if not duration_ok:
+                print("MEDIA_REVIEW_DURATION_TOPIC_REJECT", json.dumps({
+                    "reason": duration_reason,
+                    "duration_seconds": visual_qc.get("duration_seconds"),
+                    "score": item.get("follow_growth_score"),
+                    "hook_signals": item.get("hook_signals"),
+                    "url": url,
+                }, ensure_ascii=False))
+                continue
+
+            current_fingerprint = {
+                "url": str(item.get("_canonical_media_url") or canonical_media_url(url)),
+                "sha256": sha256_file(video_path),
+                "frame_hashes": visual_qc.get("frame_hashes") or [],
+            }
+            duplicate_of = next(
+                (previous for previous in session_fingerprints
+                 if isinstance(previous, dict) and media_fingerprints_match(current_fingerprint, previous)),
+                None,
+            )
+            if duplicate_of:
+                print("MEDIA_REVIEW_DUPLICATE_CONTENT_SKIPPED", json.dumps({
+                    "url": url,
+                    "duplicate_sha256": current_fingerprint["sha256"] == duplicate_of.get("sha256"),
+                    "duplicate_source_url": current_fingerprint["url"] == duplicate_of.get("url"),
+                }, ensure_ascii=False))
+                continue
+
             try:
                 message_id = send_video(str(video_path), item)
                 ident = item["_review_id"]
                 sent_ids.append(ident)
+                sent_urls.append(current_fingerprint["url"])
+                sent_fingerprints.append(current_fingerprint)
+                session_fingerprints.append(current_fingerprint)
                 print(json.dumps({
                     "MEDIA_REVIEW_VIDEO_SENT": True,
                     "message_id": message_id,
@@ -513,10 +675,23 @@ def main():
                     video_path.unlink(missing_ok=True)
 
     if sent_ids:
+        existing_ids = [str(x) for x in state.get("media_reviewed_ids", [])]
+        existing_urls = [str(x) for x in state.get("media_reviewed_urls", [])]
+        prior_fingerprints = [
+            x for x in state.get("media_reviewed_fingerprints", [])
+            if isinstance(x, dict)
+        ]
+        fingerprints_by_sha = {}
+        for row in prior_fingerprints + sent_fingerprints:
+            key = str(row.get("sha256") or row.get("url") or "")
+            if key:
+                fingerprints_by_sha[key] = row
         state.update({
             "version": 1,
             "media_review_updated_at": datetime.now(timezone.utc).isoformat(),
-            "media_reviewed_ids": list(dict.fromkeys(reviewed + sent_ids))[-1000:],
+            "media_reviewed_ids": list(dict.fromkeys(existing_ids + reviewed + sent_ids))[-1000:],
+            "media_reviewed_urls": list(dict.fromkeys(existing_urls + sent_urls))[-1000:],
+            "media_reviewed_fingerprints": list(fingerprints_by_sha.values())[-300:],
             "media_review_last_count": len(sent_ids),
         })
         STATE.parent.mkdir(parents=True, exist_ok=True)
