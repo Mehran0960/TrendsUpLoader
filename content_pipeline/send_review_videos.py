@@ -595,6 +595,8 @@ def main():
     sent_ids = []
     sent_urls = []
     sent_fingerprints = []
+    suppressed_ids = []
+    suppressed_urls = []
     session_fingerprints = list(saved_fingerprints)
     with tempfile.TemporaryDirectory(prefix="short-review-") as workdir:
         for item in candidates:
@@ -632,6 +634,8 @@ def main():
             }, ensure_ascii=False))
             if not visual_qc.get("passed"):
                 print("MEDIA_REVIEW_VISUAL_QC_REJECT", visual_qc.get("reason"), url[:140])
+                suppressed_ids.append(item["_review_id"])
+                suppressed_urls.append(str(item.get("_canonical_media_url") or canonical_media_url(url)))
                 continue
 
             duration_ok, duration_reason = duration_content_gate(item, visual_qc)
@@ -643,6 +647,8 @@ def main():
                     "hook_signals": item.get("hook_signals"),
                     "url": url,
                 }, ensure_ascii=False))
+                suppressed_ids.append(item["_review_id"])
+                suppressed_urls.append(str(item.get("_canonical_media_url") or canonical_media_url(url)))
                 continue
 
             current_fingerprint = {
@@ -661,6 +667,8 @@ def main():
                     "duplicate_sha256": current_fingerprint["sha256"] == duplicate_of.get("sha256"),
                     "duplicate_source_url": current_fingerprint["url"] == duplicate_of.get("url"),
                 }, ensure_ascii=False))
+                suppressed_ids.append(item["_review_id"])
+                suppressed_urls.append(current_fingerprint["url"])
                 continue
 
             try:
@@ -685,7 +693,7 @@ def main():
                 if video_path.exists():
                     video_path.unlink(missing_ok=True)
 
-    if sent_ids:
+    if sent_ids or suppressed_ids:
         existing_ids = [str(x) for x in state.get("media_reviewed_ids", [])]
         existing_urls = [str(x) for x in state.get("media_reviewed_urls", [])]
         prior_fingerprints = [
@@ -700,8 +708,8 @@ def main():
         state.update({
             "version": 1,
             "media_review_updated_at": datetime.now(timezone.utc).isoformat(),
-            "media_reviewed_ids": list(dict.fromkeys(existing_ids + reviewed_ids + sent_ids))[-1000:],
-            "media_reviewed_urls": list(dict.fromkeys(existing_urls + sent_urls))[-1000:],
+            "media_reviewed_ids": list(dict.fromkeys(existing_ids + reviewed_ids + sent_ids + suppressed_ids))[-1000:],
+            "media_reviewed_urls": list(dict.fromkeys(existing_urls + reviewed_urls + sent_urls + suppressed_urls))[-1000:],
             "media_reviewed_fingerprints": list(fingerprints_by_sha.values())[-300:],
             "media_review_last_count": len(sent_ids),
         })
