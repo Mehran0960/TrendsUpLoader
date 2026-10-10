@@ -382,6 +382,29 @@ def extract_metrics(x):
     shares = metric(blob, ["shares", "shareCount", "share_count", "اشتراک", "share"])
     return views, likes, comments, shares
 
+
+def log_growth_summary(items):
+    """Expose ranking quality and review queues in CI logs for iteration."""
+    rows = items if isinstance(items, list) else []
+    actions = {}
+    for item in rows:
+        action = str(item.get("candidate_action") or "unclassified")
+        actions[action] = actions.get(action, 0) + 1
+    print("FOLLOWER_GROWTH_TRIAGE", json.dumps({
+        "scored_candidates": len(rows),
+        "actions": actions,
+        "top": [{
+            "platform": item.get("platform"),
+            "title": str(item.get("title") or "")[:90],
+            "score": item.get("follow_growth_score"),
+            "confidence": item.get("score_confidence"),
+            "lane": item.get("content_lane"),
+            "action": item.get("candidate_action"),
+            "safety_review": item.get("safety_review_signal"),
+        } for item in rows[:5]],
+    }, ensure_ascii=False))
+
+
 def main():
     now = datetime.now(timezone.utc)
     if not KEY:
@@ -497,6 +520,7 @@ def main():
                 except Exception:
                     pass
         items = rank_candidates(merged.values(), limit=500)
+        log_growth_summary(items)
         OUT.parent.mkdir(parents=True, exist_ok=True)
         OUT.write_text(json.dumps({
             "version": 2,
@@ -554,6 +578,7 @@ def main():
     for x in results:
         merged[x["id"]] = x
     items = rank_candidates(merged.values(), limit=500)
+    log_growth_summary(items)
 
     OUT.write_text(json.dumps({
         "version": 1,
