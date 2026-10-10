@@ -39,17 +39,64 @@ jobs:
       - name: Persist discovery state
         if: ${{ always() && hashFiles('attention_state/social_discovery.json') != '' }}
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add attention_state/social_discovery.json
+
+          # Preserve outputs from this run, then rebuild the state commit on the
+          # latest main rather than rebasing large generated JSON files.
+          state_tmp="$(mktemp -d)"
+          cp attention_state/social_discovery.json "$state_tmp/social_discovery.json"
           if [ -f attention_state/social_discovery_notification_state.json ]; then
-            git add attention_state/social_discovery_notification_state.json
+            cp attention_state/social_discovery_notification_state.json "$state_tmp/social_discovery_notification_state.json"
           fi
-          if git diff --cached --quiet; then
-            echo 'No social discovery state change.'
-            exit 0
+
+          pushed=false
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p attention_state
+            cp "$state_tmp/social_discovery.json" attention_state/social_discovery.json
+
+            # Notifications can be delivered before persistence. Union the
+            # dedupe IDs with the latest remote state so retries do not resend.
+            if [ -f "$state_tmp/social_discovery_notification_state.json" ]; then
+              python - "$state_tmp/social_discovery_notification_state.json" attention_state/social_discovery_notification_state.json <<'PY'
+          import json, pathlib, sys
+          incoming_path, current_path = map(pathlib.Path, sys.argv[1:])
+          def load(path):
+              try:
+                  value = json.loads(path.read_text(encoding="utf-8"))
+                  return value if isinstance(value, dict) else {}
+              except Exception:
+                  return {}
+          incoming, current = load(incoming_path), load(current_path)
+          merged = dict(current)
+          merged.update({k: v for k, v in incoming.items() if k != "notified_ids"})
+          merged["notified_ids"] = list(dict.fromkeys(
+              [str(x) for x in current.get("notified_ids", [])] +
+              [str(x) for x in incoming.get("notified_ids", [])]
+          ))[-1000:]
+          current_path.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+            fi
+
+            git add attention_state/social_discovery.json
+            if [ -f attention_state/social_discovery_notification_state.json ]; then
+              git add attention_state/social_discovery_notification_state.json
+            fi
+            if git diff --cached --quiet; then
+              echo 'No social discovery state change.'
+              exit 0
+            fi
+            git commit -m "Update multi-platform social discovery state"
+            if git push origin HEAD:main; then
+              pushed=true
+              break
+            fi
+            echo "State push raced with another workflow (attempt $attempt); retrying on latest main."
+          done
+          if [ "$pushed" != "true" ]; then
+            echo "Could not persist state after four attempts."
+            exit 1
           fi
-          git commit -m 'Update multi-platform social discovery state'
-          git fetch origin main
-          git rebase origin/main
-          git push
