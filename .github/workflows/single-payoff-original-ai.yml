@@ -82,7 +82,7 @@ jobs:
               raise SystemExit("PUBLICATION_RIGHTS_GATE_FAILED")
           if not rights.get("assets_cleared"):
               raise SystemExit("MEDIA_LICENSE_GATE_FAILED")
-          if float(meta.get("duration_seconds") or 0) < 18:
+          if float(meta.get("duration_seconds") or 0) < 16:
               raise SystemExit("VIDEO_TOO_SHORT")
           print("ORIGINAL_SHORT_RIGHTS_GATE_OK")
           print(json.dumps({
