@@ -115,7 +115,9 @@ def annotate_candidate(item):
     stale = age is not None and age > 36.0
 
     lanes = [name for name, pattern in LANES.items() if pattern.search(text)]
-    is_news = bool(NEWS_RISK.search(text))
+    is_news = bool(NEWS_RISK.search(title))
+    if source != "youtube_public_api":
+        is_news = is_news or bool(NEWS_RISK.search(description))
     is_sensitive = bool(SENSITIVE_RISK.search(text))
     safety_review = bool(MANUAL_SAFETY_REVIEW.search(text))
     compilation = bool(MULTI_CLIP_RISK.search(text))
