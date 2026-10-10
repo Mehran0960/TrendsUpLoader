@@ -1,7 +1,12 @@
 """Tests for freshness-aware multi-platform candidate retention."""
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from datetime import datetime, timezone
+from unittest.mock import patch
 
+from content_pipeline import social_discovery
 from content_pipeline.social_discovery import QUERIES, UA, YOUTUBE_QUERIES, parse_youtube_duration, sort_discovery_items, youtube_query_for_time, youtube_queries_for_time
 
 
@@ -70,6 +75,44 @@ class SocialDiscoveryTests(unittest.TestCase):
             with self.subTest(keyword=keyword):
                 self.assertIn(keyword.lower(), searchable)
 
+
+    def test_main_uses_firecrawl_keyless_before_bing_when_key_is_absent(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "social_discovery.json"
+            with (
+                patch.object(social_discovery, "KEY", ""),
+                patch.object(social_discovery, "OUT", output),
+                patch.object(social_discovery, "firecrawl_search", return_value={"data": []}) as firecrawl,
+                patch.object(social_discovery, "discover_youtube_public_candidates", return_value=[]),
+                patch.object(social_discovery, "rank_candidates", return_value=[]),
+                patch.object(social_discovery, "log_growth_summary"),
+                patch.object(social_discovery, "bing_search", return_value=[]) as bing,
+                patch.object(social_discovery, "telegram_repost_candidates", return_value=[]),
+            ):
+                self.assertEqual(social_discovery.main(), 0)
+                firecrawl.assert_called_once()
+                bing.assert_not_called()
+                self.assertTrue(output.is_file())
+                payload = json.loads(output.read_text(encoding="utf-8"))
+                self.assertEqual(payload["items"], [])
+
+    def test_firecrawl_keyless_request_omits_authorization_header(self):
+        class FakeResponse:
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return {"data": []}
+
+        with (
+            patch.object(social_discovery, "KEY", ""),
+            patch("content_pipeline.social_discovery.requests.post", return_value=FakeResponse()) as post,
+        ):
+            self.assertEqual(social_discovery.firecrawl_search("short video", limit=10), {"data": []})
+            post.assert_called_once()
+            kwargs = post.call_args.kwargs
+            self.assertNotIn("Authorization", kwargs["headers"])
+            self.assertEqual(kwargs["json"]["query"], "short video")
 
     def test_fallback_search_user_agent_is_configured(self):
         self.assertTrue(UA.startswith("Mozilla/"))
