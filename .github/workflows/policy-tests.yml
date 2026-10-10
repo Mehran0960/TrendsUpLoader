@@ -35,6 +35,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install test dependencies
+        run: pip install --disable-pip-version-check requests
       - name: Compile touched Python modules
         run: |
           python -m py_compile content_pipeline/distribution_plan.py content_pipeline/follower_growth.py content_pipeline/notify_discovery_shortlist.py content_pipeline/publish_telegram.py tests/test_distribution_plan.py tests/test_platform_distribution_guidance.py tests/test_discovery_shortlist.py
