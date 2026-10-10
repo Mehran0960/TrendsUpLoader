@@ -1,0 +1,161 @@
+name: YouTube Original Short Upload (Private Review)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: youtube-original-short-upload
+  cancel-in-progress: false
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify media tools
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+
+      - name: Cache Persian Gyro voice
+        uses: actions/cache@v4
+        with:
+          path: .voices
+          key: piper-fa-gyro-medium-v1
+
+      - name: Install build and YouTube upload dependencies
+        run: |
+          python -m pip install --disable-pip-version-check --retries 2 --timeout 30             piper-tts pillow arabic-reshaper python-bidi google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+      - name: Validate account credentials are configured
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$YOUTUBE_CLIENT_ID" || { echo "Missing Actions secret: YOUTUBE_CLIENT_ID"; exit 1; }
+          test -n "$YOUTUBE_CLIENT_SECRET" || { echo "Missing Actions secret: YOUTUBE_CLIENT_SECRET"; exit 1; }
+          test -n "$YOUTUBE_REFRESH_TOKEN" || { echo "Missing Actions secret: YOUTUBE_REFRESH_TOKEN"; exit 1; }
+          echo "YOUTUBE_OAUTH_SECRETS_PRESENT"
+
+      - name: Build original curated Persian short
+        env:
+          CONTENT_TEST_TITLE: "AI Demo: One photo becomes video"
+          CONTENT_TEST_URL: "https://deepmind.google/technologies/veo/"
+          PIPER_VOICE: "fa_IR-gyro-medium"
+        run: |
+          set -euo pipefail
+          python content_pipeline/build.py
+          video="$(find out -type f -name video.mp4 -print -quit)"
+          test -n "$video"
+          test -s "$video"
+          ffprobe -v error -show_entries format=duration,size -of json "$video"
+
+      - name: Enforce editorial and rights gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          video = next(Path("out").glob("**/video.mp4"))
+          folder = video.parent
+          meta = json.loads((folder / "metadata.json").read_text(encoding="utf-8"))
+          rights = json.loads((folder / "rights_manifest.json").read_text(encoding="utf-8"))
+          if meta.get("script_mode") != "curated":
+              raise SystemExit("SCRIPT_ORIGIN_GATE_FAILED")
+          if meta.get("quality_gate") != "passed_publish" or meta.get("script_quality") != "passed":
+              raise SystemExit("EDITORIAL_QUALITY_GATE_FAILED")
+          if not rights.get("automated_publishable") or not rights.get("assets_cleared"):
+              raise SystemExit("PUBLICATION_RIGHTS_GATE_FAILED")
+          if float(meta.get("duration_seconds") or 0) < 16:
+              raise SystemExit("VIDEO_TOO_SHORT")
+          print("YOUTUBE_ORIGINAL_PRIVATE_UPLOAD_GATES_OK")
+          PY
+
+      - name: Upload to YouTube as private
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: python content_pipeline/publish_youtube.py
+
+      - name: Upload video and manifest artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-original-private-review
+          path: out/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Persist upload deduplication state
+        if: ${{ success() && hashFiles('attention_state/youtube_upload_state.json') != '' }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          state_tmp="$(mktemp)"
+          cp attention_state/youtube_upload_state.json "$state_tmp"
+          pushed=false
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p attention_state
+            python - "$state_tmp" attention_state/youtube_upload_state.json <<'PY'
+          import json, pathlib, sys
+          incoming_path, current_path = map(pathlib.Path, sys.argv[1:])
+          def load(path):
+              try:
+                  value = json.loads(path.read_text(encoding="utf-8"))
+                  return value if isinstance(value, dict) else {}
+              except Exception:
+                  return {}
+          incoming, current = load(incoming_path), load(current_path)
+          current_uploads = current.get("uploads", [])
+          incoming_uploads = incoming.get("uploads", [])
+          seen = set()
+          merged_uploads = []
+          for row in list(current_uploads) + list(incoming_uploads):
+              if not isinstance(row, dict):
+                  continue
+              key = str(row.get("video_id") or row.get("content_key") or "")
+              if key and key not in seen:
+                  seen.add(key)
+                  merged_uploads.append(row)
+          merged = {
+              "version": 1,
+              "updated_at": incoming.get("updated_at") or current.get("updated_at"),
+              "uploads": merged_uploads[-500:],
+          }
+          current_path.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+            git add attention_state/youtube_upload_state.json
+            if git diff --cached --quiet; then
+              echo "YouTube upload state already current."
+              exit 0
+            fi
+            git commit -m "Record YouTube private upload state"
+            if git push origin HEAD:main; then
+              pushed=true
+              break
+            fi
+            echo "Upload-state push raced with another workflow (attempt $attempt); retrying."
+          done
+          if [ "$pushed" != "true" ]; then
+            echo "Could not persist YouTube upload state after four attempts."
+            exit 1
+          fi
