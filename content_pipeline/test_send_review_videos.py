@@ -82,9 +82,9 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
     def test_keeps_a_substantive_funny_animal_clip(self):
         candidate = {
             "id": "funny-cat",
-            "url": "https://www.youtube.com/shorts/funnycat123",
-            "platform": "youtube",
-            "source": "youtube_public_api",
+            "url": "https://t.me/funnycat/123",
+            "platform": "telegram",
+            "source": "telegram_native_video",
             "title": "A cat has a surprising funny reaction to a toy",
             "description": "Unexpected animal reaction caught on camera.",
             "views": 150000,
@@ -95,6 +95,21 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         selected = select_media_candidates([candidate], limit=3)
         self.assertEqual(len(selected), 1)
         self.assertIn("animals", selected[0]["hook_signals"])
+
+    def test_skips_youtube_file_relay_while_runner_has_antibot_block(self):
+        candidate = {
+            "id": "youtube-animal",
+            "url": "https://www.youtube.com/shorts/funnycat456",
+            "platform": "youtube",
+            "source": "youtube_public_api",
+            "title": "A cat has a surprising funny reaction to a toy",
+            "description": "Unexpected animal reaction caught on camera.",
+            "views": 150000,
+            "likes": 8000,
+            "comments": 300,
+            "age_hours": 2,
+        }
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
     def test_video_quality_passes_for_decodable_varied_clip(self):
         rows = [
