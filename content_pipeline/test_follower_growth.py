@@ -137,6 +137,20 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertEqual(result["content_lane"], "news_or_current_affairs")
         self.assertEqual(result["candidate_action"], "manual_review_current_affairs")
 
+
+    def test_border_immigration_and_crime_rhetoric_is_flagged_as_current_affairs(self):
+        result = annotate_candidate({
+            "url": "https://t.me/example/777",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "ندا شمس وکیل پایه یک دادگستری: مرزای شرق رو ولش کن تهران ناامنه؛ بیشترین تجاوز توسط افغانها انجام میشه",
+            "views": 140000,
+            "age_hours": 1,
+        })
+        self.assertTrue(result["news_risk_signal"])
+        self.assertEqual(result["content_lane"], "news_or_current_affairs")
+        self.assertEqual(result["candidate_action"], "manual_review_current_affairs")
+
     def test_sensitive_risk_is_rejected_for_review(self):
         result = annotate_candidate({
             "url": "https://www.youtube.com/shorts/abcdef",
