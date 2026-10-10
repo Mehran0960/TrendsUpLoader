@@ -24,6 +24,28 @@ KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "follower_growth_v3"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_QUERIES = [
+    ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
+    ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
+    ("ویدیو کوتاه پربازدید ایران اتفاق عجیب", "fa"),
+    ("funny unexpected moment caught on camera short", "en"),
+    ("cat dog funny reaction short video", "en"),
+    ("satisfying transformation before after short", "en"),
+    ("AI photo animation demo short", "en"),
+    ("amazing one take skill trick short", "en"),
+    ("close call caught on camera short", "en"),
+    ("ترفندهای کاربردی خانه و تمیزکاری ویدیو کوتاه", "fa"),
+    ("طرز تهیه غذای سریع و آشپزی رضایت بخش ویدیو کوتاه", "fa"),
+    ("حرکت ورزشی تماشایی فوتبال بسکتبال ویدیو کوتاه", "fa"),
+    ("حیات وحش و طبیعت شگفت انگیز ویدیو کوتاه", "fa"),
+    ("آزمایش علمی ساده و چطور کار می کند ویدیو کوتاه", "fa"),
+    ("ساخت کاردستی خلاقانه و قبل و بعد ویدیو کوتاه", "fa"),
+    ("اجرای موسیقی رقص و نوازندگی جالب ویدیو کوتاه", "fa"),
+    ("wholesome heartwarming family and animal moment short video", "en"),
+    ("easy food recipe everyday life hack satisfying cleaning short video", "en"),
+    ("amazing sports skill trick shot short video", "en"),
+]
+
+QUERIES = [
     'site:tiktok.com/@ ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (وایرال OR عجیب OR بامزه OR ترفند OR غذا OR حیوانات)',
     'site:instagram.com/reel ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (طنز OR آشپزی OR ترفند OR حیوانات OR ورزش OR حیات وحش OR علمی OR قبل و بعد OR رقص)',
     'site:x.com ("ویدئو" OR "ویدیو") ("ایران" OR "ایرانی" OR "فارسی") (طنز OR آشپزی OR طبیعت OR حیوانات OR ترفند OR ورزش)',
