@@ -3,6 +3,7 @@ import unittest
 
 from content_pipeline.send_review_videos import (
     extract_telegram_post_video_urls,
+    extract_telegram_post_caption,
     find_telegram_post_block,
     render_caption,
     evaluate_video_metrics,
@@ -69,6 +70,21 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         result = evaluate_video_metrics(2, 720, 1280, rows)
         self.assertFalse(result["passed"])
         self.assertEqual(result["reason"], "duration_out_of_range")
+
+
+    def test_source_caption_comes_from_selected_post_block(self):
+        block = find_telegram_post_block(self.page, "demo_channel", "200")
+        self.assertEqual(extract_telegram_post_caption(block), "عنوان پست دوم")
+
+    def test_caption_prefers_exact_source_post_caption(self):
+        caption = render_caption({
+            "title": "عنوان نامرتبط از سرنخ قبلی",
+            "source_post_caption": "عنوان واقعی از خود پست منبع",
+            "url": "https://t.me/demo_channel/200",
+            "platform": "telegram",
+        })
+        self.assertIn("عنوان ثبت‌شده در پست منبع: عنوان واقعی از خود پست منبع", caption)
+        self.assertNotIn("عنوان نامرتبط از سرنخ قبلی", caption)
 
     def test_caption_labels_title_as_source_post_text(self):
         caption = render_caption({
