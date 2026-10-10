@@ -276,17 +276,22 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         block = find_telegram_post_block(self.page, "demo_channel", "200")
         self.assertEqual(extract_telegram_post_caption(block), "عنوان پست دوم")
 
-    def test_caption_prefers_exact_source_post_caption(self):
+    def test_caption_is_only_the_exact_source_post_caption(self):
         caption = render_caption({
             "title": "عنوان نامرتبط از سرنخ قبلی",
-            "source_post_caption": "عنوان واقعی از خود پست منبع",
+            "source_post_caption": "  عنوان واقعی از خود پست منبع  ",
             "url": "https://t.me/demo_channel/200",
             "platform": "telegram",
+            "follow_growth_score": 60,
+            "age_hours": 2,
         })
-        self.assertIn("عنوان ثبت‌شده در پست منبع: عنوان واقعی از خود پست منبع", caption)
+        self.assertEqual(caption, "عنوان واقعی از خود پست منبع")
         self.assertNotIn("عنوان نامرتبط از سرنخ قبلی", caption)
+        self.assertNotIn("https://t.me/demo_channel/200", caption)
+        self.assertNotIn("منبع:", caption)
+        self.assertNotIn("بازبینی خصوصی", caption)
 
-    def test_caption_labels_title_as_source_post_text(self):
+    def test_caption_falls_back_to_title_only_without_metadata(self):
         caption = render_caption({
             "title": "عنوان اصلی پست",
             "url": "https://t.me/demo_channel/200",
@@ -294,8 +299,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "follow_growth_score": 60,
             "age_hours": 2,
         })
-        self.assertIn("عنوان ثبت‌شده در پست منبع: عنوان اصلی پست", caption)
-        self.assertIn("https://t.me/demo_channel/200", caption)
+        self.assertEqual(caption, "عنوان اصلی پست")
 
 
     def test_accepts_multiple_mainstream_evergreen_topics(self):
@@ -358,6 +362,35 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         selected = select_media_candidates(candidates, limit=3)
         self.assertEqual(len(selected), 1)
         self.assertEqual(canonical_media_url(candidates[0]["url"]), canonical_media_url(candidates[1]["url"]))
+
+
+    def test_prefers_new_subject_lane_before_repeating_a_higher_scoring_topic(self):
+        base = {
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "likes": 12000,
+            "comments": 500,
+            "age_hours": 2,
+        }
+        candidates = [
+            {
+                **base, "id": "tech-a", "url": "https://t.me/example/401",
+                "title": "A new AI robot technology demo", "views": 800000,
+            },
+            {
+                **base, "id": "tech-b", "url": "https://t.me/example/402",
+                "title": "AI technology demo from a new gadget", "views": 700000,
+            },
+            {
+                **base, "id": "cat-video", "url": "https://t.me/example/403",
+                "title": "A funny cat has a surprising reaction to a toy", "views": 100000,
+            },
+        ]
+        selected = select_media_candidates(candidates, limit=2)
+        self.assertEqual(len(selected), 2)
+        self.assertEqual(selected[0]["id"], "tech-a")
+        self.assertEqual(selected[1]["id"], "cat-video")
+        self.assertTrue(set(selected[1]["hook_signals"]).intersection({"animals", "comedy"}))
 
     def test_youtube_watch_and_short_urls_normalize_to_same_video(self):
         watch = canonical_media_url("https://www.youtube.com/watch?v=abc123&utm_source=feed")

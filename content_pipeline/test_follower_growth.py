@@ -198,7 +198,10 @@ class FollowerGrowthTests(unittest.TestCase):
             ("heartwarming", "دیدار دوباره پدر و دختر پس از سال‌ها", "wholesome_or_heartwarming"),
             ("sports", "شوت تماشایی در بسکتبال", "sports_or_athletic_skill"),
             ("nature", "تصاویر شگفت‌انگیز حیات وحش", "nature_and_wildlife"),
+            ("storm", "امواج عظیم زیر رعد و برق کنار یک کشتی باری", "nature_and_wildlife"),
             ("science", "یک آزمایش علمی ساده نشان می‌دهد چطور کار می‌کند", "science_curiosity"),
+            ("egg", "فرایند تشکیل تخم مرغ در بدن مرغ", "science_curiosity"),
+            ("fashion", "مدل ایرانی با لباس ملی در مسابقه میس گلوبال", "fashion_or_cultural_showcase"),
             ("diy", "ساخت یک وسیله چوبی دست‌ساز از صفر", "diy_and_creativity"),
             ("cleaning", "قبل و بعد نظافت عمیق آشپزخانه", "home_organization_or_cleaning"),
             ("music", "اجرای زنده نوازندگی پیانو", "music_or_dance"),
@@ -215,7 +218,7 @@ class FollowerGrowthTests(unittest.TestCase):
                 self.assertIn(expected_lane, result["hook_signals"])
                 self.assertFalse(result["news_risk_signal"])
 
-    def test_persia_name_does_not_trigger_jump_skill_lane(self):
+    def test_persia_runway_clip_uses_cultural_showcase_lane_not_jump_skill(self):
         result = annotate_candidate({
             "url": "https://t.me/example/persia",
             "platform": "telegram",
@@ -224,6 +227,7 @@ class FollowerGrowthTests(unittest.TestCase):
             "age_hours": 2,
         })
         self.assertNotIn("skill_or_spectacle", result["hook_signals"])
+        self.assertIn("fashion_or_cultural_showcase", result["hook_signals"])
 
     def test_current_affairs_still_flagged_even_when_title_uses_comedy_hook(self):
         result = annotate_candidate({

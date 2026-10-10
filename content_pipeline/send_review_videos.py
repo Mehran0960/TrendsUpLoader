@@ -180,6 +180,7 @@ TARGET_LANES = {
     "diy_and_creativity",
     "home_organization_or_cleaning",
     "music_or_dance",
+    "fashion_or_cultural_showcase",
 }
 
 # Longer clips need at least one concrete subject lane; generic "surprising/reaction"
@@ -349,9 +350,27 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         -float(x.get("age_hours") or 0),
     ), reverse=True)
 
-    selected, seen_platforms, seen_ids = [], set(), set()
-    # Prefer a mix of sources, then fill remaining slots by score.
+    selected, seen_primary_lanes, seen_ids, seen_platforms = [], set(), set(), set()
+    # Prefer different subject lanes first; only repeat a lane when there are
+    # too few qualified alternatives. Source/platform diversity is the second
+    # preference, while quality, freshness and safety gates stay unchanged.
     for item in eligible:
+        lanes = [str(lane) for lane in (item.get("hook_signals") or []) if lane in TARGET_LANES]
+        primary_lane = lanes[0] if lanes else ""
+        if primary_lane and primary_lane in seen_primary_lanes:
+            continue
+        selected.append(item)
+        if primary_lane:
+            seen_primary_lanes.add(primary_lane)
+        seen_ids.add(item["_review_id"])
+        seen_platforms.add(str(item.get("platform") or "unknown").lower())
+        if len(selected) >= limit:
+            return selected
+
+    # If fewer distinct topics passed the gates, next try to add new platforms.
+    for item in eligible:
+        if item["_review_id"] in seen_ids:
+            continue
         platform = str(item.get("platform") or "unknown").lower()
         if platform in seen_platforms:
             continue
@@ -360,6 +379,8 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         seen_ids.add(item["_review_id"])
         if len(selected) >= limit:
             return selected
+
+    # Last resort: fill available slots with the strongest remaining candidates.
     for item in eligible:
         if item["_review_id"] in seen_ids:
             continue
@@ -632,21 +653,12 @@ def download_with_ytdlp(url, workdir):
 
 
 def render_caption(item):
-    title = re.sub(r"\s+", " ", str(item.get("source_post_caption") or item.get("title") or "ویدئوی منتخب").strip())[:240]
-    url = str(item.get("url") or "")
-    platform = str(item.get("platform") or "نامشخص")
-    try:
-        score = float(item.get("follow_growth_score") or 0)
-        age = float(item.get("age_hours") or 0)
-    except (TypeError, ValueError):
-        score, age = 0, 0
-    caption = (
-        f"عنوان ثبت‌شده در پست منبع: {title}\n"
-        f"منبع: {platform}\n"
-        f"لینک اصلی: {url}\n"
-        "عنوان، نقل از منبع است؛ توضیح محتواییِ تولیدشده نیست. بازبینی خصوصی."
-    )
-    return caption[:1024]
+    """Use only the selected source post's original caption/title in the video message."""
+    title = str(item.get("source_post_caption") or item.get("title") or "").strip()
+    title = re.sub(r"\\s+", " ", title)
+    # Telegram limits video captions to 1024 characters. No source, URL, score,
+    # review label or assistant-generated explanatory text is appended.
+    return title[:1024]
 
 
 def send_video(path, item):
