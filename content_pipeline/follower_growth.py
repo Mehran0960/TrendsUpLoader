@@ -37,6 +37,7 @@ MULTI_CLIP_RISK = re.compile(
     r"چند ماجرا|چند داستان|چند اتفاق|چند کلیپ|گلچین لحظات",
     re.I,
 )
+PROMOTIONAL_RISK = re.compile(r"تبلیغات|آگهی|اسپانسر|تخفیف|کد تخفیف|سفارش دهید|برای خرید|خرید از لینک|لینک خرید|ثبت.?نام کنید|به این لینک مراجعه|برای دریافت.{0,35}(?:وارد سایت|به سایت|روی لینک)|لینک در بیو|فروش ویژه|عضویت ویژه|افزایش فالوور|affiliate|sponsored|discount code|buy now|shop now|sign up now|link in bio|use my code|limited offer|promo code|visit our website", re.I)
 SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پورن|جنسی صریح|gore|self.?harm|porn|explicit sexual", re.I)
 MANUAL_SAFETY_REVIEW = re.compile(r"سلاح|اسلحه|تفنگ|جنگ.?افزار|آموزش.?های.?نظامی|نیروی.?نظامی|weapon|firearm|\bgun\b|military training", re.I)
 
@@ -121,6 +122,7 @@ def annotate_candidate(item):
     is_sensitive = bool(SENSITIVE_RISK.search(text))
     safety_review = bool(MANUAL_SAFETY_REVIEW.search(text))
     compilation = bool(MULTI_CLIP_RISK.search(text))
+    promotional = bool(PROMOTIONAL_RISK.search(text))
 
     native_views = _int(x.get("views"))
     repost_views = _int(x.get("telegram_repost_views"))
@@ -159,6 +161,8 @@ def annotate_candidate(item):
         score -= 10.0
     if compilation:
         score -= 16.0
+    if promotional:
+        score -= 24.0
     if stale:
         if age > 168:
             score -= 28.0
@@ -183,6 +187,8 @@ def annotate_candidate(item):
         action = "manual_review_current_affairs"
     elif compilation:
         action = "deprioritize_multi_story_roundup"
+    elif promotional:
+        action = "deprioritize_promotional"
     elif stale:
         action = "deprioritize_stale_candidate"
     elif score >= 65 and confidence in {"medium", "high"}:
@@ -212,6 +218,7 @@ def annotate_candidate(item):
         "sensitive_risk_signal": is_sensitive,
         "safety_review_signal": safety_review,
         "compilation_signal": compilation,
+        "promotional_signal": promotional,
         "stale_signal": stale,
         "source_platform": platform,
         "candidate_action": action,
