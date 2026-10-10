@@ -619,10 +619,16 @@ def main():
 
             if not downloaded or not video_path.is_file():
                 print("MEDIA_REVIEW_DOWNLOAD_SKIPPED", item.get("platform"), url[:140])
+                # Avoid retrying the same inaccessible URL at every run; fresh discovery
+                # will still supply other candidates and eventually newer replacements.
+                suppressed_ids.append(item["_review_id"])
+                suppressed_urls.append(str(item.get("_canonical_media_url") or canonical_media_url(url)))
                 continue
             size = video_path.stat().st_size
             if size > MAX_VIDEO_BYTES:
                 print("MEDIA_REVIEW_SIZE_GUARD", size)
+                suppressed_ids.append(item["_review_id"])
+                suppressed_urls.append(str(item.get("_canonical_media_url") or canonical_media_url(url)))
                 continue
 
             visual_qc = inspect_video_quality(video_path)
