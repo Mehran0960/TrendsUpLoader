@@ -31,7 +31,9 @@ Raw view count alone is not success.
 
 - content_pipeline/social_discovery.py gathers publicly discoverable video-post URLs and persists candidate metadata.
 - content_pipeline/follower_growth.py gives candidates a transparent heuristic priority score and flags confidence, content lane, news/sensitive risk, and review action.
+- When `YOUTUBE_API_KEY` is configured, discovery uses the official YouTube Data API for fresh videos from a rolling 36-hour window and captures native views/likes/comments. The search query rotates among single-event-oriented topics; each candidate still needs visual and rights review.
 - The no-key fallback uses public Bing results and public Telegram pages. These are imperfect sources; direct personal Instagram Explore access is **not** provided by this workflow.
+- Multi-clip rankings/compilations and geopolitically driven current affairs are downranked or omitted from the routine curator digest; this is designed to favor one clear moment/payoff rather than a generic roundup.
 - Current automated publication is not a universal multi-platform publisher. Platform-specific publishing and analytics require a suitable account/API or a permitted native workflow; account credentials and access have not been assumed.
 - Scores do not verify video contents, ownership, licenses, or actual follower gains. Actual growth measurement must use per-account post insights where available.
 
