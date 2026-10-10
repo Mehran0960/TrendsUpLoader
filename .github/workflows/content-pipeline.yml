@@ -1,6 +1,6 @@
-name: News Content Pipeline (PAUSED FOR COMEDY PIVOT)
-# V3 validation: sentence-synced captions and topic-aware original visuals
-# Telegram publish enabled when repository secrets are configured
+name: Audience Content Pipeline (manual; publishing off by default)
+# Builds original Persian video content and records independent destination readiness.
+# Public Telegram publishing requires BOTH a per-run checkbox and a repository variable.
 
 concurrency:
   group: trend-radar-content
@@ -8,6 +8,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_to_telegram:
+        description: "Publish to the separate audience channel after the content and rights gates pass"
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   build:
@@ -73,11 +79,16 @@ jobs:
           RADAR_URL: https://trend-radar.m-hoseyni-6966.workers.dev/candidates
         run: python content_pipeline/build.py
 
-      - name: Legacy Telegram publish DISABLED
-        if: ${{ false && hashFiles('out/**/video.mp4') != '' }}
+      - name: Build destination-specific distribution plan
+        if: ${{ success() && hashFiles('out/**/metadata.json') != '' }}
+        run: python content_pipeline/distribution_plan.py
+
+      - name: Publish to the audience Telegram channel (opt-in)
+        if: ${{ inputs.publish_to_telegram && vars.TELEGRAM_AUDIENCE_PUBLISH_ENABLED == 'true' && hashFiles('out/**/video.mp4') != '' }}
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_AUDIENCE_BOT_TOKEN: ${{ secrets.TELEGRAM_AUDIENCE_BOT_TOKEN }}
+          TELEGRAM_AUDIENCE_CHAT_ID: ${{ vars.TELEGRAM_AUDIENCE_CHAT_ID }}
+          TELEGRAM_AUDIENCE_PUBLISH_ENABLED: ${{ vars.TELEGRAM_AUDIENCE_PUBLISH_ENABLED }}
         run: python content_pipeline/publish_telegram.py
 
       - name: Update published-topic state after Telegram publish
