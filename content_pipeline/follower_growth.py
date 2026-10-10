@@ -23,9 +23,13 @@ LANES = {
 NEWS_RISK = re.compile(
     r"جنگ|انفجار|پدافند|موشک|حمله نظامی|تیراندازی|کشته|مجروح|سلاح هسته|تجمع|اعتراض|شعار|سنگ.?پرونی|لغو.{0,12}(?:مسابقه|مراسم)|"
     r"ترامپ|رئیس.?جمهور|انتخابات|تحریم|حکومت|جمهوری اسلامی|سیاست|روسیه|اوکراین|اسرائیل|آمریکا|آمریکایی|پالایشگاه|"
+    r"مرز(?:های)?|مرزی|افغان(?:ستان|ها|ی)?|مهاجر(?:ت|ان)?|پناهنده|ناامنی|ناامنه|تجاوز|جرم|قتل|ترور|قاچاق|"
+    r"دستگیر|بازداشت|اتهام|درگیری|نزاع|حادثه تلخ|وکیل پایه.?یک|پرونده قضایی|آزار جنسی|تجاوز جنسی|اخراج مهاجر|"
     r"war|explosion|air.?defen[cs]e|missile|shooting|killed|injured|nuclear weapon|"
     r"president|election|sanction|government|politic|protest|demonstration|clash|cancelled after protest|"
-    r"russia|ukraine|israel|united states|america|refinery|geopolitical",
+    r"russia|ukraine|israel|united states|america|refinery|geopolitical|"
+    r"afghanistan|afghan|immigration|immigrant|refugee|border|asylum|assault|sexual assault|crime|criminal|"
+    r"arrested|detained|accused|rape|migration|deportation",
     re.I,
 )
 MULTI_CLIP_RISK = re.compile(
