@@ -62,7 +62,21 @@ jobs:
           # Preserve outputs from this run, then rebuild the state commit on the
           # latest main rather than rebasing large generated JSON files.
           state_tmp="$(mktemp -d)"
-          cp attention_state/social_discovery.json "$state_tmp/social_discovery.json"
+          # Never let an empty/invalid discovery output overwrite the last valid state.
+          if python - attention_state/social_discovery.json <<'PY'
+          import json, pathlib, sys
+          try:
+              payload = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+              valid = isinstance(payload, dict) and isinstance(payload.get("items"), list)
+          except Exception:
+              valid = False
+          raise SystemExit(0 if valid else 1)
+          PY
+          then
+            cp attention_state/social_discovery.json "$state_tmp/social_discovery.json"
+          else
+            echo "WARNING: invalid discovery state; preserving the last committed version."
+          fi
           if [ -f attention_state/social_discovery_notification_state.json ]; then
             cp attention_state/social_discovery_notification_state.json "$state_tmp/social_discovery_notification_state.json"
           fi
@@ -72,7 +86,9 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             mkdir -p attention_state
-            cp "$state_tmp/social_discovery.json" attention_state/social_discovery.json
+            if [ -f "$state_tmp/social_discovery.json" ]; then
+              cp "$state_tmp/social_discovery.json" attention_state/social_discovery.json
+            fi
 
             # Notifications can be delivered before persistence. Union the
             # dedupe IDs with the latest remote state so retries do not resend.
@@ -112,7 +128,9 @@ jobs:
           PY
             fi
 
-            git add attention_state/social_discovery.json
+            if [ -f "$state_tmp/social_discovery.json" ]; then
+              git add attention_state/social_discovery.json
+            fi
             if [ -f attention_state/social_discovery_notification_state.json ]; then
               git add attention_state/social_discovery_notification_state.json
             fi
