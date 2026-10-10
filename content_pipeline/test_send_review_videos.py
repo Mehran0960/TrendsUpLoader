@@ -145,5 +145,49 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertIn("https://t.me/demo_channel/200", caption)
 
 
+    def test_accepts_multiple_mainstream_evergreen_topics(self):
+        examples = [
+            ("food", "طرز تهیه نان خانگی با چند ماده ساده", "food_cooking"),
+            ("tips", "یک ترفند کاربردی برای مرتب کردن وسایل خانه", "practical_tips_or_life_hacks"),
+            ("heartwarming", "دیدار دوباره پدر و دختر پس از سال‌ها", "wholesome_or_heartwarming"),
+            ("sports", "شوت تماشایی در بسکتبال", "sports_or_athletic_skill"),
+            ("nature", "تصاویر شگفت‌انگیز حیات وحش", "nature_and_wildlife"),
+            ("science", "یک آزمایش علمی ساده نشان می‌دهد چطور کار می‌کند", "science_curiosity"),
+            ("diy", "ساخت یک وسیله چوبی دست‌ساز از صفر", "diy_and_creativity"),
+            ("cleaning", "قبل و بعد نظافت عمیق آشپزخانه", "home_organization_or_cleaning"),
+            ("music", "اجرای زنده نوازندگی پیانو", "music_or_dance"),
+        ]
+        for slug, title, expected_lane in examples:
+            with self.subTest(topic=slug):
+                candidate = {
+                    "id": f"mainstream-{slug}",
+                    "url": f"https://t.me/example/{slug}",
+                    "platform": "telegram",
+                    "source": "telegram_native_video",
+                    "title": title,
+                    "views": 90000,
+                    "likes": 2500,
+                    "comments": 120,
+                    "age_hours": 2,
+                }
+                selected = select_media_candidates([candidate], limit=1)
+                self.assertEqual(len(selected), 1)
+                self.assertIn(expected_lane, selected[0]["hook_signals"])
+
+    def test_current_affairs_cannot_pass_by_also_matching_a_target_lane(self):
+        candidate = {
+            "id": "comedy-current-affairs",
+            "url": "https://t.me/example/comedy-current-affairs",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "طنز درباره درگیری مرزی و بازداشت افراد",
+            "views": 90000,
+            "likes": 2000,
+            "comments": 100,
+            "age_hours": 2,
+        }
+        self.assertEqual(select_media_candidates([candidate], limit=1), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
