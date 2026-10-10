@@ -59,6 +59,18 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertTrue(result["news_risk_signal"])
         self.assertEqual(result["content_lane"], "news_or_current_affairs")
 
+    def test_persian_numbered_funny_clips_are_marked_as_roundup(self):
+        result = annotate_candidate({
+            "url": "https://www.youtube.com/watch?v=persianroundup",
+            "platform": "youtube",
+            "title": "8 تا فان🤣🤣#viral #خندارترین #طنز",
+            "views": 9000,
+            "likes": 500,
+            "age_hours": 4,
+        })
+        self.assertTrue(result["compilation_signal"])
+        self.assertEqual(result["candidate_action"], "deprioritize_multi_story_roundup")
+
     def test_stale_video_is_deprioritized_even_with_strong_metrics(self):
         result = annotate_candidate({
             "url": "https://www.youtube.com/watch?v=staleexample",
