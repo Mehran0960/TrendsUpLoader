@@ -28,7 +28,7 @@ NEWS_RISK = re.compile(
     re.I,
 )
 SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پورن|جنسی صریح|gore|self.?harm|porn|explicit sexual", re.I)
-MANUAL_SAFETY_REVIEW = re.compile(r"سلاح|اسلحه|تفنگ|جنگ.?افزار|آموزش.?های.?نظامی|نیروی.?نظامی|weapon|firearm|\\bgun\\b|military training", re.I)
+MANUAL_SAFETY_REVIEW = re.compile(r"سلاح|اسلحه|تفنگ|جنگ.?افزار|آموزش.?های.?نظامی|نیروی.?نظامی|weapon|firearm|\bgun\b|military training", re.I)
 
 
 def _int(value):
