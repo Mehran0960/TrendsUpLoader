@@ -97,6 +97,22 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertEqual(result["content_lane"], "multi_clip_roundup")
         self.assertEqual(result["candidate_action"], "deprioritize_multi_story_roundup")
 
+    def test_youtube_channel_description_does_not_false_flag_single_event_as_news(self):
+        result = annotate_candidate({
+            "url": "https://www.youtube.com/watch?v=singleevent123",
+            "platform": "youtube",
+            "source": "youtube_public_api",
+            "title": "This Little Girl Made One Mistake Then Her Brother Rushed In #shorts #wholesome",
+            "description": "American politics, political analysis, government and election discussion in other uploads.",
+            "views": 186000,
+            "likes": 5000,
+            "comments": 100,
+            "age_hours": 29,
+        })
+        self.assertFalse(result["news_risk_signal"])
+        self.assertNotEqual(result["content_lane"], "news_or_current_affairs")
+        self.assertNotEqual(result["candidate_action"], "manual_review_current_affairs")
+
     def test_geopolitical_current_affairs_is_flagged_as_news(self):
         result = annotate_candidate({
             "url": "https://t.me/example/125",
