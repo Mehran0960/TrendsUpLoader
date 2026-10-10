@@ -114,6 +114,7 @@ jobs:
                       keys.add(key)
           posted.write_text(json.dumps({"version": 1, "keys": sorted(keys)[-500:]}, ensure_ascii=False, indent=2), encoding="utf-8")
           print("Published topic state updated")
+          PY
 
       - name: Upload generated content
         uses: actions/upload-artifact@v4
