@@ -66,6 +66,19 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         }
         self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
+    def test_rejects_pageant_fashion_clip_with_persia_in_title(self):
+        candidate = {
+            "id": "pageant-fashion-persia",
+            "url": "https://t.me/keereker/256451",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "مدل ایرانی با لباسی به نام پرشیا روی صحنه رفت",
+            "description": "",
+            "views": 25000,
+            "age_hours": 2,
+        }
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
     def test_rejects_unrelated_runway_news_without_target_hook(self):
         candidate = {
             "id": "runway-news",
