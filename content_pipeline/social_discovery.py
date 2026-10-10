@@ -726,52 +726,70 @@ def main(force_fallback=False):
         return 0
 
     now = datetime.now(timezone.utc)
-    # Rotate one query per run. With a 4-hour schedule this stays inside the
-    # current Firecrawl free allowance while covering all major platforms.
-    idx = int(now.timestamp() // (4 * 3600)) % len(QUERIES)
-    q = QUERIES[idx]
-    try:
-        data = firecrawl_search(q, limit=10)
-    except Exception as exc:
-        print("FIRECRAWL_SEARCH_FAIL", type(exc).__name__)
+    # Two distinct keyless Firecrawl searches per 4-hour run use about 720 of
+    # the 1,000 free monthly credits (6 runs/day × 30 days × 2 credits/search).
+    start_index = int(now.timestamp() // (4 * 3600)) % len(QUERIES)
+    selected_queries = [
+        QUERIES[start_index],
+        QUERIES[(start_index + 1) % len(QUERIES)],
+    ]
+    results = []
+    successful_searches = 0
+    for q in selected_queries:
+        try:
+            data = firecrawl_search(q, limit=10)
+            successful_searches += 1
+        except Exception as exc:
+            print("FIRECRAWL_SEARCH_FAIL", type(exc).__name__, q[:100])
+            continue
+
+        raw_candidates = flatten_results(data)
+        print("FIRECRAWL_QUERY_RESULTS", json.dumps({
+            "query": q,
+            "raw_count": len(raw_candidates),
+            "sample": [{
+                "url": str(x.get("url") or "")[:180],
+                "title": str(x.get("title") or "")[:100],
+            } for x in raw_candidates[:5]],
+        }, ensure_ascii=False))
+        expected_platform = expected_platform_for_query(q)
+        for x in raw_candidates:
+            x["discovery_query"] = q
+            p = platform(x["url"])
+            if p not in {"tiktok", "instagram", "youtube", "x", "aparat"}:
+                continue
+            if not is_video_post(x["url"]):
+                print("SOCIAL_DISCOVERY_NON_VIDEO_URL_REJECT", json.dumps({
+                    "platform": p, "url": x["url"],
+                }, ensure_ascii=False))
+                continue
+            if expected_platform and p != expected_platform:
+                print("SOCIAL_DISCOVERY_DOMAIN_MISMATCH_REJECT", json.dumps({
+                    "expected": expected_platform, "actual": p, "url": x["url"],
+                }, ensure_ascii=False))
+                continue
+            views, likes, comments, shares = extract_metrics(x)
+            text_blob = x["title"] + " " + x["description"]
+            persian = len(re.findall(r"[\u0600-\u06ff]", text_blob))
+            results.append({
+                "id": hashlib.sha256(x["url"].encode()).hexdigest(),
+                "url": x["url"],
+                "title": x["title"],
+                "description": x["description"][:1500],
+                "platform": p,
+                "views": views,
+                "likes": likes,
+                "comments": comments,
+                "shares": shares,
+                "persian_signal": persian >= 3,
+                "discovered_at": now.isoformat(),
+                "source": "firecrawl_search",
+                "query": q,
+            })
+
+    if successful_searches == 0:
         print("FIRECRAWL_FALLBACK_TO_PUBLIC_BING_SEARCH")
         return main(force_fallback=True)
-
-    results = []
-    expected_platform = expected_platform_for_query(q)
-    for x in flatten_results(data):
-        x["discovery_query"] = q
-        p = platform(x["url"])
-        if p not in {"tiktok","instagram","youtube","x","aparat"}:
-            continue
-        if not is_video_post(x["url"]):
-            print("SOCIAL_DISCOVERY_NON_VIDEO_URL_REJECT", json.dumps({
-                "platform": p, "url": x["url"],
-            }, ensure_ascii=False))
-            continue
-        if expected_platform and p != expected_platform:
-            print("SOCIAL_DISCOVERY_DOMAIN_MISMATCH_REJECT", json.dumps({
-                "expected": expected_platform, "actual": p, "url": x["url"],
-            }, ensure_ascii=False))
-            continue
-        views, likes, comments, shares = extract_metrics(x)
-        text_blob = x["title"] + " " + x["description"]
-        persian = len(re.findall(r"[\u0600-\u06ff]", text_blob))
-        results.append({
-            "id": hashlib.sha256(x["url"].encode()).hexdigest(),
-            "url": x["url"],
-            "title": x["title"],
-            "description": x["description"][:1500],
-            "platform": p,
-            "views": views,
-            "likes": likes,
-            "comments": comments,
-            "shares": shares,
-            "persian_signal": persian >= 3,
-            "discovered_at": now.isoformat(),
-            "source": "firecrawl_search",
-            "query": q,
-        })
 
     results.extend(discover_youtube_public_candidates(now))
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -790,11 +808,15 @@ def main(force_fallback=False):
         "version": 1,
         "ranking_version": RANKING_VERSION,
         "updated_at": now.isoformat(),
-        "query": q,
+        "queries": selected_queries,
         "count": len(items),
         "items": items,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("SOCIAL_DISCOVERY_ITEMS", len(results))
+    print("SOCIAL_DISCOVERY_ITEMS", json.dumps({
+        "new_results": len(results),
+        "new_firecrawl_results": sum(1 for x in results if x.get("source") == "firecrawl_search"),
+        "total_video_urls": len(items),
+    }, ensure_ascii=False))
     print("SOCIAL_DISCOVERY_STATE", str(OUT))
     return 0
 
