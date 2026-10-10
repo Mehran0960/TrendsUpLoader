@@ -26,6 +26,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Queue delays can make the event SHA older than the latest persisted
+          # dedupe state. Always start from main's newest committed state.
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
