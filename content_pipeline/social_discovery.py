@@ -8,7 +8,7 @@ import hashlib
 import json
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -22,6 +22,15 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "follower_growth_v2"
+YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
+YOUTUBE_QUERIES = [
+    ("ویدیو خنده دار وایرال", "fa"),
+    ("ترفند عجیب قبل و بعد", "fa"),
+    ("Persian funny viral short", "fa"),
+    ("amazing unexpected moments", "en"),
+    ("AI demo turns photo into video", "en"),
+    ("satisfying restoration skill animal", "en"),
+]
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
 QUERIES = [
@@ -384,6 +393,122 @@ def extract_metrics(x):
     return views, likes, comments, shares
 
 
+def parse_youtube_duration(value):
+    """Convert ISO 8601 YouTube duration to seconds; return None if invalid."""
+    raw = str(value or "").strip()
+    match = re.fullmatch(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?", raw)
+    if not match:
+        return None
+    hours, minutes, seconds = (int(part or 0) for part in match.groups())
+    return hours * 3600 + minutes * 60 + seconds
+
+
+def discover_youtube_public_candidates(now=None, limit=50):
+    """Use the free YouTube Data API search and native counters when a key is configured."""
+    if not YOUTUBE_KEY:
+        print("YOUTUBE_PUBLIC_API_SKIPPED_NO_KEY")
+        return []
+    now = now or datetime.now(timezone.utc)
+    query_index = int(now.timestamp() // (4 * 3600)) % len(YOUTUBE_QUERIES)
+    query, language = YOUTUBE_QUERIES[query_index]
+    published_after = (now - timedelta(days=7)).isoformat().replace("+00:00", "Z")
+    try:
+        response = requests.get(
+            "https://www.googleapis.com/youtube/v3/search",
+            params={
+                "key": YOUTUBE_KEY,
+                "part": "snippet",
+                "q": query,
+                "type": "video",
+                "videoDuration": "short",
+                "order": "viewCount",
+                "publishedAfter": published_after,
+                "regionCode": "IR",
+                "relevanceLanguage": language,
+                "maxResults": min(50, max(1, int(limit))),
+            },
+            timeout=25,
+        )
+        response.raise_for_status()
+        search_data = response.json()
+        video_ids = list(dict.fromkeys(
+            str(row.get("id", {}).get("videoId") or "").strip()
+            for row in (search_data.get("items") or [])
+            if row.get("id", {}).get("videoId")
+        ))
+        if not video_ids:
+            print("YOUTUBE_PUBLIC_API_EMPTY", json.dumps({"query": query}, ensure_ascii=False))
+            return []
+        details = requests.get(
+            "https://www.googleapis.com/youtube/v3/videos",
+            params={
+                "key": YOUTUBE_KEY,
+                "part": "snippet,contentDetails,statistics",
+                "id": ",".join(video_ids[:50]),
+                "maxResults": 50,
+            },
+            timeout=25,
+        )
+        details.raise_for_status()
+        detail_data = details.json()
+    except Exception as exc:
+        print("YOUTUBE_PUBLIC_API_FAIL", type(exc).__name__, json.dumps({"query": query}, ensure_ascii=False))
+        return []
+
+    results = []
+    for video in (detail_data.get("items") or []):
+        video_id = str(video.get("id") or "").strip()
+        if not video_id:
+            continue
+        snippet = video.get("snippet") or {}
+        stats = video.get("statistics") or {}
+        content = video.get("contentDetails") or {}
+        duration = parse_youtube_duration(content.get("duration"))
+        if duration is None or duration > 180:
+            continue
+        published_at = str(snippet.get("publishedAt") or "")
+        age_hours = 999999.0
+        if published_at:
+            try:
+                published = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
+                age_hours = max(0.0, (now - published.astimezone(timezone.utc)).total_seconds() / 3600.0)
+            except (TypeError, ValueError):
+                pass
+        views = int(stats.get("viewCount") or 0)
+        if views < 2000 or age_hours > 168:
+            continue
+        url = f"https://www.youtube.com/watch?v={video_id}"
+        title = str(snippet.get("title") or "").strip()
+        description = str(snippet.get("description") or "").strip()
+        text_blob = title + " " + description
+        results.append({
+            "id": hashlib.sha256(url.encode()).hexdigest(),
+            "url": url,
+            "title": title,
+            "description": description[:1500],
+            "platform": "youtube",
+            "views": views,
+            "likes": int(stats.get("likeCount") or 0),
+            "comments": int(stats.get("commentCount") or 0),
+            "shares": 0,
+            "persian_signal": len(re.findall(r"[\u0600-\u06ff]", text_blob)) >= 3,
+            "published_at": published_at,
+            "age_hours": age_hours,
+            "discovered_at": now.isoformat(),
+            "source": "youtube_public_api",
+            "metric_evidence": "native_youtube_api_statistics",
+            "duration_seconds": duration,
+            "youtube_query": query,
+        })
+    print("YOUTUBE_PUBLIC_API_CANDIDATES", json.dumps({
+        "query": query,
+        "language": language,
+        "returned": len(results),
+        "metrics": "native_youtube_api_statistics",
+    }, ensure_ascii=False))
+    return results
+
+
 def log_growth_summary(items):
     """Expose ranking quality and review queues in CI logs for iteration."""
     rows = items if isinstance(items, list) else []
@@ -494,6 +619,7 @@ def main():
                 "source": str((x.get("raw") or {}).get("source") or "bing_search"),
                 "query": qidx,
             })
+        results.extend(discover_youtube_public_candidates(now))
         previous = []
         try:
             previous = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
@@ -512,7 +638,7 @@ def main():
         for item in merged.values():
             source_tag = str(item.get("source") or "")
             published_at = str(item.get("published_at") or "").strip()
-            if source_tag in {"telegram_native_video", "telegram_public_repost"} and published_at:
+            if source_tag in {"telegram_native_video", "telegram_public_repost", "youtube_public_api"} and published_at:
                 try:
                     published = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
                     if published.tzinfo is None:
@@ -570,6 +696,7 @@ def main():
             "query": q,
         })
 
+    results.extend(discover_youtube_public_candidates(now))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     previous = []
     try:
