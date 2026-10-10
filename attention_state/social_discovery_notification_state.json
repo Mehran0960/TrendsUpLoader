@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-10T21:20:32.287255+00:00",
+  "media_review_updated_at": "2026-10-10T21:22:07.860842+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -107,7 +107,14 @@
     "3bd4a43b84c006d3abedac7f590290c648338fece0553273666d9b688dc847e4",
     "838bf8f4b275f72fc7668f56b0772d0bd0431fba068fc9d56d02cd1772d8e0b5",
     "b4d0ec60da901b9e036cb958c509de129c81e44d1a10d1d176992484808b3fc3",
-    "ac5ae24e0efec882d9c2f2441b9fb7dfd0d2ffaa118d1c085a879f605cd8b982"
+    "ac5ae24e0efec882d9c2f2441b9fb7dfd0d2ffaa118d1c085a879f605cd8b982",
+    "0e202e9973085ee4c9b09453bfe0c65fcdac4a8407f7187023ece3efbe800d4c",
+    "16312eb55bda88a1d4bad8e1aced4d3bae3a65d5e3c011c3e8d5abd1ee256346",
+    "6d5efc0dae687e5b989aad0c62efdb862f3a6b70d3b534ad8f81dcac5640a089",
+    "c604a766794033578bdfbc59ef9559d421d79ac001079dae35b8cad49314c075",
+    "d9f9d0817759dd587244ad67e02c3cb0444e5878f37c0d78e41220760499282c",
+    "887179ecebfe03320804f469c905f7d079d83aa6174e65c43f166fbcf992c1f6",
+    "c15788a6ffec8c78c9c55388593907df08f11b8533e317f8277c31eb358e039f"
   ],
   "media_review_last_count": 0,
   "media_reviewed_urls": [
@@ -148,7 +155,14 @@
     "https://instagram.com/reel/DeTajV5q0Si",
     "https://instagram.com/reel/DeUZD5YqlM3",
     "https://instagram.com/reel/DeUed4dMRjf",
-    "https://instagram.com/reel/DeUm5tkxQto"
+    "https://instagram.com/reel/DeUm5tkxQto",
+    "https://tiktok.com/@rayrayvisuals/video/7694998903187410206",
+    "https://tiktok.com/@chelsea_deboer/video/7694783879873350926",
+    "https://tiktok.com/@littlechefandunna/video/7694942190107200776",
+    "https://tiktok.com/@plantbasedonabudget/video/7694894658899414285",
+    "https://tiktok.com/@lorimom2boys/video/7694816216233282829",
+    "https://tiktok.com/@houseofhighlights/video/7695041483522444558",
+    "https://tiktok.com/@bundleofbullies/video/7695033336271539488"
   ],
   "media_reviewed_fingerprints": [
     {
