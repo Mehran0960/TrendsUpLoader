@@ -21,30 +21,17 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
-RANKING_VERSION = "follower_growth_v2"
+RANKING_VERSION = "follower_growth_v3"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_QUERIES = [
-    ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
-    ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
-    ("ویدیو کوتاه پربازدید ایران اتفاق عجیب", "fa"),
-    ("funny unexpected moment caught on camera short", "en"),
-    ("cat dog funny reaction short video", "en"),
-    ("satisfying transformation before after short", "en"),
-    ("AI photo animation demo short", "en"),
-    ("amazing one take skill trick short", "en"),
-    ("close call caught on camera short", "en"),
-]
-UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
-
-QUERIES = [
-    'site:tiktok.com/@ ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (وایرال OR عجیب OR بامزه OR ترفند)',
-    'site:instagram.com/reel ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید")',
-    'site:x.com ("ویدئو" OR "ویدیو") ("ایران" OR "ایرانی" OR "فارسی")',
-    'site:youtube.com/shorts ("فارسی" OR "ایران" OR "ایرانی")',
-    'site:aparat.com/v ("بازدید" OR "پربازدید" OR "وایرال")',
-    'site:youtube.com/shorts ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری) (ویدیو OR کلیپ OR عجیب OR تبدیل)',
-    'site:instagram.com/reel ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری OR قبل و بعد) (ایرانی OR فارسی OR ایران)',
-    'site:aparat.com/v ("هوش مصنوعی" OR ربات OR ترفند OR آزمایش OR معما OR قبل و بعد) (پربازدید OR وایرال OR عجیب)',
+    'site:tiktok.com/@ ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (وایرال OR عجیب OR بامزه OR ترفند OR غذا OR حیوانات)',
+    'site:instagram.com/reel ("فارسی" OR "ایران" OR "ایرانی") ("views" OR "بازدید") (طنز OR آشپزی OR ترفند OR حیوانات OR ورزش OR حیات وحش OR علمی OR قبل و بعد OR رقص)',
+    'site:x.com ("ویدئو" OR "ویدیو") ("ایران" OR "ایرانی" OR "فارسی") (طنز OR آشپزی OR طبیعت OR حیوانات OR ترفند OR ورزش)',
+    'site:youtube.com/shorts ("فارسی" OR "ایران" OR "ایرانی") (طنز OR آشپزی OR ترفند OR حیوانات OR ورزش OR آزمایش OR کاردستی OR رقص OR نوازندگی)',
+    'site:aparat.com/v ("بازدید" OR "پربازدید" OR "وایرال") (طنز OR آشپزی OR ترفند OR حیوانات OR ورزش OR علمی OR قبل و بعد OR کاردستی)',
+    'site:youtube.com/shorts ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری) (ویدیو OR کلیپ OR عجیب OR تبدیل OR کاربردی)',
+    'site:instagram.com/reel ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری OR قبل و بعد OR نظافت OR کاردستی) (ایرانی OR فارسی OR ایران)',
+    'site:aparat.com/v (غذا OR آشپزی OR ترفند OR آزمایش OR حیات وحش OR ورزش OR کاردستی OR قبل و بعد) (پربازدید OR وایرال OR عجیب)',
 ]
 
 def normalize_digits(s):
