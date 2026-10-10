@@ -1,10 +1,10 @@
 {
   "version": 1,
   "ranking_version": "follower_growth_v3",
-  "updated_at": "2026-10-10T21:22:00.037637+00:00",
+  "updated_at": "2026-10-10T21:22:44.709964+00:00",
   "queries": [
-    "site:x.com (animal OR funny OR trick OR skill OR cooking OR wildlife OR science OR DIY OR satisfying) (video OR clip)",
-    "site:tiktok.com (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)"
+    "site:x.com inurl:status (animal OR funny OR trick OR skill OR cooking OR wildlife OR science OR DIY OR satisfying) (video OR clip)",
+    "site:tiktok.com inurl:video (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)"
   ],
   "count": 500,
   "items": [
@@ -15921,6 +15921,92 @@
       }
     },
     {
+      "id": "be0878b2916572d1de81e171c9b23bd9b35af95229b41c7ad41a7b7b10f7e721",
+      "url": "https://www.tiktok.com/@vividcinema.us/video/7694857076291439902",
+      "title": "When you realize the magician is actually broke and it's time to fly. ...",
+      "description": "19 hours ago · The unexpected scare led to a memorable funny moment, proving that even in ... Sundan para sa iba pang real-life road moment at meme-style na reactions.",
+      "platform": "tiktok",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "persian_signal": false,
+      "published_at": "",
+      "age_hours": 24.0,
+      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+      "discovered_at": "2026-10-10T21:22:44.709964+00:00",
+      "source": "firecrawl_search",
+      "query": "site:tiktok.com inurl:video (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)",
+      "follow_growth_score": 38.0,
+      "score_confidence": "low",
+      "content_lane": "comedy",
+      "hook_signals": [
+        "comedy",
+        "surprise_or_reveal",
+        "human_reaction_or_relatable"
+      ],
+      "news_risk_signal": false,
+      "sensitive_risk_signal": false,
+      "safety_review_signal": false,
+      "compilation_signal": false,
+      "promotional_signal": false,
+      "stale_signal": false,
+      "source_platform": "tiktok",
+      "candidate_action": "manual_review",
+      "rights_status": "not_assessed",
+      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
+      "distribution_guidance": {
+        "instagram": {
+          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
+          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "tiktok": {
+          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
+          "do_not_assume": "For You eligibility and permission to publish are the same thing",
+          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
+          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "youtube": {
+          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
+          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
+          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
+          "policy_reference": "https://support.google.com/youtube/answer/2801973",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "telegram": {
+          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
+          "do_not_assume": "public availability means permission to copy the media file",
+          "publishing_automation": "Bot API route is opt-in and disabled by default",
+          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "aparat": {
+          "preferred_route": "rights-cleared original upload or a supported native share feature",
+          "do_not_assume": "a stable authorized upload API exists until verified",
+          "publishing_automation": "not_connected; export/manual fallback",
+          "policy_reference": "",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "x": {
+          "preferred_route": "native link/share with context, or a distinct localized post",
+          "do_not_assume": "repeated identical automated cross-posts are safe",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        }
+      }
+    },
+    {
       "id": "0e202e9973085ee4c9b09453bfe0c65fcdac4a8407f7187023ece3efbe800d4c",
       "url": "https://www.tiktok.com/@rayrayvisuals/video/7694998903187410206",
       "title": "WHO WAS IN THE WRONG HERE #mechanic #tools #rage ... - TikTok",
@@ -26170,6 +26256,90 @@
       }
     },
     {
+      "id": "96b9a237547687b303d77e129d048b185c4b964b800d9df5727c5b2419e59c56",
+      "url": "https://www.tiktok.com/@sssup__jerry/video/7694829946962726152",
+      "title": "#messshhhh #tiktokviral #haitiantiktok #viralvideo #virallllllllll... | TikTok",
+      "description": "21 hours ago · This short Haitian TikTok clip centers on an upbeat, humorous reaction captured by user #ssssup___jerry. The dominant expression—\"Yuppppp \"—sets a ...",
+      "platform": "tiktok",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "persian_signal": false,
+      "published_at": "",
+      "age_hours": 24.0,
+      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+      "discovered_at": "2026-10-10T21:22:44.709964+00:00",
+      "source": "firecrawl_search",
+      "query": "site:tiktok.com inurl:video (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)",
+      "follow_growth_score": 26.0,
+      "score_confidence": "low",
+      "content_lane": "human_reaction_or_relatable",
+      "hook_signals": [
+        "human_reaction_or_relatable"
+      ],
+      "news_risk_signal": false,
+      "sensitive_risk_signal": false,
+      "safety_review_signal": false,
+      "compilation_signal": false,
+      "promotional_signal": false,
+      "stale_signal": false,
+      "source_platform": "tiktok",
+      "candidate_action": "manual_review",
+      "rights_status": "not_assessed",
+      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
+      "distribution_guidance": {
+        "instagram": {
+          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
+          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "tiktok": {
+          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
+          "do_not_assume": "For You eligibility and permission to publish are the same thing",
+          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
+          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "youtube": {
+          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
+          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
+          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
+          "policy_reference": "https://support.google.com/youtube/answer/2801973",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "telegram": {
+          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
+          "do_not_assume": "public availability means permission to copy the media file",
+          "publishing_automation": "Bot API route is opt-in and disabled by default",
+          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "aparat": {
+          "preferred_route": "rights-cleared original upload or a supported native share feature",
+          "do_not_assume": "a stable authorized upload API exists until verified",
+          "publishing_automation": "not_connected; export/manual fallback",
+          "policy_reference": "",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "x": {
+          "preferred_route": "native link/share with context, or a distinct localized post",
+          "do_not_assume": "repeated identical automated cross-posts are safe",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        }
+      }
+    },
+    {
       "id": "d9f9d0817759dd587244ad67e02c3cb0444e5878f37c0d78e41220760499282c",
       "url": "https://www.tiktok.com/@lorimom2boys/video/7694816216233282829",
       "title": "Easy One Pot French Onion Pasta! #dinner #easyrecipe ... - TikTok",
@@ -33666,6 +33836,170 @@
       }
     },
     {
+      "id": "7c7c5ac48a28349932c51953181cb9b2e6ff731777328d1d2e7252f9c2269bf1",
+      "url": "https://www.tiktok.com/@quantumsbane/video/7694894660971400478",
+      "title": "BACK GIGANTAMAX CHARIZARDS HOLD ME AND TELL ME ... - TikTok",
+      "description": "17 hours ago · TikTok video from Bane (@quantumsbane): “BACK TO BACK GIGANTAMAX CHARIZARDS HOLD ME AND TELL ME ITS REal!! thank you #taiwan #pokemon #fyp #dragon ...",
+      "platform": "tiktok",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "persian_signal": false,
+      "published_at": "",
+      "age_hours": 24.0,
+      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+      "discovered_at": "2026-10-10T21:22:44.709964+00:00",
+      "source": "firecrawl_search",
+      "query": "site:tiktok.com inurl:video (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)",
+      "follow_growth_score": 18.0,
+      "score_confidence": "low",
+      "content_lane": "unclassified",
+      "hook_signals": [],
+      "news_risk_signal": false,
+      "sensitive_risk_signal": false,
+      "safety_review_signal": false,
+      "compilation_signal": false,
+      "promotional_signal": false,
+      "stale_signal": false,
+      "source_platform": "tiktok",
+      "candidate_action": "manual_review",
+      "rights_status": "not_assessed",
+      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
+      "distribution_guidance": {
+        "instagram": {
+          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
+          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "tiktok": {
+          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
+          "do_not_assume": "For You eligibility and permission to publish are the same thing",
+          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
+          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "youtube": {
+          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
+          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
+          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
+          "policy_reference": "https://support.google.com/youtube/answer/2801973",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "telegram": {
+          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
+          "do_not_assume": "public availability means permission to copy the media file",
+          "publishing_automation": "Bot API route is opt-in and disabled by default",
+          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "aparat": {
+          "preferred_route": "rights-cleared original upload or a supported native share feature",
+          "do_not_assume": "a stable authorized upload API exists until verified",
+          "publishing_automation": "not_connected; export/manual fallback",
+          "policy_reference": "",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "x": {
+          "preferred_route": "native link/share with context, or a distinct localized post",
+          "do_not_assume": "repeated identical automated cross-posts are safe",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        }
+      }
+    },
+    {
+      "id": "d04684dc1123f5ec9ac03de02ce46a41a6bcb79fceadefc3d099f83081217a62",
+      "url": "https://www.tiktok.com/@rabelanimanyabwe/video/7694967000308649236",
+      "title": "K1mascots #capiteclivebetter #vibes #creatorsearchinsights #viralvide...",
+      "description": "12 hours ago · TikTok video from Mascots k1 ( Katlehongs ) (@rabelanimanyabwe): “#K1mascots #capiteclivebetter #vibes #creatorsearchinsights #viralvideo”.",
+      "platform": "tiktok",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "persian_signal": false,
+      "published_at": "",
+      "age_hours": 24.0,
+      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+      "discovered_at": "2026-10-10T21:22:44.709964+00:00",
+      "source": "firecrawl_search",
+      "query": "site:tiktok.com inurl:video (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)",
+      "follow_growth_score": 18.0,
+      "score_confidence": "low",
+      "content_lane": "unclassified",
+      "hook_signals": [],
+      "news_risk_signal": false,
+      "sensitive_risk_signal": false,
+      "safety_review_signal": false,
+      "compilation_signal": false,
+      "promotional_signal": false,
+      "stale_signal": false,
+      "source_platform": "tiktok",
+      "candidate_action": "manual_review",
+      "rights_status": "not_assessed",
+      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
+      "distribution_guidance": {
+        "instagram": {
+          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
+          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "tiktok": {
+          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
+          "do_not_assume": "For You eligibility and permission to publish are the same thing",
+          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
+          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "youtube": {
+          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
+          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
+          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
+          "policy_reference": "https://support.google.com/youtube/answer/2801973",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "telegram": {
+          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
+          "do_not_assume": "public availability means permission to copy the media file",
+          "publishing_automation": "Bot API route is opt-in and disabled by default",
+          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "aparat": {
+          "preferred_route": "rights-cleared original upload or a supported native share feature",
+          "do_not_assume": "a stable authorized upload API exists until verified",
+          "publishing_automation": "not_connected; export/manual fallback",
+          "policy_reference": "",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "x": {
+          "preferred_route": "native link/share with context, or a distinct localized post",
+          "do_not_assume": "repeated identical automated cross-posts are safe",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        }
+      }
+    },
+    {
       "id": "e658cf084de565bf9b3369f271ce28c1a4a235997687c3e105002e3dd044861b",
       "url": "https://www.tiktok.com/@rottentomatoes/video/7694803959449521421",
       "title": "Mike Flanagan talks about 'The Exorcist: Martyrs' being the ... - TikTok",
@@ -40256,6 +40590,90 @@
       }
     },
     {
+      "id": "8476f6852b8dc807b96a654ed59cb8952494e41f46d1335905419d33e6778d79",
+      "url": "https://www.tiktok.com/@jonjon69.ft/video/7695113036591385877",
+      "title": "Os vídeos de jonathan do jobs (@jonjon69.ft) com som original",
+      "description": "3 hours ago · The clip shows a candid moment many face—an unexpected mistake or awkward exchange during an interview—and uses humor to highlight how preparation and calm can ...",
+      "platform": "tiktok",
+      "views": 0,
+      "likes": 0,
+      "comments": 0,
+      "shares": 0,
+      "persian_signal": false,
+      "published_at": "",
+      "age_hours": 24.0,
+      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+      "discovered_at": "2026-10-10T21:22:44.709964+00:00",
+      "source": "firecrawl_search",
+      "query": "site:tiktok.com inurl:video (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)",
+      "follow_growth_score": 11.0,
+      "score_confidence": "low",
+      "content_lane": "news_or_current_affairs",
+      "hook_signals": [
+        "surprise_or_reveal"
+      ],
+      "news_risk_signal": true,
+      "sensitive_risk_signal": false,
+      "safety_review_signal": false,
+      "compilation_signal": false,
+      "promotional_signal": false,
+      "stale_signal": false,
+      "source_platform": "tiktok",
+      "candidate_action": "manual_review_current_affairs",
+      "rights_status": "not_assessed",
+      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
+      "distribution_guidance": {
+        "instagram": {
+          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
+          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "tiktok": {
+          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
+          "do_not_assume": "For You eligibility and permission to publish are the same thing",
+          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
+          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "youtube": {
+          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
+          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
+          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
+          "policy_reference": "https://support.google.com/youtube/answer/2801973",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "telegram": {
+          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
+          "do_not_assume": "public availability means permission to copy the media file",
+          "publishing_automation": "Bot API route is opt-in and disabled by default",
+          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "aparat": {
+          "preferred_route": "rights-cleared original upload or a supported native share feature",
+          "do_not_assume": "a stable authorized upload API exists until verified",
+          "publishing_automation": "not_connected; export/manual fallback",
+          "policy_reference": "",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        },
+        "x": {
+          "preferred_route": "native link/share with context, or a distinct localized post",
+          "do_not_assume": "repeated identical automated cross-posts are safe",
+          "publishing_automation": "not_connected",
+          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
+          "rights_must_be_checked_for_file_reuse": true,
+          "publishing_authorized": false
+        }
+      }
+    },
+    {
       "id": "114b42b9eb314f6cf168c6918ed696be256d99b37e6fb5fb66ba639a578f801c",
       "url": "https://www.instagram.com/reel/DeUW65aRtLM/",
       "title": "فاتحه ایران برای صنعت هوش مصنوعی آمریکا! محمد طاهر رحیمی توضیح می‌دهد ...",
@@ -42243,431 +42661,6 @@
       "score_confidence": "medium",
       "content_lane": "technology_demo",
       "hook_signals": [
-        "technology_demo"
-      ],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "6491a6d9e4cd5a9a82dd9b9e1cfc38b0d2b0f2dafce43102410ed831bc6b960e",
-      "url": "https://www.youtube.com/shorts/nnkUfnU7gyE",
-      "title": "دخترشون رو به ربات مطیع تبدیل کردن! #فیلم_ترسناک #داستان_عجیب",
-      "description": "7 hours ago · ... ربات مطیع تبدیل شده بود. اما این تازه شروع ماجراست! خانواده کم‌کم دختر رو مسئول تمام کارهای خونه کردن و یک شب فراموش کردن خاموشش کنن؛ در نتیجه، اون تمام ...",
-      "platform": "youtube",
-      "views": 0,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "persian_signal": true,
-      "published_at": "",
-      "age_hours": 24.0,
-      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
-      "discovered_at": "2026-10-10T21:20:20.485871+00:00",
-      "source": "firecrawl_search",
-      "query": "site:youtube.com/shorts (\"هوش مصنوعی\" OR AI OR ربات OR تکنولوژی OR فناوری) (ویدیو OR کلیپ OR عجیب OR تبدیل OR کاربردی)",
-      "follow_growth_score": 3.0,
-      "score_confidence": "low",
-      "content_lane": "technology_demo",
-      "hook_signals": [
-        "surprise_or_reveal",
-        "transformation_or_satisfying",
-        "technology_demo"
-      ],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": true,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": false,
-      "source_platform": "youtube",
-      "candidate_action": "reject_sensitive_or_manual_safety_review",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "350d189615bea5e2d04efae550235fe0c689c34bf1027a6b049a850ff312e857",
-      "url": "https://t.me/VahidOnline/78662",
-      "title": "ترامپ گفت: «من باید در مورد ایران اقدام می‌کردم، چون آنها به سلاح هسته‌ای دست پیدا می‌کردند و آن وقت می‌فهمیدید مشکل یعنی چه.» رئیس‌جمهوری آمریکا در ادامه با اشاره به احتمال حمله موشکی ایران به شهرهای آمریکا گفت: «ببینیم اگر آنها روزی به لس‌آنجلس یا سن‌دیگو حم",
-      "description": "ترامپ گفت: «من باید در مورد ایران اقدام می‌کردم، چون آنها به سلاح هسته‌ای دست پیدا می‌کردند و آن وقت می‌فهمیدید مشکل یعنی چه.» رئیس‌جمهوری آمریکا در ادامه با اشاره به احتمال حمله موشکی ایران به شهرهای آمریکا گفت: «ببینیم اگر آنها روزی به لس‌آنجلس یا سن‌دیگو حمله می‌کردند، چه اتفاقی می‌افتاد. این دو شهر به دلیل موقعیت جغرافیایی‌شان بیشتر مطرح هستند و منظور من حمله موشکی است.» ترامپ افزود: «اگر چنین اتفاقی می‌افتاد، وحشتناک بود. بگذارید لس‌آنجلس یا شهری مانند سن‌دیگو را هدف قرار دهند. بگذارید یکی از شهرهای بزرگ ما را هدف حمله قرار دهند. آن وقت است که می‌فهمید مشکل واقعی چیست.» @ VahidOOnLine 📡 @VahidOnline",
-      "platform": "telegram",
-      "views": 304000,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 304000,
-      "telegram_repost_channels": [],
-      "telegram_channel": "VahidOnline",
-      "published_at": "2026-10-08T16:12:37+00:00",
-      "age_hours": 53.036407713888885,
-      "persian_signal": true,
-      "discovered_at": "2026-10-10T14:30:43.323440+00:00",
-      "source": "telegram_native_video",
-      "query": 5,
-      "follow_growth_score": 2.7,
-      "score_confidence": "medium",
-      "content_lane": "news_or_current_affairs",
-      "hook_signals": [],
-      "news_risk_signal": true,
-      "sensitive_risk_signal": false,
-      "source_platform": "telegram",
-      "candidate_action": "manual_safety_review",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "safety_review_signal": true,
-      "compilation_signal": false,
-      "stale_signal": true,
-      "promotional_signal": false,
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "28c2dc3dca1d03b8fae29caf00b5a59a8eaa1660734baae8124b04ee123a56db",
-      "url": "https://www.tiktok.com/@houseofhighlights/video/7695056915029642510",
-      "title": "PODZ STAYING IN GOLDEN STATE (via ShamsCharania/X ... - TikTok",
-      "description": "6 hours ago · The performance highlights his ability to impact games with power and run production. What happened - Bazzana connected for two homers in the same game, marking ...",
-      "platform": "tiktok",
-      "views": 0,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "persian_signal": false,
-      "published_at": "",
-      "age_hours": 24.0,
-      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
-      "discovered_at": "2026-10-10T21:22:00.037637+00:00",
-      "source": "firecrawl_search",
-      "query": "site:tiktok.com (funny animals OR unexpected moment OR satisfying transformation OR life hack OR food recipe OR sports skill)",
-      "follow_growth_score": 2.0,
-      "score_confidence": "low",
-      "content_lane": "multi_clip_roundup",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": true,
-      "promotional_signal": false,
-      "stale_signal": false,
-      "source_platform": "tiktok",
-      "candidate_action": "deprioritize_multi_story_roundup",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "1db3a47c4171a624d28fbe817da110b668c199daca5a90b0b40f3725468dce34",
-      "url": "https://www.instagram.com/reel/DeT7mZfshKG/",
-      "title": "به مدل‌های مختلف هوش مصنوعی دسترسی داری؛ از چت و ایده‌پردازی ... - Instagram",
-      "description": "10 hours ago · از عکس محصولت تا تیزر تبلیغاتی؛ همه توی یه سایت! @atarapp.ai توی «آتار» به مدل‌های مختلف هوش مصنوعی دسترسی داری؛ از چت و ایده‌پردازی تا ساخت عکس، ویدیو و ...",
-      "platform": "instagram",
-      "views": 0,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "persian_signal": true,
-      "published_at": "",
-      "age_hours": 24.0,
-      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
-      "discovered_at": "2026-10-10T21:20:20.485871+00:00",
-      "source": "firecrawl_search",
-      "query": "site:instagram.com/reel (\"هوش مصنوعی\" OR AI OR ربات OR تکنولوژی OR فناوری OR قبل و بعد OR نظافت OR کاردستی) (ایرانی OR فارسی OR ایران)",
-      "follow_growth_score": 2.0,
-      "score_confidence": "low",
-      "content_lane": "technology_demo",
-      "hook_signals": [
-        "technology_demo"
-      ],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": true,
-      "stale_signal": false,
-      "source_platform": "instagram",
-      "candidate_action": "deprioritize_promotional",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "db28fbad7bc9e8b7de6da92c8baac3441481030ab33bdcbd7dd27688e2496c17",
-      "url": "https://t.me/simorghai/1511",
-      "title": "هر روز یه مدل هوش مصنوعی جدید میاد؛ با قابلیت‌هایی که دیروز حتی تصورشون رو نمی‌کردیم! 🤯 سؤال: شما به کدوم مدل وفادارید؟ یا شما هم هر روز با یه مدل جدید غافلگیر می‌شید؟ 👀 Claude Fable, Opus, Sonnet Gemini Argon GPT Astra #AI #SI #هوش_مصنوعی Simorghai.ir ویدئوها",
-      "description": "هر روز یه مدل هوش مصنوعی جدید میاد؛ با قابلیت‌هایی که دیروز حتی تصورشون رو نمی‌کردیم! 🤯 سؤال: شما به کدوم مدل وفادارید؟ یا شما هم هر روز با یه مدل جدید غافلگیر می‌شید؟ 👀 Claude Fable, Opus, Sonnet Gemini Argon GPT Astra #AI #SI #هوش_مصنوعی Simorghai.ir ویدئوهای بیشتر در",
-      "platform": "telegram",
-      "views": 403,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 403,
-      "telegram_repost_channels": [],
-      "telegram_channel": "simorghai",
-      "published_at": "2026-10-02T06:13:10+00:00",
-      "age_hours": 207.02724104722222,
-      "persian_signal": true,
-      "discovered_at": "2026-10-10T21:14:48.067770+00:00",
-      "source": "telegram_native_video",
-      "query": 5,
-      "follow_growth_score": 1.5,
-      "score_confidence": "medium",
-      "content_lane": "technology_demo",
-      "hook_signals": [
-        "surprise_or_reveal",
         "technology_demo"
       ],
       "news_risk_signal": false,

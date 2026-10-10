@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-10T21:22:07.860842+00:00",
+  "media_review_updated_at": "2026-10-10T21:22:47.865959+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -114,7 +114,8 @@
     "c604a766794033578bdfbc59ef9559d421d79ac001079dae35b8cad49314c075",
     "d9f9d0817759dd587244ad67e02c3cb0444e5878f37c0d78e41220760499282c",
     "887179ecebfe03320804f469c905f7d079d83aa6174e65c43f166fbcf992c1f6",
-    "c15788a6ffec8c78c9c55388593907df08f11b8533e317f8277c31eb358e039f"
+    "c15788a6ffec8c78c9c55388593907df08f11b8533e317f8277c31eb358e039f",
+    "be0878b2916572d1de81e171c9b23bd9b35af95229b41c7ad41a7b7b10f7e721"
   ],
   "media_review_last_count": 0,
   "media_reviewed_urls": [
@@ -162,7 +163,8 @@
     "https://tiktok.com/@plantbasedonabudget/video/7694894658899414285",
     "https://tiktok.com/@lorimom2boys/video/7694816216233282829",
     "https://tiktok.com/@houseofhighlights/video/7695041483522444558",
-    "https://tiktok.com/@bundleofbullies/video/7695033336271539488"
+    "https://tiktok.com/@bundleofbullies/video/7695033336271539488",
+    "https://tiktok.com/@vividcinema.us/video/7694857076291439902"
   ],
   "media_reviewed_fingerprints": [
     {
