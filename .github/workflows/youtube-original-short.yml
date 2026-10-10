@@ -92,7 +92,7 @@ jobs:
           ffmpeg -hide_banner -loglevel error -y -i "$src" \
             -vf "scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=24,format=yuv420p" \
             -c:v libx264 -preset veryfast -b:v 1800k -maxrate 2000k -bufsize 4000k \
-            -c:a aac -b:a 96k -movflags +faststart -fs 42000000 \
+            -c:a aac -b:a 96k -movflags +faststart \
             out/distribution/distribution-master.mp4
           size="$(stat -c%s out/distribution/distribution-master.mp4)"
           echo "DISTRIBUTION_MASTER_SIZE_BYTES=$size"
