@@ -145,7 +145,11 @@ def duration_content_gate(item, quality):
     lanes = set(item.get("hook_signals") or [])
     if duration > 60:
         return False, "duration_over_60_seconds"
-    if duration > 45 and (score < 60 or len(lanes) < 2):
+    if duration > 45 and (
+        score < 60
+        or len(lanes) < 2
+        or not lanes.intersection(SPECIFIC_LONG_CLIP_LANES)
+    ):
         return False, "long_clip_requires_stronger_topic_fit"
     return True, "duration_and_topic_gate_passed"
 
@@ -167,6 +171,13 @@ TARGET_LANES = {
     "diy_and_creativity",
     "home_organization_or_cleaning",
     "music_or_dance",
+}
+
+# Longer clips need at least one concrete subject lane; generic "surprising/reaction"
+# wording alone should not be enough to justify the additional watch time.
+SPECIFIC_LONG_CLIP_LANES = TARGET_LANES - {
+    "surprise_or_reveal",
+    "human_reaction_or_relatable",
 }
 
 
