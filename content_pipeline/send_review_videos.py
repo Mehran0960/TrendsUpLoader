@@ -113,6 +113,23 @@ def find_telegram_post_block(page, channel, post_id):
     return ""
 
 
+def extract_telegram_post_caption(post_block):
+    """Read visible caption text only from the exact source-post block."""
+    if not post_block:
+        return ""
+    match = re.search(
+        r'<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>',
+        post_block,
+        flags=re.I | re.S,
+    )
+    if not match:
+        return ""
+    caption = html.unescape(re.sub(r"<br\s*/?>", " ", match.group(1), flags=re.I))
+    caption = re.sub(r"<[^>]+>", " ", caption)
+    caption = re.sub(r"\s+", " ", caption).strip()
+    return caption[:800]
+
+
 def extract_telegram_post_video_urls(post_block):
     """Extract video URLs only from a verified single-post HTML block."""
     if not post_block:
@@ -261,7 +278,7 @@ def inspect_video_quality(video_path):
     return evaluate_video_metrics(duration, width, height, frame_metrics)
 
 
-def download_direct_telegram_post(url, destination):
+def download_direct_telegram_post(url, destination, item=None):
     """Download video media only when it belongs to the exact Telegram post URL."""
     parsed = urlparse(url)
     match = re.match(r"^/([A-Za-z0-9_]+)/([0-9]+)/?$", parsed.path or "")
@@ -282,6 +299,9 @@ def download_direct_telegram_post(url, destination):
         # Fail closed rather than risk sending the media from an adjacent post.
         print("TELEGRAM_TARGET_POST_NOT_FOUND", f"{channel}/{post_id}")
         return False
+    source_caption = extract_telegram_post_caption(post_block)
+    if source_caption and isinstance(item, dict):
+        item["source_post_caption"] = source_caption
     media_urls = extract_telegram_post_video_urls(post_block)
     if not media_urls:
         print("TELEGRAM_TARGET_POST_HAS_NO_EXTRACTABLE_VIDEO", f"{channel}/{post_id}")
@@ -397,7 +417,7 @@ def main():
             video_path.unlink(missing_ok=True)
             downloaded = False
             if str(item.get("platform") or "").lower() == "telegram":
-                downloaded = download_direct_telegram_post(url, str(video_path))
+                downloaded = download_direct_telegram_post(url, str(video_path), item)
 
             # Telegram candidates must pass the exact-post extractor above. Do not
             # fall back to a generic page extractor if that match failed.
