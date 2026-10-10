@@ -5,6 +5,9 @@ on:
   push:
     paths:
       - ".github/workflows/single-payoff-original-ai.yml"
+      - "content_pipeline/build.py"
+      - "content_pipeline/publish_telegram.py"
+      - "content_pipeline/publication_rights.py"
 
 concurrency:
   group: original-single-payoff-ai
