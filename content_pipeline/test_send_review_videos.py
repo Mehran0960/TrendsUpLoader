@@ -96,6 +96,30 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(len(selected), 1)
         self.assertIn("animals", selected[0]["hook_signals"])
 
+    def test_accepts_strong_fresh_native_telegram_clip_without_view_counters(self):
+        candidate = {
+            "id": "fresh-telegram-low-confidence",
+            "url": "https://t.me/funnycat/456",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "A funny cat has a surprising reaction to a toy",
+            "description": "A clear, single animal moment.",
+            "views": 0,
+            "age_hours": 2,
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["score_confidence"], "low")
+        self.assertTrue(
+            set(selected[0]["hook_signals"]).intersection(
+                {"animals", "comedy", "skill_or_spectacle", "technology_demo",
+                 "food_cooking", "practical_tips_or_life_hacks",
+                 "wholesome_or_heartwarming", "sports_or_athletic_skill",
+                 "nature_and_wildlife", "science_curiosity", "diy_and_creativity",
+                 "home_organization_or_cleaning", "music_or_dance"}
+            )
+        )
+
     def test_skips_youtube_file_relay_while_runner_has_antibot_block(self):
         candidate = {
             "id": "youtube-animal",
