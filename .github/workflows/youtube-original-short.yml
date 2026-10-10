@@ -101,19 +101,30 @@ jobs:
           dir="$(dirname "$(find out -type f -name video.mp4 -print -quit)")"
           mkdir -p out/relay
           if [ "$MODE" = "probe" ]; then
-            ffmpeg -hide_banner -loglevel error -y               -f lavfi -i color=c=black:s=360x640:r=12               -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100               -t 1.5 -vf "format=yuv420p" -c:v libx264 -preset ultrafast -b:v 120k               -c:a aac -b:a 32k -shortest out/relay/webhook-probe.mp4
-            echo "RELAY_VIDEO=out/relay/webhook-probe.mp4" >> "$GITHUB_ENV"
-            echo "RELAY_TITLE=SCHEMA PROBE - DO NOT PUBLISH" >> "$GITHUB_ENV"
-            echo "RELAY_DESCRIPTION=Webhook file-schema test only; not a final video." >> "$GITHUB_ENV"
+            ffmpeg -hide_banner -loglevel error -y \
+              -f lavfi -i color=c=black:s=360x640:r=12 \
+              -f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 \
+              -t 1.5 -vf "format=yuv420p" -c:v libx264 -preset ultrafast -b:v 120k \
+              -c:a aac -b:a 32k -shortest out/relay/webhook-probe.mp4
+            RELAY_VIDEO="out/relay/webhook-probe.mp4"
+            RELAY_TITLE="SCHEMA PROBE - DO NOT PUBLISH"
+            RELAY_DESCRIPTION="Webhook file-schema test only; not a final video."
           else
             src="$(find out -type f -name video.mp4 -print -quit)"
-            ffmpeg -hide_banner -loglevel error -y -i "$src"               -vf "scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=24,format=yuv420p"               -c:v libx264 -preset veryfast -b:v 760k -maxrate 850k -bufsize 1700k               -c:a aac -b:a 64k -movflags +faststart -fs 4200000 out/relay/original-short.mp4
-            echo "RELAY_VIDEO=out/relay/original-short.mp4" >> "$GITHUB_ENV"
-            echo "RELAY_TITLE=$(python -c 'import json;from pathlib import Path;p=next(Path("out").glob("**/metadata.json"));print(json.loads(p.read_text(encoding="utf-8")).get("display_title_fa","")[:100])')" >> "$GITHUB_ENV"
-            echo "RELAY_DESCRIPTION=محتوای اصیل فارسی؛ ارسال خصوصی برای بررسی اولیه." >> "$GITHUB_ENV"
+            ffmpeg -hide_banner -loglevel error -y -i "$src" \
+              -vf "scale=720:1280:force_original_aspect_ratio=decrease,pad=720:1280:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=24,format=yuv420p" \
+              -c:v libx264 -preset veryfast -b:v 760k -maxrate 850k -bufsize 1700k \
+              -c:a aac -b:a 64k -movflags +faststart -fs 4200000 out/relay/original-short.mp4
+            RELAY_VIDEO="out/relay/original-short.mp4"
+            RELAY_TITLE="$(python -c 'import json;from pathlib import Path;p=next(Path("out").glob("**/metadata.json"));print(json.loads(p.read_text(encoding="utf-8")).get("display_title_fa","")[:100])')"
+            RELAY_DESCRIPTION="محتوای اصیل فارسی؛ ارسال خصوصی برای بررسی اولیه."
           fi
-          size="$(stat -c%s "$RELAY_VIDEO" 2>/dev/null || true)"
-          if [ -z "$size" ]; then size="$(stat -c%s out/relay/*.mp4 | tail -n1)"; fi
+          {
+            printf 'RELAY_VIDEO=%s\n' "$RELAY_VIDEO"
+            printf 'RELAY_TITLE=%s\n' "$RELAY_TITLE"
+            printf 'RELAY_DESCRIPTION=%s\n' "$RELAY_DESCRIPTION"
+          } >> "$GITHUB_ENV"
+          size="$(stat -c%s "$RELAY_VIDEO")"
           echo "RELAY_FILE_SIZE_BYTES=$size"
           if [ "$size" -gt 4400000 ]; then
             echo "MAKE_FREE_FILE_LIMIT_GUARD_FAILED: compressed file exceeds safety margin."
