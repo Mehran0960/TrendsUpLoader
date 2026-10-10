@@ -53,10 +53,14 @@ def create_distribution_plan(metadata: dict, rights: dict) -> dict:
     """Return destination-specific readiness without ever authorizing a publish."""
     metadata = metadata if isinstance(metadata, dict) else {}
     rights = rights if isinstance(rights, dict) else {}
+    try:
+        duration = float(metadata.get("duration_seconds") or 0)
+    except (TypeError, ValueError):
+        duration = 0.0
     quality_ok = (
         metadata.get("quality_gate") == "passed_publish"
         and metadata.get("script_quality") == "passed"
-        and float(metadata.get("duration_seconds") or 0) >= 16
+        and duration >= 16
     )
     rights_ok = (
         rights.get("automated_publishable") is True
@@ -100,7 +104,7 @@ def create_distribution_plan(metadata: dict, rights: dict) -> dict:
 
 def write_latest_plan(output_root="out") -> Path:
     root = Path(output_root)
-    metadata_files = sorted(root.glob("**/metadata.json"))
+    metadata_files = sorted(root.glob("**/metadata.json"), key=lambda path: path.stat().st_mtime)
     if not metadata_files:
         raise FileNotFoundError(f"No metadata.json found under {root}")
     metadata_path = metadata_files[-1]
