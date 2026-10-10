@@ -34,6 +34,7 @@ MIN_STALE_TELEGRAM_SCORE = 50.0
 MIN_SCORE = 42.0
 MAX_VIDEO_BYTES = 48 * 1024 * 1024
 MAX_SENDS = 3
+# Output smoke test requested 2026-10-11; keep persisted dedupe state intact.
 MAX_TRIES = 12
 SUPPORTED = {"telegram", "youtube", "tiktok", "instagram", "aparat", "x"}
 # These platforms remain discoverable, but this runner currently cannot
