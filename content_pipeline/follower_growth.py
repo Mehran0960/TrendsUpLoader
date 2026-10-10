@@ -22,9 +22,17 @@ LANES = {
 }
 NEWS_RISK = re.compile(
     r"جنگ|انفجار|پدافند|موشک|حمله نظامی|تیراندازی|کشته|مجروح|سلاح هسته|تجمع|اعتراض|شعار|سنگ.?پرونی|لغو.{0,12}(?:مسابقه|مراسم)|"
-    r"ترامپ|رئیس.?جمهور|انتخابات|تحریم|حکومت|جمهوری اسلامی|سیاست|"
+    r"ترامپ|رئیس.?جمهور|انتخابات|تحریم|حکومت|جمهوری اسلامی|سیاست|روسیه|اوکراین|اسرائیل|آمریکا|آمریکایی|پالایشگاه|"
     r"war|explosion|air.?defen[cs]e|missile|shooting|killed|injured|nuclear weapon|"
-    r"president|election|sanction|government|politic|protest|demonstration|clash|cancelled after protest",
+    r"president|election|sanction|government|politic|protest|demonstration|clash|cancelled after protest|"
+    r"russia|ukraine|israel|united states|america|refinery|geopolitical",
+    re.I,
+)
+MULTI_CLIP_RISK = re.compile(
+    r"\\b(compilation|roundup|recap|best of|top\\s*\\d+|ranking|ranked|moments caught|caught moments|"
+    r"best moments|greatest moments|most astonishing.{0,30}moments|viral moments|highlights|top moments)\\b|"
+    r"گلچین|گزیده|مجموعه(?:ای)? از|تاپ\\s*\\d+|برترین لحظات|بهترین لحظات|لحظات برتر|"
+    r"چند ماجرا|چند داستان|چند اتفاق|چند کلیپ|گلچین لحظات",
     re.I,
 )
 SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پورن|جنسی صریح|gore|self.?harm|porn|explicit sexual", re.I)
@@ -105,6 +113,7 @@ def annotate_candidate(item):
     is_news = bool(NEWS_RISK.search(text))
     is_sensitive = bool(SENSITIVE_RISK.search(text))
     safety_review = bool(MANUAL_SAFETY_REVIEW.search(text))
+    compilation = bool(MULTI_CLIP_RISK.search(text))
 
     native_views = _int(x.get("views"))
     repost_views = _int(x.get("telegram_repost_views"))
@@ -141,6 +150,8 @@ def annotate_candidate(item):
         score -= 35.0
     if safety_review and not is_sensitive:
         score -= 10.0
+    if compilation:
+        score -= 16.0
     score = round(max(0.0, min(100.0, score)), 1)
 
     if native_views and age is not None and (likes or comments or shares):
@@ -154,7 +165,11 @@ def annotate_candidate(item):
         action = "reject_sensitive_or_manual_safety_review"
     elif safety_review:
         action = "manual_safety_review"
-    elif score >= 65 and confidence in {"medium", "high"} and not is_news:
+    elif is_news:
+        action = "manual_review_current_affairs"
+    elif compilation:
+        action = "deprioritize_multi_story_roundup"
+    elif score >= 65 and confidence in {"medium", "high"}:
         action = "prioritize_for_visual_and_rights_review"
     elif score >= 42 or confidence == "low":
         action = "manual_review"
@@ -163,6 +178,8 @@ def annotate_candidate(item):
 
     if is_news:
         lane = "news_or_current_affairs"
+    elif compilation:
+        lane = "multi_clip_roundup"
     elif "technology_demo" in lanes:
         lane = "technology_demo"
     elif lanes:
@@ -178,6 +195,7 @@ def annotate_candidate(item):
         "news_risk_signal": is_news,
         "sensitive_risk_signal": is_sensitive,
         "safety_review_signal": safety_review,
+        "compilation_signal": compilation,
         "source_platform": platform,
         "candidate_action": action,
         "rights_status": "not_assessed",
