@@ -170,8 +170,8 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
     def test_accepts_recent_topic_specific_firecrawl_result_for_private_review(self):
         candidate = {
             "id": "recent-firecrawl-home-tip",
-            "url": "https://www.instagram.com/reel/organize123/",
-            "platform": "instagram",
+            "url": "https://www.aparat.com/v/organize123",
+            "platform": "aparat",
             "source": "firecrawl_search",
             "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
             "age_hours": 24,
@@ -187,20 +187,46 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertLess(selected[0]["follow_growth_score"], 42)
         self.assertTrue(set(selected[0]["hook_signals"]).intersection(SPECIFIC_LONG_CLIP_LANES))
 
-    def test_skips_youtube_file_relay_while_runner_has_antibot_block(self):
-        candidate = {
-            "id": "youtube-animal",
-            "url": "https://www.youtube.com/shorts/funnycat456",
-            "platform": "youtube",
-            "source": "youtube_public_api",
-            "title": "A cat has a surprising funny reaction to a toy",
-            "description": "Unexpected animal reaction caught on camera.",
-            "views": 150000,
-            "likes": 8000,
-            "comments": 300,
-            "age_hours": 2,
-        }
-        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+    def test_skips_platforms_with_unavailable_public_file_extraction(self):
+        candidates = [
+            {
+                "id": "youtube-animal",
+                "url": "https://www.youtube.com/shorts/funnycat456",
+                "platform": "youtube",
+                "source": "youtube_public_api",
+                "title": "A cat has a surprising funny reaction to a toy",
+                "description": "Unexpected animal reaction caught on camera.",
+                "views": 150000,
+                "likes": 8000,
+                "comments": 300,
+                "age_hours": 2,
+            },
+            {
+                "id": "instagram-animal",
+                "url": "https://www.instagram.com/reel/funnycat456/",
+                "platform": "instagram",
+                "source": "firecrawl_search",
+                "title": "A cat has a surprising funny reaction to a toy",
+                "description": "Unexpected animal reaction caught on camera.",
+                "views": 0,
+                "age_hours": 24,
+                "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+            },
+            {
+                "id": "tiktok-animal",
+                "url": "https://www.tiktok.com/@cat/video/1234567890",
+                "platform": "tiktok",
+                "source": "firecrawl_search",
+                "title": "A cat has a surprising funny reaction to a toy",
+                "description": "Unexpected animal reaction caught on camera.",
+                "views": 0,
+                "age_hours": 24,
+                "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+            },
+        ]
+        for candidate in candidates:
+            with self.subTest(platform=candidate["platform"]):
+                self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
     def test_video_quality_passes_for_decodable_varied_clip(self):
         rows = [
