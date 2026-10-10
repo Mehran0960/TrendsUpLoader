@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-10T21:24:45.728750+00:00",
+  "media_review_updated_at": "2026-10-10T21:26:38.963983+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -118,9 +118,18 @@
     "be0878b2916572d1de81e171c9b23bd9b35af95229b41c7ad41a7b7b10f7e721",
     "b74ae0d1474acf078ff79a7c40018f097fadd9689239ec26aceaca8be20c9155",
     "0127fbfdaaacef40fb0989be278c7f452beb87769918c6a7cb29f13342eed96a",
-    "9c3f1d31114f62335eac4ae981b9a1aa1ebe0fa1b5aa32b7c23f3bd59dec1a1e"
+    "9c3f1d31114f62335eac4ae981b9a1aa1ebe0fa1b5aa32b7c23f3bd59dec1a1e",
+    "52fae2976797ec8506028b1e10bcb72c6875b09dfef6eae4fda818e3cd7d87d9",
+    "e984b0893b387874f888a381780f148af2c54de73ea696502ba31ea83a3a1180",
+    "7f6b2bafa5e72dd2cca7f5efc6c2f74bf0ce8c7b55c866d3f0440786482df440",
+    "4a7c22760f9e73c0aa5685b01bbe132a8ca0fda50934d661879925ebad4d841e",
+    "367555bf140e541980a5634b980312781fbc1e8abadcef4ba8a4cf0ab58ad83b",
+    "a5cca0a87a7843ba43e65e7402c895ca593a28340534fc74196d47b37da18d1a",
+    "14e9c99e84bd6aed1a0ce9aa08fd31496737173cf473cfd827fc572107c32281",
+    "5660501ddb401dca39d569210ca9c4a9290d8ca71a8b510582d634af9d6d9ebe",
+    "8368230b1e9076790d260608122f05eee935970e2b096592d8348f1d09c8d53d"
   ],
-  "media_review_last_count": 0,
+  "media_review_last_count": 3,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -170,7 +179,16 @@
     "https://tiktok.com/@vividcinema.us/video/7694857076291439902",
     "https://aparat.com/v/sug0g3z",
     "https://aparat.com/v/blpbf1d",
-    "https://aparat.com/v/jhez92p"
+    "https://aparat.com/v/jhez92p",
+    "https://t.me/simorghai/1524",
+    "https://t.me/AIpersianChannel/8030",
+    "https://t.me/AIpersianChannel/8026",
+    "https://t.me/vaybabamumad/179927",
+    "https://aparat.com/v/dqhd5uo",
+    "https://t.me/nicebest/116157",
+    "https://t.me/AIpersianChannel/8014",
+    "https://t.me/vaybabamumad/179930",
+    "https://t.me/AIpersianChannel/8028"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -204,6 +222,39 @@
         "e4e0f0f8c8ccfce4",
         "e4c0f868e8ecf8e4",
         "e4d8fcecc4c8c8c8"
+      ]
+    },
+    {
+      "url": "https://t.me/simorghai/1524",
+      "sha256": "22fab097dbc2a984a0b6d4786cb861130525cd34f9fca787a0ad1c9aa93c821e",
+      "frame_hashes": [
+        "7878787870707858",
+        "4878787870707858",
+        "6870787870707858",
+        "6c70707870707858",
+        "4c70707870705858"
+      ]
+    },
+    {
+      "url": "https://t.me/AIpersianChannel/8030",
+      "sha256": "e2e125dba057a090d6ff80e7838c5df0857aa0f998bed9ed796bf836ddda5566",
+      "frame_hashes": [
+        "009f8f6f6f9f7800",
+        "0065cdcfc5c4a010",
+        "002f3f3f1f1f7800",
+        "000991f031716340",
+        "003f3f1f1f3f2c00"
+      ]
+    },
+    {
+      "url": "https://t.me/AIpersianChannel/8026",
+      "sha256": "d3b90ee827fa93c97634d9f026b61a60de1658fec0335127e8b3e285a6f84a10",
+      "frame_hashes": [
+        "00044ccc58782600",
+        "00044ccc58782600",
+        "00044cc858d86600",
+        "00044cc858f82600",
+        "00044cc858d82600"
       ]
     }
   ]
