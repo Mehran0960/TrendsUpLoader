@@ -32,6 +32,7 @@ class DiscoveryShortlistTests(unittest.TestCase):
             self.candidate("news", news_risk_signal=True),
             self.candidate("sensitive", sensitive_risk_signal=True),
             self.candidate("roundup", compilation_signal=True),
+            self.candidate("promo", promotional_signal=True),
             self.candidate("weapons", safety_review_signal=True),
             self.candidate("unknown", score_confidence="low"),
             self.candidate("new-good"),
