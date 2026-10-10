@@ -1,0 +1,38 @@
+name: Distribution Policy Tests
+
+on:
+  push:
+    paths:
+      - "content_pipeline/distribution_plan.py"
+      - "content_pipeline/publish_telegram.py"
+      - "tests/**"
+      - ".github/workflows/policy-tests.yml"
+      - ".github/workflows/content-pipeline.yml"
+  pull_request:
+    paths:
+      - "content_pipeline/distribution_plan.py"
+      - "content_pipeline/publish_telegram.py"
+      - "tests/**"
+      - ".github/workflows/policy-tests.yml"
+      - ".github/workflows/content-pipeline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile touched Python modules
+        run: |
+          python -m py_compile content_pipeline/distribution_plan.py content_pipeline/publish_telegram.py tests/test_distribution_plan.py
+      - name: Run distribution safety tests
+        run: python -m unittest discover -s tests -p "test_*.py" -v
