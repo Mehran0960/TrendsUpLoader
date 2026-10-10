@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-10T20:43:18.956642+00:00",
+  "media_review_updated_at": "2026-10-10T20:47:35.620777+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -89,9 +89,16 @@
     "5885246bd0d3f9b6577770d2ad90789a74ea6c031c8b2c8bf6c8546a43537511",
     "5d60187155428be6462f5bf8f45c25bd6c6fcf0aa5584a061e59e21b0d068d36",
     "65c4931934071bbf43992acaf806a9868b85439d2f0df0c851d2089d87499ef7",
-    "348fba9a75a3e8e09596508566d71bc8e31579edafcef5d085d4b43dd8496c57"
+    "348fba9a75a3e8e09596508566d71bc8e31579edafcef5d085d4b43dd8496c57",
+    "da4bc1d04c5f1e10c08dcd7a91d8f251164e86298e586eaeafa3029cf4ddf6bc",
+    "4b67b88f8d3dd84d5eec03a0a76059040c14486b685fa0ae664f41f45e23b266",
+    "0982dc5e0e5a674932d22161bfa752b1df8c90d91ead1f80be029a330945899f",
+    "ba55b6beb11ab5fae329dde9a51fce309e201d6560cd1a3758b96b58c696e428",
+    "9d381c454f0e73b7cbc4e230d7cec2d8865da55cee220ee389da129f2702802a",
+    "2a01d7386f22cf246f2671ce41bea0e57638b94b2ce9dacc6f13e33cab42ff06",
+    "e80f30cd54a9e4c69e11ef55b466b8fb95c38d24dc7eb9ccaa1b8242ffe46341"
   ],
-  "media_review_last_count": 0,
+  "media_review_last_count": 1,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -112,7 +119,26 @@
     "https://www.youtube.com/watch?v=k3gSvRcmJKM",
     "https://t.me/thezoomit/103525",
     "https://www.youtube.com/watch?v=tiT7hz9dK-I",
-    "https://t.me/kafeh_khande/50843"
+    "https://t.me/kafeh_khande/50843",
+    "https://t.me/AIpersianChannel/8052",
+    "https://t.me/comedi/54175",
+    "https://t.me/AIpersianChannel/8037",
+    "https://t.me/nicebest/116165",
+    "https://t.me/vaybabamumad/179910",
+    "https://t.me/comedi/54163",
+    "https://t.me/khandbazar20/176228"
   ],
-  "media_reviewed_fingerprints": []
+  "media_reviewed_fingerprints": [
+    {
+      "url": "https://t.me/AIpersianChannel/8052",
+      "sha256": "136f30eb60644bc73950d09c9d58fd7963974e449fd52491c0b2af16c9695832",
+      "frame_hashes": [
+        "f0f0f8f0f8ece8e0",
+        "f0f0f4f0f8ece8e0",
+        "f8e0e8f8e0605440",
+        "f0e8e8f8e0c8c8c4",
+        "f0f0f0f8d8ec7c58"
+      ]
+    }
+  ]
 }
