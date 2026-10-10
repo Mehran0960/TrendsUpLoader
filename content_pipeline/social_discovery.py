@@ -588,15 +588,17 @@ def main():
     if not KEY:
         # Free fallback: Bing can expose public social URLs without an API key.
         # This is discovery-only; media acquisition still happens downstream.
-        qidx = int(now.timestamp() // (30 * 60)) % len(QUERIES)
+        # Rotate by scheduled four-hour windows. A half-hour index combined
+        # with a four-hour schedule would repeat the same query every run.
+        qidx = int(now.timestamp() // (4 * 3600)) % len(QUERIES)
         query_variants = [
-            'site:instagram.com/reel/ (خنده OR خنده‌دار OR طنز OR سوتی OR بامزه OR غافلگیرکننده)',
-            'site:instagram.com/reel/ ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR فناوری) (تبدیل OR ساخت OR عجیب OR باورنکردنی)',
-            'site:instagram.com/reel/ (حیوانات OR گربه OR سگ OR ترفند OR قبل و بعد OR رضایت‌بخش) (وایرال OR پربازدید OR عجیب)',
+            'site:instagram.com/reel/ (خنده OR طنز OR سوتی OR واکنش انسانی OR بامزه OR غافلگیر OR احساسی OR مهربانی)',
+            'site:instagram.com/reel/ (آشپزی OR دستور پخت OR ترفند کاربردی OR تمیزکاری OR قبل و بعد OR دست ساز)',
+            'site:instagram.com/reel/ (حیوانات OR گربه OR سگ OR حیات وحش OR طبیعت OR ورزش OR بسکتبال OR شوت تماشایی)',
             QUERIES[qidx],
-            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) ("هوش مصنوعی" OR AI OR ربات OR تکنولوژی OR آزمایش OR معما)',
-            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) (حیوانات OR مهارت OR تردستی OR قبل و بعد OR اتفاق عجیب)',
-            'site:aparat.com/v (ایران OR ایرانی OR فارسی) ("هوش مصنوعی" OR تکنولوژی OR ترفند OR معما OR قبل و بعد) (بازدید OR وایرال OR پربازدید)',
+            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) ("هوش مصنوعی" OR تکنولوژی OR "آزمایش علمی" OR علم OR DIY OR کاردستی)',
+            'site:youtube.com/shorts (فارسی OR ایرانی OR ایران) (حیوانات OR طنز OR ورزش OR آشپزی OR طبیعت OR ترفند OR رقص OR نوازندگی)',
+            'site:aparat.com/v (ایران OR ایرانی OR فارسی) (غذا OR آشپزی OR ترفند کاربردی OR معما OR آزمایش OR حیات وحش OR ورزش OR کاردستی OR قبل و بعد) (بازدید OR وایرال OR پربازدید)',
         ]
         found = telegram_repost_candidates()
         for q in query_variants[:7]:
