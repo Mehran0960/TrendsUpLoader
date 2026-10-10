@@ -49,9 +49,14 @@ def assess_asset(asset: dict, kind: str) -> dict:
         status = "source_link_missing"
     elif license_kind in {"CC0_or_public_domain"}:
         status = "cleared_with_source_record"
-    elif license_kind in {"CC_BY", "CC_BY_SA"}:
+    elif license_kind == "CC_BY":
         if _has_text(creator) and license_url:
             status = "cleared_with_attribution"
+        else:
+            status = "attribution_details_incomplete"
+    elif license_kind == "CC_BY_SA":
+        if _has_text(creator) and license_url:
+            status = "share_alike_compatibility_review"
         else:
             status = "attribution_details_incomplete"
     elif license_kind == "restricted_or_unclear":
@@ -70,6 +75,7 @@ def assess_asset(asset: dict, kind: str) -> dict:
         "status": status,
         "cleared": status in {"cleared_with_source_record", "cleared_with_attribution"},
         "attribution_required": license_kind in {"CC_BY", "CC_BY_SA"},
+        "share_alike_required": license_kind == "CC_BY_SA",
     }
 
 
@@ -106,6 +112,8 @@ def build_rights_manifest(metadata: dict) -> dict:
     reasons = []
     if not assets_cleared:
         reasons.append("verify_media_license_and_attribution")
+    if any(a["status"] == "share_alike_compatibility_review" for a in assets):
+        reasons.append("verify_share_alike_terms_for_the_derivative_video")
     if script_mode == "argos_template":
         reasons.append("rewrite_source-derived_script_in_original_words")
     elif script_mode == "ai":
