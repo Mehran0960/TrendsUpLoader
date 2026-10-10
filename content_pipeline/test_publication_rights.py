@@ -60,6 +60,25 @@ class PublicationRightsTests(unittest.TestCase):
         self.assertFalse(manifest["assets_cleared"])
         self.assertFalse(manifest["automated_publishable"])
 
+    def test_share_alike_asset_requires_compatibility_review(self):
+        manifest = build_rights_manifest({
+            "script_mode": "curated",
+            "video_assets": [],
+            "visual_assets": [{
+                "title": "Share alike image",
+                "license": "CC BY-SA 4.0",
+                "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+                "artist": "Example Creator",
+                "page_url": "https://example.org/source",
+            }],
+        })
+        self.assertFalse(manifest["assets_cleared"])
+        self.assertFalse(manifest["automated_publishable"])
+        self.assertIn(
+            "verify_share_alike_terms_for_the_derivative_video",
+            manifest["recommended_action"],
+        )
+
     def test_translated_source_excerpt_does_not_pass_publishing_gate(self):
         manifest = build_rights_manifest({
             "script_mode": "argos_template",
