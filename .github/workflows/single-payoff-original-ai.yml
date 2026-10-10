@@ -2,12 +2,11 @@ name: Original Single-Payoff AI Short (Prototype)
 
 on:
   workflow_dispatch:
+  # A change to this workflow intentionally triggers one private quality-review build.
+  # Future routine code changes do not automatically send review videos.
   push:
     paths:
       - ".github/workflows/single-payoff-original-ai.yml"
-      - "content_pipeline/build.py"
-      - "content_pipeline/publish_telegram.py"
-      - "content_pipeline/publication_rights.py"
 
 concurrency:
   group: original-single-payoff-ai
@@ -103,11 +102,12 @@ jobs:
           }, ensure_ascii=False))
           PY
 
-      - name: Publish cleared original prototype to Telegram
+      - name: Send quality-review video directly to private Telegram chat
         env:
+          TELEGRAM_REVIEW_SEND_ENABLED: "true"
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python content_pipeline/publish_telegram.py
+        run: python content_pipeline/send_review_video.py
 
       - name: Upload prototype and rights manifest
         if: ${{ always() }}
