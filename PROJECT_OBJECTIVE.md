@@ -1,46 +1,59 @@
-# Project objective: grow followers on the platform where content is posted
+# Project objective: audience aggregation and indirect monetization
 
 ## North star
 
-The primary outcome is **new followers on each native platform** (Instagram, YouTube, TikTok, Telegram, Aparat, or another suitable platform). Platform ad revenue is not a goal, and directing viewers to a separate destination is not a requirement.
+Build a low-cost, mostly automated system that acquires relevant audiences across suitable platforms, then makes it easy for interested people to find and revisit a central destination controlled by the project as much as practicable.
 
-Evaluate each publishing experiment by:
-1. Net new followers attributed to that post or publishing window, where analytics permit.
-2. Views-to-follow conversion and repeat viewing/sharing as supporting signals.
-3. Hands-on time and any cost required to acquire, prepare, and publish the post.
-4. Account safety, rights clearance, and platform-policy compliance.
+**Direct platform payouts and platform advertising revenue are explicitly out of scope.** Social platforms are distribution and discovery channels, not the business model. The intended monetization paths are indirect: affiliate referrals, sponsorships, leads, and eventually useful digital products where delivery can be automated.
 
-Raw view count alone is not success.
+## What success means
 
-## Content strategy
+1. Relevant reach and follower growth on several suitable platforms.
+2. Click-through to a clear, useful central destination when the user chooses to visit it.
+3. A repeatable way to reach the audience again without depending entirely on one social account.
+4. Clicks, qualified leads, affiliate conversions, and revenue relative to cost and hands-on effort.
+5. Low operating cost, account safety, rights clearance, and recovery options if one provider changes its rules.
 
-- Prefer discovering already compelling, ready-made short videos over generating videos from scratch.
-- Search broadly; do not lock the project to one topic. Favor a clear opening hook, one main event/payoff, replay value, and reasons to share.
-- Treat public search, public creator posts, public Telegram channels, and platform-native discovery/remix tools as leads—not proof of permission or guaranteed virality.
-- Reject search results that do not match the platform requested by the query, and distinguish native engagement metrics from views observed on third-party reposts.
-- Use a new heuristic score only to prioritize human/visual review. It is neither an actual forecast of follower growth nor a publication-rights decision.
+Raw views alone are not success. Nor is a large follower count useful if the audience is irrelevant or cannot be reached again.
 
-## Publishing rules
+## Content discovery and selection
 
-- Reuse existing media only when the relevant permission/license or a platform-native reuse feature supports the intended use.
-- Check each platform independently. A file suitable for one platform is not automatically suitable for another.
-- Do not strip watermarks, mirror, crop, or otherwise cosmetically alter a video as a substitute for permission or meaningful original value.
-- Do not auto-publish simply because a candidate has a high score. Visual quality, safety, source attribution, rights, format, and destination-account access remain separate gates.
+- Search broadly across public sources and platform-specific discovery surfaces; do not lock the project to one topic.
+- Prefer a strong opening hook, one main event or idea, a clear payoff, replay value, and reasons to share.
+- Use discovery metrics only to prioritize review. Scores are not predictions of follower growth and do not grant permission to reuse media.
+- Treat public posts as leads, not as proof of ownership, a license, or permission to download and republish.
+- Keep discovery of third-party clips separate from generation of original content. A third-party clip is eligible for reuse only when the relevant rights, license, permission, or intended platform-native reuse feature supports that exact use.
 
-## Current implementation and limitations
+## Destination-specific distribution
 
-- content_pipeline/social_discovery.py gathers publicly discoverable video-post URLs and persists candidate metadata.
-- content_pipeline/follower_growth.py gives candidates a transparent heuristic priority score and flags confidence, content lane, news/sensitive risk, and review action.
-- When `YOUTUBE_API_KEY` is configured, discovery uses the official YouTube Data API for fresh videos from a rolling 36-hour window and captures native views/likes/comments. The search query rotates among single-event-oriented topics; each candidate still needs visual and rights review.
-- The no-key fallback uses public Bing results and public Telegram pages. These are imperfect sources; direct personal Instagram Explore access is **not** provided by this workflow.
-- Multi-clip rankings/compilations and geopolitically driven current affairs are downranked or omitted from the routine curator digest; this is designed to favor one clear moment/payoff rather than a generic roundup.
-- Current automated publication is not a universal multi-platform publisher. Platform-specific publishing and analytics require a suitable account/API or a permitted native workflow; account credentials and access have not been assumed.
-- Scores do not verify video contents, ownership, licenses, or actual follower gains. Actual growth measurement must use per-account post insights where available.
+- Treat every destination independently. There is no single global rule such as “non-original content is okay” or “all platforms reject it.”
+- Separate three checks: legal/right-to-use evidence, the destination's current content/recommendation rules, and whether the account has an authorized publishing route.
+- A clip eligible for one platform is not automatically eligible for another. Adjust format, caption, attribution, disclosures, and publishing method per destination.
+- Never strip watermarks, mirror, crop, or cosmetically edit a clip as a substitute for permission or meaningful original value.
+- Publishing stays off unless the relevant destination adapter, credentials, rights gate, and explicit enablement are all present.
+
+## Sustainable architecture
+
+- Keep discovery, selection, rights evidence, scripts, metadata, and distribution manifests in this repository.
+- Prefer official APIs and portable files; avoid making one commercial automation service a mandatory relay for all platforms.
+- Keep platform adapters replaceable. If a platform or service becomes unavailable, discovery and packaging should still work, and the project should offer an export/manual fallback instead of losing the whole pipeline.
+- Store credentials only as GitHub Actions secrets or appropriate service-side secrets; never commit them or paste them into chat.
+- Preserve a source/license record and a per-destination readiness manifest with each generated video.
+
+## Current implementation
+
+- `content_pipeline/social_discovery.py` gathers public post URLs and metadata leads across Instagram, TikTok, YouTube, X, Aparat, and Telegram. It does not publish or download candidate media.
+- `content_pipeline/follower_growth.py` provides a transparent heuristic triage score with freshness, topic-lane, and safety flags. It does not verify rights or forecast actual audience growth.
+- The scheduled discovery workflow can send a small private shortlist to an internal Telegram chat. That channel is an operations alert, not the public audience destination.
+- `content_pipeline/publication_rights.py` records basic asset license evidence and blocks unknown or unresolved rights from automated publication.
+- `content_pipeline/distribution_plan.py` records destination-specific readiness. In this repository, Telegram has an opt-in Bot API route; YouTube, TikTok, Instagram, Aparat, and X publishing adapters remain unconnected.
+- The original-short workflow now builds a portable MP4 and metadata bundle without Make or any publishing webhook.
+- Public Telegram audience publishing is opt-in and requires a separate audience-channel bot/token, a repository variable, and an affirmative workflow input. It must not reuse the internal discovery-alert bot credentials.
 
 ## Next sequence
 
-1. Improve precision of fresh source discovery and visually inspect the best candidates.
-2. Maintain a candidate ledger with source URL, platform, native versus repost metrics, rights evidence, and review outcome.
-3. Connect publishing only to platforms/accounts where an authorized, stable route exists.
-4. Record each post's views, shares, profile visits, follows gained, and manual effort when available.
-5. Re-rank sources and formats based on observed follower conversion, not guesses or view totals alone.
+1. Improve discovery precision and inspect high-potential candidates, including sources that are currently underrepresented.
+2. Keep a rights/attribution ledger and destination-specific readiness for every asset.
+3. Connect the next official publishing adapter only after current access, permissions, and platform requirements are verified.
+4. Maintain a central audience destination with clear, voluntary paths from distribution platforms.
+5. Measure visits, follows, saves/shares, and indirect conversions; improve the system based on observed results rather than assumptions.
