@@ -2,7 +2,7 @@ name: Multi-Platform Social Discovery
 
 concurrency:
   group: social-discovery
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 on:
   schedule:
@@ -88,11 +88,26 @@ jobs:
                   return {}
           incoming, current = load(incoming_path), load(current_path)
           merged = dict(current)
-          merged.update({k: v for k, v in incoming.items() if k != "notified_ids"})
-          merged["notified_ids"] = list(dict.fromkeys(
-              [str(x) for x in current.get("notified_ids", [])] +
-              [str(x) for x in incoming.get("notified_ids", [])]
-          ))[-1000:]
+          merged.update({k: v for k, v in incoming.items() if k not in {
+              "notified_ids", "media_reviewed_ids", "media_reviewed_urls",
+              "media_reviewed_fingerprints",
+          }})
+          for key in ("notified_ids", "media_reviewed_ids", "media_reviewed_urls"):
+              merged[key] = list(dict.fromkeys(
+                  [str(x) for x in current.get(key, [])] +
+                  [str(x) for x in incoming.get(key, [])]
+              ))[-1000:]
+          fingerprints = {}
+          for row in (
+              list(current.get("media_reviewed_fingerprints", [])) +
+              list(incoming.get("media_reviewed_fingerprints", []))
+          ):
+              if not isinstance(row, dict):
+                  continue
+              row_key = str(row.get("sha256") or row.get("url") or "")
+              if row_key:
+                  fingerprints[row_key] = row
+          merged["media_reviewed_fingerprints"] = list(fingerprints.values())[-300:]
           current_path.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
           PY
             fi
