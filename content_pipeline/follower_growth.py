@@ -28,6 +28,7 @@ NEWS_RISK = re.compile(
     re.I,
 )
 SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پورن|جنسی صریح|gore|self.?harm|porn|explicit sexual", re.I)
+MANUAL_SAFETY_REVIEW = re.compile(r"سلاح|اسلحه|تفنگ|جنگ.?افزار|آموزش.?های.?نظامی|نیروی.?نظامی|weapon|firearm|\\bgun\\b|military training", re.I)
 
 
 def _int(value):
@@ -103,6 +104,7 @@ def annotate_candidate(item):
     lanes = [name for name, pattern in LANES.items() if pattern.search(text)]
     is_news = bool(NEWS_RISK.search(text))
     is_sensitive = bool(SENSITIVE_RISK.search(text))
+    safety_review = bool(MANUAL_SAFETY_REVIEW.search(text))
 
     native_views = _int(x.get("views"))
     repost_views = _int(x.get("telegram_repost_views"))
@@ -137,6 +139,8 @@ def annotate_candidate(item):
         score -= 15.0
     if is_sensitive:
         score -= 35.0
+    if safety_review and not is_sensitive:
+        score -= 10.0
     score = round(max(0.0, min(100.0, score)), 1)
 
     if native_views and age is not None and (likes or comments or shares):
@@ -148,6 +152,8 @@ def annotate_candidate(item):
 
     if is_sensitive:
         action = "reject_sensitive_or_manual_safety_review"
+    elif safety_review:
+        action = "manual_safety_review"
     elif score >= 65 and confidence in {"medium", "high"} and not is_news:
         action = "prioritize_for_visual_and_rights_review"
     elif score >= 42 or confidence == "low":
@@ -157,6 +163,8 @@ def annotate_candidate(item):
 
     if is_news:
         lane = "news_or_current_affairs"
+    elif "technology_demo" in lanes:
+        lane = "technology_demo"
     elif lanes:
         lane = lanes[0]
     else:
@@ -169,6 +177,7 @@ def annotate_candidate(item):
         "hook_signals": lanes,
         "news_risk_signal": is_news,
         "sensitive_risk_signal": is_sensitive,
+        "safety_review_signal": safety_review,
         "source_platform": platform,
         "candidate_action": action,
         "rights_status": "not_assessed",
