@@ -7,6 +7,7 @@ from content_pipeline.send_review_videos import (
     find_telegram_post_block,
     render_caption,
     evaluate_video_metrics,
+    select_media_candidates,
 )
 
 
@@ -45,6 +46,52 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(block, "")
         self.assertEqual(extract_telegram_post_video_urls(block), [])
 
+
+
+    def test_rejects_topic_signals_that_exist_only_in_hashtags(self):
+        candidate = {
+            "id": "generic-youtube",
+            "url": "https://www.youtube.com/shorts/generic123",
+            "platform": "youtube",
+            "source": "youtube_public_api",
+            "title": "Trend pada Bari 🥹🤣 #viralvideo #newviralreels #youtuber #shorts #comedy #funny",
+            "description": "",
+            "views": 18712,
+            "likes": 500,
+            "comments": 40,
+            "age_hours": 13.4,
+        }
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
+    def test_rejects_unrelated_runway_news_without_target_hook(self):
+        candidate = {
+            "id": "runway-news",
+            "url": "https://t.me/gizmiztel/163079",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "مدل ایرانی در بخش لباس ملی با لباسی الهام‌گرفته از تاریخ روی صحنه رفت",
+            "description": "",
+            "views": 14000,
+            "age_hours": 0.2,
+        }
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
+    def test_keeps_a_substantive_funny_animal_clip(self):
+        candidate = {
+            "id": "funny-cat",
+            "url": "https://www.youtube.com/shorts/funnycat123",
+            "platform": "youtube",
+            "source": "youtube_public_api",
+            "title": "A cat has a surprising funny reaction to a toy",
+            "description": "Unexpected animal reaction caught on camera.",
+            "views": 150000,
+            "likes": 8000,
+            "comments": 300,
+            "age_hours": 2,
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertIn("animals", selected[0]["hook_signals"])
 
     def test_video_quality_passes_for_decodable_varied_clip(self):
         rows = [
