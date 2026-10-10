@@ -18,7 +18,7 @@ on:
 jobs:
   discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     permissions:
       contents: write
     steps:
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install --disable-pip-version-check requests
+      - run: pip install --disable-pip-version-check requests yt-dlp
       - name: Discover cross-platform viral candidates
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
@@ -38,6 +38,12 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python content_pipeline/notify_discovery_shortlist.py
+      - name: Download and send video files for private review
+        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python content_pipeline/send_review_videos.py
       - name: Persist discovery state
         if: ${{ always() && hashFiles('attention_state/social_discovery.json') != '' }}
         run: |
