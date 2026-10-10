@@ -56,6 +56,9 @@ QUERIES = [
     'site:aparat.com/v (غذا OR آشپزی OR ترفند OR آزمایش OR حیات وحش OR ورزش OR کاردستی OR قبل و بعد) (پربازدید OR وایرال OR عجیب)',
 ]
 
+UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
+
+
 def normalize_digits(s):
     return str(s or "").translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789"))
 
