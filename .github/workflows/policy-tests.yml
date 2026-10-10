@@ -5,6 +5,7 @@ on:
     paths:
       - "content_pipeline/distribution_plan.py"
       - "content_pipeline/follower_growth.py"
+      - "content_pipeline/notify_discovery_shortlist.py"
       - "content_pipeline/publish_telegram.py"
       - "tests/**"
       - ".github/workflows/policy-tests.yml"
@@ -13,6 +14,7 @@ on:
     paths:
       - "content_pipeline/distribution_plan.py"
       - "content_pipeline/follower_growth.py"
+      - "content_pipeline/notify_discovery_shortlist.py"
       - "content_pipeline/publish_telegram.py"
       - "tests/**"
       - ".github/workflows/policy-tests.yml"
@@ -35,6 +37,6 @@ jobs:
           python-version: "3.11"
       - name: Compile touched Python modules
         run: |
-          python -m py_compile content_pipeline/distribution_plan.py content_pipeline/follower_growth.py content_pipeline/publish_telegram.py tests/test_distribution_plan.py tests/test_platform_distribution_guidance.py
+          python -m py_compile content_pipeline/distribution_plan.py content_pipeline/follower_growth.py content_pipeline/notify_discovery_shortlist.py content_pipeline/publish_telegram.py tests/test_distribution_plan.py tests/test_platform_distribution_guidance.py tests/test_discovery_shortlist.py
       - name: Run distribution safety tests
         run: python -m unittest discover -s tests -p "test_*.py" -v
