@@ -59,6 +59,19 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertTrue(result["news_risk_signal"])
         self.assertEqual(result["content_lane"], "news_or_current_affairs")
 
+    def test_stale_video_is_deprioritized_even_with_strong_metrics(self):
+        result = annotate_candidate({
+            "url": "https://www.youtube.com/watch?v=staleexample",
+            "platform": "youtube",
+            "title": "Unexpected funny animal reaction",
+            "views": 150000,
+            "likes": 8000,
+            "comments": 400,
+            "age_hours": 60,
+        })
+        self.assertTrue(result["stale_signal"])
+        self.assertEqual(result["candidate_action"], "deprioritize_stale_candidate")
+
     def test_compilation_roundups_are_downranked(self):
         result = annotate_candidate({
             "url": "https://www.youtube.com/watch?v=example123",
