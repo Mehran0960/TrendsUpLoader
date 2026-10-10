@@ -94,6 +94,15 @@ class ViralQualityGateTests(unittest.TestCase):
             "description": "خبر معرفی مدل تازه",
         }))
 
+    def test_english_ai_demo_can_enter_exploration_lane(self):
+        self.assertTrue(telegram_tech_exploration_candidate({
+            "source": "telegram_native_video",
+            "views": 7200,
+            "age_hours": 12,
+            "title": "AI turns a photo into a realistic video",
+            "description": "A short demo showing the generated video",
+        }))
+
     def test_tech_exploration_requires_freshness_and_reach(self):
         base = {
             "source": "telegram_native_video",
