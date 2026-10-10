@@ -163,11 +163,17 @@ def annotate_candidate(item):
     x = dict(item or {})
     title = str(x.get("title") or "")
     description = str(x.get("description") or "")
-    text = f"{title} {description}"
     platform = str(x.get("platform") or "").lower()
     source = str(x.get("source") or "").lower()
     age = _age_hours(x)
     stale = age is not None and age > 36.0
+
+    # Hashtags, channel handles and URLs are distribution metadata, not proof
+    # that the video itself contains comedy, surprise, or another desired hook.
+    text = re.sub(r"https?://\\S+", " ", f"{title} {description}")
+    text = re.sub(r"(?<!\\w)#[\\w\\u0600-\\u06ff]+", " ", text, flags=re.I)
+    text = re.sub(r"(?<!\\w)@[A-Za-z0-9_]+", " ", text)
+    text = re.sub(r"\\s+", " ", text).strip()
 
     lanes = [name for name, pattern in LANES.items() if pattern.search(text)]
     is_news = bool(NEWS_RISK.search(title))
