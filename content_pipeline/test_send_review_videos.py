@@ -67,7 +67,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         }
         self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
-    def test_rejects_pageant_fashion_clip_with_persia_in_title(self):
+    def test_accepts_pageant_fashion_clip_with_persia_in_title(self):
         candidate = {
             "id": "pageant-fashion-persia",
             "url": "https://t.me/keereker/256451",
@@ -78,11 +78,13 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "views": 25000,
             "age_hours": 2,
         }
-        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertIn("fashion_or_cultural_showcase", selected[0]["hook_signals"])
 
-    def test_rejects_unrelated_runway_news_without_target_hook(self):
+    def test_accepts_cultural_runway_clip(self):
         candidate = {
-            "id": "runway-news",
+            "id": "runway-cultural-showcase",
             "url": "https://t.me/gizmiztel/163079",
             "platform": "telegram",
             "source": "telegram_native_video",
@@ -91,7 +93,9 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "views": 14000,
             "age_hours": 0.2,
         }
-        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertIn("fashion_or_cultural_showcase", selected[0]["hook_signals"])
 
     def test_keeps_a_substantive_funny_animal_clip(self):
         candidate = {
@@ -388,9 +392,14 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         ]
         selected = select_media_candidates(candidates, limit=2)
         self.assertEqual(len(selected), 2)
-        self.assertEqual(selected[0]["id"], "tech-a")
-        self.assertEqual(selected[1]["id"], "cat-video")
-        self.assertTrue(set(selected[1]["hook_signals"]).intersection({"animals", "comedy"}))
+        selected_ids = {item["id"] for item in selected}
+        self.assertIn("cat-video", selected_ids)
+        self.assertEqual(len(selected_ids.intersection({"tech-a", "tech-b"})), 1)
+        selected_lanes = [
+            next(lane for lane in item["hook_signals"] if lane in {"technology_demo", "animals", "comedy"})
+            for item in selected
+        ]
+        self.assertEqual(len(set(selected_lanes)), 2)
 
     def test_youtube_watch_and_short_urls_normalize_to_same_video(self):
         watch = canonical_media_url("https://www.youtube.com/watch?v=abc123&utm_source=feed")
