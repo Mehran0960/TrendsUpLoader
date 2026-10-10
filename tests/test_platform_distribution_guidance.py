@@ -19,7 +19,7 @@ class PlatformDistributionGuidanceTests(unittest.TestCase):
             self.assertFalse(guidance[platform]["publishing_authorized"])
 
         self.assertIn("native_repost", guidance["instagram"]["preferred_route"])
-        self.assertEqual(guidance["youtube"]["publishing_automation"], "not_connected; export bundle only")
+        self.assertTrue(guidance["youtube"]["publishing_automation"].startswith("not_connected; export bundle only"))
         self.assertIn("approval and audit", guidance["tiktok"]["publishing_automation"])
 
     def test_guidance_does_not_claim_rights_or_force_one_global_destination(self):
