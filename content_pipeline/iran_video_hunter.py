@@ -51,6 +51,12 @@ MIN_COMEDY_EXPLORATION_VIEWS = 10000
 MIN_COMEDY_EXPLORATION_DEMAND = 43.0
 MIN_COMEDY_EXPLORATION_ATTRACTION = 62.0
 MAX_COMEDY_EXPLORATION_DURATION_SECONDS = 60.0
+MIN_TECH_EXPLORATION_VIEWS = 5000
+MIN_TECH_EXPLORATION_DEMAND = 43.0
+MIN_TECH_EXPLORATION_ATTRACTION = 64.0
+MAX_TECH_EXPLORATION_AGE_HOURS = 36.0
+MAX_TECH_EXPLORATION_DURATION_SECONDS = 55.0
+MIN_TECH_EXPLORATION_SHAREABILITY = 48.0
 MAX_ROUTINE_SHORTFORM_SECONDS = 75.0
 # Roundups can look visually busy while lacking one memorable payoff.
 # They are allowed only when demand and the first/event/structure hooks are exceptional.
@@ -770,6 +776,34 @@ def telegram_comedy_exploration_candidate(item):
     ))
 
 
+def telegram_tech_exploration_candidate(item):
+    """A narrow exploratory lane for native short demos about AI/technology."""
+    if str(item.get("source") or "") != "telegram_native_video":
+        return False
+    try:
+        views = int(item.get("views") or 0)
+        age_h = float(item.get("age_hours") or 999999.0)
+    except (TypeError, ValueError):
+        return False
+    if views < MIN_TECH_EXPLORATION_VIEWS or age_h > MAX_TECH_EXPLORATION_AGE_HOURS:
+        return False
+    blob = " ".join([
+        str(item.get("title") or ""),
+        str(item.get("description") or ""),
+    ]).lower()
+    has_tech = bool(re.search(
+        r"(هوش.?مصنوعی|\\bAI\\b|chatgpt|gemini|sora|veo|ربات|گجت|تکنولوژی|فناوری|claude|runway|heygen)",
+        blob, re.I,
+    ))
+    has_demo = bool(re.search(
+        r"(ساخت|تبدیل|تولید|تصویر|ویدیو|ویدئو|صدا|دوبله|واقعی|انیمیشن|"
+        r"مقایسه|تست|آزمایش|باورنکردنی|عجیب|قبل.{0,10}بعد|build|turns?.{0,12}into|"
+        r"generated|ai video|robot runs|robot walks)",
+        blob, re.I,
+    ))
+    return has_tech and has_demo
+
+
 def public_demand_score(item, corroboration=1):
     """Demand-first score. Duration/topic/visual aesthetics do not influence rank."""
     import math
@@ -780,10 +814,11 @@ def public_demand_score(item, corroboration=1):
     age_h = max(0.25, float(item.get("age_hours") or 999999.0))
     source_tag = str(item.get("source") or "")
     telegram_comedy_exploration = telegram_comedy_exploration_candidate(item)
+    telegram_tech_exploration = telegram_tech_exploration_candidate(item)
     telegram_native_video_evidence = (
         source_tag == "telegram_native_video"
         and age_h <= 36.0
-        and (views >= 30_000 or telegram_comedy_exploration)
+        and (views >= 30_000 or telegram_comedy_exploration or telegram_tech_exploration)
     )
     telegram_repost_views = max(0, int(item.get("telegram_repost_views") or 0))
     raw_repost_channels = item.get("telegram_repost_channels") or []
@@ -858,6 +893,7 @@ def public_demand_score(item, corroboration=1):
         "relay_evidence": relay_evidence,
         "telegram_native_video_evidence": telegram_native_video_evidence,
         "telegram_comedy_exploration": telegram_comedy_exploration,
+        "telegram_tech_exploration": telegram_tech_exploration,
         "score": round(total, 2),
     }
 
@@ -1725,10 +1761,12 @@ def main():
             continue
         telegram_native_hot = bool(dm.get("telegram_native_video_evidence"))
         comedy_explore = bool(dm.get("telegram_comedy_exploration"))
+        tech_explore = bool(dm.get("telegram_tech_exploration"))
         if (
             demand < 60.0
             and not (telegram_native_hot and demand >= 45.0)
             and not (comedy_explore and demand >= MIN_COMEDY_EXPLORATION_DEMAND)
+            and not (tech_explore and demand >= MIN_TECH_EXPLORATION_DEMAND)
         ):
             continue
         for u in vids:
@@ -1813,11 +1851,25 @@ def main():
     ))
     diversity_review = diversity_review[:1]
     diversity_keys = {str(z[0].get("key") or "") for z in diversity_review}
+    tech_review = [
+        z for z in ranked
+        if str(z[0].get("source") or "") == "telegram_native_video"
+        and bool(z[4].get("telegram_tech_exploration"))
+        and str(z[0].get("key") or "") not in (native_keys | diversity_keys)
+        and float(z[3]) >= MIN_TECH_EXPLORATION_DEMAND
+    ]
+    tech_review.sort(key=lambda z: (
+        -(0.65 * float(z[3]) + 0.35 * float(z[0].get("shareability_proxy_score") or 0.0)),
+        -int(z[0].get("views") or 0),
+        float(z[0].get("age_hours") or 999999.0),
+    ))
+    tech_review = tech_review[:1]
+    tech_keys = {str(z[0].get("key") or "") for z in tech_review}
     comedy_review = [
         z for z in ranked
         if str(z[0].get("source") or "") == "telegram_native_video"
         and bool(z[4].get("telegram_comedy_exploration"))
-        and str(z[0].get("key") or "") not in (native_keys | diversity_keys)
+        and str(z[0].get("key") or "") not in (native_keys | diversity_keys | tech_keys)
         and float(z[3]) >= MIN_COMEDY_EXPLORATION_DEMAND
     ]
     comedy_review.sort(key=lambda z: (
@@ -1828,19 +1880,20 @@ def main():
     ))
     comedy_review = comedy_review[:1]
     comedy_keys = {str(z[0].get("key") or "") for z in comedy_review}
-    reserved_keys = native_keys | diversity_keys | comedy_keys
+    reserved_keys = native_keys | diversity_keys | tech_keys | comedy_keys
     general_review = [
         z for z in ranked
         if str(z[0].get("key") or "") not in reserved_keys
     ]
-    review_queue = native_review + diversity_review + comedy_review + general_review[
-        :max(0, ACQUISITION_REVIEW_LIMIT - len(native_review) - len(diversity_review) - len(comedy_review))
+    review_queue = native_review + diversity_review + tech_review + comedy_review + general_review[
+        :max(0, ACQUISITION_REVIEW_LIMIT - len(native_review) - len(diversity_review) - len(tech_review) - len(comedy_review))
     ]
     print("ACQUISITION_LANE_ALLOCATION", json.dumps({
         "telegram_native_video": len(native_review),
         "telegram_source_diversity": len(diversity_review),
+        "telegram_ai_tech_exploration": len(tech_review),
         "telegram_comedy_exploration": len(comedy_review),
-        "general_viral": len(review_queue) - len(native_review) - len(diversity_review) - len(comedy_review),
+        "general_viral": len(review_queue) - len(native_review) - len(diversity_review) - len(tech_review) - len(comedy_review),
         "budget": ACQUISITION_REVIEW_LIMIT,
     }, ensure_ascii=False))
     print("CONTENT_FILTER_REJECTIONS", json.dumps(lane_rejections, ensure_ascii=False))
@@ -1932,6 +1985,10 @@ def main():
                 bool(dm.get("telegram_comedy_exploration"))
                 and bool(broad_interest_cues["humor_or_reaction"])
             )
+            tech_exploration = (
+                bool(dm.get("telegram_tech_exploration"))
+                and bool(broad_interest_cues["ai_or_tech_demo"])
+            )
             focus_gate = single_payoff_gate(item, mi, cq, demand, attraction)
             required_views = MIN_SINGLE_METRIC_TELEGRAM_VIEWS
             if comedy_exploration:
@@ -1941,6 +1998,13 @@ def main():
                 required_attraction = MIN_COMEDY_EXPLORATION_ATTRACTION
                 required_demand = MIN_COMEDY_EXPLORATION_DEMAND
                 required_views = MIN_COMEDY_EXPLORATION_VIEWS
+            elif tech_exploration:
+                # Experimental slot: lower reach floor, but stronger on-file
+                # attraction/hook tests. Views alone never approve the video.
+                required_shareability = MIN_TECH_EXPLORATION_SHAREABILITY
+                required_attraction = MIN_TECH_EXPLORATION_ATTRACTION
+                required_demand = MIN_TECH_EXPLORATION_DEMAND
+                required_views = MIN_TECH_EXPLORATION_VIEWS
             elif broad_interest_cues["ai_or_tech_demo"] or broad_interest_cues["puzzle_or_reveal"]:
                 # A tech/puzzle title is not enough: the actual clip must show
                 # an unusually strong reveal or demo to earn a delivery slot.
@@ -1972,6 +2036,8 @@ def main():
                     appeal_failures.append("too_old")
                 if comedy_exploration and float(mi.get("duration") or 0.0) > MAX_COMEDY_EXPLORATION_DURATION_SECONDS:
                     appeal_failures.append("comedy_clip_too_long")
+                if tech_exploration and float(mi.get("duration") or 0.0) > MAX_TECH_EXPLORATION_DURATION_SECONDS:
+                    appeal_failures.append("tech_demo_too_long")
                 if not any(broad_interest_cues.values()):
                     appeal_failures.append("no_specific_broad_interest_cue")
                 if not bool(cq.get("available")):
@@ -1979,7 +2045,7 @@ def main():
                 else:
                     if float(cq.get("attraction_score") or attraction) < required_attraction:
                         appeal_failures.append("visual_attraction_below_category_floor")
-                    if comedy_exploration:
+                    if comedy_exploration or tech_exploration:
                         strong_hook = (
                             float(cq.get("hook_first_event_score") or 0.0) >= 55.0
                             or float(cq.get("hook_event_score") or 0.0) >= 60.0
@@ -2026,7 +2092,11 @@ def main():
                 "required_shareability": required_shareability if single_metric_telegram else None,
                 "required_attraction": required_attraction if single_metric_telegram else None,
                 "comedy_exploration": comedy_exploration if single_metric_telegram else False,
-                "maximum_duration_seconds": MAX_COMEDY_EXPLORATION_DURATION_SECONDS if comedy_exploration else None,
+                "tech_exploration": tech_exploration if single_metric_telegram else False,
+                "maximum_duration_seconds": (
+                    MAX_COMEDY_EXPLORATION_DURATION_SECONDS if comedy_exploration
+                    else (MAX_TECH_EXPLORATION_DURATION_SECONDS if tech_exploration else None)
+                ),
                 "required_demand": required_demand if single_metric_telegram else None,
                 "minimum_views": required_views if single_metric_telegram else None,
                 "maximum_age_hours": MAX_SINGLE_METRIC_TELEGRAM_AGE_HOURS if single_metric_telegram else None,
