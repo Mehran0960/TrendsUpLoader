@@ -5,6 +5,7 @@ from content_pipeline.iran_video_hunter import (
     COMPILATION_TITLE_RE,
     content_shareability_proxy,
     single_payoff_gate,
+    telegram_tech_exploration_candidate,
 )
 
 
@@ -74,6 +75,37 @@ class ViralQualityGateTests(unittest.TestCase):
         })
         self.assertGreaterEqual(score, 48.0)
         self.assertGreater(flags["technology_cue_count"], 0)
+
+    def test_ai_demo_can_enter_the_exploration_lane(self):
+        self.assertTrue(telegram_tech_exploration_candidate({
+            "source": "telegram_native_video",
+            "views": 7200,
+            "age_hours": 12,
+            "title": "ساخت بازی با چند خط پرامپت و هوش مصنوعی",
+            "description": "ویدئو نشان می‌دهد مدل چطور بازی را می‌سازد",
+        }))
+
+    def test_ai_news_without_a_demo_does_not_enter_exploration_lane(self):
+        self.assertFalse(telegram_tech_exploration_candidate({
+            "source": "telegram_native_video",
+            "views": 50000,
+            "age_hours": 6,
+            "title": "معرفی مدل جدید هوش مصنوعی",
+            "description": "خبر معرفی مدل تازه",
+        }))
+
+    def test_tech_exploration_requires_freshness_and_reach(self):
+        base = {
+            "source": "telegram_native_video",
+            "views": 7200,
+            "age_hours": 12,
+            "title": "تبدیل عکس به ویدئو با هوش مصنوعی",
+            "description": "نمایش نتیجهٔ ساخت ویدئوی واقعی",
+        }
+        old = dict(base, age_hours=80)
+        low_view = dict(base, views=2500)
+        self.assertFalse(telegram_tech_exploration_candidate(old))
+        self.assertFalse(telegram_tech_exploration_candidate(low_view))
 
 
 if __name__ == "__main__":
