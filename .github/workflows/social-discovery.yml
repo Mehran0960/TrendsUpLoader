@@ -11,6 +11,8 @@ on:
   push:
     paths:
       - "content_pipeline/social_discovery.py"
+      - "content_pipeline/follower_growth.py"
+      - "content_pipeline/notify_discovery_shortlist.py"
       - ".github/workflows/social-discovery.yml"
 
 jobs:
