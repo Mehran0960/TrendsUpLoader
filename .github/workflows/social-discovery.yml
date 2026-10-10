@@ -13,6 +13,8 @@ on:
       - "content_pipeline/social_discovery.py"
       - "content_pipeline/follower_growth.py"
       - "content_pipeline/notify_discovery_shortlist.py"
+      - "content_pipeline/send_review_videos.py"
+      - "content_pipeline/test_send_review_videos.py"
       - ".github/workflows/social-discovery.yml"
 
 jobs:
