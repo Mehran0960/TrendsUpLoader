@@ -1,0 +1,99 @@
+name: Original Single-Payoff AI Short (Prototype)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/single-payoff-original-ai.yml"
+
+concurrency:
+  group: original-single-payoff-ai
+  cancel-in-progress: true
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install FFmpeg and Persian fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-noto-core fonts-noto-extra
+          ffmpeg -version | head -n 1
+
+      - name: Cache Persian Gyro voice
+        uses: actions/cache@v4
+        with:
+          path: .voices
+          key: piper-fa-gyro-medium-v1
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --disable-pip-version-check --retries 2 --timeout 30 \
+            piper-tts pillow arabic-reshaper python-bidi
+
+      - name: Build one original short-form video
+        env:
+          CONTENT_TEST_TITLE: "AI Demo: One photo becomes video"
+          CONTENT_TEST_URL: "https://deepmind.google/technologies/veo/"
+          PIPER_VOICE: "fa_IR-gyro-medium"
+        run: |
+          set -euo pipefail
+          python content_pipeline/build.py
+          video="$(find out -type f -name video.mp4 -print -quit)"
+          test -n "$video"
+          test -s "$video"
+          echo "ORIGINAL_VIDEO=$video"
+          ffprobe -v error -show_entries format=duration,size -of json "$video"
+
+      - name: Enforce rights and editorial gate
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          video = next(Path("out").glob("**/video.mp4"))
+          meta = json.loads((video.parent / "metadata.json").read_text(encoding="utf-8"))
+          rights = json.loads((video.parent / "rights_manifest.json").read_text(encoding="utf-8"))
+          if meta.get("script_mode") != "curated":
+              raise SystemExit("SCRIPT_ORIGIN_GATE_FAILED")
+          if not rights.get("automated_publishable"):
+              raise SystemExit("PUBLICATION_RIGHTS_GATE_FAILED")
+          if not rights.get("assets_cleared"):
+              raise SystemExit("MEDIA_LICENSE_GATE_FAILED")
+          if float(meta.get("duration_seconds") or 0) < 18:
+              raise SystemExit("VIDEO_TOO_SHORT")
+          print("ORIGINAL_SHORT_RIGHTS_GATE_OK")
+          print(json.dumps({
+              "title": meta.get("display_title_fa"),
+              "duration_seconds": meta.get("duration_seconds"),
+              "visual_mode": meta.get("visual_mode"),
+              "rights": rights.get("media_status"),
+              "script_status": rights.get("script_status"),
+          }, ensure_ascii=False))
+          PY
+
+      - name: Publish cleared original prototype to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python content_pipeline/publish_telegram.py
+
+      - name: Upload prototype and rights manifest
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: original-single-payoff-ai-short
+          path: out/
+          if-no-files-found: warn
+          retention-days: 7
