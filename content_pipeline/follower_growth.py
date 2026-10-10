@@ -29,9 +29,9 @@ NEWS_RISK = re.compile(
     re.I,
 )
 MULTI_CLIP_RISK = re.compile(
-    r"\\b(compilation|roundup|recap|best of|top\\s*\\d+|ranking|ranked|moments caught|caught moments|"
-    r"best moments|greatest moments|most astonishing.{0,30}moments|viral moments|highlights|top moments)\\b|"
-    r"گلچین|گزیده|مجموعه(?:ای)? از|تاپ\\s*\\d+|برترین لحظات|بهترین لحظات|لحظات برتر|"
+    r"\b(compilation|roundup|recap|best of|top\s*\d+|ranking|ranked|moments caught|caught moments|"
+    r"best moments|greatest moments|most astonishing.{0,30}moments|viral moments|highlights|top moments)\b|"
+    r"گلچین|گزیده|مجموعه(?:ای)? از|تاپ\s*\d+|برترین لحظات|بهترین لحظات|لحظات برتر|"
     r"چند ماجرا|چند داستان|چند اتفاق|چند کلیپ|گلچین لحظات",
     re.I,
 )
