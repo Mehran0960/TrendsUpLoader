@@ -229,6 +229,24 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertNotIn("skill_or_spectacle", result["hook_signals"])
         self.assertIn("fashion_or_cultural_showcase", result["hook_signals"])
 
+    def test_experimental_topic_lanes_are_classified_without_news_flags(self):
+        examples = [
+            ("travel", "سه جای دیدنی کمتر شناخته‌شده در ایران", "travel_and_places"),
+            ("puzzle", "این خطای دید را می‌توانی حل کنی؟", "puzzles_and_visual_illusions"),
+            ("nostalgia", "نوستالژی دهه ۷۰؛ آن روزها چه شکلی بود؟", "nostalgia_and_then_now"),
+        ]
+        for slug, title, expected_lane in examples:
+            with self.subTest(topic=slug):
+                result = annotate_candidate({
+                    "url": f"https://t.me/example/{slug}",
+                    "platform": "telegram",
+                    "title": title,
+                    "views": 50000,
+                    "age_hours": 3,
+                })
+                self.assertIn(expected_lane, result["hook_signals"])
+                self.assertFalse(result["news_risk_signal"])
+
     def test_current_affairs_still_flagged_even_when_title_uses_comedy_hook(self):
         result = annotate_candidate({
             "url": "https://t.me/example/comedy-news",
