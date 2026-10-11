@@ -366,6 +366,33 @@ def telegram_repost_candidates():
 
 
 def flatten_results(obj):
+    found = []
+    def walk(x):
+        if isinstance(x, dict):
+            url = x.get("url") or x.get("link") or x.get("sourceURL")
+            title = x.get("title") or x.get("name")
+            if url and title:
+                found.append({
+                    "url": str(url),
+                    "title": str(title),
+                    "description": str(x.get("description") or x.get("snippet") or x.get("content") or x.get("markdown") or ""),
+                    "raw": x,
+                })
+            for v in x.values():
+                walk(v)
+        elif isinstance(x, list):
+            for v in x:
+                walk(v)
+    walk(obj)
+    seen = set()
+    out = []
+    for x in found:
+        k = x["url"].split("#")[0]
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(x)
+    return out
 
 
 def normalize_native_telegram_candidates(found, now):
@@ -423,34 +450,6 @@ def normalize_native_telegram_candidates(found, now):
                    for x in normalized[:5]],
     }, ensure_ascii=False))
     return normalized
-
-    found = []
-    def walk(x):
-        if isinstance(x, dict):
-            url = x.get("url") or x.get("link") or x.get("sourceURL")
-            title = x.get("title") or x.get("name")
-            if url and title:
-                found.append({
-                    "url": str(url),
-                    "title": str(title),
-                    "description": str(x.get("description") or x.get("snippet") or x.get("content") or x.get("markdown") or ""),
-                    "raw": x,
-                })
-            for v in x.values():
-                walk(v)
-        elif isinstance(x, list):
-            for v in x:
-                walk(v)
-    walk(obj)
-    seen = set()
-    out = []
-    for x in found:
-        k = x["url"].split("#")[0]
-        if k in seen:
-            continue
-        seen.add(k)
-        out.append(x)
-    return out
 
 def search_result_freshness(item, now):
     """Return source-backed publication age or a conservative 24h search-window bound."""
