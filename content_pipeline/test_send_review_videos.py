@@ -513,6 +513,15 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
                 "follow_growth_score": 65,
                 "age_hours": 1,
             },
+            {
+                "id": "tips-next",
+                "url": "https://t.me/demo/tips-next",
+                "platform": "telegram",
+                "title": "ترفند کاربردی",
+                "hook_signals": ["practical_tips_or_life_hacks"],
+                "follow_growth_score": 60,
+                "age_hours": 1,
+            },
         ]
         selected = balanced_candidate_shortlist(candidates, recent_topics=history, limit=3)
         self.assertTrue(selected)
