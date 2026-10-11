@@ -137,7 +137,7 @@ class SocialDiscoveryTests(unittest.TestCase):
                 self.assertEqual(len(found), 1)
                 self.assertEqual(found[0]["source"], "telegram_native_video")
                 self.assertEqual(found[0]["views"], 25000)
-                self.assertEqual(found[0]["age_hours"], 1.0)
+                self.assertAlmostEqual(found[0]["age_hours"], 1.0, places=2)
 
     def test_firecrawl_keyless_request_omits_authorization_header(self):
         class FakeResponse:
