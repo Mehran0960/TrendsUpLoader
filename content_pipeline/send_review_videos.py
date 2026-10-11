@@ -739,8 +739,8 @@ CAPTION_LONG_FORM_RE = re.compile(
     re.I,
 )
 CAPTION_RECIPE_DETAILS_RE = re.compile(
-    r"مواد\\s*لازم|طرز\\s*تهیه|دستور\\s*پخت|روش\\s*تهیه|مراحل\\s*تهیه|"
-    r"ingredients|instructions|method|preparation|برای\\s*تهیه",
+    r"مواد\s*لازم|طرز\s*تهیه|دستور\s*پخت|روش\s*تهیه|مراحل\s*تهیه|"
+    r"ingredients|instructions|method|preparation|برای\s*تهیه",
     re.I,
 )
 
@@ -765,23 +765,23 @@ def build_short_review_hook(item, max_chars=150):
     lanes = set(item.get("hook_signals") or [])
 
     # Specific, verifiable subjects take precedence over generic lane hooks.
-    if re.search(r"تخم[\\s‌-]?مرغ|egg formation|how eggs form|forming an egg|egg develops", folded, re.I):
+    if re.search(r"تخم[\s‌-]?مرغ|egg formation|how eggs form|forming an egg|egg develops", folded, re.I):
         return "تا حالا فکر کردی تخم‌مرغ چطور شکل می‌گیره؟ 🥚👀"[:max_chars]
 
     if "food_cooking" in lanes or re.search(
         r"غذا|آشپزی|طرز تهیه|اسنک|کوبیده|کیک|شیرینی|دسر|recipe|cooking|baking|ingredients",
         folded, re.I,
     ):
-        if re.search(r"اسنک[\\s‌-]*شکلاتی|chocolate snack", folded, re.I):
+        if re.search(r"اسنک[\s‌-]*شکلاتی|chocolate snack", folded, re.I):
             return "این اسنک شکلاتی رو ببین؛ وسوسه‌کننده‌ست 🍫🤤"[:max_chars]
         if re.search(r"کوبیده|koobideh|kebab", folded, re.I):
             return "کوبیده‌دوست‌ها، این یکی رو از دست ندین 🤤🔥"[:max_chars]
-        if re.search(r"کیک[\\s‌-]*شکلاتی|chocolate cake", folded, re.I):
+        if re.search(r"کیک[\s‌-]*شکلاتی|chocolate cake", folded, re.I):
             return "این ایدهٔ کیک شکلاتی رو ببین؛ دلت می‌خواد امتحانش کنی؟ 🍫😋"[:max_chars]
         subject = re.split(CAPTION_RECIPE_DETAILS_RE, cleaned, maxsplit=1)[0]
         subject = CAPTION_EMOJI_RE.sub(" ", subject)
-        subject = re.sub(r"^\\s*(?:طرز تهیه|دستور پخت|آموزش آشپزی|آشپزی با)\\s*", "", subject, flags=re.I)
-        subject = re.sub(r"\\s+", " ", subject).strip(" #\\t\\r\\n-–—|•:،؛")
+        subject = re.sub(r"^\s*(?:طرز تهیه|دستور پخت|آموزش آشپزی|آشپزی با)\s*", "", subject, flags=re.I)
+        subject = re.sub(r"\s+", " ", subject).strip(" #\t\r\n-–—|•:،؛")
         if 3 <= len(subject) <= 42 and not re.search(
             r"^(?:آشپزی|غذا|دستور پخت|طرز تهیه|مواد لازم)$", subject, re.I
         ):
@@ -790,9 +790,9 @@ def build_short_review_hook(item, max_chars=150):
 
     # Rewrite common clips as native social captions rather than summaries.
     if "animals" in lanes or re.search(r"گربه|سگ|حیوان|cat|dog|animal|pet", folded, re.I):
-        if re.search(r"گربه|\\bcat\\b", folded, re.I):
+        if re.search(r"گربه|\bcat\b", folded, re.I):
             subject, emoji = "گربه", "🐈"
-        elif re.search(r"سگ|\\bdog\\b", folded, re.I):
+        elif re.search(r"سگ|\bdog\b", folded, re.I):
             subject, emoji = "سگ", "🐶"
         else:
             subject, emoji = "این حیوون", "🐾"
@@ -800,7 +800,7 @@ def build_short_review_hook(item, max_chars=150):
             return f"واکنش {subject} رو ببین؛ آخرش جالبه 😂{emoji}"[:max_chars]
         return f"این لحظه با {subject} رو از دست نده {emoji}👀"[:max_chars]
 
-    if "technology_demo" in lanes or re.search(r"هوش مصنوعی|\\bAI\\b|ربات|فناوری|technology demo", folded, re.I):
+    if "technology_demo" in lanes or re.search(r"هوش مصنوعی|\bAI\b|ربات|فناوری|technology demo", folded, re.I):
         return "این کاربرد هوش مصنوعی رو ببین؛ نتیجه جالبه 🤖👀"[:max_chars]
     if "transformation_or_satisfying" in lanes or re.search(r"قبل و بعد|تبدیل|ترمیم|بازسازی|satisfying|transformation", folded, re.I):
         return "قبل و بعدش رو ببین؛ تفاوتش خودش حرف می‌زنه ✨👀"[:max_chars]
