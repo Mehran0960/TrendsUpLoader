@@ -33,6 +33,7 @@ PAID_SEARCH_ENABLED = os.environ.get("DISCOVERY_PAID_SEARCH_ENABLED", "true").st
 FIRECRAWL_MONTHLY_CREDIT_BUDGET = 800
 FIRECRAWL_CREDITS_PER_SEARCH = 2
 FIRECRAWL_SEARCHES_PER_RUN = 1
+BING_FALLBACK_SEARCHES_PER_RUN = 3
 YOUTUBE_SEARCHES_PER_RUN = 2
 YOUTUBE_DAILY_SEARCH_BUDGET = 30
 # One-time conservative estimate for quota already spent before the ledger existed.
@@ -861,7 +862,14 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
             'site:aparat.com/v (ایران OR ایرانی OR فارسی) (غذا OR آشپزی OR ترفند کاربردی OR معما OR آزمایش OR حیات وحش OR ورزش OR کاردستی OR قبل و بعد) (بازدید OR وایرال OR پربازدید)',
         ]
         found = telegram_repost_candidates()
-        for q in query_variants[:7]:
+        # Rotate a small free-search batch too, to reduce rate-limit risk when
+        # Firecrawl is unavailable or its monthly budget is reached.
+        fallback_start = qidx % len(query_variants)
+        fallback_queries = [
+            query_variants[(fallback_start + offset) % len(query_variants)]
+            for offset in range(min(BING_FALLBACK_SEARCHES_PER_RUN, len(query_variants)))
+        ]
+        for q in fallback_queries:
             try:
                 batch = bing_search(q, limit=12)
                 for candidate in batch:
