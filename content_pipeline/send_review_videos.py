@@ -629,8 +629,7 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
     # building a qualified pool, then order that pool by rolling pillar deficits.
     pool, seen_primary_lanes, seen_ids, seen_platforms = [], set(), set(), set()
     for item in eligible:
-        lanes = [str(lane) for lane in (item.get("hook_signals") or []) if lane in TARGET_LANES]
-        primary_lane = lanes[0] if lanes else ""
+        _pillar, primary_lane = content_pillar_profile(item)
         if primary_lane and primary_lane in seen_primary_lanes:
             continue
         pool.append(item)
