@@ -40,7 +40,8 @@ YOUTUBE_DAILY_SEARCH_BUDGET = 30
 QUOTA_BOOTSTRAP_MONTH = "2026-10"
 QUOTA_BOOTSTRAP_FIRECRAWL_CREDITS = 400
 QUOTA_BOOTSTRAP_YOUTUBE_DAY = "2026-10-11"
-QUOTA_BOOTSTRAP_YOUTUBE_SEARCHES = 12
+# A quota-exhaustion error was observed earlier today, so reserve the entire internal budget until UTC midnight.
+QUOTA_BOOTSTRAP_YOUTUBE_SEARCHES = 30
 YOUTUBE_QUERIES = [
     ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
     ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
@@ -81,6 +82,14 @@ UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.3
 def normalize_digits(s):
     return str(s or "").translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789"))
 
+def safe_quota_count(value):
+    """Parse persisted counter values defensively; corrupted state must not crash discovery."""
+    try:
+        return max(0, int(value or 0))
+    except (TypeError, ValueError, OverflowError):
+        return 0
+
+
 def quota_ledger_for_run(previous_payload, now):
     """Load persisted request counts, resetting only the provider's actual time window."""
     prior = (previous_payload or {}).get("quota_ledger", {})
@@ -90,14 +99,14 @@ def quota_ledger_for_run(previous_payload, now):
     day = now.strftime("%Y-%m-%d")
 
     if prior.get("firecrawl_month") == month:
-        firecrawl_used = max(0, int(prior.get("firecrawl_credits_used") or 0))
+        firecrawl_used = safe_quota_count(prior.get("firecrawl_credits_used"))
     elif not prior.get("firecrawl_month") and month == QUOTA_BOOTSTRAP_MONTH:
         firecrawl_used = QUOTA_BOOTSTRAP_FIRECRAWL_CREDITS
     else:
         firecrawl_used = 0
 
     if prior.get("youtube_day") == day:
-        youtube_used = max(0, int(prior.get("youtube_search_calls_used") or 0))
+        youtube_used = safe_quota_count(prior.get("youtube_search_calls_used"))
     elif not prior.get("youtube_day") and day == QUOTA_BOOTSTRAP_YOUTUBE_DAY:
         youtube_used = QUOTA_BOOTSTRAP_YOUTUBE_SEARCHES
     else:
@@ -120,7 +129,7 @@ def discover_youtube_with_budget(now, quota_ledger):
     """Spend only a reserved, persisted number of YouTube search.list calls."""
     if not YOUTUBE_KEY or not YOUTUBE_API_ENABLED:
         return discover_youtube_public_candidates(now)
-    used = max(0, int(quota_ledger.get("youtube_search_calls_used") or 0))
+    used = safe_quota_count(quota_ledger.get("youtube_search_calls_used"))
     remaining = max(0, YOUTUBE_DAILY_SEARCH_BUDGET - used)
     count = min(YOUTUBE_SEARCHES_PER_RUN, remaining)
     if count <= 0:
@@ -819,6 +828,22 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         except Exception:
             previous_payload = {}
     quota_ledger = _quota_ledger or quota_ledger_for_run(previous_payload, now)
+    print("DISCOVERY_QUOTA_LEDGER", json.dumps({
+        "firecrawl_month": quota_ledger.get("firecrawl_month"),
+        "firecrawl_credits_used": quota_ledger.get("firecrawl_credits_used"),
+        "firecrawl_credits_remaining_in_internal_budget": max(
+            0, FIRECRAWL_MONTHLY_CREDIT_BUDGET - safe_quota_count(quota_ledger.get("firecrawl_credits_used"))
+        ),
+        "firecrawl_internal_monthly_budget": FIRECRAWL_MONTHLY_CREDIT_BUDGET,
+        "youtube_day": quota_ledger.get("youtube_day"),
+        "youtube_search_calls_used": quota_ledger.get("youtube_search_calls_used"),
+        "youtube_search_calls_remaining_in_internal_budget": max(
+            0, YOUTUBE_DAILY_SEARCH_BUDGET - safe_quota_count(quota_ledger.get("youtube_search_calls_used"))
+        ),
+        "youtube_internal_daily_budget": YOUTUBE_DAILY_SEARCH_BUDGET,
+        "paid_public_search_enabled": PAID_SEARCH_ENABLED,
+        "youtube_api_enabled": YOUTUBE_API_ENABLED,
+    }, ensure_ascii=False))
     if force_fallback:
         # Use Bing only if Firecrawl's keyless/API request actually fails.
         # Firecrawl keyless currently provides a free monthly search allowance.
@@ -958,7 +983,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     if not PAID_SEARCH_ENABLED:
         print("PAID_PUBLIC_SEARCH_SKIPPED_NON_SCHEDULED_RUN")
     else:
-        used = max(0, int(quota_ledger.get("firecrawl_credits_used") or 0))
+        used = safe_quota_count(quota_ledger.get("firecrawl_credits_used"))
         remaining = max(0, FIRECRAWL_MONTHLY_CREDIT_BUDGET - used)
         allowed = min(FIRECRAWL_SEARCHES_PER_RUN, remaining // FIRECRAWL_CREDITS_PER_SEARCH)
         if allowed > 0:
@@ -976,7 +1001,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     for q in selected_queries:
         # Charge attempts conservatively before the request, including failed calls.
         quota_ledger["firecrawl_credits_used"] = (
-            max(0, int(quota_ledger.get("firecrawl_credits_used") or 0))
+            safe_quota_count(quota_ledger.get("firecrawl_credits_used"))
             + FIRECRAWL_CREDITS_PER_SEARCH
         )
         quota_ledger["updated_at"] = now.isoformat()
