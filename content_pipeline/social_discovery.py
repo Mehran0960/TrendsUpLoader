@@ -23,6 +23,9 @@ OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "follower_growth_v3"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
+YOUTUBE_API_ENABLED = os.environ.get("YOUTUBE_API_ENABLED", "true").strip().lower() not in {
+    "0", "false", "no", "off",
+}
 YOUTUBE_QUERIES = [
     ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
     ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
@@ -575,6 +578,9 @@ def discover_youtube_public_candidates(now=None, limit=50):
     """Use the official YouTube Data API for fresh short videos and native engagement counters."""
     if not YOUTUBE_KEY:
         print("YOUTUBE_PUBLIC_API_SKIPPED_NO_KEY")
+        return []
+    if not YOUTUBE_API_ENABLED:
+        print("YOUTUBE_PUBLIC_API_SKIPPED_NON_SCHEDULED_RUN")
         return []
     now = now or datetime.now(timezone.utc)
     selected_queries = youtube_queries_for_time(now, count=3)
