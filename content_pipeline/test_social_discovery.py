@@ -191,6 +191,15 @@ class SocialDiscoveryTests(unittest.TestCase):
             (24.0, "", "firecrawl_tbs_qdr_d_upper_bound"),
         )
 
+    def test_youtube_api_calls_are_skipped_when_workflow_flag_is_disabled(self):
+        with (
+            patch.object(social_discovery, "YOUTUBE_KEY", "demo-key"),
+            patch.object(social_discovery, "YOUTUBE_API_ENABLED", False),
+            patch("content_pipeline.social_discovery.requests.get") as get,
+        ):
+            self.assertEqual(social_discovery.discover_youtube_public_candidates(), [])
+            get.assert_not_called()
+
     def test_youtube_api_error_context_reports_status_without_exposing_key(self):
         class FakeResponse:
             status_code = 403
