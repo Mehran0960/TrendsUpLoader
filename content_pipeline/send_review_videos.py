@@ -39,11 +39,12 @@ MAX_TRIES = 12
 SUPPORTED = {"telegram", "youtube", "tiktok", "instagram", "aparat", "x"}
 # These platforms remain discoverable, but this runner currently cannot
 # reliably acquire their video files: YouTube requires an anti-bot challenge,
-# Instagram extraction failed for all sampled reels, and TikTok returns a
-# JavaScript/browser-challenge response in yt-dlp. Keep them as discovery-only
-# until a supported public acquisition path works; do not use private cookies
-# or bypass platform challenges.
-UNAVAILABLE_FILE_RELAY_PLATFORMS = {"youtube", "instagram", "tiktok"}
+# Instagram extraction failed for all sampled reels, TikTok returns a browser
+# challenge, YouTube asks for sign-in, and recent Aparat candidates all fail in
+# yt-dlp with "Unable to extract og:title". Keep them discovery-only until a
+# supported public acquisition path works; do not use private cookies or
+# bypass platform challenges.
+UNAVAILABLE_FILE_RELAY_PLATFORMS = {"youtube", "instagram", "tiktok", "aparat"}
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 
 
