@@ -203,6 +203,14 @@ def bing_search(query, limit=12, timeout=14):
             break
     return out
 
+def telegram_caption_has_discovery_signal(caption):
+    """Keep Persian captions, or English captions that match a known target topic."""
+    text = re.sub(r"\s+", " ", str(caption or "")).strip()
+    if len(re.findall(r"[\u0600-\u06ff]", text)) >= 3:
+        return True
+    return any(pattern.search(text) for pattern in LANES.values())
+
+
 def telegram_repost_candidates():
     """Read public Persian Telegram channels for direct Instagram video links."""
     from html import unescape
@@ -291,9 +299,8 @@ def telegram_repost_candidates():
                     caption = unescape(re.sub(r"<br\s*/?>", " ", caption_match.group(1), flags=re.I))
                     caption = re.sub(r"<[^>]+>", " ", caption)
                     caption = re.sub(r"\s+", " ", caption).strip()
-                has_persian_caption = len(re.findall(r"[\u0600-\u06ff]", caption)) >= 3
-                has_known_topic_caption = any(pattern.search(caption) for pattern in LANES.values())
-                if not has_persian_caption and not has_known_topic_caption:
+                if not telegram_caption_has_discovery_signal(caption):
+                    continue
                     continue
                 raw_social_urls = link_re.findall(block[:60000])
                 has_video_marker = bool(re.search(
