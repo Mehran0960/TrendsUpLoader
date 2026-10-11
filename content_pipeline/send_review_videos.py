@@ -316,6 +316,10 @@ def infer_recent_topic_history(state, candidate_items):
     return inferred[-19:]
 
 
+def profile_food_is_not_food(item):
+    return content_pillar_profile(item)[1] != "food_cooking"
+
+
 def balanced_candidate_shortlist(eligible, recent_topics=None, limit=MAX_TRIES):
     """Order qualified videos towards the rolling 30/25/15/20/10 strategy without lowering quality."""
     remaining = list(eligible)
@@ -323,6 +327,9 @@ def balanced_candidate_shortlist(eligible, recent_topics=None, limit=MAX_TRIES):
     selected = []
     planned = []
     food_in_batch = 0
+    non_food_qualified_initial = sum(
+        1 for row in remaining if profile_food_is_not_food(row)
+    )
 
     def get_window():
         return (history + planned)[-19:]
@@ -338,8 +345,8 @@ def balanced_candidate_shortlist(eligible, recent_topics=None, limit=MAX_TRIES):
         # Soft rolling cap: no more than 6 cooking videos per last 20 successful
         # sends when there are alternatives. Within a single 3-video batch, max
         # one cooking video when at least two non-cooking candidates are qualified.
-        block_food_for_history = current_food_count >= 6 and non_food_count >= 2
-        block_food_for_batch = len(selected) < 3 and food_in_batch >= 1 and non_food_count >= 2
+        block_food_for_history = current_food_count >= 6 and non_food_qualified_initial >= MAX_SENDS
+        block_food_for_batch = len(selected) < 3 and food_in_batch >= 1 and non_food_qualified_initial >= 2
         usable = [
             row for row in remaining
             if not (
