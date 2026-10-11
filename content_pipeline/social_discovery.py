@@ -542,6 +542,33 @@ def youtube_query_for_time(now):
     return youtube_queries_for_time(now, count=1)[0]
 
 
+def youtube_api_error_context(exc):
+    """Expose actionable Google API failure details without logging the API key."""
+    response = getattr(exc, "response", None)
+    context = {"exception": type(exc).__name__}
+    status_code = getattr(response, "status_code", None)
+    if status_code is not None:
+        context["http_status"] = status_code
+    payload = {}
+    if response is not None:
+        try:
+            payload = response.json()
+        except Exception:
+            payload = {}
+    error = payload.get("error") if isinstance(payload, dict) else {}
+    if not isinstance(error, dict):
+        error = {}
+    nested_errors = error.get("errors") or []
+    reason = nested_errors[0].get("reason") if nested_errors and isinstance(nested_errors[0], dict) else ""
+    reason = reason or error.get("status")
+    message = str(error.get("message") or getattr(exc, "reason", "") or "").strip()
+    if reason:
+        context["api_reason"] = str(reason)[:100]
+    if message:
+        context["api_message"] = message.replace(YOUTUBE_KEY, "[redacted]")[:220]
+    return context
+
+
 def discover_youtube_public_candidates(now=None, limit=50):
     """Use the official YouTube Data API for fresh short videos and native engagement counters."""
     if not YOUTUBE_KEY:
@@ -574,8 +601,9 @@ def discover_youtube_public_candidates(now=None, limit=50):
             response.raise_for_status()
             data = response.json()
         except Exception as exc:
-            print("YOUTUBE_PUBLIC_SEARCH_FAIL", type(exc).__name__, json.dumps({"query": query}, ensure_ascii=False))
-            query_counts.append({"query": query, "returned": 0, "error": type(exc).__name__})
+            details = youtube_api_error_context(exc)
+            print("YOUTUBE_PUBLIC_SEARCH_FAIL", json.dumps({"query": query, **details}, ensure_ascii=False))
+            query_counts.append({"query": query, "returned": 0, **details})
             continue
         found_ids = []
         for row in (data.get("items") or []):
@@ -607,7 +635,8 @@ def discover_youtube_public_candidates(now=None, limit=50):
         details.raise_for_status()
         detail_data = details.json()
     except Exception as exc:
-        print("YOUTUBE_PUBLIC_DETAILS_FAIL", type(exc).__name__, json.dumps({"query_count": len(selected_queries)}, ensure_ascii=False))
+        details = youtube_api_error_context(exc)
+        print("YOUTUBE_PUBLIC_DETAILS_FAIL", json.dumps({"query_count": len(selected_queries), **details}, ensure_ascii=False))
         return []
 
     results = []
