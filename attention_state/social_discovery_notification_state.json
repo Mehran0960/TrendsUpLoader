@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-11T04:00:49.003033+00:00",
+  "media_review_updated_at": "2026-10-11T04:05:31.786169+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -143,9 +143,12 @@
     "c9bac2b4a4f29c7a7ec242ed42abcfaebf7756b412636d329de2737239c411f5",
     "42617a6b76c7bff4d85ce37cfd57ae7f76cec2625d43d2c297c7e6b3fe6c5f3e",
     "7abf92d4c7a35401df40b903ecd031d3d974b2adc8ab5c350b49263362a2b9ee",
-    "71e6e9073fc5f09023c2cb5f5ccd49400fff973cbc14d4c9d9d3d84ee7c0b46e"
+    "71e6e9073fc5f09023c2cb5f5ccd49400fff973cbc14d4c9d9d3d84ee7c0b46e",
+    "dbcc90f85ffb4e044da343425580041c9658725809355a1b744ced36e1d6de98",
+    "730eddc0db2fcc872b6172f2bd4808ad4e09da59a4c1f40ee2e94b19d04082e2",
+    "3f818706a586435060ad2a61be6810e8c38a6b3a78cfa6cc1a977038afbeb537"
   ],
-  "media_review_last_count": 0,
+  "media_review_last_count": 2,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -220,7 +223,10 @@
     "https://aparat.com/v/tgzq012",
     "https://aparat.com/v/kdg4bdq",
     "https://aparat.com/v/wtk0z7g",
-    "https://aparat.com/v/zii99ct"
+    "https://aparat.com/v/zii99ct",
+    "https://t.me/Lezath_Ashpazi/31208",
+    "https://t.me/Lezath_Ashpazi/31209",
+    "https://t.me/Lezath_Ashpazi/31211"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -320,6 +326,28 @@
         "f8f0f8f0e0ecc8f8",
         "e8f0e0fcf4e4e4f0",
         "f4ececccf8f0f0e8"
+      ]
+    },
+    {
+      "url": "https://t.me/Lezath_Ashpazi/31208",
+      "sha256": "f7a6e33d31687d26d19571a1b199fa104538aca2717b3bf8ab49f840f4726dcf",
+      "frame_hashes": [
+        "c4c4c4e4d4d4f0e8",
+        "ecfcece4ccfcf0e8",
+        "e0f8e4d4c4ecf8e8",
+        "e4e8f0f0e4ecf8e8",
+        "dcfcecdcccf8f8fc"
+      ]
+    },
+    {
+      "url": "https://t.me/Lezath_Ashpazi/31209",
+      "sha256": "808e44719765423013419614c01cd3630660bee516f17065970aa7a1d9012c5e",
+      "frame_hashes": [
+        "e0d0d8d8fcf4e4cc",
+        "f0e4ccd0f0d4cce0",
+        "e4e4e8c8e8e8ecfc",
+        "74f4f0f0f4fcf45c",
+        "e86870f0f8dcd8c8"
       ]
     }
   ]
