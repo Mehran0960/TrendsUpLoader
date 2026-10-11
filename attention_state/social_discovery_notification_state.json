@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-10T21:26:38.963983+00:00",
+  "media_review_updated_at": "2026-10-11T03:59:38.361042+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -127,7 +127,11 @@
     "a5cca0a87a7843ba43e65e7402c895ca593a28340534fc74196d47b37da18d1a",
     "14e9c99e84bd6aed1a0ce9aa08fd31496737173cf473cfd827fc572107c32281",
     "5660501ddb401dca39d569210ca9c4a9290d8ca71a8b510582d634af9d6d9ebe",
-    "8368230b1e9076790d260608122f05eee935970e2b096592d8348f1d09c8d53d"
+    "8368230b1e9076790d260608122f05eee935970e2b096592d8348f1d09c8d53d",
+    "b6c03b5d93a989f0038175e3e9eed1c41050bb1236a68743d7cca194eb0dcba6",
+    "255420834e8563fa305cf629d97ccc507f8079b11b60c2e070e78eec957cf8d5",
+    "1c4099396e8990a556463b24bd2d0fe8b711622970cefbd1805556e2ff2da5a3",
+    "456a767711f1aff227aa6b92a5c76e77f3b2d864bf0588ccc968e15f82a8afa2"
   ],
   "media_review_last_count": 3,
   "media_reviewed_urls": [
@@ -188,7 +192,11 @@
     "https://t.me/nicebest/116157",
     "https://t.me/AIpersianChannel/8014",
     "https://t.me/vaybabamumad/179930",
-    "https://t.me/AIpersianChannel/8028"
+    "https://t.me/AIpersianChannel/8028",
+    "https://t.me/vaybabamumad/179995",
+    "https://t.me/vaybabamumad/179992",
+    "https://t.me/keereker/256462",
+    "https://t.me/vaybabamumad/179991"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -255,6 +263,39 @@
         "00044cc858d86600",
         "00044cc858f82600",
         "00044cc858d82600"
+      ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/179995",
+      "sha256": "6ee97ca1175a76eea2bee720ef2a25c0f548138d46197419408118aac4d32aa7",
+      "frame_hashes": [
+        "f4e0c4d8f0e4fcc0",
+        "e0e4d0d4e4e4c4ec",
+        "fcececececccf8f8",
+        "ecccf0f0f0f0d4cc",
+        "e8ece8f0f0f0d8d8"
+      ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/179992",
+      "sha256": "b180ac6e16d1ba52cc909d9858c77b4f77b9ae1f7b0f7cf6c7788b2910519de9",
+      "frame_hashes": [
+        "e0e0d4cce8e0e0e0",
+        "e0e0d0cce8e0e0e0",
+        "e0f8fcfcf0e0f0e0",
+        "e0e8d8d8e0e4f0e0",
+        "c0e0f0dcdcf0f0e0"
+      ]
+    },
+    {
+      "url": "https://t.me/keereker/256462",
+      "sha256": "8a69473f464625a115d9e08b59f6d329baa7fb4f2e63f7e29efb9d277376611d",
+      "frame_hashes": [
+        "e8e8ccd8f0f0f0f0",
+        "f8d8d8f8fcececcc",
+        "f8f0f8f0e0ecc8f8",
+        "e8f0e0fcf4e4e4f0",
+        "f4ececccf8f0f0e8"
       ]
     }
   ]
