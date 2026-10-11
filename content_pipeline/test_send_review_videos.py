@@ -342,6 +342,39 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertNotIn("منبع:", caption)
         self.assertNotIn("بازبینی خصوصی", caption)
 
+    def test_recipe_caption_becomes_a_short_hook_not_an_ingredient_list(self):
+        caption = render_caption({
+            "title": "#اسنک شکلاتی 😘 مواد لازم: ۸۰ گرم شکلات تلخ و کینوا پف",
+            "source_post_caption": "#اسنک شکلاتی 😘 مواد لازم: ۸۰ گرم شکلات تلخ و کینوا پف",
+            "description": "طرز تهیه و مواد لازم برای اسنک شکلاتی؛ لینک در بیو",
+            "hook_signals": ["food_cooking"],
+        })
+        self.assertEqual(caption, "این اسنک شکلاتی رو ببین؛ وسوسه‌کننده‌ست 🍫🤤")
+        self.assertLess(len(caption), 90)
+        self.assertNotIn("مواد لازم", caption)
+        self.assertNotIn("۸۰ گرم", caption)
+        self.assertNotIn("لینک", caption)
+
+    def test_science_caption_becomes_a_curiosity_hook(self):
+        caption = render_caption({
+            "title": "فرایند تشکیل تخم مرغ در بدن مرغ",
+            "source_post_caption": "فرایند تشکیل تخم مرغ در بدن مرغ؛ از شکل‌گیری تا خروج",
+            "hook_signals": ["science_curiosity"],
+        })
+        self.assertEqual(caption, "تا حالا فکر کردی تخم‌مرغ چطور شکل می‌گیره؟ 🥚👀")
+        self.assertNotIn("از شکل‌گیری تا خروج", caption)
+
+    def test_biography_style_source_is_rewritten_as_a_topic_caption(self):
+        caption = render_caption({
+            "title": "بیوگرافی کامل خواننده؛ سوابق حرفه‌ای و زندگی‌نامه از کودکی تا امروز",
+            "source_post_caption": "بیوگرافی کامل خواننده؛ سوابق حرفه‌ای و زندگی‌نامه از کودکی تا امروز",
+            "description": "زندگی شخصی، سال تولد، پیشینه و فعالیت‌های حرفه‌ای",
+            "hook_signals": ["music_or_dance"],
+        })
+        self.assertEqual(caption, "این اجرا چند ثانیه مکث می‌ارزه 🎶✨")
+        self.assertNotIn("بیوگرافی", caption)
+        self.assertNotIn("متولد", caption)
+
     def test_caption_falls_back_to_title_only_without_metadata(self):
         caption = render_caption({
             "title": "عنوان اصلی پست",
@@ -360,7 +393,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "لینک زیر را بزن ۱۰۰ سال عمر کن https://t.me/+invite @Lezath_Ashpazi "
             "شعبه جدید کانال دوم"
         )
-        caption = render_caption({"source_post_caption": raw})
+        caption = clean_review_caption(raw)
         self.assertIn("اسنک شکلاتی", caption)
         self.assertIn("مواد لازم", caption)
         self.assertIn("۸۰ گرم شکلات تلخ", caption)
