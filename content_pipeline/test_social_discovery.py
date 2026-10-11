@@ -252,6 +252,27 @@ class SocialDiscoveryTests(unittest.TestCase):
         self.assertEqual(next_day["firecrawl_credits_used"], 602)
         self.assertEqual(next_day["youtube_search_calls_used"], 0)
 
+    def test_first_quota_ledger_today_holds_youtube_calls_after_observed_exhaustion(self):
+        first_run_today = quota_ledger_for_run(
+            {},
+            datetime(2026, 10, 11, 18, 0, tzinfo=timezone.utc),
+        )
+        self.assertEqual(first_run_today["youtube_search_calls_used"], YOUTUBE_DAILY_SEARCH_BUDGET)
+        self.assertEqual(first_run_today["firecrawl_credits_used"], 400)
+
+    def test_invalid_quota_counter_state_does_not_crash(self):
+        ledger = quota_ledger_for_run(
+            {"quota_ledger": {
+                "firecrawl_month": "2026-10",
+                "firecrawl_credits_used": "not-a-number",
+                "youtube_day": "2026-10-11",
+                "youtube_search_calls_used": None,
+            }},
+            datetime(2026, 10, 11, 18, 0, tzinfo=timezone.utc),
+        )
+        self.assertEqual(ledger["firecrawl_credits_used"], 0)
+        self.assertEqual(ledger["youtube_search_calls_used"], 0)
+
     def test_quota_ledger_resets_monthly_firecrawl_count(self):
         previous = {"quota_ledger": {
             "firecrawl_month": "2026-10",
