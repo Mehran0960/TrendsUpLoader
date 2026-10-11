@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-11T04:05:31.786169+00:00",
+  "media_review_updated_at": "2026-10-11T04:20:30.141392+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -146,9 +146,10 @@
     "71e6e9073fc5f09023c2cb5f5ccd49400fff973cbc14d4c9d9d3d84ee7c0b46e",
     "dbcc90f85ffb4e044da343425580041c9658725809355a1b744ced36e1d6de98",
     "730eddc0db2fcc872b6172f2bd4808ad4e09da59a4c1f40ee2e94b19d04082e2",
-    "3f818706a586435060ad2a61be6810e8c38a6b3a78cfa6cc1a977038afbeb537"
+    "3f818706a586435060ad2a61be6810e8c38a6b3a78cfa6cc1a977038afbeb537",
+    "1f3c44e2b2b1e72dc9378f305c3c4f4969cbede0f022e7ac6bc0890bb984f1ce"
   ],
-  "media_review_last_count": 2,
+  "media_review_last_count": 0,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -226,7 +227,8 @@
     "https://aparat.com/v/zii99ct",
     "https://t.me/Lezath_Ashpazi/31208",
     "https://t.me/Lezath_Ashpazi/31209",
-    "https://t.me/Lezath_Ashpazi/31211"
+    "https://t.me/Lezath_Ashpazi/31211",
+    "https://t.me/khandbazar20/176252"
   ],
   "media_reviewed_fingerprints": [
     {
