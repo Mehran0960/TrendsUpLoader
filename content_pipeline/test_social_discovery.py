@@ -191,6 +191,30 @@ class SocialDiscoveryTests(unittest.TestCase):
             (24.0, "", "firecrawl_tbs_qdr_d_upper_bound"),
         )
 
+    def test_youtube_api_error_context_reports_status_without_exposing_key(self):
+        class FakeResponse:
+            status_code = 403
+
+            def json(self):
+                return {
+                    "error": {
+                        "code": 403,
+                        "message": "YouTube Data API v3 is not enabled for key secret-demo-key",
+                        "errors": [{"reason": "accessNotConfigured"}],
+                    }
+                }
+
+        class FakeError(Exception):
+            response = FakeResponse()
+            reason = "Forbidden"
+
+        with patch.object(social_discovery, "YOUTUBE_KEY", "secret-demo-key"):
+            context = social_discovery.youtube_api_error_context(FakeError())
+        self.assertEqual(context["http_status"], 403)
+        self.assertEqual(context["api_reason"], "accessNotConfigured")
+        self.assertNotIn("secret-demo-key", context["api_message"])
+        self.assertIn("[redacted]", context["api_message"])
+
     def test_fallback_search_user_agent_is_configured(self):
         self.assertTrue(UA.startswith("Mozilla/"))
         self.assertIn("Chrome/", UA)
