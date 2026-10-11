@@ -14,9 +14,9 @@ from pathlib import Path
 import requests
 
 try:
-    from content_pipeline.follower_growth import expected_platform_for_query, rank_candidates
+    from content_pipeline.follower_growth import LANES, expected_platform_for_query, rank_candidates
 except ModuleNotFoundError:
-    from follower_growth import expected_platform_for_query, rank_candidates
+    from follower_growth import LANES, expected_platform_for_query, rank_candidates
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
@@ -291,7 +291,9 @@ def telegram_repost_candidates():
                     caption = unescape(re.sub(r"<br\s*/?>", " ", caption_match.group(1), flags=re.I))
                     caption = re.sub(r"<[^>]+>", " ", caption)
                     caption = re.sub(r"\s+", " ", caption).strip()
-                if len(re.findall(r"[\u0600-\u06ff]", caption)) < 3:
+                has_persian_caption = len(re.findall(r"[\u0600-\u06ff]", caption)) >= 3
+                has_known_topic_caption = any(pattern.search(caption) for pattern in LANES.values())
+                if not has_persian_caption and not has_known_topic_caption:
                     continue
                 raw_social_urls = link_re.findall(block[:60000])
                 has_video_marker = bool(re.search(
