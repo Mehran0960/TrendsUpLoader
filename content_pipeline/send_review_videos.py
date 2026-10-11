@@ -732,10 +732,114 @@ def download_with_ytdlp(url, workdir):
     return max(files, key=lambda p: p.stat().st_mtime) if files else None
 
 
+CAPTION_EMOJI_RE = re.compile(r"[\U0001F300-\U0001FAFF\u2600-\u27BF]")
+CAPTION_LONG_FORM_RE = re.compile(
+    r"زندگی.?نامه|بیوگرافی|سوابق(?: حرفه.?ای)?|کارنامه|متولد شد|فعالیت.?های حرفه.?ای|"
+    r"known for|biography|career highlights|personal life|was born|is a [^.]{0,80} (?:actor|singer|creator|influencer)",
+    re.I,
+)
+CAPTION_RECIPE_DETAILS_RE = re.compile(
+    r"مواد\\s*لازم|طرز\\s*تهیه|دستور\\s*پخت|روش\\s*تهیه|مراحل\\s*تهیه|"
+    r"ingredients|instructions|method|preparation|برای\\s*تهیه",
+    re.I,
+)
+
+
+def build_short_review_hook(item, max_chars=150):
+    """Turn source copy into a short, topic-led hook without calling any paid AI API."""
+    if not isinstance(item, dict):
+        item = {"source_post_caption": str(item or "")}
+
+    source = (
+        item.get("source_post_caption")
+        or item.get("cleaned_review_caption")
+        or item.get("title")
+        or item.get("description")
+        or ""
+    )
+    cleaned = clean_review_caption(source, max_chars=1800)
+    title = clean_review_caption(item.get("title") or "", max_chars=500)
+    description = clean_review_caption(item.get("description") or "", max_chars=900)
+    blob = " ".join(part for part in (title, cleaned, description) if part)
+    folded = blob.lower()
+    lanes = set(item.get("hook_signals") or [])
+
+    # Specific, verifiable subjects take precedence over generic lane hooks.
+    if re.search(r"تخم[\\s‌-]?مرغ|egg formation|how eggs form|forming an egg|egg develops", folded, re.I):
+        return "تا حالا فکر کردی تخم‌مرغ چطور شکل می‌گیره؟ 🥚👀"[:max_chars]
+
+    if "food_cooking" in lanes or re.search(
+        r"غذا|آشپزی|طرز تهیه|اسنک|کوبیده|کیک|شیرینی|دسر|recipe|cooking|baking|ingredients",
+        folded, re.I,
+    ):
+        if re.search(r"اسنک[\\s‌-]*شکلاتی|chocolate snack", folded, re.I):
+            return "این اسنک شکلاتی رو ببین؛ وسوسه‌کننده‌ست 🍫🤤"[:max_chars]
+        if re.search(r"کوبیده|koobideh|kebab", folded, re.I):
+            return "کوبیده‌دوست‌ها، این یکی رو از دست ندین 🤤🔥"[:max_chars]
+        if re.search(r"کیک[\\s‌-]*شکلاتی|chocolate cake", folded, re.I):
+            return "این ایدهٔ کیک شکلاتی رو ببین؛ دلت می‌خواد امتحانش کنی؟ 🍫😋"[:max_chars]
+        subject = re.split(CAPTION_RECIPE_DETAILS_RE, cleaned, maxsplit=1)[0]
+        subject = CAPTION_EMOJI_RE.sub(" ", subject)
+        subject = re.sub(r"^\\s*(?:طرز تهیه|دستور پخت|آموزش آشپزی|آشپزی با)\\s*", "", subject, flags=re.I)
+        subject = re.sub(r"\\s+", " ", subject).strip(" #\\t\\r\\n-–—|•:،؛")
+        if 3 <= len(subject) <= 42 and not re.search(
+            r"^(?:آشپزی|غذا|دستور پخت|طرز تهیه|مواد لازم)$", subject, re.I
+        ):
+            return f"این {subject} رو ببین؛ اشتهابرانگیزه 😋🔥"[:max_chars]
+        return "یه ایدهٔ خوشمزه که ارزش دیدن داره 😋🍽️"[:max_chars]
+
+    # Rewrite common clips as native social captions rather than summaries.
+    if "animals" in lanes or re.search(r"گربه|سگ|حیوان|cat|dog|animal|pet", folded, re.I):
+        if re.search(r"گربه|\\bcat\\b", folded, re.I):
+            subject, emoji = "گربه", "🐈"
+        elif re.search(r"سگ|\\bdog\\b", folded, re.I):
+            subject, emoji = "سگ", "🐶"
+        else:
+            subject, emoji = "این حیوون", "🐾"
+        if re.search(r"واکنش|عکس.?العمل|reaction|surprising|unexpected", folded, re.I):
+            return f"واکنش {subject} رو ببین؛ آخرش جالبه 😂{emoji}"[:max_chars]
+        return f"این لحظه با {subject} رو از دست نده {emoji}👀"[:max_chars]
+
+    if "technology_demo" in lanes or re.search(r"هوش مصنوعی|\\bAI\\b|ربات|فناوری|technology demo", folded, re.I):
+        return "این کاربرد هوش مصنوعی رو ببین؛ نتیجه جالبه 🤖👀"[:max_chars]
+    if "transformation_or_satisfying" in lanes or re.search(r"قبل و بعد|تبدیل|ترمیم|بازسازی|satisfying|transformation", folded, re.I):
+        return "قبل و بعدش رو ببین؛ تفاوتش خودش حرف می‌زنه ✨👀"[:max_chars]
+    if "home_organization_or_cleaning" in lanes or re.search(r"تمیزکاری|نظافت|مرتب.?سازی|deep clean|declutter", folded, re.I):
+        return "قبل و بعدش رو ببین؛ نتیجه دیدنیه ✨"[:max_chars]
+    if "practical_tips_or_life_hacks" in lanes or re.search(r"ترفند کاربردی|ترفند خانه|life hack|useful tip", folded, re.I):
+        return "این ترفند کوچیک رو یادت نگه دار 👀💡"[:max_chars]
+    if "comedy" in lanes or re.search(r"طنز|خنده.?دار|سوتی|بامزه|funny|comedy|prank", folded, re.I):
+        return "این لحظه رو ببین؛ احتمالاً لبخند می‌زنی 😂👀"[:max_chars]
+    if "sports_or_athletic_skill" in lanes or re.search(r"فوتبال|بسکتبال|شوت تماشایی|ورزش|basketball|football|trick shot", folded, re.I):
+        return "این حرکت رو ببین؛ چند ثانیهٔ آخرش مهمه 👀🔥"[:max_chars]
+    if "nature_and_wildlife" in lanes or re.search(r"حیات وحش|طبیعت|آبشار|اقیانوس|wildlife|waterfall|ocean", folded, re.I):
+        return "طبیعت هنوز بلدِ غافلگیرمون کنه 🌿👀"[:max_chars]
+    if "science_curiosity" in lanes or re.search(r"آزمایش علمی|پدیده علمی|چطور کار می.?کند|science experiment|how it works", folded, re.I):
+        return "این پدیده رو از نزدیک ببین؛ نکته‌ش جالبه 👀🔬"[:max_chars]
+    if "diy_and_creativity" in lanes or re.search(r"کاردستی|ساخت دست.?ساز|نجاری|handmade|woodworking|DIY", folded, re.I):
+        return "از ایده تا نتیجه؛ آخر کار رو ببین 🛠️👀"[:max_chars]
+    if "music_or_dance" in lanes or re.search(r"رقص|نوازندگی|اجرای موسیقی|خوانندگی|music performance|dance", folded, re.I):
+        return "این اجرا چند ثانیه مکث می‌ارزه 🎶✨"[:max_chars]
+    if "fashion_or_cultural_showcase" in lanes or re.search(r"لباس ملی|لباس سنتی|فشن شو|runway|pageant", folded, re.I):
+        return "جزئیات این اجرا روی صحنه رو ببین ✨👀"[:max_chars]
+    if "wholesome_or_heartwarming" in lanes:
+        return "این چند ثانیه واقعاً دلگرم‌کننده‌ست ❤️"[:max_chars]
+    if "surprise_or_reveal" in lanes:
+        return "آخرش رو از دست نده؛ غافلگیرکننده‌ست 👀😳"[:max_chars]
+    if "human_reaction_or_relatable" in lanes:
+        return "این واکنش رو ببین؛ خیلی آشناست 👀"[:max_chars]
+
+    # Keep a genuinely short caption, but never forward long biography/description text.
+    if cleaned and len(cleaned) <= max_chars and not CAPTION_LONG_FORM_RE.search(cleaned):
+        return cleaned
+    if CAPTION_LONG_FORM_RE.search(blob) or len(cleaned) > max_chars:
+        return "نکتهٔ اصلی این ویدئو توی همین چند ثانیه‌ست 👀"[:max_chars]
+    return cleaned[:max_chars].strip()
+
+
 def render_caption(item):
-    """Send a concise source-derived caption, stripped of links, handles and promo tails."""
-    title = item.get("source_post_caption") or item.get("cleaned_review_caption") or item.get("title") or ""
-    return clean_review_caption(title, max_chars=1024)
+    """Render a short hook from topic signals, not a source biography or ingredient list."""
+    return build_short_review_hook(item)
 
 
 def send_video(path, item):
