@@ -26,6 +26,21 @@ YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_API_ENABLED = os.environ.get("YOUTUBE_API_ENABLED", "true").strip().lower() not in {
     "0", "false", "no", "off",
 }
+PAID_SEARCH_ENABLED = os.environ.get("DISCOVERY_PAID_SEARCH_ENABLED", "true").strip().lower() not in {
+    "0", "false", "no", "off",
+}
+# These limits intentionally operate below provider maxima to keep a large reserve.
+FIRECRAWL_MONTHLY_CREDIT_BUDGET = 800
+FIRECRAWL_CREDITS_PER_SEARCH = 2
+FIRECRAWL_SEARCHES_PER_RUN = 1
+YOUTUBE_SEARCHES_PER_RUN = 2
+YOUTUBE_DAILY_SEARCH_BUDGET = 30
+# One-time conservative estimate for quota already spent before the ledger existed.
+# The saved ledger carries forward afterward; the estimate is only used if no ledger exists.
+QUOTA_BOOTSTRAP_MONTH = "2026-10"
+QUOTA_BOOTSTRAP_FIRECRAWL_CREDITS = 400
+QUOTA_BOOTSTRAP_YOUTUBE_DAY = "2026-10-11"
+QUOTA_BOOTSTRAP_YOUTUBE_SEARCHES = 12
 YOUTUBE_QUERIES = [
     ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
     ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
@@ -65,6 +80,60 @@ UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.3
 
 def normalize_digits(s):
     return str(s or "").translate(str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789"))
+
+def quota_ledger_for_run(previous_payload, now):
+    """Load persisted request counts, resetting only the provider's actual time window."""
+    prior = (previous_payload or {}).get("quota_ledger", {})
+    if not isinstance(prior, dict):
+        prior = {}
+    month = now.strftime("%Y-%m")
+    day = now.strftime("%Y-%m-%d")
+
+    if prior.get("firecrawl_month") == month:
+        firecrawl_used = max(0, int(prior.get("firecrawl_credits_used") or 0))
+    elif not prior.get("firecrawl_month") and month == QUOTA_BOOTSTRAP_MONTH:
+        firecrawl_used = QUOTA_BOOTSTRAP_FIRECRAWL_CREDITS
+    else:
+        firecrawl_used = 0
+
+    if prior.get("youtube_day") == day:
+        youtube_used = max(0, int(prior.get("youtube_search_calls_used") or 0))
+    elif not prior.get("youtube_day") and day == QUOTA_BOOTSTRAP_YOUTUBE_DAY:
+        youtube_used = QUOTA_BOOTSTRAP_YOUTUBE_SEARCHES
+    else:
+        youtube_used = 0
+
+    return {
+        "firecrawl_month": month,
+        "firecrawl_credits_used": firecrawl_used,
+        "firecrawl_monthly_credit_budget": FIRECRAWL_MONTHLY_CREDIT_BUDGET,
+        "firecrawl_reserved_credits": 1000 - FIRECRAWL_MONTHLY_CREDIT_BUDGET,
+        "youtube_day": day,
+        "youtube_search_calls_used": youtube_used,
+        "youtube_daily_search_budget": YOUTUBE_DAILY_SEARCH_BUDGET,
+        "youtube_searches_per_run": YOUTUBE_SEARCHES_PER_RUN,
+        "updated_at": now.isoformat(),
+    }
+
+
+def discover_youtube_with_budget(now, quota_ledger):
+    """Spend only a reserved, persisted number of YouTube search.list calls."""
+    if not YOUTUBE_KEY or not YOUTUBE_API_ENABLED:
+        return discover_youtube_public_candidates(now)
+    used = max(0, int(quota_ledger.get("youtube_search_calls_used") or 0))
+    remaining = max(0, YOUTUBE_DAILY_SEARCH_BUDGET - used)
+    count = min(YOUTUBE_SEARCHES_PER_RUN, remaining)
+    if count <= 0:
+        print("YOUTUBE_PUBLIC_API_SKIPPED_DAILY_BUDGET", json.dumps({
+            "used": used,
+            "daily_budget": YOUTUBE_DAILY_SEARCH_BUDGET,
+        }, ensure_ascii=False))
+        return []
+    # Charge attempts before the network call; failed responses may still consume quota.
+    quota_ledger["youtube_search_calls_used"] = used + count
+    quota_ledger["updated_at"] = now.isoformat()
+    return discover_youtube_public_candidates(now, max_search_calls=count)
+
 
 def parse_num(raw):
     s = normalize_digits(raw).replace("٫", ".").replace("٬", ",").replace("،", ",").strip()
@@ -574,7 +643,7 @@ def youtube_api_error_context(exc):
     return context
 
 
-def discover_youtube_public_candidates(now=None, limit=50):
+def discover_youtube_public_candidates(now=None, limit=50, max_search_calls=None):
     """Use the official YouTube Data API for fresh short videos and native engagement counters."""
     if not YOUTUBE_KEY:
         print("YOUTUBE_PUBLIC_API_SKIPPED_NO_KEY")
@@ -583,7 +652,11 @@ def discover_youtube_public_candidates(now=None, limit=50):
         print("YOUTUBE_PUBLIC_API_SKIPPED_NON_SCHEDULED_RUN")
         return []
     now = now or datetime.now(timezone.utc)
-    selected_queries = youtube_queries_for_time(now, count=3)
+    search_count = YOUTUBE_SEARCHES_PER_RUN if max_search_calls is None else max(0, int(max_search_calls))
+    if search_count <= 0:
+        print("YOUTUBE_PUBLIC_API_SKIPPED_DAILY_BUDGET")
+        return []
+    selected_queries = youtube_queries_for_time(now, count=search_count)
     published_after = (now - timedelta(hours=36)).isoformat().replace("+00:00", "Z")
     video_ids = []
     query_for_video = {}
@@ -735,8 +808,17 @@ def log_growth_summary(items):
     }, ensure_ascii=False))
 
 
-def main(force_fallback=False):
+def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     now = datetime.now(timezone.utc)
+    previous_payload = _previous_payload
+    if previous_payload is None:
+        try:
+            previous_payload = json.loads(OUT.read_text(encoding="utf-8"))
+            if not isinstance(previous_payload, dict):
+                previous_payload = {}
+        except Exception:
+            previous_payload = {}
+    quota_ledger = _quota_ledger or quota_ledger_for_run(previous_payload, now)
     if force_fallback:
         # Use Bing only if Firecrawl's keyless/API request actually fails.
         # Firecrawl keyless currently provides a free monthly search allowance.
@@ -826,10 +908,10 @@ def main(force_fallback=False):
                 "source": str((x.get("raw") or {}).get("source") or "bing_search"),
                 "query": qidx,
             })
-        results.extend(discover_youtube_public_candidates(now))
+        results.extend(discover_youtube_with_budget(now, quota_ledger))
         previous = []
         try:
-            previous = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
+            previous = list(previous_payload.get("items") or [])
         except Exception:
             pass
         # Do not carry legacy profile URLs forward as if they were video candidates.
@@ -862,22 +944,42 @@ def main(force_fallback=False):
             "updated_at": now.isoformat(),
             "status": "public_telegram_repost_and_bing_fallback",
             "count": len(items),
+            "quota_ledger": quota_ledger,
             "items": items,
         }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print("SOCIAL_DISCOVERY_ITEMS", json.dumps({"new_results": len(results), "total_video_urls": len(items), "telegram_repost_candidates": sum(1 for x in results if x.get("source") == "telegram_public_repost"), "telegram_native_video_candidates": sum(1 for x in results if x.get("source") == "telegram_native_video")}, ensure_ascii=False))
         return 0
 
     now = datetime.now(timezone.utc)
-    # Two distinct keyless Firecrawl searches per 4-hour run use about 720 of
-    # the 1,000 free monthly credits (6 runs/day × 30 days × 2 credits/search).
+    # One keyless Firecrawl search per 4-hour run is about 360 credits/month
+    # (6 runs/day × 30 days × 2 credits/search), leaving a large reserve.
     start_index = int(now.timestamp() // (4 * 3600)) % len(QUERIES)
-    selected_queries = [
-        QUERIES[start_index],
-        QUERIES[(start_index + 1) % len(QUERIES)],
-    ]
+    selected_queries = []
+    if not PAID_SEARCH_ENABLED:
+        print("PAID_PUBLIC_SEARCH_SKIPPED_NON_SCHEDULED_RUN")
+    else:
+        used = max(0, int(quota_ledger.get("firecrawl_credits_used") or 0))
+        remaining = max(0, FIRECRAWL_MONTHLY_CREDIT_BUDGET - used)
+        allowed = min(FIRECRAWL_SEARCHES_PER_RUN, remaining // FIRECRAWL_CREDITS_PER_SEARCH)
+        if allowed > 0:
+            selected_queries = [
+                QUERIES[(start_index + offset) % len(QUERIES)]
+                for offset in range(allowed)
+            ]
+        else:
+            print("FIRECRAWL_SEARCH_SKIPPED_MONTHLY_BUDGET", json.dumps({
+                "credits_used": used,
+                "monthly_budget": FIRECRAWL_MONTHLY_CREDIT_BUDGET,
+            }, ensure_ascii=False))
     results = []
     successful_searches = 0
     for q in selected_queries:
+        # Charge attempts conservatively before the request, including failed calls.
+        quota_ledger["firecrawl_credits_used"] = (
+            max(0, int(quota_ledger.get("firecrawl_credits_used") or 0))
+            + FIRECRAWL_CREDITS_PER_SEARCH
+        )
+        quota_ledger["updated_at"] = now.isoformat()
         try:
             data = firecrawl_search(q, limit=10)
             successful_searches += 1
@@ -933,20 +1035,20 @@ def main(force_fallback=False):
                 "query": q,
             })
 
-    if successful_searches == 0:
+    if successful_searches == 0 and PAID_SEARCH_ENABLED:
         print("FIRECRAWL_FALLBACK_TO_PUBLIC_BING_SEARCH")
-        return main(force_fallback=True)
+        return main(force_fallback=True, _quota_ledger=quota_ledger, _previous_payload=previous_payload)
 
     # Public Telegram video feeds are a first-class source. Previously they were
     # crawled only when Firecrawl failed entirely, so a successful-but-irrelevant
     # Firecrawl response silently disabled the most reliable downloadable source.
     telegram_found = telegram_repost_candidates()
     results.extend(normalize_native_telegram_candidates(telegram_found, now))
-    results.extend(discover_youtube_public_candidates(now))
+    results.extend(discover_youtube_with_budget(now, quota_ledger))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     previous = []
     try:
-        previous = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
+        previous = list(previous_payload.get("items") or [])
     except Exception:
         pass
     # Do not carry legacy profile URLs forward as if they were video candidates.
@@ -981,6 +1083,7 @@ def main(force_fallback=False):
         "updated_at": now.isoformat(),
         "queries": selected_queries,
         "count": len(items),
+        "quota_ledger": quota_ledger,
         "items": items,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("SOCIAL_DISCOVERY_ITEMS", json.dumps({
