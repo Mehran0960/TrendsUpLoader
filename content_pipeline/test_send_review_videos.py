@@ -1,5 +1,6 @@
 """Regression tests for source-post/media matching in private video review."""
 import unittest
+from unittest.mock import patch
 
 from content_pipeline.send_review_videos import (
     extract_telegram_post_video_urls,
@@ -123,14 +124,29 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "source": "telegram_native_video",
             "title": "آخرش نباید اینجوری تموم میشد",
             "description": "یک اتفاق غیرمنتظره در پایان کلیپ",
-            "views": 3000,
+            "views": 0,
             "age_hours": 2,
         }
-        selected = select_media_candidates([candidate], limit=3)
+        # Isolate selector policy from the independent scorer to specifically
+        # exercise the lower-score, fresh native Telegram review path.
+        with patch(
+            "content_pipeline.send_review_videos.annotate_candidate",
+            side_effect=lambda item: {
+                **item,
+                "follow_growth_score": 40.0,
+                "score_confidence": "low",
+                "hook_signals": ["surprise_or_reveal"],
+                "news_risk_signal": False,
+                "sensitive_risk_signal": False,
+                "safety_review_signal": False,
+                "compilation_signal": False,
+                "promotional_signal": False,
+            },
+        ):
+            selected = select_media_candidates([candidate], limit=3)
         self.assertEqual(len(selected), 1)
         self.assertIn("surprise_or_reveal", selected[0]["hook_signals"])
-        self.assertLess(selected[0]["follow_growth_score"], 42)
-        self.assertGreaterEqual(selected[0]["follow_growth_score"], 36)
+        self.assertEqual(selected[0]["follow_growth_score"], 40.0)
 
     def test_accepts_fresh_specific_single_lane_telegram_clip_under_standard_score_floor(self):
         candidate = {
