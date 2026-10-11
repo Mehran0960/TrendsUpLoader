@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-11T09:48:53.814865+00:00",
+  "media_review_updated_at": "2026-10-11T14:58:58.678014+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -161,7 +161,14 @@
     "f10d51005b431199db212fa572b4208b54f395806b9d8c7421992b13be5bef25",
     "32eef4886cf836ac16baa065adbb75581fee4eea644dc951fa63450ac9fd07c1",
     "96be903aaf1e570df2f89e6cdc769c4f24494e0914fe9e770ad452a3eded055e",
-    "f947ce4de41130daa3fe22668fc9c864e7e9575364d259f2300822036fa4b7ce"
+    "f947ce4de41130daa3fe22668fc9c864e7e9575364d259f2300822036fa4b7ce",
+    "e924522e36f3ea366f7e55588a5e18efb7c628496d15445b1bea76bf4d11efea",
+    "e76c0cf0dca7099035d2580faa6f4255e31f93732405b3f30487df51fb1c32a2",
+    "7405847f130f80198612091e8d203f3fe25f7475e343ba85a632df15476e767a",
+    "5ca7fa88f5aa2443c474d5e45438db900d18a1452064c8a4f44737a02fca9738",
+    "5a131a224b4cae6153e06aba69ec6a502b4b972a0fda6f3b6721cb95473c3c8a",
+    "95c0742eb02a0b7ce9147a2dd32c7e46e6cd61a1969a9ed205307bb1dd93d51f",
+    "9a6f3583132b8f65ccdfa5c17c0f42f6038a7f494fbeff2fb2c4d0b2974ef5ff"
   ],
   "media_review_last_count": 3,
   "media_reviewed_urls": [
@@ -256,7 +263,14 @@
     "https://t.me/Lezath_Ashpazi/31219",
     "https://t.me/Lezath_Ashpazi/31217",
     "https://t.me/Lezath_Ashpazi/31220",
-    "https://t.me/gizmiztel/163090"
+    "https://t.me/gizmiztel/163090",
+    "https://t.me/vaybabamumad/180025",
+    "https://t.me/behtarinhahameshi/132964",
+    "https://t.me/behtarinhahameshi/132970",
+    "https://t.me/keereker/256490",
+    "https://t.me/keereker/256485",
+    "https://t.me/keereker/256480",
+    "https://t.me/thezoomit/103657"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -466,6 +480,39 @@
         "ecd4e0e4e8e0d0f4",
         "f4ece4c4e4f0e0cc",
         "e4e0e4e8c0e4ecc8"
+      ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/180025",
+      "sha256": "77003c84607e489b37ee913480cd0dc5dea492270f801de0526d17e20076e3d1",
+      "frame_hashes": [
+        "d0c0c0d8d4c4e0e0",
+        "e8e0c0ecc8cce8e0",
+        "e8e0c0ccc8cce8e0",
+        "e8e0e0e4e8e0e0e0",
+        "70f8f8d8f0f0f0e8"
+      ]
+    },
+    {
+      "url": "https://t.me/behtarinhahameshi/132964",
+      "sha256": "da447c92d586d60f253fb277d5ac42949d63b3af805e39a96bad2ab2dedaf1e7",
+      "frame_hashes": [
+        "e4e4e4e4cce4d8f8",
+        "e0f4e4c0d4e4e4fc",
+        "e8f8f0ecf4ecf0f0",
+        "e8dcc4c4c4dcc8c0",
+        "f8f8ccecf8d8f4ec"
+      ]
+    },
+    {
+      "url": "https://t.me/behtarinhahameshi/132970",
+      "sha256": "19daf1be0a0c9fe0474d44a14f3bf281bffe991a6d66c61934789b44e8d18765",
+      "frame_hashes": [
+        "fcecccf8e8ccecfc",
+        "e8f4ec6cecf8cce4",
+        "fcfcccccfcf8e4ec",
+        "f0f0c8e0dcece4e8",
+        "7c6c64f46cfcdcec"
       ]
     }
   ]
