@@ -63,6 +63,9 @@ YOUTUBE_QUERIES = [
     ("wholesome heartwarming family and animal moment short video", "en"),
     ("easy food recipe everyday life hack satisfying cleaning short video", "en"),
     ("amazing sports skill trick shot short video", "en"),
+    ("Iran travel hidden places street and city short video", "en"),
+    ("optical illusion visual puzzle brain teaser short video", "en"),
+    ("nostalgia then and now Iran old streets everyday life short video", "en"),
 ]
 
 QUERIES = [
@@ -74,6 +77,8 @@ QUERIES = [
     'site:aparat.com/v (غذای خیابانی OR ترفند خانه OR لحظه غافلگیرکننده OR اجرای موسیقی OR رقص OR حیوانات)',
     'site:x.com inurl:status (funny animals OR unexpected moment OR life hack OR food recipe OR sports skill OR satisfying) (video OR clip)',
     'site:aparat.com/v (ویدیو کوتاه OR لحظه جالب OR ترفند OR طبیعت OR خانواده OR مهارت OR علم OR آشپزی)',
+    'site:aparat.com/v (جاهای دیدنی ایران OR ایرانگردی OR خطای دید OR معمای تصویری OR نوستالژی OR قدیم و جدید)',
+    'site:x.com inurl:status (Iran travel OR hidden places OR optical illusion OR brain teaser OR nostalgia OR then and now) (video OR clip)',
 ]
 
 
