@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Multi-platform social discovery lane.
 
-Uses Firecrawl Search when FIRECRAWL_API_KEY is present, otherwise exits cleanly.
+Combines public Telegram video feeds, keyless Firecrawl Search and the official YouTube API.
 This is discovery intelligence only: it does not publish or download media.
 """
 import hashlib
@@ -366,6 +366,64 @@ def telegram_repost_candidates():
 
 
 def flatten_results(obj):
+
+
+def normalize_native_telegram_candidates(found, now):
+    """Normalize directly hosted public Telegram videos into reviewable discovery rows."""
+    normalized = []
+    seen_urls = set()
+    scanned = len(found) if isinstance(found, list) else 0
+    for candidate in found if isinstance(found, list) else []:
+        if not isinstance(candidate, dict):
+            continue
+        url = str(candidate.get("url") or "").strip()
+        raw = candidate.get("raw") if isinstance(candidate.get("raw"), dict) else {}
+        if str(raw.get("source") or "") != "telegram_native_video":
+            continue
+        if platform(url) != "telegram" or not is_video_post(url) or url in seen_urls:
+            continue
+        seen_urls.add(url)
+        title = re.sub(r"\s+", " ", str(candidate.get("title") or "").strip())
+        description = re.sub(r"\s+", " ", str(candidate.get("description") or "").strip())
+        published_at = str(raw.get("telegram_published_at") or "").strip()
+        try:
+            age_hours = max(0.0, float(raw.get("age_hours", 999999.0)))
+        except (TypeError, ValueError):
+            age_hours = 999999.0
+        try:
+            views = max(0, int(raw.get("telegram_post_views") or 0))
+        except (TypeError, ValueError):
+            views = 0
+        text_blob = title + " " + description
+        normalized.append({
+            "id": hashlib.sha256(url.encode("utf-8")).hexdigest(),
+            "url": url,
+            "title": title[:260],
+            "description": description[:1500],
+            "platform": "telegram",
+            "views": views,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "telegram_repost_views": 0,
+            "telegram_post_views": views,
+            "telegram_repost_channels": [],
+            "telegram_channel": str(raw.get("telegram_channel") or ""),
+            "published_at": published_at,
+            "age_hours": age_hours,
+            "persian_signal": len(re.findall(r"[\u0600-\u06ff]", text_blob)) >= 3,
+            "discovered_at": now.isoformat(),
+            "source": "telegram_native_video",
+            "query": "telegram_public_channel",
+        })
+    print("TELEGRAM_NATIVE_DISCOVERY_SUMMARY", json.dumps({
+        "channel_posts_scanned": scanned,
+        "native_video_candidates": len(normalized),
+        "sample": [{"title": x["title"][:90], "url": x["url"], "age_hours": x["age_hours"], "views": x["views"]}
+                   for x in normalized[:5]],
+    }, ensure_ascii=False))
+    return normalized
+
     found = []
     def walk(x):
         if isinstance(x, dict):
@@ -828,6 +886,11 @@ def main(force_fallback=False):
         print("FIRECRAWL_FALLBACK_TO_PUBLIC_BING_SEARCH")
         return main(force_fallback=True)
 
+    # Public Telegram video feeds are a first-class source. Previously they were
+    # crawled only when Firecrawl failed entirely, so a successful-but-irrelevant
+    # Firecrawl response silently disabled the most reliable downloadable source.
+    telegram_found = telegram_repost_candidates()
+    results.extend(normalize_native_telegram_candidates(telegram_found, now))
     results.extend(discover_youtube_public_candidates(now))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     previous = []
@@ -835,14 +898,34 @@ def main(force_fallback=False):
         previous = json.loads(OUT.read_text(encoding="utf-8")).get("items", [])
     except Exception:
         pass
-    merged = {str(x.get("id")): x for x in previous}
+    # Do not carry legacy profile URLs forward as if they were video candidates.
+    merged = {
+        str(x.get("id")): x for x in previous
+        if is_video_post(x.get("url"))
+    }
     for x in results:
         merged[x["id"]] = x
+    # Refresh the age of retained public Telegram posts. Without this, an old
+    # post's original age was frozen at discovery time and could appear fresh
+    # indefinitely while crowding genuine new candidates out of the shortlist.
+    for item in merged.values():
+        source_tag = str(item.get("source") or "")
+        published_at = str(item.get("published_at") or "").strip()
+        if source_tag in {"telegram_native_video", "telegram_public_repost", "youtube_public_api"} and published_at:
+            try:
+                published = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
+                if published.tzinfo is None:
+                    published = published.replace(tzinfo=timezone.utc)
+                item["age_hours"] = max(
+                    0.0, (now - published.astimezone(timezone.utc)).total_seconds() / 3600.0
+                )
+            except (TypeError, ValueError):
+                pass
     items = rank_candidates(merged.values(), limit=500)
     log_growth_summary(items)
 
     OUT.write_text(json.dumps({
-        "version": 1,
+        "version": 2,
         "ranking_version": RANKING_VERSION,
         "updated_at": now.isoformat(),
         "queries": selected_queries,
@@ -852,6 +935,7 @@ def main(force_fallback=False):
     print("SOCIAL_DISCOVERY_ITEMS", json.dumps({
         "new_results": len(results),
         "new_firecrawl_results": sum(1 for x in results if x.get("source") == "firecrawl_search"),
+        "new_native_telegram_videos": sum(1 for x in results if x.get("source") == "telegram_native_video"),
         "total_video_urls": len(items),
     }, ensure_ascii=False))
     print("SOCIAL_DISCOVERY_STATE", str(OUT))

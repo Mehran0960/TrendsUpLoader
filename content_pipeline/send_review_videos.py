@@ -285,15 +285,24 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
             and score >= 25
             and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
         )
-        # Give genuinely specific, very recent native Telegram clips a
-        # private-review path even without reach counters. We require a concrete
-        # subject lane and score >=30; vague surprise/reaction titles and older
-        # clips still face the regular/higher bar.
-        fresh_native_telegram_review_ok = (
+        # Private review is not auto-publication: let fresh, single-hook native
+        # Telegram clips qualify at a lower floor. Specific subject lanes can enter
+        # at 30; broader reveal/reaction/comedy hooks need 36. Visual QC, duplicate
+        # fingerprints, and all safety/news/promotion checks still apply downstream.
+        fresh_native_telegram_specific_review_ok = (
             native_telegram
             and 0 <= age <= MAX_AGE_HOURS
             and score >= 30
             and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
+        )
+        fresh_native_telegram_broad_hook_review_ok = (
+            native_telegram
+            and 0 <= age <= MAX_AGE_HOURS
+            and score >= 36
+            and bool(lanes.intersection(TARGET_LANES))
+        )
+        fresh_native_telegram_review_ok = (
+            fresh_native_telegram_specific_review_ok or fresh_native_telegram_broad_hook_review_ok
         )
         if score < MIN_SCORE and not fresh_firecrawl_review_ok and not fresh_native_telegram_review_ok:
             reject("score_below_minimum", item)
@@ -318,7 +327,11 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         low_confidence_telegram_ok = (
             native_telegram
             and confidence == "low"
-            and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
+            and 0 <= age <= MAX_AGE_HOURS
+            and (
+                (score >= 30 and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES)))
+                or (score >= 36 and bool(lanes.intersection(TARGET_LANES)))
+            )
         )
         low_confidence_fresh_firecrawl_ok = fresh_firecrawl_review_ok and confidence == "low"
         if confidence not in {"medium", "high"} and not low_confidence_telegram_ok and not low_confidence_fresh_firecrawl_ok:

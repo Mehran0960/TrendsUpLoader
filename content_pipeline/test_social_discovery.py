@@ -104,6 +104,41 @@ class SocialDiscoveryTests(unittest.TestCase):
                 payload = json.loads(output.read_text(encoding="utf-8"))
                 self.assertEqual(payload["items"], [])
 
+
+    def test_main_includes_native_telegram_videos_when_firecrawl_succeeds(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "social_discovery.json"
+            telegram_candidate = {
+                "url": "https://t.me/gizmiztel/987654",
+                "title": "کلیپ بامزه سگ که یک حرکت عجیب انجام می‌دهد",
+                "description": "ویدئوی کوتاه حیوانات",
+                "raw": {
+                    "source": "telegram_native_video",
+                    "telegram_channel": "gizmiztel",
+                    "telegram_post": "gizmiztel/987654",
+                    "telegram_post_views": 25000,
+                    "telegram_published_at": datetime.now(timezone.utc).isoformat(),
+                    "age_hours": 1.0,
+                },
+            }
+            with (
+                patch.object(social_discovery, "KEY", ""),
+                patch.object(social_discovery, "OUT", output),
+                patch.object(social_discovery, "firecrawl_search", return_value={"data": []}),
+                patch.object(social_discovery, "discover_youtube_public_candidates", return_value=[]),
+                patch.object(social_discovery, "rank_candidates", side_effect=lambda rows, limit=500: list(rows)[:limit]),
+                patch.object(social_discovery, "log_growth_summary"),
+                patch.object(social_discovery, "telegram_repost_candidates", return_value=[telegram_candidate]) as telegram_scan,
+            ):
+                self.assertEqual(social_discovery.main(), 0)
+                telegram_scan.assert_called_once()
+                payload = json.loads(output.read_text(encoding="utf-8"))
+                found = [x for x in payload["items"] if x["url"] == "https://t.me/gizmiztel/987654"]
+                self.assertEqual(len(found), 1)
+                self.assertEqual(found[0]["source"], "telegram_native_video")
+                self.assertEqual(found[0]["views"], 25000)
+                self.assertEqual(found[0]["age_hours"], 1.0)
+
     def test_firecrawl_keyless_request_omits_authorization_header(self):
         class FakeResponse:
             def raise_for_status(self):

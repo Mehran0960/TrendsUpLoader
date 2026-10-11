@@ -114,6 +114,24 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(len(selected), 1)
         self.assertIn("animals", selected[0]["hook_signals"])
 
+
+    def test_accepts_fresh_reveal_only_telegram_clip_for_private_review(self):
+        candidate = {
+            "id": "fresh-reveal-hook",
+            "url": "https://t.me/revealclips/456",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "آخرش نباید اینجوری تموم میشد",
+            "description": "یک اتفاق غیرمنتظره در پایان کلیپ",
+            "views": 3000,
+            "age_hours": 2,
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertIn("surprise_or_reveal", selected[0]["hook_signals"])
+        self.assertLess(selected[0]["follow_growth_score"], 42)
+        self.assertGreaterEqual(selected[0]["follow_growth_score"], 36)
+
     def test_accepts_fresh_specific_single_lane_telegram_clip_under_standard_score_floor(self):
         candidate = {
             "id": "fresh-science-low-reach",
