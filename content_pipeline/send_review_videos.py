@@ -193,6 +193,61 @@ SPECIFIC_LONG_CLIP_LANES = TARGET_LANES - {
 }
 
 
+CAPTION_ZERO_WIDTH_RE = re.compile(r"[\u200b\u200c\u200e\u200f\u2060\ufeff\u00ad]")
+CAPTION_URL_RE = re.compile(r"(?:https?://|www\.)\S+|(?:t\.me|eitaa\.com)/\S+", re.I)
+CAPTION_HANDLE_RE = re.compile(r"(?<!\w)@[A-Za-z0-9_]{2,}")
+CAPTION_BRAND_TAG_RE = re.compile(
+    r"#(?:جادوی[_\s]*تندیس|خلق[_\s]*طعم[_\s]*رؤیاها|لذت[_\s]*آشپزی)", re.I
+)
+CAPTION_CTA_TAIL_RE = re.compile(
+    r"لینک\s+(?:زیر\s*)?(?:را\s*)?(?:رو\s*)?(?:بزن|کلیک(?:\s*کن(?:ید|ین))?|باز\s*کن(?:ید|ین))|"
+    r"شعبه\s+جدید|کانال\s+(?:دوم|سوم)|پیج\s+اینستا|کانال\s+ایتا|"
+    r"برای\s+عضویت|عضو\s+(?:شوید|بشید)|لینک\s+در\s+بیو|"
+    r"subscribe|follow\s+for\s+more|link\s+in\s+bio|join\s+our\s+channel",
+    re.I,
+)
+GENERIC_GREETING_CAPTION_RE = re.compile(
+    r"روز(?:تون|تان| شما)?\s*(?:زیبا|عالی|خوب|پاییزی)|روز\s*پاییزی(?:تون)?|"
+    r"صبح(?:تون)?\s*بخیر|شب(?:تون)?\s*بخیر|ان\s*شاءالله\s*امروز|"
+    r"برای\s*تک\s*تک\s*دوستانم|پراز\s*(?:خیر\s*و\s*برکت|دلخوشی|موفقیت|محبت)|"
+    r"در\s*پناه\s*خدا|روزتون.*آرزو",
+    re.I,
+)
+CAPTION_SPECIFIC_LANES = SPECIFIC_LONG_CLIP_LANES - {"wholesome_or_heartwarming"}
+
+
+def clean_review_caption(value, max_chars=1024):
+    """Keep the meaningful source caption while removing invisible padding and promotion."""
+    text = html.unescape(str(value or ""))
+    text = CAPTION_ZERO_WIDTH_RE.sub("", text)
+    cta = CAPTION_CTA_TAIL_RE.search(text)
+    if cta:
+        text = text[:cta.start()]
+    text = CAPTION_URL_RE.sub(" ", text)
+    text = CAPTION_HANDLE_RE.sub(" ", text)
+    text = CAPTION_BRAND_TAG_RE.sub(" ", text)
+    # Preserve useful hashtag words (for example #اسنک شکلاتی), not the hash or underscores.
+    text = re.sub(
+        r"#([\w\u0600-\u06ff]+)",
+        lambda match: match.group(1).replace("_", " "),
+        text,
+    )
+    # Collapse repeated emoji spam while leaving ordinary individual emoji intact.
+    text = re.sub(r"([\U0001F300-\U0001FAFF])(?:\s*\1){2,}", r"\1", text)
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\s+([،؛:,.!?])", r"\1", text)
+    text = re.sub(r"([،؛:,.!?])(?:\s*[\u200b\u200c\u200e\u200f])*([،؛:,.!?])+", r"\1", text)
+    text = re.sub(r"\s{2,}", " ", text).strip(" \t\r\n-–—|•")
+    return text[:max_chars].strip()
+
+
+def is_generic_greeting_caption(caption, lanes):
+    """Reject generic calendar/wish messages unless the caption names a concrete video topic."""
+    if not GENERIC_GREETING_CAPTION_RE.search(str(caption or "")):
+        return False
+    return not bool(set(lanes or set()).intersection(CAPTION_SPECIFIC_LANES))
+
+
 def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES):
     """Select unique, fresh, substantive clips and expose the actual rejection bottleneck."""
     reviewed = {str(x) for x in (reviewed_ids or [])}
@@ -211,6 +266,7 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         "stale_telegram_not_strong_or_specific": 0,
         "insufficient_engagement_confidence": 0,
         "safety_news_compilation_or_promo": 0,
+        "caption_empty_or_generic_greeting": 0,
     }
     telegram_near_misses = {reason: [] for reason in rejection_reasons}
 
@@ -264,6 +320,12 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
             rejected_topic += 1
             reject("no_target_topic_signal", item)
             continue
+
+        cleaned_caption = clean_review_caption(item.get("title") or item.get("description") or "")
+        if not cleaned_caption or is_generic_greeting_caption(cleaned_caption, lanes):
+            reject("caption_empty_or_generic_greeting", item)
+            continue
+        item["cleaned_review_caption"] = cleaned_caption
         try:
             score = float(item.get("follow_growth_score") or 0)
             age = float(item.get("age_hours"))
@@ -668,12 +730,9 @@ def download_with_ytdlp(url, workdir):
 
 
 def render_caption(item):
-    """Use only the selected source post's original caption/title in the video message."""
-    title = str(item.get("source_post_caption") or item.get("title") or "").strip()
-    title = re.sub(r"\\s+", " ", title)
-    # Telegram limits video captions to 1024 characters. No source, URL, score,
-    # review label or assistant-generated explanatory text is appended.
-    return title[:1024]
+    """Send a concise source-derived caption, stripped of links, handles and promo tails."""
+    title = item.get("source_post_caption") or item.get("cleaned_review_caption") or item.get("title") or ""
+    return clean_review_caption(title, max_chars=1024)
 
 
 def send_video(path, item):
