@@ -105,6 +105,23 @@ class SocialDiscoveryTests(unittest.TestCase):
                 self.assertEqual(payload["items"], [])
 
 
+    def test_telegram_caption_gate_accepts_english_topic_captions_but_not_noise(self):
+        self.assertTrue(
+            social_discovery.telegram_caption_has_discovery_signal(
+                "Funny cat has a surprising reaction to a toy"
+            )
+        )
+        self.assertTrue(
+            social_discovery.telegram_caption_has_discovery_signal(
+                "Easy pasta recipe in under one minute"
+            )
+        )
+        self.assertFalse(
+            social_discovery.telegram_caption_has_discovery_signal(
+                "Breaking report about a city council meeting"
+            )
+        )
+
     def test_main_includes_native_telegram_videos_when_firecrawl_succeeds(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "social_discovery.json"
