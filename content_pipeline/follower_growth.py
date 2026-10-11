@@ -29,6 +29,9 @@ LANES = {
     "home_organization_or_cleaning": re.compile(r"تمیزکاری عمیق|قبل و بعد نظافت|نظم.?دهی|مرتب کردن خانه|مرتب.?سازی|پاکسازی|تمیز کردن|سازماندهی خانه|cleaning|deep clean|home organization|declutter|organizing|tidying", re.I),
     "music_or_dance": re.compile(r"رقص|نوازندگی|نواختن|ساز زدن|خوانندگی|آواز|اجرای موسیقی|موسیقی زنده|حرکات موزون|dance|singing|music performance|playing an instrument|live music|dance move", re.I),
     "fashion_or_cultural_showcase": re.compile(r"لباس ملی|لباس سنتی|لباس ایرانی|مدل ایرانی|مسابقه زیبایی|میس گلوبال|فشن شو|مدلینگ|لباس الهام.?گرفته|national costume|traditional dress|fashion show|runway|pageant|beauty contest|beauty pageant", re.I),
+    "travel_and_places": re.compile(r"جاهای دیدنی|مکان(?:های)? دیدنی|ایرانگردی|گردشگری|راهنمای سفر|سفر به|مسیر پیاده.?روی|جاذبه گردشگری|hidden places|places to visit|travel vlog|travel guide|tourism|hiking trail|beautiful places", re.I),
+    "puzzles_and_visual_illusions": re.compile(r"خطای دید|معمای تصویری|بازی فکری|تست هوش|چیستان|پازل|تفاوت تصویر|optical illusion|visual illusion|brain teaser|riddle|spot the difference|puzzle challenge", re.I),
+    "nostalgia_and_then_now": re.compile(r"نوستالژی|دهه [۴۵۶۷۸۹0-9]+|دوران قدیم|زمان قدیم|قدیم و جدید|گذشته تا امروز|خاطرات قدیمی|آن روزها|یادتونه قدیما|old vs new|nostalgia|throwback|then and now|back in the day", re.I),
 }
 NEWS_RISK = re.compile(
     r"جنگ|انفجار|پدافند|موشک|حمله نظامی|تیراندازی|کشته|مجروح|سلاح هسته|تجمع|اعتراض|شعار|سنگ.?پرونی|لغو.{0,12}(?:مسابقه|مراسم)|"
