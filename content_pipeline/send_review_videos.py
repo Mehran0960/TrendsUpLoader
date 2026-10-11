@@ -183,6 +183,9 @@ TARGET_LANES = {
     "home_organization_or_cleaning",
     "music_or_dance",
     "fashion_or_cultural_showcase",
+    "travel_and_places",
+    "puzzles_and_visual_illusions",
+    "nostalgia_and_then_now",
 }
 
 # Longer clips need at least one concrete subject lane; generic "surprising/reaction"
@@ -214,6 +217,198 @@ GENERIC_GREETING_CAPTION_RE = re.compile(
     re.I,
 )
 CAPTION_SPECIFIC_LANES = SPECIFIC_LONG_CLIP_LANES - {"wholesome_or_heartwarming"}
+
+# Three repeatable core pillars, one adjacent-content bucket, and a deliberately
+# small exploration bucket. Percentages are rolling targets, not hard quotas.
+PILLAR_TARGETS = {
+    "reaction_and_comedy": 0.30,
+    "visual_wow": 0.25,
+    "curiosity_and_process": 0.15,
+    "adjacent": 0.20,
+    "experimental": 0.10,
+}
+PILLAR_PRIORITY = tuple(PILLAR_TARGETS)
+EXPERIMENT_LANES = {
+    "travel_and_places",
+    "puzzles_and_visual_illusions",
+    "nostalgia_and_then_now",
+}
+REACTION_LANES = {
+    "comedy", "animals", "surprise_or_reveal", "human_reaction_or_relatable",
+}
+VISUAL_WOW_LANES = {
+    "skill_or_spectacle", "sports_or_athletic_skill", "transformation_or_satisfying",
+}
+CURIOSITY_LANES = {"technology_demo", "science_curiosity"}
+
+
+def content_pillar_profile(item):
+    """Return the strategy bucket and stable subject key for one short-video candidate."""
+    lanes = set(item.get("hook_signals") or [])
+    # Keep topical experiments isolated even if they also match generic surprise/nature cues.
+    for lane in ("travel_and_places", "puzzles_and_visual_illusions", "nostalgia_and_then_now"):
+        if lane in lanes:
+            return "experimental", lane
+    # Cooking remains an adjacent lane even when the caption includes broad 'wow' language.
+    if "food_cooking" in lanes:
+        return "adjacent", "food_cooking"
+    for pillar, ordered_lanes in (
+        ("reaction_and_comedy", ("comedy", "animals", "human_reaction_or_relatable", "surprise_or_reveal")),
+        ("visual_wow", ("skill_or_spectacle", "sports_or_athletic_skill", "transformation_or_satisfying")),
+        ("curiosity_and_process", ("technology_demo", "science_curiosity")),
+    ):
+        for lane in ordered_lanes:
+            if lane in lanes:
+                return pillar, lane
+    for lane in (
+        "practical_tips_or_life_hacks", "nature_and_wildlife",
+        "wholesome_or_heartwarming", "diy_and_creativity",
+        "home_organization_or_cleaning", "music_or_dance",
+        "fashion_or_cultural_showcase",
+    ):
+        if lane in lanes:
+            return "adjacent", lane
+    return "adjacent", next(iter(sorted(lanes)), "other")
+
+
+def normalize_topic_history(history):
+    """Keep only well-formed topic rows, newest last."""
+    rows = []
+    for row in history if isinstance(history, list) else []:
+        if not isinstance(row, dict):
+            continue
+        topic = str(row.get("topic") or "").strip()
+        pillar = str(row.get("pillar") or "").strip()
+        if topic and pillar in PILLAR_TARGETS:
+            rows.append({**row, "topic": topic, "pillar": pillar})
+    return rows[-20:]
+
+
+def infer_recent_topic_history(state, candidate_items):
+    """Use persisted successful-send topics; bootstrap best-effort from known sent fingerprints."""
+    saved = normalize_topic_history((state or {}).get("media_reviewed_topics", []))
+    if saved:
+        return saved[-19:]
+
+    by_url = {}
+    for item in candidate_items if isinstance(candidate_items, list) else []:
+        if isinstance(item, dict) and item.get("url"):
+            key = canonical_media_url(item.get("url"))
+            if key:
+                by_url[key] = item
+
+    inferred = []
+    fingerprints = (state or {}).get("media_reviewed_fingerprints", [])
+    for fingerprint in fingerprints if isinstance(fingerprints, list) else []:
+        if not isinstance(fingerprint, dict):
+            continue
+        item = by_url.get(canonical_media_url(fingerprint.get("url")))
+        if not item:
+            continue
+        pillar, topic = content_pillar_profile(item)
+        inferred.append({
+            "pillar": pillar,
+            "topic": topic,
+            "url": str(fingerprint.get("url") or ""),
+            "sent_at": "",
+            "inferred": True,
+        })
+    return inferred[-19:]
+
+
+def balanced_candidate_shortlist(eligible, recent_topics=None, limit=MAX_TRIES):
+    """Order qualified videos towards the rolling 30/25/15/20/10 strategy without lowering quality."""
+    remaining = list(eligible)
+    history = normalize_topic_history(recent_topics or [])[-19:]
+    selected = []
+    planned = []
+    food_in_batch = 0
+
+    def get_window():
+        return (history + planned)[-19:]
+
+    def profile(row):
+        return content_pillar_profile(row)
+
+    while remaining and len(selected) < max(0, int(limit)):
+        current_window = get_window()
+        current_food_count = sum(1 for row in current_window if row.get("topic") == "food_cooking")
+        non_food_count = sum(1 for row in remaining if profile(row)[1] != "food_cooking")
+
+        # Soft rolling cap: no more than 6 cooking videos per last 20 successful
+        # sends when there are alternatives. Within a single 3-video batch, max
+        # one cooking video when at least two non-cooking candidates are qualified.
+        block_food_for_history = current_food_count >= 6 and non_food_count >= 2
+        block_food_for_batch = len(selected) < 3 and food_in_batch >= 1 and non_food_count >= 2
+        usable = [
+            row for row in remaining
+            if not (
+                profile(row)[1] == "food_cooking"
+                and (block_food_for_history or block_food_for_batch)
+            )
+        ]
+        if not usable:
+            # These are soft, not hard quotas: do not starve output if the only
+            # qualified options are cooking videos.
+            usable = remaining
+
+        by_pillar = {}
+        for row in usable:
+            pillar, _topic = profile(row)
+            by_pillar.setdefault(pillar, []).append(row)
+
+        # Choose the bucket that most reduces the deviation from the target mix
+        # after the next selection in the 20-video window.
+        scored_pillars = []
+        for pillar, rows in by_pillar.items():
+            window = current_window + [{"pillar": pillar, "topic": profile(rows[0])[1]}]
+            window = window[-20:]
+            counts = {key: sum(1 for row in window if row.get("pillar") == key) for key in PILLAR_TARGETS}
+            size = len(window)
+            error = sum(abs(counts[key] - PILLAR_TARGETS[key] * size) for key in PILLAR_TARGETS)
+            # Ties preserve the core-first strategy (then adjacent, then experiments).
+            scored_pillars.append((error, PILLAR_PRIORITY.index(pillar), pillar))
+        chosen_pillar = min(scored_pillars)[2]
+        choices = by_pillar[chosen_pillar]
+
+        # Avoid repeating a subject key until the qualified distinct subjects run out.
+        recent_subjects = {row.get("topic") for row in (current_window + planned)[-8:]}
+        choices.sort(key=lambda row: (
+            1 if profile(row)[1] in recent_subjects else 0,
+            -float(row.get("follow_growth_score") or 0),
+            float(row.get("age_hours") or 0),
+        ))
+        choice = choices[0]
+        selected.append(choice)
+        remaining.remove(choice)
+        pillar, topic = profile(choice)
+        planned.append({
+            "pillar": pillar,
+            "topic": topic,
+            "url": str(choice.get("url") or ""),
+            "sent_at": "",
+            "planned": True,
+        })
+        if topic == "food_cooking":
+            food_in_batch += 1
+
+    counts = {key: sum(1 for row in planned if row["pillar"] == key) for key in PILLAR_TARGETS}
+    print(json.dumps({
+        "MEDIA_REVIEW_TOPIC_PLAN": {
+            "history_size": len(history),
+            "history_pillars": {
+                key: sum(1 for row in history if row.get("pillar") == key)
+                for key in PILLAR_TARGETS
+            },
+            "planned_shortlist": len(selected),
+            "planned_pillars": counts,
+            "planned_food": sum(1 for row in planned if row.get("topic") == "food_cooking"),
+            "last20_food_before": sum(1 for row in history if row.get("topic") == "food_cooking"),
+            "target_pillar_mix": PILLAR_TARGETS,
+            "soft_caps": {"food_per_20": 6, "food_per_first_3": 1},
+        }
+    }, ensure_ascii=False))
+    return selected
 
 
 def clean_review_caption(value, max_chars=1024):
@@ -251,7 +446,7 @@ def is_generic_greeting_caption(caption, lanes):
     return not bool(set(lanes or set()).intersection(CAPTION_SPECIFIC_LANES))
 
 
-def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES):
+def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES, recent_topics=None):
     """Select unique, fresh, substantive clips and expose the actual rejection bottleneck."""
     reviewed = {str(x) for x in (reviewed_ids or [])}
     eligible = []
@@ -430,45 +625,45 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES)
         -float(x.get("age_hours") or 0),
     ), reverse=True)
 
-    selected, seen_primary_lanes, seen_ids, seen_platforms = [], set(), set(), set()
-    # Prefer different subject lanes first; only repeat a lane when there are
-    # too few qualified alternatives. Source/platform diversity is the second
-    # preference, while quality, freshness and safety gates stay unchanged.
+    # Preserve the old preference for distinct subject lanes and platforms when
+    # building a qualified pool, then order that pool by rolling pillar deficits.
+    pool, seen_primary_lanes, seen_ids, seen_platforms = [], set(), set(), set()
     for item in eligible:
         lanes = [str(lane) for lane in (item.get("hook_signals") or []) if lane in TARGET_LANES]
         primary_lane = lanes[0] if lanes else ""
         if primary_lane and primary_lane in seen_primary_lanes:
             continue
-        selected.append(item)
+        pool.append(item)
         if primary_lane:
             seen_primary_lanes.add(primary_lane)
         seen_ids.add(item["_review_id"])
         seen_platforms.add(str(item.get("platform") or "unknown").lower())
-        if len(selected) >= limit:
-            return selected
-
-    # If fewer distinct topics passed the gates, next try to add new platforms.
-    for item in eligible:
-        if item["_review_id"] in seen_ids:
-            continue
-        platform = str(item.get("platform") or "unknown").lower()
-        if platform in seen_platforms:
-            continue
-        selected.append(item)
-        seen_platforms.add(platform)
-        seen_ids.add(item["_review_id"])
-        if len(selected) >= limit:
-            return selected
-
-    # Last resort: fill available slots with the strongest remaining candidates.
-    for item in eligible:
-        if item["_review_id"] in seen_ids:
-            continue
-        selected.append(item)
-        seen_ids.add(item["_review_id"])
-        if len(selected) >= limit:
+        if len(pool) >= limit:
             break
-    return selected
+
+    if len(pool) < limit:
+        for item in eligible:
+            if item["_review_id"] in seen_ids:
+                continue
+            platform = str(item.get("platform") or "unknown").lower()
+            if platform in seen_platforms:
+                continue
+            pool.append(item)
+            seen_platforms.add(platform)
+            seen_ids.add(item["_review_id"])
+            if len(pool) >= limit:
+                break
+
+    if len(pool) < limit:
+        for item in eligible:
+            if item["_review_id"] in seen_ids:
+                continue
+            pool.append(item)
+            seen_ids.add(item["_review_id"])
+            if len(pool) >= limit:
+                break
+
+    return balanced_candidate_shortlist(pool, recent_topics=recent_topics, limit=limit)
 
 def find_telegram_post_block(page, channel, post_id):
     """Return only the HTML block for the exact Telegram post, never a nearby post."""
@@ -764,6 +959,14 @@ def build_short_review_hook(item, max_chars=150):
     folded = blob.lower()
     lanes = set(item.get("hook_signals") or [])
 
+    # Keep experimental subjects recognizable while staying within the same caption style.
+    if "travel_and_places" in lanes:
+        return "این جای دیدنی رو تا حالا دیده بودی؟ 🗺️👀"[:max_chars]
+    if "puzzles_and_visual_illusions" in lanes:
+        return "چند ثانیه نگاه کن؛ متوجه نکته می‌شی؟ 🧩👀"[:max_chars]
+    if "nostalgia_and_then_now" in lanes:
+        return "یادت میاد اون روزها چه شکلی بودن؟ 🕰️✨"[:max_chars]
+
     # Specific, verifiable subjects take precedence over generic lane hooks.
     if re.search(
         r"(?:تشکیل|فرایند|چطور|چگونه).{0,35}تخم[\s‌-]?مرغ|"
@@ -876,7 +1079,12 @@ def main():
     state = load_json(STATE, {"version": 1, "notified_ids": []})
     reviewed_ids = [str(x) for x in state.get("media_reviewed_ids", [])]
     reviewed_urls = [str(x) for x in state.get("media_reviewed_urls", [])]
-    candidates = select_media_candidates(data.get("items", []), reviewed_ids + reviewed_urls)
+    recent_topics = infer_recent_topic_history(state, data.get("items", []))
+    candidates = select_media_candidates(
+        data.get("items", []),
+        reviewed_ids + reviewed_urls,
+        recent_topics=recent_topics,
+    )
     saved_fingerprints = state.get("media_reviewed_fingerprints", [])
     if not isinstance(saved_fingerprints, list):
         saved_fingerprints = []
@@ -887,6 +1095,7 @@ def main():
     sent_ids = []
     sent_urls = []
     sent_fingerprints = []
+    sent_topic_records = []
     suppressed_ids = []
     suppressed_urls = []
     session_fingerprints = list(saved_fingerprints)
@@ -988,6 +1197,13 @@ def main():
                 sent_urls.append(current_fingerprint["url"])
                 sent_fingerprints.append(current_fingerprint)
                 session_fingerprints.append(current_fingerprint)
+                pillar, topic = content_pillar_profile(item)
+                sent_topic_records.append({
+                    "pillar": pillar,
+                    "topic": topic,
+                    "url": current_fingerprint["url"],
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                })
                 print(json.dumps({
                     "MEDIA_REVIEW_VIDEO_SENT": True,
                     "message_id": message_id,
@@ -1021,6 +1237,7 @@ def main():
             "media_reviewed_ids": list(dict.fromkeys(existing_ids + reviewed_ids + sent_ids + suppressed_ids))[-1000:],
             "media_reviewed_urls": list(dict.fromkeys(existing_urls + reviewed_urls + sent_urls + suppressed_urls))[-1000:],
             "media_reviewed_fingerprints": list(fingerprints_by_sha.values())[-300:],
+            "media_reviewed_topics": normalize_topic_history(recent_topics + sent_topic_records)[-20:],
             "media_review_last_count": len(sent_ids),
         })
         STATE.parent.mkdir(parents=True, exist_ok=True)
