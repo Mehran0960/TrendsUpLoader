@@ -237,6 +237,12 @@ def telegram_repost_candidates():
         "farda_ai",
         "AIpersianChannel",
         "simorghai",
+        "funnyttt",
+        "MyFavCats",
+        "Pishiha",
+        "ashpaziroghi",
+        "Lezath_Ashpazi",
+        "behtarinhahameshi",
     ]
     link_re = re.compile(
         r"(?:https?://)?(?:(?:www\.)|dd)?instagram\.com/(?:reel|reels|p|tv)/[A-Za-z0-9_-]+",
