@@ -371,10 +371,10 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
 
     def test_caption_sanitizer_removes_zero_width_padding_but_preserves_persian_zwnj(self):
         caption = clean_review_caption(
-            "از شکل‌گیری تا خروج؛ سفری شگفت‌انگیز در طبیعت"
+            "از شکل‌گیری تا خروج؛ این فرآیند می‌کند یک مسیر طبیعی را نشان می‌دهد"
             + ("\u200c" * 40)
         )
-        self.assertIn("می‌", "می‌" if "می‌" in caption else "می‌")
+        self.assertIn("می‌کند", caption)
         self.assertIn("از شکل‌گیری تا خروج", caption)
         self.assertNotIn("\u200c\u200c", caption)
         self.assertFalse(caption.endswith("\u200c"))
