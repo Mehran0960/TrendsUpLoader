@@ -765,7 +765,12 @@ def build_short_review_hook(item, max_chars=150):
     lanes = set(item.get("hook_signals") or [])
 
     # Specific, verifiable subjects take precedence over generic lane hooks.
-    if re.search(r"تخم[\s‌-]?مرغ|egg formation|how eggs form|forming an egg|egg develops", folded, re.I):
+    if re.search(
+        r"(?:تشکیل|فرایند|چطور|چگونه).{0,35}تخم[\s‌-]?مرغ|"
+        r"تخم[\s‌-]?مرغ.{0,35}(?:تشکیل|فرایند|بدن مرغ)|"
+        r"egg formation|how eggs form|forming an egg|egg develops",
+        folded, re.I,
+    ):
         return "تا حالا فکر کردی تخم‌مرغ چطور شکل می‌گیره؟ 🥚👀"[:max_chars]
 
     if "food_cooking" in lanes or re.search(
