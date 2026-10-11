@@ -3,7 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from unittest.mock import patch
 
 from content_pipeline import social_discovery
@@ -117,7 +117,7 @@ class SocialDiscoveryTests(unittest.TestCase):
                     "telegram_channel": "gizmiztel",
                     "telegram_post": "gizmiztel/987654",
                     "telegram_post_views": 25000,
-                    "telegram_published_at": datetime.now(timezone.utc).isoformat(),
+                    "telegram_published_at": (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat(),
                     "age_hours": 1.0,
                 },
             }
