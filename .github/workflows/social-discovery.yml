@@ -48,6 +48,7 @@ jobs:
           ffmpeg -version | head -n 1
           ffprobe -version | head -n 1
       - name: Discover cross-platform viral candidates
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -57,7 +58,7 @@ jobs:
           YOUTUBE_API_ENABLED: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         run: python content_pipeline/social_discovery.py
       - name: Download and send video files for private review
-        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' }}
+        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
