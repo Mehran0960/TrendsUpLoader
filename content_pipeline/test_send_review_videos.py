@@ -7,6 +7,8 @@ from content_pipeline.send_review_videos import (
     extract_telegram_post_caption,
     find_telegram_post_block,
     render_caption,
+    clean_review_caption,
+    is_generic_greeting_caption,
     evaluate_video_metrics,
     select_media_candidates,
     canonical_media_url,
@@ -350,6 +352,69 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         })
         self.assertEqual(caption, "عنوان اصلی پست")
 
+
+    def test_caption_sanitizer_removes_links_handles_promo_and_zero_width_padding(self):
+        raw = (
+            "#اسنک شکلاتی 😘 😘 😘 ✅ مواد لازم: ۸۰ گرم شکلات تلخ و ۱/۳ پیمانه کینوا پف "
+            "#جادوی_تندیس #خلق_طعم_رؤیاها #لذت آشپزی "
+            "لینک زیر را بزن ۱۰۰ سال عمر کن https://t.me/+invite @Lezath_Ashpazi "
+            "شعبه جدید کانال دوم"
+        )
+        caption = render_caption({"source_post_caption": raw})
+        self.assertIn("اسنک شکلاتی", caption)
+        self.assertIn("مواد لازم", caption)
+        self.assertIn("۸۰ گرم شکلات تلخ", caption)
+        for unwanted in ("https://", "t.me/", "@Lezath", "لینک زیر را بزن", "جادوی", "خلق طعم", "شعبه جدید"):
+            with self.subTest(unwanted=unwanted):
+                self.assertNotIn(unwanted, caption)
+        self.assertLess(caption.count("😘"), 2)
+
+    def test_caption_sanitizer_removes_zero_width_padding_but_preserves_persian_zwnj(self):
+        caption = clean_review_caption(
+            "از شکل‌گیری تا خروج؛ سفری شگفت‌انگیز در طبیعت"
+            + ("\u200c" * 40)
+        )
+        self.assertIn("می‌", "می‌" if "می‌" in caption else "می‌")
+        self.assertIn("از شکل‌گیری تا خروج", caption)
+        self.assertNotIn("\u200c\u200c", caption)
+        self.assertFalse(caption.endswith("\u200c"))
+
+    def test_generic_day_greeting_is_not_a_video_caption_candidate(self):
+        caption = clean_review_caption(
+            "🗓 یک شنبه ۱۹ مهر ماه روز پاییزیتون عالی و بینظیر "
+            "ان شاءالله امروز برای تک تک دوستانم پراز خیر و برکت و موفقیت "
+            "روزتون زیبا و در پناه خدا"
+        )
+        self.assertTrue(is_generic_greeting_caption(caption, {"wholesome_or_heartwarming"}))
+        self.assertFalse(
+            is_generic_greeting_caption("طرز تهیه کیک شکلاتی؛ روزتون زیبا", {"food_cooking"})
+        )
+
+    def test_selector_rejects_generic_greeting_even_when_scored_as_wholesome(self):
+        candidate = {
+            "id": "generic-day-greeting",
+            "url": "https://t.me/keereker/999999",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "روز پاییزیتون عالی و بینظیر؛ روزتون زیبا و در پناه خدا",
+            "description": "",
+            "age_hours": 2,
+        }
+        with patch(
+            "content_pipeline.send_review_videos.annotate_candidate",
+            side_effect=lambda item: {
+                **item,
+                "follow_growth_score": 60.0,
+                "score_confidence": "high",
+                "hook_signals": ["wholesome_or_heartwarming"],
+                "news_risk_signal": False,
+                "sensitive_risk_signal": False,
+                "safety_review_signal": False,
+                "compilation_signal": False,
+                "promotional_signal": False,
+            },
+        ):
+            self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
     def test_accepts_multiple_mainstream_evergreen_topics(self):
         examples = [
