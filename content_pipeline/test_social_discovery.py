@@ -7,7 +7,12 @@ from datetime import datetime, timezone, timedelta
 from unittest.mock import patch
 
 from content_pipeline import social_discovery
-from content_pipeline.social_discovery import QUERIES, UA, YOUTUBE_QUERIES, parse_youtube_duration, sort_discovery_items, youtube_query_for_time, youtube_queries_for_time
+from content_pipeline.social_discovery import (
+    QUERIES, UA, YOUTUBE_QUERIES, parse_youtube_duration, sort_discovery_items,
+    youtube_query_for_time, youtube_queries_for_time, quota_ledger_for_run,
+    discover_youtube_with_budget, FIRECRAWL_MONTHLY_CREDIT_BUDGET,
+    YOUTUBE_DAILY_SEARCH_BUDGET,
+)
 
 
 class SocialDiscoveryTests(unittest.TestCase):
@@ -98,7 +103,7 @@ class SocialDiscoveryTests(unittest.TestCase):
                 patch.object(social_discovery, "telegram_repost_candidates", return_value=[]),
             ):
                 self.assertEqual(social_discovery.main(), 0)
-                self.assertEqual(firecrawl.call_count, 2)
+                self.assertEqual(firecrawl.call_count, 1)
                 bing.assert_not_called()
                 self.assertTrue(output.is_file())
                 payload = json.loads(output.read_text(encoding="utf-8"))
@@ -228,6 +233,75 @@ class SocialDiscoveryTests(unittest.TestCase):
         self.assertTrue(UA.startswith("Mozilla/"))
         self.assertIn("Chrome/", UA)
 
+
+    def test_quota_ledger_persists_usage_and_resets_youtube_at_utc_day_boundary(self):
+        first = datetime(2026, 10, 11, 18, 0, tzinfo=timezone.utc)
+        previous = {"quota_ledger": {
+            "firecrawl_month": "2026-10",
+            "firecrawl_credits_used": 602,
+            "youtube_day": "2026-10-11",
+            "youtube_search_calls_used": 17,
+        }}
+        same_day = quota_ledger_for_run(previous, first)
+        self.assertEqual(same_day["firecrawl_credits_used"], 602)
+        self.assertEqual(same_day["youtube_search_calls_used"], 17)
+        self.assertEqual(same_day["firecrawl_monthly_credit_budget"], FIRECRAWL_MONTHLY_CREDIT_BUDGET)
+        self.assertEqual(same_day["youtube_daily_search_budget"], YOUTUBE_DAILY_SEARCH_BUDGET)
+
+        next_day = quota_ledger_for_run(previous, datetime(2026, 10, 12, 0, 1, tzinfo=timezone.utc))
+        self.assertEqual(next_day["firecrawl_credits_used"], 602)
+        self.assertEqual(next_day["youtube_search_calls_used"], 0)
+
+    def test_quota_ledger_resets_monthly_firecrawl_count(self):
+        previous = {"quota_ledger": {
+            "firecrawl_month": "2026-10",
+            "firecrawl_credits_used": 780,
+            "youtube_day": "2026-10-31",
+            "youtube_search_calls_used": 24,
+        }}
+        current = quota_ledger_for_run(previous, datetime(2026, 11, 1, 0, 5, tzinfo=timezone.utc))
+        self.assertEqual(current["firecrawl_credits_used"], 0)
+        self.assertEqual(current["youtube_search_calls_used"], 0)
+
+    def test_youtube_budget_reserves_only_available_search_calls(self):
+        now = datetime(2026, 10, 12, 12, 0, tzinfo=timezone.utc)
+        ledger = quota_ledger_for_run({"quota_ledger": {
+            "firecrawl_month": "2026-10",
+            "firecrawl_credits_used": 500,
+            "youtube_day": "2026-10-12",
+            "youtube_search_calls_used": 29,
+        }}, now)
+        with (
+            patch.object(social_discovery, "YOUTUBE_KEY", "demo-key"),
+            patch.object(social_discovery, "YOUTUBE_API_ENABLED", True),
+            patch.object(social_discovery, "discover_youtube_public_candidates", return_value=[]) as discover,
+        ):
+            self.assertEqual(discover_youtube_with_budget(now, ledger), [])
+        discover.assert_called_once_with(now, max_search_calls=1)
+        self.assertEqual(ledger["youtube_search_calls_used"], YOUTUBE_DAILY_SEARCH_BUDGET)
+
+    def test_push_style_run_skips_paid_search_and_keeps_public_telegram_discovery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "social_discovery.json"
+            with (
+                patch.object(social_discovery, "PAID_SEARCH_ENABLED", False),
+                patch.object(social_discovery, "KEY", ""),
+                patch.object(social_discovery, "YOUTUBE_KEY", ""),
+                patch.object(social_discovery, "YOUTUBE_API_ENABLED", False),
+                patch.object(social_discovery, "OUT", output),
+                patch.object(social_discovery, "firecrawl_search") as firecrawl,
+                patch.object(social_discovery, "bing_search") as bing,
+                patch.object(social_discovery, "rank_candidates", side_effect=lambda rows, limit=500: list(rows)[:limit]),
+                patch.object(social_discovery, "log_growth_summary"),
+                patch.object(social_discovery, "telegram_repost_candidates", return_value=[]) as telegram,
+            ):
+                self.assertEqual(social_discovery.main(), 0)
+                firecrawl.assert_not_called()
+                bing.assert_not_called()
+                telegram.assert_called_once()
+                payload = json.loads(output.read_text(encoding="utf-8"))
+                self.assertIn("quota_ledger", payload)
+                self.assertEqual(payload["items"], [])
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
