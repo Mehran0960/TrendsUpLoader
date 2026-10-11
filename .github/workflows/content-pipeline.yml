@@ -118,7 +118,7 @@ jobs:
         run: python content_pipeline/publish_telegram.py
 
       - name: Update published-topic state after destination upload
-        if: ${{ success() && (hashFiles('out/**/publish.json') != '' || hashFiles('out/**/youtube_upload.json') != '') }}
+        if: ${{ always() && (hashFiles('out/**/publish.json') != '' || hashFiles('out/**/youtube_upload.json') != '') }}
         run: |
           python - <<'PY'
           import json
@@ -144,6 +144,7 @@ jobs:
           PY
 
       - name: Upload generated content
+        if: ${{ always() && hashFiles('out/**/video.mp4') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: trend-radar-content
