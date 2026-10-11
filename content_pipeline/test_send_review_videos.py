@@ -15,6 +15,9 @@ from content_pipeline.send_review_videos import (
     media_fingerprints_match,
     duration_content_gate,
     SPECIFIC_LONG_CLIP_LANES,
+    balanced_candidate_shortlist,
+    content_pillar_profile,
+    infer_recent_topic_history,
 )
 
 
@@ -448,6 +451,134 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             },
         ):
             self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
+    def test_balanced_shortlist_limits_cooking_to_one_of_first_three_when_alternatives_exist(self):
+        candidates = []
+        examples = [
+            ("food-1", "اسنک شکلاتی", "food_cooking"),
+            ("food-2", "کیک شکلاتی", "food_cooking"),
+            ("food-3", "کوبیده", "food_cooking"),
+            ("food-4", "نان خانگی", "food_cooking"),
+            ("funny", "یک اتفاق خنده‌دار", "comedy"),
+            ("animal", "واکنش گربه", "animals"),
+            ("skill", "حرکت تماشایی", "skill_or_spectacle"),
+            ("science", "یک پدیده علمی جالب", "science_curiosity"),
+        ]
+        for index, (ident, title, lane) in enumerate(examples):
+            candidates.append({
+                "id": ident,
+                "url": f"https://t.me/demo/{index + 1}",
+                "platform": "telegram",
+                "title": title,
+                "hook_signals": [lane],
+                "follow_growth_score": 80 - index,
+                "age_hours": 2,
+            })
+
+        selected = balanced_candidate_shortlist(candidates, recent_topics=[], limit=3)
+        food_count = sum(
+            1 for item in selected if content_pillar_profile(item)[1] == "food_cooking"
+        )
+        self.assertEqual(len(selected), 3)
+        self.assertLessEqual(food_count, 1)
+        self.assertGreaterEqual(len(selected) - food_count, 2)
+
+    def test_rolling_food_cap_prefers_non_food_after_six_recent_food_videos(self):
+        history = [{"pillar": "adjacent", "topic": "food_cooking"} for _ in range(6)]
+        candidates = [
+            {
+                "id": "food-next",
+                "url": "https://t.me/demo/food-next",
+                "platform": "telegram",
+                "title": "اسنک شکلاتی",
+                "hook_signals": ["food_cooking"],
+                "follow_growth_score": 99,
+                "age_hours": 1,
+            },
+            {
+                "id": "fun-next",
+                "url": "https://t.me/demo/fun-next",
+                "platform": "telegram",
+                "title": "یک اتفاق خنده‌دار",
+                "hook_signals": ["comedy"],
+                "follow_growth_score": 70,
+                "age_hours": 1,
+            },
+            {
+                "id": "skill-next",
+                "url": "https://t.me/demo/skill-next",
+                "platform": "telegram",
+                "title": "حرکت تماشایی",
+                "hook_signals": ["skill_or_spectacle"],
+                "follow_growth_score": 65,
+                "age_hours": 1,
+            },
+        ]
+        selected = balanced_candidate_shortlist(candidates, recent_topics=history, limit=3)
+        self.assertTrue(selected)
+        self.assertNotIn("food_cooking", [content_pillar_profile(item)[1] for item in selected])
+
+    def test_pillar_mix_uses_core_adjacent_and_experimental_topics(self):
+        lanes = [
+            ("reaction1", "موقعیت بامزه", "comedy"),
+            ("reaction2", "واکنش حیوان", "animals"),
+            ("reaction3", "واکنش غیرمنتظره", "human_reaction_or_relatable"),
+            ("visual1", "حرکت تماشایی", "skill_or_spectacle"),
+            ("visual2", "شوت تماشایی", "sports_or_athletic_skill"),
+            ("visual3", "قبل و بعد", "transformation_or_satisfying"),
+            ("curiosity1", "آزمایش علمی", "science_curiosity"),
+            ("curiosity2", "نمایش فناوری", "technology_demo"),
+            ("adjacent1", "ترفند کاربردی", "practical_tips_or_life_hacks"),
+            ("adjacent2", "آشپزی", "food_cooking"),
+            ("adjacent3", "طبیعت", "nature_and_wildlife"),
+            ("experiment1", "جای دیدنی", "travel_and_places"),
+            ("experiment2", "خطای دید", "puzzles_and_visual_illusions"),
+            ("experiment3", "نوستالژی", "nostalgia_and_then_now"),
+        ]
+        candidates = [
+            {
+                "id": ident,
+                "url": f"https://t.me/mix/{index + 1}",
+                "platform": "telegram",
+                "title": title,
+                "hook_signals": [lane],
+                "follow_growth_score": 80 - index,
+                "age_hours": 1,
+            }
+            for index, (ident, title, lane) in enumerate(lanes)
+        ]
+        selected = balanced_candidate_shortlist(candidates, recent_topics=[], limit=10)
+        counts = {}
+        for item in selected:
+            pillar, _topic = content_pillar_profile(item)
+            counts[pillar] = counts.get(pillar, 0) + 1
+        core_count = sum(counts.get(key, 0) for key in (
+            "reaction_and_comedy", "visual_wow", "curiosity_and_process"
+        ))
+        self.assertEqual(len(selected), 10)
+        self.assertGreaterEqual(core_count, 6)
+        self.assertLessEqual(core_count, 8)
+        self.assertGreaterEqual(counts.get("adjacent", 0), 1)
+        self.assertLessEqual(counts.get("adjacent", 0), 3)
+        self.assertGreaterEqual(counts.get("experimental", 0), 1)
+        self.assertLessEqual(counts.get("experimental", 0), 2)
+
+    def test_bootstrap_topic_history_from_sent_media_fingerprints(self):
+        state = {
+            "media_reviewed_fingerprints": [
+                {"url": "https://t.me/foodchannel/42", "sha256": "abc"}
+            ]
+        }
+        items = [{
+            "url": "https://t.me/foodchannel/42",
+            "hook_signals": ["food_cooking"],
+            "title": "آشپزی",
+        }]
+        history = infer_recent_topic_history(state, items)
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0]["topic"], "food_cooking")
+        self.assertEqual(history[0]["pillar"], "adjacent")
+        self.assertTrue(history[0]["inferred"])
 
     def test_accepts_multiple_mainstream_evergreen_topics(self):
         examples = [
