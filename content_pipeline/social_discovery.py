@@ -565,7 +565,9 @@ def youtube_api_error_context(exc):
     if reason:
         context["api_reason"] = str(reason)[:100]
     if message:
-        context["api_message"] = message.replace(YOUTUBE_KEY, "[redacted]")[:220]
+        if YOUTUBE_KEY:
+            message = message.replace(YOUTUBE_KEY, "[redacted]")
+        context["api_message"] = message[:220]
     return context
 
 
