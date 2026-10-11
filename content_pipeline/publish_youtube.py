@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out"
-STATE = ROOT / "attention_state" / "youtube_upload_state.json"
+STATE = ROOT / "content_state" / "youtube_upload_state.json"
 UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
 
 def load_json(path, default):

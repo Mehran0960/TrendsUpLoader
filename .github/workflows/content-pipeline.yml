@@ -9,6 +9,11 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      upload_to_youtube_private:
+        description: "Upload the original video to the connected YouTube channel as PRIVATE only"
+        required: true
+        type: boolean
+        default: false
       publish_to_telegram:
         description: "Publish to the separate audience channel after the content and rights gates pass"
         required: true
@@ -83,6 +88,27 @@ jobs:
         if: ${{ success() && hashFiles('out/**/metadata.json') != '' }}
         run: python content_pipeline/distribution_plan.py
 
+      - name: Validate YouTube private-upload credentials
+        if: ${{ inputs.upload_to_youtube_private }}
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$YOUTUBE_CLIENT_ID" || { echo "Missing Actions secret YOUTUBE_CLIENT_ID"; exit 1; }
+          test -n "$YOUTUBE_CLIENT_SECRET" || { echo "Missing Actions secret YOUTUBE_CLIENT_SECRET"; exit 1; }
+          test -n "$YOUTUBE_REFRESH_TOKEN" || { echo "Missing Actions secret YOUTUBE_REFRESH_TOKEN"; exit 1; }
+      - name: Install YouTube uploader dependency
+        if: ${{ inputs.upload_to_youtube_private }}
+        run: pip install --disable-pip-version-check google-api-python-client
+      - name: Upload original video to YouTube privately
+        if: ${{ inputs.upload_to_youtube_private }}
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: python content_pipeline/publish_youtube.py
       - name: Publish to the audience Telegram channel (opt-in)
         if: ${{ inputs.publish_to_telegram && vars.TELEGRAM_AUDIENCE_PUBLISH_ENABLED == 'true' && hashFiles('out/**/video.mp4') != '' }}
         env:
@@ -91,8 +117,8 @@ jobs:
           TELEGRAM_AUDIENCE_PUBLISH_ENABLED: ${{ vars.TELEGRAM_AUDIENCE_PUBLISH_ENABLED }}
         run: python content_pipeline/publish_telegram.py
 
-      - name: Update published-topic state after Telegram publish
-        if: ${{ success() && hashFiles('out/**/publish.json') != '' }}
+      - name: Update published-topic state after destination upload
+        if: ${{ success() && (hashFiles('out/**/publish.json') != '' || hashFiles('out/**/youtube_upload.json') != '') }}
         run: |
           python - <<'PY'
           import json
@@ -105,7 +131,8 @@ jobs:
           except Exception:
               data = {"version": 1, "keys": []}
           keys = set(str(x) for x in data.get("keys", []))
-          for p in Path("out").glob("**/publish.json"):
+          published_records = list(Path("out").glob("**/publish.json")) + list(Path("out").glob("**/youtube_upload.json"))
+          for p in published_records:
               meta_path = p.parent / "metadata.json"
               if meta_path.exists():
                   meta = json.loads(meta_path.read_text(encoding="utf-8"))

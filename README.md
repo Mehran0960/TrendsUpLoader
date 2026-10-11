@@ -24,7 +24,7 @@ Every destination is evaluated separately. Rights, current platform rules, and a
 
 - `content_pipeline/distribution_plan.py` creates a per-platform readiness manifest next to the generated video's metadata.
 - Telegram has an official Bot API publishing adapter, but public audience publishing is **off by default** and requires separate channel credentials plus explicit opt-in.
-- YouTube, TikTok, Instagram, Aparat, and X publishing adapters are not yet connected in this repository. Until an authorized, sustainable route is verified, the workflow packages an MP4 for export instead of pretending automatic publishing is ready.
+- YouTube now has an opt-in private-upload path for original videos when OAuth secrets are configured; public scheduling is still not connected. TikTok, Instagram, Aparat, and X remain disconnected and use the portable MP4/export route until an authorized route is verified.
 - The original-short workflow no longer depends on Make or a 5 MB relay. It builds a portable distribution bundle and does not publish to any public destination.
 - No discovered third-party clip is automatically republished based only on its ranking score.
 

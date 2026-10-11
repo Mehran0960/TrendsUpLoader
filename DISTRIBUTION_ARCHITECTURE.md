@@ -9,7 +9,7 @@ Use social platforms to acquire relevant followers, then build a portable audien
 | Destination | Route in this repository | Current state | Strategic posture |
 |---|---|---|---|
 | Telegram audience channel | Official Bot API `sendVideo` | Implemented but disabled by default | Candidate for an early opt-in test after a separate channel is ready |
-| YouTube | Official YouTube Data API | Not connected; export bundle only | Prefer original, story-led content; rights and Community Guidelines remain required |
+| YouTube | Official YouTube Data API private-upload route | Optional private upload is wired into the manual content workflow; OAuth secrets are still required. Public scheduled publishing is not enabled. | Start with a private test upload, then schedule manually in YouTube Studio until public API authorization is verified. |
 | TikTok | Official Content Posting API | Not connected; app/user authorization and audit may be required | Keep as a growth target, but don't assume unattended public posting is available |
 | Instagram | Official publishing route | Not connected; account eligibility and permissions must be verified | Prefer original content and platform-native sharing/remix features; don't rely on simple copied reposts for recommendations |
 | Aparat | Official route to be verified | Not connected | Keep in the candidate rollout; verify supported publishing route and account requirements before automating |
@@ -54,6 +54,13 @@ The workflow `Original Short Export Bundle (No External Relay)` builds one origi
 - `metadata.json`, `rights_manifest.json`, attribution information when required, and `distribution_manifest.json`.
 
 The export workflow does not upload the video to YouTube or any other public destination. There is no relay-provider account, webhook secret, or 5 MB intermediary limit in this workflow.
+
+
+## YouTube private-upload pilot
+
+- The manual `Audience Content Pipeline` workflow now exposes an explicit `upload_to_youtube_private` checkbox. It defaults to off and can upload only as `private`; it never switches a video public or sets a public publishing time.
+- To test it, add the three OAuth values as GitHub Actions secrets named `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, and `YOUTUBE_REFRESH_TOKEN`, then dispatch the workflow with the checkbox enabled. The generated video must still pass editorial and rights gates.
+- The YouTube upload ledger is stored in the workflow's cached `content_state` so duplicate content keys can be skipped between runs. A successful private upload is a technical smoke test, not proof that public scheduling through the API is authorized.
 
 ## Telegram publishing safety
 

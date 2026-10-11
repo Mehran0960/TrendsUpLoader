@@ -23,9 +23,14 @@ TARGETS = {
         ],
     },
     "youtube": {
-        "adapter": "official_data_api",
-        "integration_status": "not_connected",
-        "required_configuration": ["authorized channel route verified separately"],
+        "adapter": "official_data_api_private_upload",
+        "integration_status": "private_upload_opt_in_pending_oauth",
+        "required_configuration": [
+            "YOUTUBE_CLIENT_ID secret",
+            "YOUTUBE_CLIENT_SECRET secret",
+            "YOUTUBE_REFRESH_TOKEN secret",
+            "workflow_dispatch upload_to_youtube_private = true",
+        ],
     },
     "tiktok": {
         "adapter": "official_content_posting_api",
@@ -76,6 +81,8 @@ def create_distribution_plan(metadata: dict, rights: dict) -> dict:
             status = "blocked_rights_or_provenance"
         elif platform == "telegram":
             status = "opt_in_route_available_not_enabled_by_manifest"
+        elif platform == "youtube":
+            status = "private_upload_route_available_opt_in_not_enabled"
         else:
             status = "adapter_not_connected"
         results[platform] = {

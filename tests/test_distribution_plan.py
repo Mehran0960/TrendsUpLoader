@@ -44,7 +44,7 @@ class DistributionPlanTests(unittest.TestCase):
             for row in plan["targets"].values()
         ))
 
-    def test_telegram_route_is_opt_in_and_other_adapters_stay_disconnected(self):
+    def test_telegram_and_youtube_private_routes_are_opt_in(self):
         plan = create_distribution_plan(self.metadata, self.rights)
         self.assertTrue(plan["rights_gate_passed"])
         self.assertEqual(
@@ -52,7 +52,10 @@ class DistributionPlanTests(unittest.TestCase):
             "opt_in_route_available_not_enabled_by_manifest",
         )
         self.assertEqual(
-            plan["targets"]["youtube"]["status"], "adapter_not_connected"
+            plan["targets"]["youtube"]["status"], "private_upload_route_available_opt_in_not_enabled"
+        )
+        self.assertEqual(
+            plan["targets"]["instagram"]["status"], "adapter_not_connected"
         )
         self.assertTrue(all(
             not row["publishing_authorized"]
