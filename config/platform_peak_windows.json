@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "timezone": "Asia/Tehran",
+  "note": "These are initial test windows, not verified peak-time measurements for this account. Replace with each platform's own audience/activity analytics after the accounts are available. The queue counted by the planner is a private-review candidate buffer, not a rights-cleared public-publishing queue.",
+  "preparation_ahead_minutes": 300,
+  "review_queue_target": 6,
+  "max_discovery_runs_per_local_day": 6,
+  "windows": {
+    "instagram_reels": [
+      "12:30",
+      "18:30",
+      "21:30"
+    ],
+    "youtube_shorts": [
+      "12:00",
+      "17:00",
+      "20:30"
+    ],
+    "tiktok": [
+      "12:00",
+      "18:00",
+      "21:00"
+    ],
+    "aparat": [
+      "12:30",
+      "18:30",
+      "21:00"
+    ],
+    "telegram": [
+      "12:30",
+      "18:00",
+      "21:30"
+    ],
+    "x": [
+      "12:00",
+      "18:00",
+      "21:00"
+    ]
+  }
+}

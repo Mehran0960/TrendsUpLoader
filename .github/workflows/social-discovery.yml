@@ -8,7 +8,7 @@ concurrency:
 
 on:
   schedule:
-    - cron: "17 */4 * * *"
+    - cron: "13 * * * *"
   workflow_dispatch:
   push:
     paths:
@@ -19,6 +19,9 @@ on:
       - "content_pipeline/test_follower_growth.py"
       - "content_pipeline/test_social_discovery.py"
       - ".github/workflows/social-discovery.yml"
+      - "config/platform_peak_windows.json"
+      - "content_pipeline/peak_window_planner.py"
+      - "content_pipeline/test_peak_window_planner.py"
 
 jobs:
   discover:
@@ -37,7 +40,7 @@ jobs:
           python-version: "3.11"
       - run: pip install --disable-pip-version-check requests yt-dlp pillow
       - name: Run topic-selection regression tests
-        run: python -m unittest -v content_pipeline.test_follower_growth content_pipeline.test_social_discovery content_pipeline.test_send_review_videos
+        run: python -m unittest -v content_pipeline.test_follower_growth content_pipeline.test_social_discovery content_pipeline.test_send_review_videos content_pipeline.test_peak_window_planner
       - name: Verify frame-analysis tools
         run: |
           set -euo pipefail
@@ -47,8 +50,18 @@ jobs:
           fi
           ffmpeg -version | head -n 1
           ffprobe -version | head -n 1
-      - name: Discover cross-platform viral candidates
+      - name: Plan queue-first preparation before platform windows
         if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+        id: peak_plan
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            python content_pipeline/peak_window_planner.py --force
+          else
+            python content_pipeline/peak_window_planner.py
+          fi
+      - name: Discover cross-platform viral candidates
+        if: ${{ success() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && steps.peak_plan.outputs.should_discover == 'true' }}
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -58,7 +71,7 @@ jobs:
           YOUTUBE_API_ENABLED: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         run: python content_pipeline/social_discovery.py
       - name: Download and send video files for private review
-        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && steps.peak_plan.outputs.should_discover == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -91,6 +104,9 @@ jobs:
           if [ -f attention_state/social_discovery_notification_state.json ]; then
             cp attention_state/social_discovery_notification_state.json "$state_tmp/social_discovery_notification_state.json"
           fi
+          if [ -f attention_state/peak_window_planner_state.json ]; then
+            cp attention_state/peak_window_planner_state.json "$state_tmp/peak_window_planner_state.json"
+          fi
 
           pushed=false
           for attempt in 1 2 3 4; do
@@ -99,6 +115,9 @@ jobs:
             mkdir -p attention_state
             if [ -f "$state_tmp/social_discovery.json" ]; then
               cp "$state_tmp/social_discovery.json" attention_state/social_discovery.json
+            fi
+            if [ -f "$state_tmp/peak_window_planner_state.json" ]; then
+              cp "$state_tmp/peak_window_planner_state.json" attention_state/peak_window_planner_state.json
             fi
 
             # Notifications can be delivered before persistence. Union the
@@ -144,6 +163,9 @@ jobs:
             fi
             if [ -f attention_state/social_discovery_notification_state.json ]; then
               git add attention_state/social_discovery_notification_state.json
+            fi
+            if [ -f attention_state/peak_window_planner_state.json ]; then
+              git add attention_state/peak_window_planner_state.json
             fi
             if git diff --cached --quiet; then
               echo 'No social discovery state change.'

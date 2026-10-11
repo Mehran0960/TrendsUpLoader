@@ -14,7 +14,8 @@ Full requirements and current limitations: [PROJECT_OBJECTIVE.md](PROJECT_OBJECT
 - When `YOUTUBE_API_KEY` is configured, the discovery lane uses the official YouTube Data API for fresh videos and native public metrics.
 - Candidates receive a heuristic priority score, confidence label, content lane, and safety/news/weapon/compilation/promotional review flags. The score is for triage only and does not predict actual growth or establish publication rights.
 - Candidate records now carry separate guidance for Instagram, TikTok, YouTube, Telegram, Aparat, and X. This guidance favors native sharing where available, keeps manual/export routes for disconnected platforms, and never marks rights cleared or publication authorized by default. A stricter rule on one destination does not globally discard an otherwise useful lead.
-- A scheduled workflow can send up to three deduplicated, recent candidate links to the private internal Telegram review chat. These messages are operational alerts—not public reposts and not the audience funnel.
+- A peak-window-aware planner checks the shortlist hourly and only launches more discovery when the qualified private-review buffer is low and one of the configured platform windows is approaching. Initial windows are hypotheses in `config/platform_peak_windows.json`, not account analytics; automatic discovery is capped at six runs per Tehran-local day.
+- A scheduled workflow can send up to three deduplicated, recent candidate videos to the private internal Telegram review chat. These messages are operational review items—not public reposts and not the audience funnel. This queue is not a rights-cleared public-publishing queue.
 - Candidate discovery and original-video creation are separate. Reusing a third-party video requires a license, permission, or platform-native reuse route that supports the intended use.
 
 ## Destination-specific publishing

@@ -17,6 +17,13 @@ Use social platforms to acquire relevant followers, then build a portable audien
 
 This table describes the repository, not a guarantee that a platform's API is available from every country or account. Do not bypass a platform's access, sanctions, or authorization restrictions.
 
+## Peak-window-aware preparation
+
+- The discovery workflow no longer treats a fixed four-hour cadence as the operating policy. It checks the preparation plan hourly; actual discovery is triggered only when the eligible private-review shortlist is below its target and a configured platform window is approaching.
+- Initial test windows are in `config/platform_peak_windows.json`, in Asia/Tehran time. They are explicitly hypotheses, not verified peak analytics for this account. Replace them with each platform's own audience/activity analytics after the accounts are available.
+- The planner targets six qualified, unreviewed candidates and caps automatic discovery runs at six per Tehran-local day. This keeps recurring searches bounded while allowing the candidate buffer to refill before more than one daily window.
+- Critical distinction: this is a **private-review candidate buffer**, not a queue of rights-cleared, platform-ready assets. Discovered clips are not automatically authorized for reposting. Public publishing still requires original or appropriately licensed content and a connected, authorized destination adapter.
+
 ## Different platform rules — no one-size-fits-all filter
 
 “Originality” is not a single universal switch. We evaluate each destination on its actual rules and supported features rather than applying the strictest platform's workflow to every destination.

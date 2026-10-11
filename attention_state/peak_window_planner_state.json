@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "local_day": "",
+  "discovery_runs": 0,
+  "last_discovery_attempt_at": null,
+  "last_decision": "not_run_yet",
+  "last_review_queue_count": 0,
+  "review_queue_target": 6,
+  "max_discovery_runs_per_local_day": 6,
+  "next_window": null
+}
