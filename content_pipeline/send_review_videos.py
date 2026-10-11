@@ -193,7 +193,7 @@ SPECIFIC_LONG_CLIP_LANES = TARGET_LANES - {
 }
 
 
-CAPTION_ZERO_WIDTH_RE = re.compile(r"[\u200b\u200c\u200e\u200f\u2060\ufeff\u00ad]")
+CAPTION_ZERO_WIDTH_RE = re.compile(r"[\u200b\u200e\u200f\u2060\ufeff\u00ad]")
 CAPTION_URL_RE = re.compile(r"(?:https?://|www\.)\S+|(?:t\.me|eitaa\.com)/\S+", re.I)
 CAPTION_HANDLE_RE = re.compile(r"(?<!\w)@[A-Za-z0-9_]{2,}")
 CAPTION_BRAND_TAG_RE = re.compile(
@@ -220,6 +220,9 @@ def clean_review_caption(value, max_chars=1024):
     """Keep the meaningful source caption while removing invisible padding and promotion."""
     text = html.unescape(str(value or ""))
     text = CAPTION_ZERO_WIDTH_RE.sub("", text)
+    # Persian ZWNJ is linguistically meaningful inside words; remove repeated
+    # padding runs and edge padding without flattening valid Persian spelling.
+    text = re.sub(r"[\u200c]{2,}", "", text).strip("\u200c")
     cta = CAPTION_CTA_TAIL_RE.search(text)
     if cta:
         text = text[:cta.start()]
