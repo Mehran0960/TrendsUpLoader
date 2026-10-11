@@ -807,6 +807,18 @@ def main():
                 suppressed_ids.append(item["_review_id"])
                 suppressed_urls.append(str(item.get("_canonical_media_url") or canonical_media_url(url)))
                 continue
+            final_caption = render_caption(item)
+            if not final_caption or is_generic_greeting_caption(
+                final_caption, set(item.get("hook_signals") or [])
+            ):
+                print("MEDIA_REVIEW_CAPTION_REJECT", json.dumps({
+                    "reason": "empty_or_generic_after_source_caption_refresh",
+                    "url": url,
+                }, ensure_ascii=False))
+                suppressed_ids.append(item["_review_id"])
+                suppressed_urls.append(str(item.get("_canonical_media_url") or canonical_media_url(url)))
+                continue
+
             size = video_path.stat().st_size
             if size > MAX_VIDEO_BYTES:
                 print("MEDIA_REVIEW_SIZE_GUARD", size)
