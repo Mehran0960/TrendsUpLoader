@@ -226,8 +226,8 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
     def test_accepts_recent_topic_specific_firecrawl_result_for_private_review(self):
         candidate = {
             "id": "recent-firecrawl-home-tip",
-            "url": "https://www.aparat.com/v/organize123",
-            "platform": "aparat",
+            "url": "https://x.com/clipfeed/status/123456789",
+            "platform": "x",
             "source": "firecrawl_search",
             "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
             "age_hours": 24,
@@ -275,6 +275,17 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
                 "source": "firecrawl_search",
                 "title": "A cat has a surprising funny reaction to a toy",
                 "description": "Unexpected animal reaction caught on camera.",
+                "views": 0,
+                "age_hours": 24,
+                "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
+            },
+            {
+                "id": "aparat-unavailable",
+                "url": "https://www.aparat.com/v/abc123",
+                "platform": "aparat",
+                "source": "firecrawl_search",
+                "title": "A practical life hack to organize a tiny desk",
+                "description": "A clear home organization tip.",
                 "views": 0,
                 "age_hours": 24,
                 "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
