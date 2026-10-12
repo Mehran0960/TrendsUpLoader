@@ -76,7 +76,7 @@ def allowed_source(chat):
         return True
     usernames = {str(x).lstrip("@").lower() for x in policy.get("allowed_usernames", []) if str(x).strip()}
     chat_ids = {str(x) for x in policy.get("allowed_chat_ids", []) if str(x).strip()}
-    return _listed_source(chat, usernames, chat_ids)
+    return _listed_source(chat, usernames, chat_ids) or audience_republication_allowed(chat, policy)
 
 
 def audience_republication_allowed(chat, policy=None):
