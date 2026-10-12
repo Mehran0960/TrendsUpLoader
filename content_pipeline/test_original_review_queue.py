@@ -1,4 +1,5 @@
 """Deterministic tests for trend-inspired original-video private review selection."""
+# One-time smoke-trigger marker; no runtime behavior change.
 import unittest
 from datetime import datetime, timedelta, timezone
 
