@@ -797,6 +797,69 @@ def make_visual(path: Path, title: str, caption: str, label: str, visual_kind: s
             draw_data_flow(d)
         elif visual_kind == "ai_human":
             draw_human_machine(d)
+        elif visual_kind == "animal_scene":
+            # A simple generated cat illustration; no third-party media is used.
+            d.ellipse((205,385,515,695), fill=(54,83,111), outline=(142,183,210), width=5)
+            d.polygon([(230,470),(245,330),(340,425)], fill=(54,83,111), outline=(142,183,210))
+            d.polygon([(380,425),(480,330),(493,470)], fill=(54,83,111), outline=(142,183,210))
+            d.ellipse((270,485,300,535), fill=(225,235,190))
+            d.ellipse((420,485,450,535), fill=(225,235,190))
+            d.ellipse((283,500,294,522), fill=(15,22,32))
+            d.ellipse((431,500,442,522), fill=(15,22,32))
+            d.polygon([(345,555),(375,555),(360,574)], fill=(224,143,160))
+            d.arc((300,555,360,615), 10, 100, fill=(225,235,240), width=5)
+            d.arc((360,555,420,615), 80, 170, fill=(225,235,240), width=5)
+            for yy in (555,580,605):
+                d.line((300,yy,220,yy-14), fill=(210,225,235), width=4)
+                d.line((420,yy,500,yy-14), fill=(210,225,235), width=4)
+        elif visual_kind == "sports_curve":
+            # Generated ball and flight path to illustrate spin, not a reused match clip.
+            d.arc((120,300,610,810), 205, 330, fill=(125,190,235), width=8)
+            d.arc((95,260,640,850), 205, 330, fill=(80,126,180), width=4)
+            d.ellipse((270,470,450,650), fill=(235,241,247), outline=(70,100,130), width=5)
+            d.polygon([(360,505),(400,535),(385,580),(335,580),(320,535)], fill=(33,43,59))
+            for x,y in ((303,515),(417,514),(300,603),(420,602)):
+                d.polygon([(x,y),(x+20,y-12),(x+38,y+5),(x+19,y+20)], fill=(33,43,59))
+            d.polygon([(540,300),(580,320),(540,340)], fill=(125,190,235))
+        elif visual_kind == "apple_oxidation":
+            # Generated split apple: fresh on the left, oxidized on the right.
+            d.ellipse((145,385,360,700), fill=(196,53,62), outline=(245,170,150), width=5)
+            d.ellipse((360,385,575,700), fill=(132,78,47), outline=(185,132,88), width=5)
+            d.polygon([(330,395),(390,395),(360,345)], fill=(205,65,65))
+            d.line((360,388,374,330), fill=(105,75,48), width=14)
+            d.ellipse((372,320,445,355), fill=(76,151,85), outline=(130,196,120), width=3)
+            d.ellipse((215,475,290,555), fill=(237,210,145), outline=(248,230,190), width=3)
+            d.ellipse((420,475,495,555), fill=(178,126,75), outline=(211,169,111), width=3)
+            draw_rtl_block(d, "تازه", 725, font(34,bold=True), 240, fill=(245,250,252), align="center")
+            draw_rtl_block(d, "در تماس با هوا", 785, font(27,bold=True), 430, fill=(223,231,239), align="center")
+        elif visual_kind == "chat_bubble":
+            d.rounded_rectangle((90,355,515,520), radius=38, fill=(28,72,116), outline=(110,177,222), width=4)
+            d.polygon([(150,505),(125,555),(205,520)], fill=(28,72,116))
+            draw_rtl_block(d, "یه سؤال دارم…", 405, font(36,bold=True), 365, fill=(245,249,252), align="center")
+            d.rounded_rectangle((195,600,625,755), radius=38, fill=(40,88,65), outline=(118,193,143), width=4)
+            d.polygon([(555,740),(600,790),(510,755)], fill=(40,88,65))
+            draw_rtl_block(d, "اسم اون فیلمه چی بود؟", 650, font(27,bold=True), 360, fill=(240,250,243), align="center")
+        elif visual_kind == "optical_illusion":
+            # Parallel rules with alternating short bars create a simple generated optical puzzle.
+            for row in range(7):
+                yy=350+row*62
+                d.line((90,yy,630,yy),fill=(215,226,237),width=5)
+                offset=35 if row%2 else 0
+                for col in range(5):
+                    xx=135+col*100+offset
+                    d.line((xx,yy-23,xx+25,yy+23),fill=(100,184,225),width=8)
+            d.rounded_rectangle((110,805,610,885),radius=24,fill=(15,26,44),outline=(85,124,163),width=3)
+            draw_rtl_block(d, "خط‌ها موازی‌اند؟", 824, font(30,bold=True), 430, fill=(245,249,252), align="center")
+        elif visual_kind == "sunset_scene":
+            # Original stylized sunset illustration.
+            for row in range(10):
+                yy=340+row*36
+                color=(max(80,235-row*12),max(35,135-row*9),max(28,85-row*6))
+                d.line((70,yy,650,yy),fill=color,width=38)
+            d.ellipse((275,420,445,590),fill=(255,187,90),outline=(255,218,150),width=5)
+            d.polygon([(60,770),(245,560),(365,770)],fill=(36,59,82))
+            d.polygon([(250,780),(465,545),(665,780)],fill=(24,43,65))
+            d.line((65,805,655,805),fill=(193,130,78),width=5)
         elif visual_kind == "software_terminal":
             draw_terminal(d)
         elif visual_kind == "software_browser":
@@ -838,19 +901,123 @@ def split_sentences(text: str):
 
 CURATED_STORIES = {
     "AI Demo: One photo becomes video": {
+        "story_id": "ai_photo_video",
+        "trend_categories": ["tech"],
+        "auto_review": True,
         "title_fa": "یک عکس؛ چطور هوش مصنوعی ازش ویدئو می‌سازه؟",
         "script": (
             "یه عکس ثابت؛ اما می‌شه ازش صحنه‌ای ساخت که انگار واقعاً فیلم‌برداری شده. "
-            "مدل‌های ویدیوساز مثل Veo از متن یا تصویر، حرکت تازه می‌سازن. "
-            "نکتهٔ عجیب؟ طبیعی بودن ویدئو، دلیل واقعی بودن اتفاق نیست. "
-            "قبل از شیر کردن کلیپ‌های باورنکردنی، منبع اصلیش رو پیدا کن. "
+            "مدل‌های ویدیوساز از متن یا تصویر، حرکت تازه می‌سازن؛ برای همین یک کلیپ طبیعی، به‌تنهایی سند واقعی بودن ماجرا نیست. "
+            "نکتهٔ مهم اینه که تصویر چشم‌نواز و مدرک واقعی، دو چیز متفاوت‌اند. "
+            "قبل از شیر کردن یک ویدئوی باورنکردنی، دنبال نسخهٔ اصلی و نشانه‌های قابل‌بررسی بگرد. "
             "تو آخرین بار به کدوم ویدئو شک کردی؟"
         ),
         "visuals": ["ai_network", "ai_chat", "ai_agent", "ai_human"],
-        "labels": ["چالش تصویری", "متن به ویدئو", "واقعی یا ساخته‌شده؟", "نظر تو چیه؟"],
+        "labels": ["یک عکس ثابت", "حرکت ساخته‌شده", "واقعی یا مصنوعی؟", "منبع را بررسی کن"],
         "original_visuals_only": True,
     },
+    "Original story: cat zoomies": {
+        "story_id": "cat_zoomies",
+        "trend_categories": ["animals"],
+        "auto_review": True,
+        "title_fa": "چرا گربه‌ها ناگهان توربو می‌شن؟",
+        "script": (
+            "یه لحظه گربه آرومه، لحظهٔ بعد مثل موشک از راهرو رد می‌شه. "
+            "به این دویدن‌های کوتاه و پرانرژی گاهی «زومیز» می‌گن؛ رفتاری که در گربه‌ها دیده می‌شه و می‌تونه با بازی و انرژی جمع‌شده همراه باشه. "
+            "اما از روی یک کلیپ نمی‌شه علت دقیق هر رفتار رو فهمید؛ تغییر ناگهانی همراه درد یا ترس، موضوع جداگانه‌ایه. "
+            "پس خنده‌دار بودن یک صحنه جای توجه به حال حیوان رو نمی‌گیره. "
+            "گربهٔ تو بیشتر چه ساعتی توربو می‌شه؟"
+        ),
+        "visuals": ["animal_scene", "animal_scene", "animal_scene", "animal_scene"],
+        "labels": ["آرامش قبل طوفان", "حالت توربو", "بازی یا ناراحتی؟", "به نشانه‌ها دقت کن"],
+        "original_visuals_only": True,
+    },
+    "Original story: curving football": {
+        "story_id": "curving_football",
+        "trend_categories": ["sports", "wow"],
+        "auto_review": True,
+        "title_fa": "توپ چرا وسط پرواز می‌پیچه؟",
+        "script": (
+            "توپ فقط به سمت دروازه حرکت نمی‌کنه؛ اگر با چرخش ضربه بخوره، چرخش و جریان هوا می‌تونن مسیرش رو تغییر بدن. "
+            "به یکی از این پدیده‌ها در فیزیک «اثر مگنوس» می‌گن. "
+            "برای همین، زاویهٔ ضربه و چرخش توپ گاهی به اندازهٔ قدرت شوت مهم‌اند. "
+            "مسیر توپ از اول تا آخر یک خط مستقیم نیست و همین غافلگیری، دفاع از آن را سخت می‌کنه. "
+            "دفعهٔ بعد به چرخش توپ نگاه کن، نه فقط به بازیکن."
+        ),
+        "visuals": ["sports_curve", "sports_curve", "sports_curve", "sports_curve"],
+        "labels": ["شوت معمولی؟", "چرخش توپ", "مسیر خمیده", "فیزیک در بازی"],
+        "original_visuals_only": True,
+    },
+    "Original story: apple browning": {
+        "story_id": "apple_browning",
+        "trend_categories": ["food"],
+        "auto_review": True,
+        "title_fa": "چرا سیب بریده قهوه‌ای می‌شه؟",
+        "script": (
+            "سیب رو می‌بُری و چند دقیقه بعد سطحش قهوه‌ای می‌شه؛ انگار خراب شده، اما تغییر رنگ به‌تنهایی به معنی فاسد شدن نیست. "
+            "وقتی بافت سیب در معرض هوا قرار می‌گیره، واکنش‌های اکسیداسیون آنزیمی رنگ سطح رو عوض می‌کنن. "
+            "چند قطره آب‌لیمو معمولاً این روند رو کند می‌کنه، چون اسیدیته و ترکیباتش در واکنش دخالت دارن. "
+            "یک آزمایش ساده انجام بده: دو برش مشابه آماده کن و فقط روی یکی آب‌لیمو بریز. "
+            "بعد از چند دقیقه، فرقشون رو مقایسه کن."
+        ),
+        "visuals": ["apple_oxidation", "apple_oxidation", "apple_oxidation", "apple_oxidation"],
+        "labels": ["یک سیب تازه", "تماس با هوا", "اکسیداسیون", "آزمایش دو برش"],
+        "original_visuals_only": True,
+    },
+    "Original story: the message": {
+        "story_id": "message_twist",
+        "trend_categories": ["human_funny"],
+        "auto_review": True,
+        "title_fa": "پیام «یه سؤال دارم» چرا استرس میاره؟",
+        "script": (
+            "صفحه روشن می‌شه: «یه سؤال دارم». هنوز سؤال رو نمی‌دونی، اما ذهنت ده تا سناریو ساخته. "
+            "بعد پیام دوم میاد: «اسم اون فیلمه چی بود؟» و تمام اون نگرانی‌ها بی‌دلیل از آب درمیاد. "
+            "این یک موقعیت نمایشی و آشناست؛ وقتی اطلاعات ناقصه، ممکنه جای خالی رو با حدس‌های خودمون پُر کنیم. "
+            "حدس، مدرک نیست؛ چند ثانیه صبر کن تا سؤال کامل برسه. "
+            "تو هم با دیدن این پیام فوری نگران می‌شی؟"
+        ),
+        "visuals": ["chat_bubble", "chat_bubble", "chat_bubble", "chat_bubble"],
+        "labels": ["یه سؤال دارم…", "ده سناریو!", "سؤال واقعی", "حدس یا واقعیت؟"],
+        "original_visuals_only": True,
+    },
+    "Original story: optical illusion": {
+        "story_id": "optical_lines",
+        "trend_categories": ["wow", "satisfying"],
+        "auto_review": True,
+        "title_fa": "این خط‌ها واقعاً کج‌اند؟",
+        "script": (
+            "قبل از جواب دادن، فقط به خط‌های اصلی نگاه کن و حدست رو نگه دار. "
+            "وقتی ردیف‌های کوتاه و پس‌زمینه کنار هم قرار می‌گیرن، ممکنه جهت خط صاف رو اشتباه برداشت کنیم. "
+            "این یک خطای دید ساده‌ست؛ خط‌ها در تصویر از صفر رسم شده‌اند و هیچ اتفاق واقعی یا دوربین مخفی‌ای در کار نیست. "
+            "حالا یک بار دیگه نگاه کن و تمرکزت رو از الگوی اطراف بردار. "
+            "بار اول درست حدس زدی یا چشم‌هات گولت زدن؟"
+        ),
+        "visuals": ["optical_illusion", "optical_illusion", "optical_illusion", "optical_illusion"],
+        "labels": ["اولین نگاه", "الگوی مزاحم", "خط اصلی", "دوباره نگاه کن"],
+        "original_visuals_only": True,
+    },
+    "Original story: orange sunset": {
+        "story_id": "orange_sunset",
+        "trend_categories": ["travel", "wow"],
+        "auto_review": True,
+        "title_fa": "چرا آسمان دم غروب نارنجی می‌شه؟",
+        "script": (
+            "چرا نزدیک غروب، نور خورشید گرم‌تر و نارنجی‌تر به نظر می‌رسه؟ "
+            "وقتی خورشید پایین‌تره، نورش مسیر طولانی‌تری رو در جو طی می‌کنه و نور آبی بیشتر در جهات مختلف پراکنده می‌شه. "
+            "در نتیجه، سهم بیشتری از رنگ‌های گرم به چشم ما می‌رسه؛ البته گردوغبار و شرایط هوا هم روی رنگ نهایی اثر دارن. "
+            "برای همین دو غروب در یک شهر هم می‌تونن کاملاً متفاوت دیده بشن. "
+            "غروب بعدی، رنگ آسمون رو با دیروز مقایسه کن."
+        ),
+        "visuals": ["sunset_scene", "sunset_scene", "sunset_scene", "sunset_scene"],
+        "labels": ["نور خورشید", "مسیر در جو", "پراکندگی نور", "دو غروب متفاوت"],
+        "original_visuals_only": True,
+    },
+    # Kept for the older manually invoked content workflow. It is not part of the
+    # automated trend-review rotation because it depends on a dated security advisory.
     "Several vulnerabilities have been discovered in the Linux kernel": {
+        "story_id": "linux_security_manual_only",
+        "trend_categories": [],
+        "auto_review": False,
         "title_fa": "هشدار امنیتی جدید برای هسته لینوکس",
         "script": (
             "یه هشدار امنیتی تازه برای هستهٔ لینوکس منتشر شده. "
@@ -859,10 +1026,125 @@ CURATED_STORIES = {
             "برای جزئیات و بررسی وضعیت سیستم، به اطلاعیهٔ رسمی دبیان سر بزنید."
         ),
         "visuals": ["shield", "security_cards", "package", "document"],
-        "labels": ["هشدار امنیتی", "چه مشکلی مطرح است؟", "رفع مشکل", "منبع"],
     }
 }
 
+
+def select_original_trend_candidate(feed=None, state=None, now=None):
+    """Choose a fresh low-risk trend category and pair it with an original curated script.
+
+    The trending video is an inspiration signal only; its media and transcript are
+    never downloaded or reused by this original-content workflow.
+    """
+    now = now or datetime.now(timezone.utc)
+    feed_path = Path("attention_state/public_radar.json")
+    state_path = Path("attention_state/original_review_queue_state.json")
+
+    if feed is None:
+        try:
+            feed = json.loads(feed_path.read_text(encoding="utf-8"))
+        except Exception:
+            return None, "trend_radar_feed_unavailable"
+    if not isinstance(feed, dict) or not isinstance(feed.get("signals"), list):
+        return None, "trend_radar_feed_invalid"
+
+    updated_at = None
+    try:
+        updated_at = datetime.fromisoformat(str(feed.get("updated_at") or "").replace("Z", "+00:00"))
+        if updated_at.tzinfo is None:
+            updated_at = updated_at.replace(tzinfo=timezone.utc)
+        updated_at = updated_at.astimezone(timezone.utc)
+    except (TypeError, ValueError, OverflowError):
+        return None, "trend_radar_timestamp_invalid"
+    if (now.astimezone(timezone.utc) - updated_at).total_seconds() > 18 * 3600:
+        return None, "trend_radar_feed_stale"
+
+    if state is None:
+        try:
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+        except Exception:
+            state = {}
+    if not isinstance(state, dict):
+        state = {}
+
+    seen_story_ids = set(str(x) for x in state.get("recent_story_ids", []) if x)
+    seen_signal_ids = set(str(x) for x in state.get("recent_signal_ids", []) if x)
+    unsafe = re.compile(
+        r"\\b(politic(?:s|al)?|election|president|parliament|government|war|attack|terror|bomb|"
+        r"murder|killed|death|violence|protest|disaster|earthquake|flood|suicide|self.?harm|porn|"
+        r"sexual|gambling|casino)\\b|انتخابات|رئیس.?جمهور|سیاست|جنگ|حمله|ترور|انفجار|قتل|"
+        r"کشته|مرگ|خشونت|اعتراض|زلزله|سیل|خودکشی|خودآزاری|پورن|قمار",
+        re.IGNORECASE,
+    )
+
+    eligible = []
+    for signal in feed.get("signals") or []:
+        if not isinstance(signal, dict):
+            continue
+        title = str(signal.get("title") or "").strip()
+        url = str(signal.get("url") or "").strip()
+        signal_id = str(signal.get("id") or signal.get("video_id") or url).strip()
+        category = str(signal.get("category") or "").strip().lower()
+        if not title or not url.startswith("https://") or not signal_id:
+            continue
+        if signal_id in seen_signal_ids or signal.get("risk_flags") or unsafe.search(title):
+            continue
+        if category not in {"tech", "animals", "sports", "food", "human_funny", "wow", "satisfying", "travel"}:
+            continue
+        try:
+            score = float(signal.get("demand_score") or 0)
+        except (TypeError, ValueError, OverflowError):
+            score = 0
+        if score < 70:
+            continue
+        published_at = None
+        try:
+            published_at = datetime.fromisoformat(str(signal.get("published_at") or "").replace("Z", "+00:00"))
+            if published_at.tzinfo is None:
+                published_at = published_at.replace(tzinfo=timezone.utc)
+            age_hours = (now.astimezone(timezone.utc) - published_at.astimezone(timezone.utc)).total_seconds() / 3600.0
+        except (TypeError, ValueError, OverflowError):
+            age_hours = 999999
+        if age_hours < 0 or age_hours > 14 * 24:
+            continue
+        eligible.append((score, signal, signal_id, category, age_hours))
+
+    eligible.sort(key=lambda item: (item[0], -item[4]), reverse=True)
+    for score, signal, signal_id, category, age_hours in eligible:
+        stories = [
+            (key, story) for key, story in CURATED_STORIES.items()
+            if story.get("auto_review")
+            and category in story.get("trend_categories", [])
+            and str(story.get("story_id") or key) not in seen_story_ids
+        ]
+        if not stories:
+            continue
+        story_key, story = stories[0]
+        trend = {
+            "signal_id": signal_id,
+            "title": str(signal.get("title") or "")[:250],
+            "url": str(signal.get("url") or ""),
+            "category": category,
+            "demand_score": round(score, 2),
+            "published_at": str(signal.get("published_at") or ""),
+            "age_hours": round(age_hours, 2),
+            "chart_region_count": int(signal.get("chart_region_count") or 0),
+        }
+        return {
+            "source": "trend_inspired_original",
+            "title": story_key,
+            "url": trend["url"],
+            "score": score,
+            "content_fit": 10.0,
+            "velocity_pct": 0.0,
+            "source_count": max(1, int(signal.get("chart_region_count") or 1)),
+            "opportunity_score": score,
+            "story_key": story_key,
+            "story_id": story.get("story_id"),
+            "trend_inspiration": trend,
+        }, "ok"
+
+    return None, "no_fresh_supported_trend_category"
 def looks_mostly_english(text: str) -> bool:
     letters = re.findall(r"[A-Za-z\u0600-\u06FF]", str(text or ""))
     if not letters:
@@ -1104,8 +1386,21 @@ def draw_finance_chart(d):
 
 def main():
     OUT.mkdir(exist_ok=True)
+    original_trend_review = os.environ.get("ORIGINAL_TREND_REVIEW_MODE", "").strip().lower() == "true"
     test_title = os.environ.get("CONTENT_TEST_TITLE", "").strip()
-    if test_title:
+    if original_trend_review:
+        selected, reason = select_original_trend_candidate()
+        if not selected:
+            (OUT / "skip.json").write_text(json.dumps({
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "status": "skipped",
+                "reason": reason,
+            }, ensure_ascii=False, indent=2), encoding="utf-8")
+            print(json.dumps({"status": "skipped", "reason": reason}, ensure_ascii=False))
+            return
+        candidates = [selected]
+        candidate_source = "trend_inspired_original"
+    elif test_title:
         candidates = [{
             "source": "visual_test",
             "title": test_title,
@@ -1154,9 +1449,9 @@ def main():
         candidate_title = re.sub(r"\s+", " ", str(candidate.get("title") or "موضوع جدید")).strip()
         candidate_source = str(candidate.get("source") or candidate_source or "radar")
         candidate_url = str(candidate.get("url") or "").strip()
-        candidate_context = fetch_source_context(candidate_url)
+        candidate_context = {} if original_trend_review else fetch_source_context(candidate_url)
         try:
-            candidate_curated = CURATED_STORIES.get(candidate_title)
+            candidate_curated = CURATED_STORIES.get(str(candidate.get("story_key") or candidate_title))
             if candidate_curated:
                 dt = candidate_curated["title_fa"]
                 sc = candidate_curated["script"]
@@ -1169,7 +1464,7 @@ def main():
             chosen = candidate
             context = candidate_context
             display_title, script, script_mode = dt, sc, sm
-            selection_mode = "curated" if candidate_curated else ("radar_strict" if float(candidate.get("score", 0)) >= 50 else "safe_fallback")
+            selection_mode = "trend_inspired_curated" if original_trend_review else ("curated" if candidate_curated else ("radar_strict" if float(candidate.get("score", 0)) >= 50 else "safe_fallback"))
             break
         except Exception as exc:
             selection_errors.append(candidate_title + ": " + str(exc))
@@ -1302,6 +1597,8 @@ def main():
         "selection_mode": selection_mode,
         "script_quality": "passed",
         "content_key": content_key(c),
+        "story_id": c.get("story_id") or (curated or {}).get("story_id"),
+        "trend_inspiration": c.get("trend_inspiration"),
 
         "segments": segment_meta,
     }
