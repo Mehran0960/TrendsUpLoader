@@ -1,5 +1,4 @@
 """Tests for the discovery-only trend review queue (no media generation/download)."""
-# One-time validation trigger marker; tests only, no runtime side effects.
 import unittest
 from datetime import datetime, timedelta, timezone
 
