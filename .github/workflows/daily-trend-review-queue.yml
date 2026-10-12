@@ -5,6 +5,10 @@ on:
     # 06:45 Asia/Tehran (03:15 UTC); GitHub may delay scheduled starts.
     - cron: "15 3 * * *"
   workflow_dispatch:
+  # Temporary one-time validation trigger; removed immediately after the queue run is created.
+  push:
+    paths:
+      - "content_pipeline/test_trend_review_queue.py"
 
 concurrency:
   group: daily-trend-review-text-queue
