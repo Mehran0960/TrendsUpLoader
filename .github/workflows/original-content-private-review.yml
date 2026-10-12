@@ -5,6 +5,10 @@ on:
     # 06:45 Asia/Tehran. GitHub may delay scheduled starts during busy periods.
     - cron: "15 3 * * *"
   workflow_dispatch:
+  # Temporary private-only smoke trigger; it will be removed after queuing one validation run.
+  push:
+    paths:
+      - "content_pipeline/test_original_review_queue.py"
 
 concurrency:
   group: original-content-private-review
