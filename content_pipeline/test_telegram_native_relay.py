@@ -1,10 +1,24 @@
 """Tests for native Telegram transfer routing and public-source allowlists."""
 import unittest
 
-from content_pipeline.telegram_native_relay import audience_republication_allowed
+from content_pipeline.telegram_native_relay import allowed_source, audience_republication_allowed
 
 
 class TelegramNativeRelayPolicyTests(unittest.TestCase):
+    def test_bot_receivable_channel_is_private_review_eligible_without_public_authorization(self):
+        chat = {"id": "-100123", "username": "example_source"}
+        policy = {
+            "allow_all_channels_bot_can_receive": True,
+            "authorized_public_repost_usernames": [],
+            "authorized_public_repost_chat_ids": [],
+        }
+        self.assertTrue(allowed_source(chat, policy))
+        self.assertFalse(audience_republication_allowed(chat, policy))
+
+    def test_private_review_intake_is_default_deny_when_unconfigured(self):
+        chat = {"id": "-100123", "username": "example_source"}
+        self.assertFalse(allowed_source(chat, {}))
+
     def test_public_republication_is_denied_by_default(self):
         chat = {"id": "-100123", "username": "example_source"}
         self.assertFalse(audience_republication_allowed(chat, {}))
