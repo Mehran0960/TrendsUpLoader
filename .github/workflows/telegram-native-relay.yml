@@ -41,6 +41,9 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_AUDIENCE_PUBLISH_ENABLED: ${{ vars.TELEGRAM_AUDIENCE_PUBLISH_ENABLED }}
+          TELEGRAM_AUDIENCE_BOT_TOKEN: ${{ secrets.TELEGRAM_AUDIENCE_BOT_TOKEN }}
+          TELEGRAM_AUDIENCE_CHAT_ID: ${{ secrets.TELEGRAM_AUDIENCE_CHAT_ID }}
         run: python content_pipeline/telegram_native_relay.py
 
       - name: Persist relay state
