@@ -496,7 +496,7 @@ def parse_iso_duration(value):
 
 
 def infer_viral_category(video_category_id, title, description=""):
-    """Infer a video lane from its title first, then its description, then API category."""
+    """Infer a lane from the video title first, then description, then API category."""
     keyword_map=[
         ("animals", [
             "cat","kitten","dog","puppy","animal","pet","monkey","bird","toucan","horse","panda","rabbit",
@@ -523,12 +523,12 @@ def infer_viral_category(video_category_id, title, description=""):
     def classify(text):
         blob = str(text or "").lower()
         for category, words in keyword_map:
-            if any(re.search(r"\\b"+re.escape(word)+r"\\b", blob) for word in words):
+            if any(re.search(r"\b" + re.escape(word) + r"\b", blob) for word in words):
                 return category
         return None
 
-    # A video's title describes that specific video. The description may contain
-    # channel-wide promotions, affiliate links, or unrelated catalogue keywords.
+    # Titles are specific to this video; descriptions often contain channel-wide
+    # promotions, affiliate links, and unrelated topics.
     title_category = classify(title)
     if title_category:
         return title_category
@@ -537,10 +537,9 @@ def infer_viral_category(video_category_id, title, description=""):
     if description_category:
         return description_category
 
-    # YouTube chart metadata can be mislabeled; only trust low-risk fallback buckets.
+    # API category IDs are a last resort because the chart metadata can be mislabeled.
     fallback_map={"17":"sports","28":"tech","23":"human_funny"}
     return fallback_map.get(str(video_category_id), "other")
-
 def discover_youtube_global_charts(limit_per_bucket=8):
     """Read current official YouTube mostPopular charts across regions/categories.
 
