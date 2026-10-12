@@ -8,8 +8,40 @@ from content_pipeline.iran_video_hunter import (
     telegram_tech_exploration_candidate,
 )
 
+from content_pipeline.attention_engine import infer_viral_category
 
 class ViralQualityGateTests(unittest.TestCase):
+    def test_video_title_outweighs_unrelated_travel_terms_in_description(self):
+        self.assertEqual(
+            infer_viral_category(
+                "28",
+                "Which AI is smartest?",
+                "Travel videos, trips, destination reviews, hotels, beaches and mountains.",
+            ),
+            "tech",
+        )
+
+    def test_common_wildlife_titles_are_classified_as_animals(self):
+        self.assertEqual(
+            infer_viral_category("15", "How Cookiecutter Sharks Bite Whales 😨", ""),
+            "animals",
+        )
+        self.assertEqual(
+            infer_viral_category("15", "Daddy swan protects his baby during rescue", ""),
+            "animals",
+        )
+
+    def test_description_remains_a_fallback_when_title_is_ambiguous(self):
+        self.assertEqual(
+            infer_viral_category(
+                "15",
+                "A moment captured on camera",
+                "A travel vlog about destinations, beaches and mountains.",
+            ),
+            "travel",
+        )
+
+
     def test_detects_multi_story_roundup_titles(self):
         for title in (
             "روایت سه ماجرا",
