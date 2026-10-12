@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "allow_all_channels_bot_can_receive": false,
+  "allow_all_channels_bot_can_receive": true,
   "allowed_usernames": [],
   "allowed_chat_ids": [],
-  "note": "Private review sources and public-republication sources are separate lists. Public audience copying is opt-in and requires an explicitly authorized source plus a separate audience bot/target.",
+  "note": "The bot may consider video posts from channels it can receive for private review. This setting does not authorize public republication. Public audience copying remains opt-in and requires an explicitly authorized source plus a separate audience bot/target.",
   "authorized_public_repost_usernames": [],
   "authorized_public_repost_chat_ids": []
 }
