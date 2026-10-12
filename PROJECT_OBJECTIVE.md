@@ -22,7 +22,8 @@ Raw views alone are not success. Nor is a large follower count useful if the aud
 - Prefer a strong opening hook, one main event or idea, a clear payoff, replay value, and reasons to share.
 - Use discovery metrics only to prioritize review. Scores are not predictions of follower growth and do not grant permission to reuse media.
 - Treat public posts as leads, not as proof of ownership, a license, or permission to download and republish.
-- Keep discovery of third-party clips separate from generation of original content. A third-party clip is eligible for reuse only when the relevant rights, license, permission, or intended platform-native reuse feature supports that exact use.
+- Video generation, rendering, remixing, and re-encoding are out of scope. Select existing videos and transfer them directly through a supported platform-native route whenever possible.
+- Public republication requires the relevant permission/license or an explicitly authorized platform-native use. Do not evade sign-in, anti-bot controls, or destination access restrictions.
 
 ## Destination-specific distribution
 
@@ -44,10 +45,10 @@ Raw views alone are not success. Nor is a large follower count useful if the aud
 
 - `content_pipeline/social_discovery.py` gathers public post URLs and metadata leads across Instagram, TikTok, YouTube, X, Aparat, and Telegram. It does not publish or download candidate media.
 - `content_pipeline/follower_growth.py` provides a transparent heuristic triage score with freshness, topic-lane, and safety flags. It does not verify rights or forecast actual audience growth.
-- The scheduled discovery workflow can send a small private shortlist to an internal Telegram chat. That channel is an operations alert, not the public audience destination.
+- The scheduled discovery workflow can send selected existing video files to the private Telegram review chat when direct media acquisition is supported. The native relay can copy posts from explicitly allowed Telegram source channels.
 - `content_pipeline/publication_rights.py` records basic asset license evidence and blocks unknown or unresolved rights from automated publication.
 - `content_pipeline/distribution_plan.py` records destination-specific readiness. In this repository, Telegram has an opt-in Bot API route; YouTube, TikTok, Instagram, Aparat, and X publishing adapters remain unconnected.
-- The original-short workflow now builds a portable MP4 and metadata bundle without Make or any publishing webhook.
+- The old video-builder entry point now fails closed, and automatic generation/remix workflows have been removed.
 - Public Telegram audience publishing is opt-in and requires a separate audience-channel bot/token, a repository variable, and an affirmative workflow input. It must not reuse the internal discovery-alert bot credentials.
 
 ## Next sequence
