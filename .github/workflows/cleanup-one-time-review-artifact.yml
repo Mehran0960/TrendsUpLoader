@@ -1,4 +1,4 @@
-name: One-time cleanup of deprecated video-review artifact
+name: One-time cleanup of deprecated video-review artifact (retry)
 
 on:
   push:
