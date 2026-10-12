@@ -99,12 +99,12 @@ class OriginalReviewQueueTests(unittest.TestCase):
         self.assertIsNone(candidate)
         self.assertEqual(reason, "no_fresh_supported_trend_category")
 
-    def test_missing_feed_fails_closed(self):
+    def test_invalid_feed_fails_closed(self):
         candidate, reason = select_original_trend_candidate(
-            feed=None, state={}, now=self.now
+            feed={}, state={}, now=self.now
         )
         self.assertIsNone(candidate)
-        self.assertEqual(reason, "trend_radar_feed_unavailable")
+        self.assertEqual(reason, "trend_radar_feed_invalid")
 
 
 if __name__ == "__main__":
