@@ -101,7 +101,7 @@ def candidate(update):
         return None
     chat = msg.get("chat") or {}
     chat_id = str(chat.get("id") or "")
-    if not chat_id or chat_id == str(TARGET):
+    if not chat_id or chat_id == str(TARGET) or (AUDIENCE_TARGET and chat_id == str(AUDIENCE_TARGET)):
         return None
     if not allowed_source(chat):
         return None
