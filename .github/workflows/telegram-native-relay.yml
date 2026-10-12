@@ -1,14 +1,19 @@
 name: Telegram Native Source Relay
 
-# Fixed daily slots in Tehran time: 08:30, 14:30, 20:30 (UTC cron: 05:00, 11:00, 17:00).
-# Scheduled runs only; no push/manual trigger can cause an out-of-window public post.
+# Tehran time slots: 12:30, 18:00, 19:30, 21:00, 22:30.
+# UTC cron: 09:00, 14:30, 16:00, 17:30, 19:00. One ranked eligible existing video per slot.
+# Public audience routing still requires an explicit source allowlist and separate credentials.
 concurrency:
   group: telegram-native-relay
   cancel-in-progress: false
 
 on:
   schedule:
-    - cron: "0 5,11,17 * * *"
+    - cron: "0 9 * * *"
+    - cron: "30 14 * * *"
+    - cron: "0 16 * * *"
+    - cron: "30 17 * * *"
+    - cron: "0 19 * * *"
 
 jobs:
   relay:
@@ -32,7 +37,7 @@ jobs:
       - name: Validate relay syntax
         run: python -m py_compile content_pipeline/telegram_native_relay.py
 
-      - name: Poll approved source channels and transfer the top eligible existing video
+      - name: Poll source channels and transfer the top eligible existing video
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
