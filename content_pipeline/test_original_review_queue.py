@@ -16,7 +16,9 @@ class OriginalReviewQueueTests(unittest.TestCase):
                     "id": "youtube:tech001",
                     "title": "Which AI is smartest?",
                     "url": "https://www.youtube.com/watch?v=tech001",
-                    "category": "tech",
+                    # Deliberately stale category: the selector must trust title cues.
+                    "category": "travel",
+                    "chart_category_id": "28",
                     "demand_score": 94.5,
                     "published_at": (self.now - timedelta(hours=5)).isoformat(),
                     "chart_region_count": 4,
