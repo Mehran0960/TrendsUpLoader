@@ -31,3 +31,4 @@ jobs:
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_send_review_videos -v
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_publish_youtube -v
           PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_trend_review_queue -v
+          PYTHONPATH="$GITHUB_WORKSPACE" python -m unittest content_pipeline.test_telegram_native_relay -v
