@@ -70,8 +70,9 @@ def _listed_source(chat, usernames, chat_ids):
     return bool((username and username in usernames) or (cid and cid in chat_ids))
 
 
-def allowed_source(chat):
-    policy = load_policy()
+def allowed_source(chat, policy=None):
+    """Decide whether a received source may enter private review; this is not public authorization."""
+    policy = policy if isinstance(policy, dict) else load_policy()
     if bool(policy.get("allow_all_channels_bot_can_receive")):
         return True
     usernames = {str(x).lstrip("@").lower() for x in policy.get("allowed_usernames", []) if str(x).strip()}
