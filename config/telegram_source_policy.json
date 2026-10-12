@@ -3,5 +3,7 @@
   "allow_all_channels_bot_can_receive": false,
   "allowed_usernames": [],
   "allowed_chat_ids": [],
-  "note": "Optional acquisition lane only. Sources require administrator permission to add the bot; main discovery does not depend on Telegram."
+  "note": "Private review sources and public-republication sources are separate lists. Public audience copying is opt-in and requires an explicitly authorized source plus a separate audience bot/target.",
+  "authorized_public_repost_usernames": [],
+  "authorized_public_repost_chat_ids": []
 }
