@@ -80,13 +80,27 @@ def main():
 
     video, metadata = find_latest()
     title = str(metadata.get("display_title_fa") or metadata.get("title") or "ویدئوی آزمایشی").strip()
-    caption = (
-        "نسخهٔ آزمایشی برای بررسی کیفیت؛ این پیام برای بازبینی خصوصی است و انتشار عمومی انجام نمی‌دهد.\n\n"
-        + title
-    )
-    source_url = str(metadata.get("source_url") or "").strip()
-    if source_url:
-        caption += "\n\nمنبع موضوع: " + source_url
+    trend = metadata.get("trend_inspiration") if isinstance(metadata.get("trend_inspiration"), dict) else None
+    if trend:
+        inspiration_title = str(trend.get("title") or "").strip()
+        trend_url = str(trend.get("url") or "").strip()
+        category = str(trend.get("category") or "").strip()
+        caption = (
+            "ویدئوی اصیل برای بازبینی خصوصی؛ انتشار عمومی انجام نشده است.\n\n"
+            + title
+        )
+        if inspiration_title:
+            caption += "\n\nدستهٔ ترند الهام‌بخش: " + category + "\n" + inspiration_title
+        if trend_url:
+            caption += "\n\nمرجع سیگنال ترند (فقط الهام؛ ویدئوی آن بازنشر نشده): " + trend_url
+    else:
+        caption = (
+            "نسخهٔ آزمایشی برای بررسی کیفیت؛ این پیام برای بازبینی خصوصی است و انتشار عمومی انجام نمی‌دهد.\n\n"
+            + title
+        )
+        source_url = str(metadata.get("source_url") or "").strip()
+        if source_url:
+            caption += "\n\nمرجع موضوع: " + source_url
     caption = caption[:MAX_CAPTION]
 
     boundary, body = multipart(
