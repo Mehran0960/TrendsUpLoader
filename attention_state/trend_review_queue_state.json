@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "last_delivery_at": "2026-10-12T20:27:50.402983+00:00",
+  "recent_signal_ids": [
+    "youtube:F2zyI5OQsiU",
+    "youtube:4Y9A0xDb8Cw",
+    "youtube:7sfrN1S8iIY",
+    "youtube:HFoUe6__vYA",
+    "youtube:6R45rApnCkE"
+  ],
+  "recent_urls": [
+    "https://www.youtube.com/watch?v=F2zyI5OQsiU",
+    "https://www.youtube.com/watch?v=4Y9A0xDb8Cw",
+    "https://www.youtube.com/watch?v=7sfrN1S8iIY",
+    "https://www.youtube.com/watch?v=HFoUe6__vYA",
+    "https://www.youtube.com/watch?v=6R45rApnCkE"
+  ],
+  "deliveries": [
+    {
+      "sent_at": "2026-10-12T20:27:50.402953+00:00",
+      "signal_ids": [
+        "youtube:F2zyI5OQsiU",
+        "youtube:4Y9A0xDb8Cw",
+        "youtube:7sfrN1S8iIY",
+        "youtube:HFoUe6__vYA",
+        "youtube:6R45rApnCkE"
+      ],
+      "item_count": 5,
+      "telegram_message_id": 112,
+      "video_production": false,
+      "media_downloaded": false,
+      "public_publishing_attempted": false
+    }
+  ]
+}
