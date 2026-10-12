@@ -496,12 +496,19 @@ def parse_iso_duration(value):
 
 
 def infer_viral_category(video_category_id, title, description=""):
-    """Infer our content lane from semantic cues first; category IDs are fallback."""
-    blob=(str(title or "")+" "+str(description or "")).lower()
-
+    """Infer a video lane from its title first, then its description, then API category."""
     keyword_map=[
-        ("animals", ["cat","kitten","dog","puppy","animal","pet","monkey","bird","toucan","horse","panda","rabbit"]),
-        ("sports", ["football","soccer","basketball","tennis","goal","match","nba","fifa","ufc","sport","skateboard","surf"]),
+        ("animals", [
+            "cat","kitten","dog","puppy","animal","pet","monkey","bird","toucan","horse","panda","rabbit",
+            "shark","sharks","whale","whales","swan","cygnet","wildlife","penguin","dolphin","turtle",
+            "snake","eagle","owl","deer","wolf","fox","bear","lion","tiger","elephant","duck","pigeon",
+            "parrot","squirrel","otter","seal","fish","frog","lizard","crocodile","alligator","kangaroo",
+            "goat","cow","pig","chicken","hen","rooster","calf"
+        ]),
+        ("sports", [
+            "football","soccer","basketball","tennis","goal","match","nba","fifa","ufc","sport","skateboard",
+            "surf","runner","running","marathon","athlete","sprinter","gymnast","track and field"
+        ]),
         ("food", ["food","cooking","recipe","chef","kitchen","street food","cake","dessert","pizza","sushi"]),
         ("cars", ["car","cars","automotive","drift","racing","vehicle","supercar","truck","motorcycle"]),
         ("satisfying", ["satisfying","restoration","restore","cleaning","before after","oddly","polishing"]),
@@ -512,14 +519,27 @@ def infer_viral_category(video_category_id, title, description=""):
         ("human_funny", ["funny","fail","prank","reaction","awkward","comedy","laugh","silly","meme"]),
         ("wow", ["amazing","skill","trick","acrobat","acrobatics","stunt","magic","flip","jump"]),
     ]
-    for category,words in keyword_map:
-        if any(re.search(r"\b"+re.escape(w)+r"\b", blob) for w in words):
-            return category
+
+    def classify(text):
+        blob = str(text or "").lower()
+        for category, words in keyword_map:
+            if any(re.search(r"\\b"+re.escape(word)+r"\\b", blob) for word in words):
+                return category
+        return None
+
+    # A video's title describes that specific video. The description may contain
+    # channel-wide promotions, affiliate links, or unrelated catalogue keywords.
+    title_category = classify(title)
+    if title_category:
+        return title_category
+
+    description_category = classify(description)
+    if description_category:
+        return description_category
 
     # YouTube chart metadata can be mislabeled; only trust low-risk fallback buckets.
     fallback_map={"17":"sports","28":"tech","23":"human_funny"}
     return fallback_map.get(str(video_category_id), "other")
-
 
 def discover_youtube_global_charts(limit_per_bucket=8):
     """Read current official YouTube mostPopular charts across regions/categories.
