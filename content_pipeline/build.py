@@ -1070,9 +1070,9 @@ def select_original_trend_candidate(feed=None, state=None, now=None):
     seen_story_ids = set(str(x) for x in state.get("recent_story_ids", []) if x)
     seen_signal_ids = set(str(x) for x in state.get("recent_signal_ids", []) if x)
     unsafe = re.compile(
-        r"\\b(politic(?:s|al)?|election|president|parliament|government|war|attack|terror|bomb|"
+        r"\b(politic(?:s|al)?|election|president|parliament|government|war|attack|terror|bomb|"
         r"murder|killed|death|violence|protest|disaster|earthquake|flood|suicide|self.?harm|porn|"
-        r"sexual|gambling|casino)\\b|انتخابات|رئیس.?جمهور|سیاست|جنگ|حمله|ترور|انفجار|قتل|"
+        r"sexual|gambling|casino)\b|انتخابات|رئیس.?جمهور|سیاست|جنگ|حمله|ترور|انفجار|قتل|"
         r"کشته|مرگ|خشونت|اعتراض|زلزله|سیل|خودکشی|خودآزاری|پورن|قمار",
         re.IGNORECASE,
     )
