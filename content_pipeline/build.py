@@ -1085,6 +1085,14 @@ def select_original_trend_candidate(feed=None, state=None, now=None):
         url = str(signal.get("url") or "").strip()
         signal_id = str(signal.get("id") or signal.get("video_id") or url).strip()
         category = str(signal.get("category") or "").strip().lower()
+        # Re-infer from the video title to repair stale or generic categories in older radar snapshots.
+        try:
+            from content_pipeline.attention_engine import infer_viral_category
+            inferred_category = infer_viral_category(signal.get("chart_category_id"), title, "")
+            if inferred_category and inferred_category != "other":
+                category = inferred_category
+        except Exception:
+            pass
         if not title or not url.startswith("https://") or not signal_id:
             continue
         if signal_id in seen_signal_ids or signal.get("risk_flags") or unsafe.search(title):
