@@ -26,6 +26,7 @@ Every destination is evaluated separately. Rights, current platform rules, and a
 - Telegram has an official Bot API publishing adapter, but public audience publishing is **off by default** and requires separate channel credentials plus explicit opt-in.
 - YouTube now has an opt-in private-upload path for original videos when OAuth secrets are configured; public scheduling is still not connected. TikTok, Instagram, Aparat, and X remain disconnected and use the portable MP4/export route until an authorized route is verified.
 - The original-short workflow no longer depends on Make or a 5 MB relay. It builds a portable distribution bundle and does not publish to any public destination.
+- `Daily Original Trend Video — Private Review Only` runs once per Tehran-local morning, pairs a fresh low-risk trend category with an original Persian script and generated illustrations, checks the rights/quality manifest, and sends only to the private Telegram review chat. It does not download or reuse the trending video's media and does not publish publicly; recent story/signal IDs are persisted to avoid repeats. If the radar is stale or no suitable trend qualifies, it skips instead of forcing an upload.
 - No discovered third-party clip is automatically republished based only on its ranking score.
 
 See [DISTRIBUTION_ARCHITECTURE.md](DISTRIBUTION_ARCHITECTURE.md) for the platform-by-platform implementation roadmap.
