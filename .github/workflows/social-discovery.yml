@@ -1,6 +1,7 @@
 name: Multi-Platform Social Discovery
-# Smoke-test run trigger requested on 2026-10-11; no runtime behavior change.
-# Second manual end-to-end output check requested on 2026-10-11.
+# Tehran private-review posting slots are scheduled ahead of target windows because Actions can queue:
+# 12:20, 17:50, 19:20, 20:50, 22:20 local (UTC: 08:50, 14:20, 15:50, 17:20, 18:50).
+# Each run sends at most one qualified review video, including when discovery itself is skipped.
 
 concurrency:
   group: social-discovery
@@ -8,7 +9,11 @@ concurrency:
 
 on:
   schedule:
-    - cron: "13 * * * *"
+    - cron: "50 8 * * *"
+    - cron: "20 14 * * *"
+    - cron: "50 15 * * *"
+    - cron: "20 17 * * *"
+    - cron: "50 18 * * *"
   workflow_dispatch:
   push:
     paths:
@@ -70,8 +75,9 @@ jobs:
           DISCOVERY_PAID_SEARCH_ENABLED: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           YOUTUBE_API_ENABLED: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         run: python content_pipeline/social_discovery.py
-      - name: Download and send video files for private review
-        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && steps.peak_plan.outputs.should_discover == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+      - name: Send one qualified existing video for private review
+        # Sending is independent of discovery: do not miss a posting slot just because the queue is already full.
+        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
