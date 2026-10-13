@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-13T16:54:00.610763+00:00",
+  "media_review_updated_at": "2026-10-13T16:57:06.467142+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -178,7 +178,16 @@
     "a259a900effed0f3446d11e95eb14232e6e84b43eea0efc99af2b16a1fe3be4b",
     "7d732641b76e5e3edaaa6a1b19748fecb550bb132bb8914ce8c07d5a6b9bd712",
     "edae8190c8edf4a074857b13e24db34801ba3778fd03542859be9490523d2dc6",
-    "00a33a3ad24750d0426530e70fc1fbb068381e2b298cc9469800cb97c1e70c40"
+    "00a33a3ad24750d0426530e70fc1fbb068381e2b298cc9469800cb97c1e70c40",
+    "ff74b93281d49b57e843ae82942e731fcf047932f9710a7e4f2b5dd6cb0d643c",
+    "04eb0c1604adb5c20fb2db77385b5d6b215133ad74551d0928813029ae05f0b3",
+    "b068466e2cfb34fd8708f269bab2662b7969f52557776856bf646272f48058b0",
+    "e1bb658e2283990616c0e5c42bcc9b7e6a140ccfd114a8769cb93f224c520cf3",
+    "ff84614b1b0ff0c121c5f0dd1c2d43bf707b2d4028aab9cc8d0fbc9569d1c4ca",
+    "9d247fd458a72dc8101f943c115c072bfe17ce4209f7c3944a3d5ec854428a9d",
+    "a8e9194fe1823ca290d05ff3219ed737aa408aa0bc2c6fa49fa794110b9e7f47",
+    "bd53dbdbe4d2d60a2302d91ffc1a537e1b44c9a90ebbd46c700e6a130c131894",
+    "3725b791eb346e417304fa52057804e62b28001459b531fc13ce9e443510d6ed"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -290,7 +299,16 @@
     "https://t.me/comedi/54227",
     "https://t.me/teacheryar/44896",
     "https://t.me/Lezath_Ashpazi/31234",
-    "https://t.me/Lezath_Ashpazi/31233"
+    "https://t.me/Lezath_Ashpazi/31233",
+    "https://t.me/nicebest/116195",
+    "https://t.me/AIpersianChannel/8099",
+    "https://t.me/nicebest/116203",
+    "https://t.me/nicebest/116193",
+    "https://t.me/AIpersianChannel/8119",
+    "https://t.me/keereker/256581",
+    "https://t.me/behtarinhahameshi/133080",
+    "https://t.me/comedi/54244",
+    "https://t.me/AIpersianChannel/8126"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -589,6 +607,17 @@
         "00dcd890d9d93100",
         "00006096b6004000"
       ]
+    },
+    {
+      "url": "https://t.me/AIpersianChannel/8119",
+      "sha256": "966f9f8d36d932bfb7812b260e419c0c5f923fa0b39328686a9885b94209d2f3",
+      "frame_hashes": [
+        "00808a8aaa8c8400",
+        "0030262626061800",
+        "0030262626061800",
+        "0000403226000000",
+        "0000100c0c000000"
+      ]
     }
   ],
   "media_reviewed_topics": [
@@ -657,6 +686,12 @@
       "topic": "surprise_or_reveal",
       "url": "https://t.me/khandbazar20/176302",
       "sent_at": "2026-10-13T16:54:00.610260+00:00"
+    },
+    {
+      "pillar": "curiosity_and_process",
+      "topic": "technology_demo",
+      "url": "https://t.me/AIpersianChannel/8119",
+      "sent_at": "2026-10-13T16:57:06.466736+00:00"
     }
   ]
 }
