@@ -58,16 +58,17 @@ jobs:
           env = os.environ
           private_token = env.get("TELEGRAM_BOT_TOKEN", "").strip()
           private_target = env.get("TELEGRAM_CHAT_ID", "").strip()
-          public_token = env.get("TELEGRAM_AUDIENCE_BOT_TOKEN", "").strip()
+          separate_public_token = env.get("TELEGRAM_AUDIENCE_BOT_TOKEN", "").strip()
+          public_token = separate_public_token or private_token
           public_target = env.get("TELEGRAM_AUDIENCE_CHAT_ID", "").strip()
           publish_enabled = env.get("TELEGRAM_AUDIENCE_PUBLISH_ENABLED", "").strip().lower() == "true"
 
           for name, present in (
               ("TELEGRAM_BOT_TOKEN", bool(private_token)),
               ("TELEGRAM_CHAT_ID", bool(private_target)),
-              ("TELEGRAM_AUDIENCE_BOT_TOKEN", bool(public_token)),
+              ("TELEGRAM_AUDIENCE_BOT_TOKEN", bool(separate_public_token)),
+              ("PUBLIC_BOT_TOKEN_SOURCE", "dedicated_audience_bot" if separate_public_token else ("existing_private_bot" if private_token else "missing")),
               ("TELEGRAM_AUDIENCE_CHAT_ID", bool(public_target)),
-              ("TELEGRAM_AUDIENCE_PUBLISH_ENABLED=true", publish_enabled),
           ):
               print(f"CONFIG_{name}={'SET' if present else 'MISSING_OR_DISABLED'}")
 
@@ -81,7 +82,10 @@ jobs:
           print(f"PRIVATE_SOURCE_INTAKE={'OPEN_TO_BOT_RECEIVED_CHANNELS' if allowed_private else 'ALLOWLIST_ONLY'}")
           print(f"AUTHORIZED_PUBLIC_SOURCE_COUNT={public_sources}")
 
+          print("PUBLIC_PUBLISH_ENABLED=" + str(publish_enabled).lower())
           failures = []
+          if not publish_enabled:
+              failures.append("TELEGRAM_AUDIENCE_PUBLISH_ENABLED is not true")
           if not private_token:
               failures.append("TELEGRAM_BOT_TOKEN missing")
           if not private_target:
@@ -95,7 +99,7 @@ jobs:
                   failures.append("private Telegram bot/target check failed")
 
           if not public_token:
-              failures.append("TELEGRAM_AUDIENCE_BOT_TOKEN missing")
+              failures.append("neither private nor dedicated audience bot token is configured")
           if not public_target:
               failures.append("TELEGRAM_AUDIENCE_CHAT_ID missing")
           if not publish_enabled:
