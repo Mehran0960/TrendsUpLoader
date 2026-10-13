@@ -1,7 +1,7 @@
 name: Multi-Platform Social Discovery
-# Tehran private-review posting slots are scheduled ahead of target windows because Actions can queue:
-# 12:20, 17:50, 19:20, 20:50, 22:20 local (UTC: 08:50, 14:20, 15:50, 17:20, 18:50).
-# Each run sends at most one qualified review video, including when discovery itself is skipped.
+# Run the queue planner hourly; independently reserve five delivery slots for private review.
+# Tehran delivery slots: 12:20, 17:50, 19:20, 20:50, 22:20 (UTC: 08:50, 14:20, 15:50, 17:20, 18:50).
+# Each delivery slot sends at most one qualified review video; the hourly cadence keeps replenishing discovery.
 
 concurrency:
   group: social-discovery
@@ -9,6 +9,7 @@ concurrency:
 
 on:
   schedule:
+    - cron: "13 * * * *"
     - cron: "50 8 * * *"
     - cron: "20 14 * * *"
     - cron: "50 15 * * *"
@@ -75,9 +76,28 @@ jobs:
           DISCOVERY_PAID_SEARCH_ENABLED: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
           YOUTUBE_API_ENABLED: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
         run: python content_pipeline/social_discovery.py
+      - name: Determine whether this scheduled run is a delivery slot
+        id: send_slot
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "send_due=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          case "$SCHEDULE_CRON" in
+            "50 8 * * *"|"20 14 * * *"|"50 15 * * *"|"20 17 * * *"|"50 18 * * *")
+              echo "send_due=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "send_due=false" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
       - name: Send one qualified existing video for private review
-        # Sending is independent of discovery: do not miss a posting slot just because the queue is already full.
-        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+        # Posting is separate from the hourly discovery check.
+        if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && (github.event_name == 'workflow_dispatch' || steps.send_slot.outputs.send_due == 'true') }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
