@@ -2,6 +2,9 @@ name: Telegram Channel Setup Check
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/telegram-channel-setup-check.yml"
 
 permissions:
   contents: read
