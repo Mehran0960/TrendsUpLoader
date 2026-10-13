@@ -25,6 +25,38 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Remove the confirmed weak promotional test post from the previous run
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os
+          import requests
+
+          token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+          private_chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+          if not token:
+              raise SystemExit("Telegram bot token is missing.")
+          endpoint = f"https://api.telegram.org/bot{token}/deleteMessage"
+          targets = [(private_chat, 119), ("@TapTerend", 2), ("@trendup_channel", 2)]
+          for chat_id, message_id in targets:
+              if not chat_id:
+                  print("CLEANUP_SKIPPED_PRIVATE_CHAT_ID_MISSING")
+                  continue
+              try:
+                  response = requests.post(endpoint, json={
+                      "chat_id": chat_id, "message_id": message_id
+                  }, timeout=20)
+                  payload = response.json()
+              except Exception as exc:
+                  print(f"WEAK_TEST_CLEANUP_FAILED target={chat_id} error={type(exc).__name__}")
+                  continue
+              if response.ok and payload.get("ok"):
+                  print(f"WEAK_TEST_POST_DELETED target={chat_id} message_id={message_id}")
+              else:
+                  print(f"WEAK_TEST_DELETE_NOT_CONFIRMED target={chat_id} message_id={message_id} code={payload.get('error_code', response.status_code)}")
+          PY
       - name: Install media review dependencies
         run: |
           set -euo pipefail
