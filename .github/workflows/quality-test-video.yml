@@ -1,0 +1,37 @@
+name: One-shot content quality video test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/quality-test-video.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  quality-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install media review dependencies
+        run: |
+          python -m pip install --disable-pip-version-check requests yt-dlp pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Run one quality-gated video review
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCOVERY_PAID_SEARCH_ENABLED: "false"
+          YOUTUBE_API_ENABLED: "false"
+        run: |
+          set -euo pipefail
+          python -m py_compile content_pipeline/send_review_videos.py
+          python content_pipeline/send_review_videos.py
