@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-13T16:57:06.467142+00:00",
+  "media_review_updated_at": "2026-10-13T21:59:01.220795+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -187,7 +187,12 @@
     "9d247fd458a72dc8101f943c115c072bfe17ce4209f7c3944a3d5ec854428a9d",
     "a8e9194fe1823ca290d05ff3219ed737aa408aa0bc2c6fa49fa794110b9e7f47",
     "bd53dbdbe4d2d60a2302d91ffc1a537e1b44c9a90ebbd46c700e6a130c131894",
-    "3725b791eb346e417304fa52057804e62b28001459b531fc13ce9e443510d6ed"
+    "3725b791eb346e417304fa52057804e62b28001459b531fc13ce9e443510d6ed",
+    "f4f9869705493f86e8428a609a13272a26cc7902e91f9a07ec4569b540200573",
+    "5eb3b79c9132170af09398f1365ae90b116afa7e1524661fd671060b8ed80c2e",
+    "e2ed21e35a7c38bf951ce05b789190dc85b3cf7f0746a559a8ec81cc88d2ac60",
+    "cff885f1b8869fb15623a166f28ea50ccbae5b39e40cf5938db48f93874b5be8",
+    "6dfad35eeff32b33cfbfaba183214fcef599e85269427a13526cba060f0d669d"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -308,7 +313,12 @@
     "https://t.me/keereker/256581",
     "https://t.me/behtarinhahameshi/133080",
     "https://t.me/comedi/54244",
-    "https://t.me/AIpersianChannel/8126"
+    "https://t.me/AIpersianChannel/8126",
+    "https://t.me/vaybabamumad/180122",
+    "https://t.me/comedi/54230",
+    "https://t.me/Lezath_Ashpazi/31232",
+    "https://t.me/Lezath_Ashpazi/31231",
+    "https://t.me/Lezath_Ashpazi/31230"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -618,6 +628,17 @@
         "0000403226000000",
         "0000100c0c000000"
       ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/180122",
+      "sha256": "a05c6cf9dd6a673bc3b00168d15ed924efd8ca5b08dd4dffaf2b5a8369b50669",
+      "frame_hashes": [
+        "e0e0e0c4f0e4f8f8",
+        "e0e0e0cccce0f0f8",
+        "f0f0ccccccecf8ec",
+        "d8d4c0c8ecf4e4e8",
+        "e0d0fccce4f4e4e0"
+      ]
     }
   ],
   "media_reviewed_topics": [
@@ -692,6 +713,12 @@
       "topic": "technology_demo",
       "url": "https://t.me/AIpersianChannel/8119",
       "sent_at": "2026-10-13T16:57:06.466736+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "food_cooking",
+      "url": "https://t.me/vaybabamumad/180122",
+      "sent_at": "2026-10-13T21:59:01.220487+00:00"
     }
   ]
 }
