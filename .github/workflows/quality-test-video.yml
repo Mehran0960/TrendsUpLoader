@@ -39,7 +39,7 @@ jobs:
           if not token:
               raise SystemExit("Telegram bot token is missing.")
           endpoint = f"https://api.telegram.org/bot{token}/deleteMessage"
-          targets = [(private_chat, 119), ("@TapTerend", 2), ("@trendup_channel", 2)]
+          targets = [(private_chat, 119), (private_chat, 120), ("@TapTerend", 2), ("@TapTerend", 3), ("@trendup_channel", 2), ("@trendup_channel", 3)]
           for chat_id, message_id in targets:
               if not chat_id:
                   print("CLEANUP_SKIPPED_PRIVATE_CHAT_ID_MISSING")
@@ -57,13 +57,15 @@ jobs:
               else:
                   print(f"WEAK_TEST_DELETE_NOT_CONFIRMED target={chat_id} message_id={message_id} code={payload.get('error_code', response.status_code)}")
           PY
+      - name: Install forwarding dependency
+        run: python -m pip install --disable-pip-version-check requests
       - name: Install media review dependencies
         run: |
           set -euo pipefail
           python -m pip install --disable-pip-version-check requests yt-dlp pillow
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-      - name: Choose stronger-hook video, pass quality gates, and send once to review chat plus both channels
+      - name: Forward one stronger-hook source post with attribution to review chat plus both channels
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -71,7 +73,7 @@ jobs:
           YOUTUBE_API_ENABLED: "false"
         run: |
           set -euo pipefail
-          python -m py_compile content_pipeline/send_review_videos.py content_pipeline/send_quality_test_video.py
+          python -m py_compile content_pipeline/send_quality_test_video.py
           python content_pipeline/send_quality_test_video.py
       - name: Persist duplicate-prevention state
         if: ${{ always() }}
