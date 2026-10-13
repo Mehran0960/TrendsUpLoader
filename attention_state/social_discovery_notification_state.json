@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-11T14:58:58.678014+00:00",
+  "media_review_updated_at": "2026-10-13T09:27:26.059360+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -168,7 +168,11 @@
     "5ca7fa88f5aa2443c474d5e45438db900d18a1452064c8a4f44737a02fca9738",
     "5a131a224b4cae6153e06aba69ec6a502b4b972a0fda6f3b6721cb95473c3c8a",
     "95c0742eb02a0b7ce9147a2dd32c7e46e6cd61a1969a9ed205307bb1dd93d51f",
-    "9a6f3583132b8f65ccdfa5c17c0f42f6038a7f494fbeff2fb2c4d0b2974ef5ff"
+    "9a6f3583132b8f65ccdfa5c17c0f42f6038a7f494fbeff2fb2c4d0b2974ef5ff",
+    "1b3bcaccec213d84f704a7b01e1c3371615b1aedeef01994ed30fa31bc0bd984",
+    "f16409875a080aa8a8588e66a915f51bbf4ddfc6e78950f068a0a18a63619b29",
+    "38bd2332318e2969641f295f5ad96cdc146966862ae89cce998fdc12e9997a76",
+    "490d54dff28c3173dca81769ef4ff839f5390e89bb3b20a782a4d00cae47a7c7"
   ],
   "media_review_last_count": 3,
   "media_reviewed_urls": [
@@ -270,7 +274,11 @@
     "https://t.me/keereker/256490",
     "https://t.me/keereker/256485",
     "https://t.me/keereker/256480",
-    "https://t.me/thezoomit/103657"
+    "https://t.me/thezoomit/103657",
+    "https://t.me/thezoomit/103752",
+    "https://t.me/khandehabadd/306980",
+    "https://t.me/behtarinhahameshi/133062",
+    "https://t.me/comedi/54237"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -514,6 +522,94 @@
         "f0f0c8e0dcece4e8",
         "7c6c64f46cfcdcec"
       ]
+    },
+    {
+      "url": "https://t.me/thezoomit/103752",
+      "sha256": "e2826a34d7a1924ac765ad7c597274c2bebd644b1676869c49e7112d7cfb95b8",
+      "frame_hashes": [
+        "f0eccce4fcdce8f8",
+        "ccc4c4c0f0f0e0c0",
+        "e0e4c8ece0f4e4ec",
+        "e8e0e0e8d0d0e0f0",
+        "c8ccccecd0f0e4cc"
+      ]
+    },
+    {
+      "url": "https://t.me/khandehabadd/306980",
+      "sha256": "0bd34c8c30a788653f03472f2414c41250596c75f2addaba99241b855b1b1868",
+      "frame_hashes": [
+        "e0fc92929482e2ea",
+        "9e9ad89692a6fede",
+        "c2fef6f2f89ea2b2",
+        "8c8ee6cec68c98ea",
+        "b0b090c29a90a2c6"
+      ]
+    },
+    {
+      "url": "https://t.me/behtarinhahameshi/133062",
+      "sha256": "52d8798f8d062f74f27e90d284df12d5c41d6df55929a10fafe445477fbe5927",
+      "frame_hashes": [
+        "f0f0e0e8e8f0e0e0",
+        "f0f0e0e8e8f0f0e0",
+        "f0f0e0e8f0f0f0f0",
+        "f0f0e0ece0e0e0e0",
+        "f0f0e0e8e0f0f0e0"
+      ]
+    }
+  ],
+  "media_reviewed_topics": [
+    {
+      "pillar": "curiosity_and_process",
+      "topic": "technology_demo",
+      "url": "https://t.me/simorghai/1524",
+      "sent_at": "",
+      "inferred": true
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "food_cooking",
+      "url": "https://t.me/Lezath_Ashpazi/31218",
+      "sent_at": "",
+      "inferred": true
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "food_cooking",
+      "url": "https://t.me/Lezath_Ashpazi/31219",
+      "sent_at": "",
+      "inferred": true
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "food_cooking",
+      "url": "https://t.me/Lezath_Ashpazi/31217",
+      "sent_at": "",
+      "inferred": true
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "food_cooking",
+      "url": "https://t.me/Lezath_Ashpazi/31220",
+      "sent_at": "",
+      "inferred": true
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "animals",
+      "url": "https://t.me/thezoomit/103752",
+      "sent_at": "2026-10-13T09:27:15.036294+00:00"
+    },
+    {
+      "pillar": "visual_wow",
+      "topic": "sports_or_athletic_skill",
+      "url": "https://t.me/khandehabadd/306980",
+      "sent_at": "2026-10-13T09:27:21.874198+00:00"
+    },
+    {
+      "pillar": "visual_wow",
+      "topic": "skill_or_spectacle",
+      "url": "https://t.me/behtarinhahameshi/133062",
+      "sent_at": "2026-10-13T09:27:26.059051+00:00"
     }
   ]
 }
