@@ -9,7 +9,7 @@ on:
 
 concurrency:
   group: one-shot-quality-video-publish
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
