@@ -1,178 +1,109 @@
 #!/usr/bin/env python3
-"""One-shot, stronger-hook video review for the user's explicitly named channels.
-
-Uses the existing private-review quality gates. Public uploads are made only by
-this one-shot workflow, not by the scheduled private-review sender.
-"""
+"""Forward one stronger, source-attributed Telegram video as a one-off quality sample."""
+import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+
 import requests
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
-import content_pipeline.send_review_videos as sender
-
+STATE_PATH = ROOT / "attention_state" / "social_discovery_notification_state.json"
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+PRIVATE_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 PUBLIC_TARGETS = ("@TapTerend", "@trendup_channel")
-PUBLIC_CAPTION_SOURCE_LIMIT = 780
-successful_public = []
-failed_public = []
 
-# For this one-time sample, favor visible payoff / humor / surprise over newsy
-# talking-head clips. This modifies only the sample ordering, not daily sends.
-PROMO_OR_FINANCE_RE = __import__("re").compile(
-    r"банк\s+رفاه|فرارفاه|پاداش\s+نقدی|وام|تسهیلات|کد\s+تخفیف|"
-    r"طرح\s+[«\"].{0,40}[»\"]\s+بانک|ثبت.?نام\s+در\s+سامانه|"
-    r"جایزه\s+نقدی|دریافت\s+پاداش|تبلیغات|آگهی\s+تبلیغاتی|"
-    r"شروع\s+فروش|خرید\s+از\s+لینک|join\s*[➪→]|برای\s+عضویت",
-    __import__("re").I,
-)
-
-LANE_BONUS = {
-    "comedy": 28,
-    "animals": 26,
-    "surprise_or_reveal": 24,
-    "skill_or_spectacle": 23,
-    "sports_or_athletic_skill": 22,
-    "transformation_or_satisfying": 21,
-    "puzzles_and_visual_illusions": 18,
-    "human_reaction_or_relatable": 17,
-    "diy_and_creativity": 14,
-    "practical_tips_or_life_hacks": 13,
-    "food_cooking": 10,
-    "nature_and_wildlife": 10,
-    "wholesome_or_heartwarming": 9,
-    "music_or_dance": 8,
-    "science_curiosity": 7,
-    "technology_demo": -8,
-    "travel_and_places": 7,
-    "nostalgia_and_then_now": 6,
-}
+# This candidate was ranked highly for a comedy hook. Native forwarding preserves
+# the source channel attribution, unlike downloading and re-uploading the file.
+CANDIDATES = [
+    {"source": "@keereker", "message_id": 256581, "url": "https://t.me/keereker/256581",
+     "title": "کلیپ طنز با قلاب واکنشی", "score": 60.2, "lanes": ["comedy", "nature_and_wildlife"]},
+]
 
 
-def engagement_rank(item):
-    lanes = set(item.get("hook_signals") or [])
-    base = float(item.get("follow_growth_score") or 0)
-    bonus = max((LANE_BONUS.get(lane, 0) for lane in lanes), default=0)
-    if "technology_demo" in lanes and not lanes.intersection({
-        "comedy", "animals", "surprise_or_reveal", "skill_or_spectacle",
-        "sports_or_athletic_skill", "transformation_or_satisfying",
-        "human_reaction_or_relatable",
-    }):
-        bonus -= 15
-    age = max(0.0, float(item.get("age_hours") or 9999))
-    freshness_bonus = max(0.0, 8.0 * (1.0 - min(age / 24.0, 1.0)))
-    views = max(0.0, float(item.get("views") or item.get("telegram_post_views") or 0))
-    # Low, capped support from views; the main signal is subject/hook plus the
-    # existing relevance score. View counts are platform-dependent and imperfect.
-    view_bonus = min(6.0, views ** 0.5 / 100.0)
-    return base + bonus + freshness_bonus + view_bonus
-
-
-original_select = sender.select_media_candidates
-
-
-def quality_test_select(items, reviewed, recent_topics=None, limit=None):
-    # Ask the normal eligibility filter for a wider pool so a failed download
-    # does not force us back to the weak first candidate.
-    pool = original_select(
-        items, reviewed, recent_topics=recent_topics,
-        limit=max(int(limit or sender.MAX_TRIES), 30),
+def api(method, payload):
+    response = requests.post(
+        f"https://api.telegram.org/bot{TOKEN}/{method}",
+        json=payload,
+        timeout=30,
     )
-    filtered = []
-    for item in pool:
-        title_blob = " ".join(str(item.get(key) or "") for key in (
-            "title", "description", "source_post_caption", "cleaned_review_caption"
-        ))
-        lanes = set(item.get("hook_signals") or [])
-        if PROMO_OR_FINANCE_RE.search(title_blob):
-            print("QUALITY_TEST_REJECT_PROMO_OR_FINANCE", str(item.get("title") or "")[:100])
-            continue
-        # For this single viral-content sample, prefer a visually demonstrable
-        # payoff over routine ingredient lists or recipe promos. Do not change
-        # the normal daily review mix.
-        if "food_cooking" in lanes and not lanes.intersection({
-            "comedy", "animals", "surprise_or_reveal", "skill_or_spectacle",
-            "sports_or_athletic_skill", "transformation_or_satisfying",
-            "human_reaction_or_relatable",
-        }):
-            print("QUALITY_TEST_DEPRIORITIZE_ROUTINE_RECIPE", str(item.get("title") or "")[:100])
-            continue
-        filtered.append(item)
-    pool = filtered
-    pool.sort(key=engagement_rank, reverse=True)
-    print("QUALITY_TEST_RANKED_CANDIDATES")
-    for item in pool[:12]:
-        print({
-            "title": str(item.get("title") or "")[:100],
-            "url": item.get("url"),
-            "score": item.get("follow_growth_score"),
-            "age_hours": item.get("age_hours"),
-            "lanes": list(item.get("hook_signals") or []),
-            "engagement_rank": round(engagement_rank(item), 2),
-        })
-    return pool[:max(1, int(limit or sender.MAX_TRIES))]
-
-
-def send_to_public_channel(path, item, target):
-    caption = sender.render_caption(item)
-    source_url = str(item.get("_canonical_media_url") or item.get("url") or "").strip()
-    if source_url:
-        caption = f"{caption}\n\nمنبع ویدئو: {source_url}"
-    caption = caption[:PUBLIC_CAPTION_SOURCE_LIMIT]
-    endpoint = f"https://api.telegram.org/bot{TOKEN}/sendVideo"
-    with open(path, "rb") as video:
-        response = requests.post(
-            endpoint,
-            data={"chat_id": target, "caption": caption, "supports_streaming": "true"},
-            files={"video": (os.path.basename(path), video, "video/mp4")},
-            timeout=(30, 180),
-        )
     try:
-        payload = response.json()
+        body = response.json()
     except ValueError:
-        payload = {}
-    if not response.ok or not payload.get("ok"):
-        error_code = payload.get("error_code", response.status_code)
-        description = str(payload.get("description") or "")[:180]
-        raise RuntimeError(f"Telegram rejected target {target}: code={error_code}, {description}")
-    return (payload.get("result") or {}).get("message_id")
+        body = {}
+    if not response.ok or not body.get("ok"):
+        code = body.get("error_code", response.status_code)
+        description = str(body.get("description") or "")[:200]
+        raise RuntimeError(f"{method} failed code={code}: {description}")
+    return body.get("result") or {}
 
 
-original_send_video = sender.send_video
+def mark_reviewed(url):
+    try:
+        state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
+        if not isinstance(state, dict):
+            state = {}
+    except Exception:
+        state = {"version": 1}
+    for key in ("media_reviewed_ids", "media_reviewed_urls"):
+        values = [str(x) for x in state.get(key, [])]
+        state[key] = list(dict.fromkeys(values + [url]))[-1000:]
+    state["media_review_updated_at"] = datetime.now(timezone.utc).isoformat()
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def send_private_then_public(path, item):
-    # Never publish unless the video has first passed all private-review gates
-    # and the internal review-chat upload succeeds.
-    private_message_id = original_send_video(path, item)
+if not TOKEN or not PRIVATE_CHAT:
+    raise SystemExit("Telegram review credentials are not configured.")
+
+delivered = []
+errors = []
+for candidate in CANDIDATES:
+    # First prove the source is forwardable to the private review chat.
+    try:
+        result = api("forwardMessage", {
+            "chat_id": PRIVATE_CHAT,
+            "from_chat_id": candidate["source"],
+            "message_id": candidate["message_id"],
+        })
+    except Exception as exc:
+        errors.append({"source": candidate["url"], "target": "private_review", "error": str(exc)})
+        print(f"QUALITY_SAMPLE_SOURCE_FORWARD_FAILED source={candidate['url']} error={type(exc).__name__}: {str(exc)[:200]}")
+        continue
+
+    private_id = result.get("message_id")
+    delivered.append({"target": "private_review", "message_id": private_id})
+    print(f"QUALITY_SAMPLE_FORWARDED target=private_review message_id={private_id} source={candidate['url']}")
+
+    # Only distribute after private forwarding succeeds; native forwards retain attribution.
+    public_ok = []
     for target in PUBLIC_TARGETS:
         try:
-            message_id = send_to_public_channel(path, item, target)
-            successful_public.append({"target": target, "message_id": message_id})
-            print(f"QUALITY_TEST_PUBLIC_VIDEO_SENT target={target} message_id={message_id}")
+            message = api("forwardMessage", {
+                "chat_id": target,
+                "from_chat_id": candidate["source"],
+                "message_id": candidate["message_id"],
+            })
+            public_ok.append(target)
+            delivered.append({"target": target, "message_id": message.get("message_id")})
+            print(f"QUALITY_SAMPLE_FORWARDED target={target} message_id={message.get('message_id')} source={candidate['url']}")
         except Exception as exc:
-            failed_public.append({"target": target, "error": str(exc)[:240]})
-            print(f"QUALITY_TEST_PUBLIC_VIDEO_FAILED target={target} error={type(exc).__name__}: {str(exc)[:240]}")
-    return private_message_id
+            errors.append({"source": candidate["url"], "target": target, "error": str(exc)})
+            print(f"QUALITY_SAMPLE_FORWARD_FAILED target={target} source={candidate['url']} error={type(exc).__name__}: {str(exc)[:200]}")
 
-
-if not TOKEN:
-    raise SystemExit("TELEGRAM_BOT_TOKEN is not configured.")
-
-sender.MAX_SENDS = 1
-sender.select_media_candidates = quality_test_select
-sender.send_video = send_private_then_public
-
-result = sender.main()
-print("QUALITY_TEST_PUBLIC_DELIVERY_SUMMARY", {
-    "sent": successful_public,
-    "failed": failed_public,
-    "target_count": len(PUBLIC_TARGETS),
-})
-if not successful_public:
-    raise SystemExit(2)
-if failed_public:
+    if len(public_ok) == len(PUBLIC_TARGETS):
+        mark_reviewed(candidate["url"])
+        print("QUALITY_SAMPLE_DELIVERY_SUMMARY", {
+            "source": candidate["url"],
+            "title": candidate["title"],
+            "score": candidate["score"],
+            "lanes": candidate["lanes"],
+            "delivered": delivered,
+            "errors": errors,
+        })
+        raise SystemExit(0)
     raise SystemExit(3)
-raise SystemExit(result)
+
+print("QUALITY_SAMPLE_DELIVERY_SUMMARY", {"delivered": delivered, "errors": errors})
+raise SystemExit(2)
