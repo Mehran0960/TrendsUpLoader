@@ -1,0 +1,124 @@
+name: Export project and send to Telegram
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/export-project-to-telegram.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  export-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout current project
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Build source archive
+        id: archive
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import subprocess
+          import zipfile
+          from pathlib import Path
+          from datetime import datetime, timezone
+
+          output = Path("TrendsUpLoader-source.zip")
+          subprocess.run([
+              "git", "archive", "--format=zip",
+              "--prefix=TrendsUpLoader/", "-o", str(output), "HEAD"
+          ], check=True)
+          export_info = (
+              "TrendsUpLoader source export\n"
+              f"Repository: {os.environ['GITHUB_REPOSITORY']}\n"
+              f"Commit: {os.environ['GITHUB_SHA']}\n"
+              f"Workflow run: https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}\n"
+              f"Created UTC: {datetime.now(timezone.utc).isoformat()}\n"
+              "This archive contains tracked project files; .git internals are excluded.\n"
+          )
+          with zipfile.ZipFile(output, "a", compression=zipfile.ZIP_DEFLATED) as archive:
+              archive.writestr("TrendsUpLoader/EXPORT_INFO.txt", export_info)
+          size = output.stat().st_size
+          print(f"PROJECT_EXPORT_ARCHIVE={output}")
+          print(f"PROJECT_EXPORT_BYTES={size}")
+          print(f"PROJECT_EXPORT_MIB={size / 1024 / 1024:.2f}")
+          if size > 45 * 1024 * 1024:
+              raise SystemExit("Project archive exceeds the safe Telegram upload limit (45 MiB).")
+          PY
+          echo "archive=TrendsUpLoader-source.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Send source archive to private bot chat and audience channel
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_AUDIENCE_BOT_TOKEN: ${{ secrets.TELEGRAM_AUDIENCE_BOT_TOKEN }}
+          TELEGRAM_AUDIENCE_CHAT_ID: ${{ secrets.TELEGRAM_AUDIENCE_CHAT_ID }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          ARCHIVE_PATH: ${{ steps.archive.outputs.archive }}
+        run: |
+          python - <<'PY'
+          import os
+          import requests
+          from pathlib import Path
+
+          private_token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+          private_chat = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+          audience_token = os.environ.get("TELEGRAM_AUDIENCE_BOT_TOKEN", "").strip() or private_token
+          audience_chat = os.environ.get("TELEGRAM_AUDIENCE_CHAT_ID", "").strip()
+          archive = Path(os.environ["ARCHIVE_PATH"])
+          repo = os.environ["GITHUB_REPOSITORY"]
+          run_id = os.environ["GITHUB_RUN_ID"]
+          run_url = f"https://github.com/{repo}/actions/runs/{run_id}"
+
+          def send_document(token, chat_id, label):
+              if not token or not chat_id:
+                  raise RuntimeError(f"{label}: Telegram token or destination is missing.")
+              url = f"https://api.telegram.org/bot{token}/sendDocument"
+              with archive.open("rb") as payload_file:
+                  response = requests.post(
+                      url,
+                      data={
+                          "chat_id": chat_id,
+                          "caption": f"📦 خروجی سورس پروژه TrendsUpLoader\nRun: {run_url}",
+                          "disable_notification": "true",
+                      },
+                      files={"document": (archive.name, payload_file, "application/zip")},
+                      timeout=(30, 180),
+                  )
+              try:
+                  result = response.json()
+              except ValueError:
+                  result = {}
+              if not response.ok or not result.get("ok"):
+                  code = result.get("error_code", response.status_code)
+                  description = str(result.get("description") or "")[:180]
+                  raise RuntimeError(f"{label}: Telegram rejected the archive (HTTP {response.status_code}, code {code}); {description}")
+              sent = result.get("result") or {}
+              document = sent.get("document") or {}
+              print(f"PROJECT_EXPORT_SENT destination={label} message_id={sent.get('message_id')} file_id_present={bool(document.get('file_id'))}")
+
+          send_document(private_token, private_chat, "private_bot_chat")
+
+          if not audience_chat:
+              print("PROJECT_EXPORT_CHANNEL_BLOCKED: TELEGRAM_AUDIENCE_CHAT_ID is missing. Private bot delivery succeeded; channel delivery was not attempted.")
+              raise SystemExit(2)
+          if audience_chat == private_chat:
+              print("PROJECT_EXPORT_CHANNEL_BLOCKED: audience destination equals the private review chat; refusing to double-send to the wrong destination.")
+              raise SystemExit(2)
+          if not audience_token:
+              print("PROJECT_EXPORT_CHANNEL_BLOCKED: no usable audience bot token is configured.")
+              raise SystemExit(2)
+          send_document(audience_token, audience_chat, "audience_channel")
+          PY
