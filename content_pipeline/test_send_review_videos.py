@@ -18,6 +18,7 @@ from content_pipeline.send_review_videos import (
     balanced_candidate_shortlist,
     content_pillar_profile,
     infer_recent_topic_history,
+    MAX_SENDS,
 )
 
 
@@ -299,6 +300,29 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         for candidate in candidates:
             with self.subTest(platform=candidate["platform"]):
                 self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
+    def test_scheduler_sends_at_most_one_video_per_run(self):
+        self.assertEqual(MAX_SENDS, 1)
+
+    def test_duration_content_gate_rejects_very_short_clip_even_when_technically_valid(self):
+        item = {
+            "follow_growth_score": 90,
+            "hook_signals": ["surprise_or_reveal"],
+            "title": "A teaser",
+        }
+        ok, reason = duration_content_gate(item, {"passed": True, "duration_seconds": 6.13})
+        self.assertFalse(ok)
+        self.assertEqual(reason, "clip_too_short_for_substantive_content")
+
+    def test_duration_content_gate_rejects_channel_invite_cta(self):
+        item = {
+            "follow_growth_score": 90,
+            "hook_signals": ["surprise_or_reveal"],
+            "title": "اگه هر روز گلاب بخوری میدونی چه اتفاق شگفت انگیزی برای بدنت میفته 👇 https://t.me/+X38jh3w2_jI0ZDg0",
+        }
+        ok, reason = duration_content_gate(item, {"passed": True, "duration_seconds": 12})
+        self.assertFalse(ok)
+        self.assertEqual(reason, "cta_or_invite_heavy_source_caption")
 
     def test_video_quality_passes_for_decodable_varied_clip(self):
         rows = [
