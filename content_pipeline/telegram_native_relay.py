@@ -31,16 +31,41 @@ CUES = re.compile(
 BLOCK = re.compile(r"\b(gore|explicit|nsfw|porn|self-harm)\b", re.I)
 
 def api(method, payload=None, token=None):
+    """Call Telegram with bounded retries for network, rate-limit, and server errors."""
     active_token = str(token or TOKEN).strip()
     if not active_token:
         raise RuntimeError("Telegram bot token missing for requested destination.")
     url = f"https://api.telegram.org/bot{active_token}/{method}"
-    r = requests.post(url, json=payload or {}, timeout=35)
-    data = r.json()
-    if not data.get("ok"):
-        # Do not log URL/token values or raw API responses that may contain sensitive data.
-        raise RuntimeError(f"Telegram {method} failed (HTTP {r.status_code}).")
-    return data.get("result")
+    last_status = "network error"
+    for attempt in range(1, 5):
+        try:
+            response = requests.post(url, json=payload or {}, timeout=25)
+            try:
+                data = response.json()
+            except ValueError:
+                data = {}
+            if data.get("ok"):
+                return data.get("result")
+            error_code = int(data.get("error_code") or response.status_code)
+            last_status = f"HTTP {response.status_code}, Telegram error {error_code}"
+            retryable = error_code == 429 or error_code >= 500
+            if not retryable or attempt == 4:
+                # Never log the request URL/token or Telegram's raw response.
+                raise RuntimeError(f"Telegram {method} failed ({last_status}).")
+            parameters = data.get("parameters") if isinstance(data.get("parameters"), dict) else {}
+            try:
+                retry_after = max(1, int(parameters.get("retry_after") or 2 ** (attempt - 1)))
+            except (TypeError, ValueError, OverflowError):
+                retry_after = 2 ** (attempt - 1)
+            time.sleep(min(retry_after, 20))
+        except requests.RequestException as exc:
+            last_status = type(exc).__name__
+            if attempt == 4:
+                raise RuntimeError(
+                    f"Telegram {method} request failed after retries ({last_status})."
+                ) from None
+            time.sleep(min(2 ** (attempt - 1), 8))
+    raise RuntimeError(f"Telegram {method} failed after retries ({last_status}).")
 
 def load_state():
     try:
