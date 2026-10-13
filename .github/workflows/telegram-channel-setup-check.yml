@@ -12,8 +12,11 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 4
     steps:
+      - name: Checkout configuration
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -22,55 +25,105 @@ jobs:
       - name: Install dependency
         run: python -m pip install --disable-pip-version-check requests
 
-      - name: Check destination bot, channel, and posting permission without publishing
+      - name: Diagnose private and public Telegram routing without publishing
         env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_AUDIENCE_PUBLISH_ENABLED: ${{ vars.TELEGRAM_AUDIENCE_PUBLISH_ENABLED }}
           TELEGRAM_AUDIENCE_BOT_TOKEN: ${{ secrets.TELEGRAM_AUDIENCE_BOT_TOKEN }}
           TELEGRAM_AUDIENCE_CHAT_ID: ${{ secrets.TELEGRAM_AUDIENCE_CHAT_ID }}
         run: |
           python - <<'PY'
+          import json
           import os
+          from pathlib import Path
           import requests
 
-          token = os.environ.get("TELEGRAM_AUDIENCE_BOT_TOKEN", "").strip()
-          target = os.environ.get("TELEGRAM_AUDIENCE_CHAT_ID", "").strip()
-          if not token or not target:
-              raise SystemExit(
-                  "Missing Actions secrets: configure TELEGRAM_AUDIENCE_BOT_TOKEN "
-                  "and TELEGRAM_AUDIENCE_CHAT_ID before running this check."
-              )
-
-          def call(method, payload=None):
+          def api(token, method, payload=None):
               response = requests.post(
                   f"https://api.telegram.org/bot{token}/{method}",
                   json=payload or {},
-                  timeout=20,
+                  timeout=15,
               )
               try:
-                  data = response.json()
+                  result = response.json()
               except ValueError:
-                  data = {}
-              if not response.ok or not data.get("ok"):
-                  code = data.get("error_code", response.status_code)
-                  raise SystemExit(
-                      f"Telegram {method} failed (HTTP {response.status_code}, error {code}). "
-                      "Check the bot token, target channel, and bot membership."
-                  )
-              return data["result"]
+                  result = {}
+              if not response.ok or not result.get("ok"):
+                  code = result.get("error_code", response.status_code)
+                  print(f"TELEGRAM_CHECK_FAILED method={method} http={response.status_code} code={code}")
+                  return None
+              return result["result"]
 
-          bot = call("getMe")
-          chat = call("getChat", {"chat_id": target})
-          member = call("getChatMember", {"chat_id": chat["id"], "user_id": bot["id"]})
-          status = member.get("status")
-          can_post = bool(member.get("can_post_messages")) or status == "creator"
+          env = os.environ
+          private_token = env.get("TELEGRAM_BOT_TOKEN", "").strip()
+          private_target = env.get("TELEGRAM_CHAT_ID", "").strip()
+          public_token = env.get("TELEGRAM_AUDIENCE_BOT_TOKEN", "").strip()
+          public_target = env.get("TELEGRAM_AUDIENCE_CHAT_ID", "").strip()
+          publish_enabled = env.get("TELEGRAM_AUDIENCE_PUBLISH_ENABLED", "").strip().lower() == "true"
 
-          print("DESTINATION_BOT_OK username=@" + str(bot.get("username") or "unknown"))
-          print("DESTINATION_CHANNEL_OK title=" + str(chat.get("title") or "unknown"))
-          print("BOT_CHANNEL_STATUS=" + str(status))
-          print("BOT_CAN_POST_MESSAGES=" + str(can_post).lower())
-          if status not in {"administrator", "creator"} or not can_post:
-              raise SystemExit(
-                  "SETUP_INCOMPLETE: promote this bot to channel administrator "
-                  "and grant the permission to post messages. No test post was sent."
-              )
-          print("DESTINATION_SETUP_CHECK_PASSED — no message or video was published.")
+          for name, present in (
+              ("TELEGRAM_BOT_TOKEN", bool(private_token)),
+              ("TELEGRAM_CHAT_ID", bool(private_target)),
+              ("TELEGRAM_AUDIENCE_BOT_TOKEN", bool(public_token)),
+              ("TELEGRAM_AUDIENCE_CHAT_ID", bool(public_target)),
+              ("TELEGRAM_AUDIENCE_PUBLISH_ENABLED=true", publish_enabled),
+          ):
+              print(f"CONFIG_{name}={'SET' if present else 'MISSING_OR_DISABLED'}")
+
+          policy = json.loads(Path("config/telegram_source_policy.json").read_text(encoding="utf-8"))
+          allowed_private = bool(policy.get("allow_all_channels_bot_can_receive")) or bool(
+              policy.get("allowed_usernames") or policy.get("allowed_chat_ids")
+          )
+          public_sources = len(policy.get("authorized_public_repost_usernames") or []) + len(
+              policy.get("authorized_public_repost_chat_ids") or []
+          )
+          print(f"PRIVATE_SOURCE_INTAKE={'OPEN_TO_BOT_RECEIVED_CHANNELS' if allowed_private else 'ALLOWLIST_ONLY'}")
+          print(f"AUTHORIZED_PUBLIC_SOURCE_COUNT={public_sources}")
+
+          failures = []
+          if not private_token:
+              failures.append("TELEGRAM_BOT_TOKEN missing")
+          if not private_target:
+              failures.append("TELEGRAM_CHAT_ID missing")
+          if private_token and private_target:
+              me = api(private_token, "getMe")
+              chat = api(private_token, "getChat", {"chat_id": private_target})
+              print(f"PRIVATE_BOT_API={'OK' if me else 'FAILED'}")
+              print(f"PRIVATE_REVIEW_CHAT={'OK' if chat else 'FAILED'}")
+              if not me or not chat:
+                  failures.append("private Telegram bot/target check failed")
+
+          if not public_token:
+              failures.append("TELEGRAM_AUDIENCE_BOT_TOKEN missing")
+          if not public_target:
+              failures.append("TELEGRAM_AUDIENCE_CHAT_ID missing")
+          if not publish_enabled:
+              failures.append("TELEGRAM_AUDIENCE_PUBLISH_ENABLED is not true")
+          if public_token and public_target:
+              me = api(public_token, "getMe")
+              chat = api(public_token, "getChat", {"chat_id": public_target})
+              print(f"PUBLIC_BOT_API={'OK' if me else 'FAILED'}")
+              print(f"PUBLIC_CHANNEL_LOOKUP={'OK' if chat else 'FAILED'}")
+              if me and chat:
+                  member = api(public_token, "getChatMember", {
+                      "chat_id": chat["id"], "user_id": me["id"]
+                  })
+                  status = (member or {}).get("status")
+                  can_post = bool((member or {}).get("can_post_messages")) or status == "creator"
+                  print(f"PUBLIC_BOT_CHANNEL_STATUS={status or 'CHECK_FAILED'}")
+                  print(f"PUBLIC_BOT_CAN_POST={'true' if can_post else 'false'}")
+                  if status not in {"administrator", "creator"} or not can_post:
+                      failures.append("public bot is not admin with post permission")
+              else:
+                  failures.append("public bot/target API check failed")
+
+          if public_sources == 0:
+              failures.append("no publicly authorized Telegram sources configured")
+          if failures:
+              print("DIAGNOSTIC_BLOCKERS:")
+              for item in failures:
+                  print("- " + item)
+              raise SystemExit(1)
+          print("TELEGRAM_ROUTING_DIAGNOSTICS_PASSED — no message or video was published.")
           PY
