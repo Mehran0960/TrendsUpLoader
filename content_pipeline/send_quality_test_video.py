@@ -6,8 +6,11 @@ this one-shot workflow, not by the scheduled private-review sender.
 """
 import os
 import sys
+from pathlib import Path
 import requests
 
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 import content_pipeline.send_review_videos as sender
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
