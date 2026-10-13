@@ -21,6 +21,14 @@ failed_public = []
 
 # For this one-time sample, favor visible payoff / humor / surprise over newsy
 # talking-head clips. This modifies only the sample ordering, not daily sends.
+PROMO_OR_FINANCE_RE = __import__("re").compile(
+    r"банк\s+رفاه|فرارفاه|پاداش\s+نقدی|وام|تسهیلات|کد\s+تخفیف|"
+    r"طرح\s+[«\"].{0,40}[»\"]\s+بانک|ثبت.?نام\s+در\s+سامانه|"
+    r"جایزه\s+نقدی|دریافت\s+پاداش|تبلیغات|آگهی\s+تبلیغاتی|"
+    r"شروع\s+فروش|خرید\s+از\s+لینک|join\s*[➪→]|برای\s+عضویت",
+    __import__("re").I,
+)
+
 LANE_BONUS = {
     "comedy": 28,
     "animals": 26,
@@ -72,6 +80,27 @@ def quality_test_select(items, reviewed, recent_topics=None, limit=None):
         items, reviewed, recent_topics=recent_topics,
         limit=max(int(limit or sender.MAX_TRIES), 30),
     )
+    filtered = []
+    for item in pool:
+        title_blob = " ".join(str(item.get(key) or "") for key in (
+            "title", "description", "source_post_caption", "cleaned_review_caption"
+        ))
+        lanes = set(item.get("hook_signals") or [])
+        if PROMO_OR_FINANCE_RE.search(title_blob):
+            print("QUALITY_TEST_REJECT_PROMO_OR_FINANCE", str(item.get("title") or "")[:100])
+            continue
+        # For this single viral-content sample, prefer a visually demonstrable
+        # payoff over routine ingredient lists or recipe promos. Do not change
+        # the normal daily review mix.
+        if "food_cooking" in lanes and not lanes.intersection({
+            "comedy", "animals", "surprise_or_reveal", "skill_or_spectacle",
+            "sports_or_athletic_skill", "transformation_or_satisfying",
+            "human_reaction_or_relatable",
+        }):
+            print("QUALITY_TEST_DEPRIORITIZE_ROUTINE_RECIPE", str(item.get("title") or "")[:100])
+            continue
+        filtered.append(item)
+    pool = filtered
     pool.sort(key=engagement_rank, reverse=True)
     print("QUALITY_TEST_RANKED_CANDIDATES")
     for item in pool[:12]:
