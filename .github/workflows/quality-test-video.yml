@@ -1,11 +1,8 @@
 name: One-shot quality video to review bot and both channels
 
 on:
+  # Manual only: a routine code push must never publish a test video.
   workflow_dispatch:
-  push:
-    paths:
-      - ".github/workflows/quality-test-video.yml"
-      - "content_pipeline/send_quality_test_video.py"
 
 concurrency:
   group: one-shot-quality-video-publish
