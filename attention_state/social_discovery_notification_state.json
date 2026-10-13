@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-13T21:59:01.220795+00:00",
+  "media_review_updated_at": "2026-10-13T23:09:17.029536+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -192,7 +192,16 @@
     "5eb3b79c9132170af09398f1365ae90b116afa7e1524661fd671060b8ed80c2e",
     "e2ed21e35a7c38bf951ce05b789190dc85b3cf7f0746a559a8ec81cc88d2ac60",
     "cff885f1b8869fb15623a166f28ea50ccbae5b39e40cf5938db48f93874b5be8",
-    "6dfad35eeff32b33cfbfaba183214fcef599e85269427a13526cba060f0d669d"
+    "6dfad35eeff32b33cfbfaba183214fcef599e85269427a13526cba060f0d669d",
+    "98a3102335d3b561d475283297f9115ec2fa348e3568c7004a235cd8dbbb9bc5",
+    "f88dcdcee346e1354f67a7f6745ec152aeca454eaf57de68ad23927bb98867ec",
+    "18153dbe336752f147006046fd4b0257804ed5404a9ad1caebeb857d5f6dcdb7",
+    "25f613a1a701f86dc9abdb38c3b936025c25e60ec90eb04696b628f88c6338d1",
+    "3d924c63076f58cb61b5f62874823567684263d1c2b1bb3e4ff5acf11de41d24",
+    "f436b0d3c0d016d25b55306132308a8671da4303a1c09802d2167d64cfbfeba6",
+    "a6a616c7f65363173612544d09697daf029541ce0e4220ef0b9fadd8ccd8a0b6",
+    "eb48fbc2c34ad7a4b5f2b8feb48597260e5dfb6bc27cdee9e34a48ccac979d38",
+    "361afe17084a7c434bf31ab732ebd8fe97540e9704e9de14e39af9748ed7fc54"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -318,7 +327,16 @@
     "https://t.me/comedi/54230",
     "https://t.me/Lezath_Ashpazi/31232",
     "https://t.me/Lezath_Ashpazi/31231",
-    "https://t.me/Lezath_Ashpazi/31230"
+    "https://t.me/Lezath_Ashpazi/31230",
+    "https://t.me/Lezath_Ashpazi/31229",
+    "https://t.me/Lezath_Ashpazi/31228",
+    "https://t.me/Lezath_Ashpazi/31225",
+    "https://t.me/Lezath_Ashpazi/31227",
+    "https://t.me/Lezath_Ashpazi/31226",
+    "https://t.me/Lezath_Ashpazi/31224",
+    "https://t.me/behtarinhahameshi/133063",
+    "https://t.me/behtarinhahameshi/133031",
+    "https://t.me/gizmiztel/163233"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -639,6 +657,17 @@
         "d8d4c0c8ecf4e4e8",
         "e0d0fccce4f4e4e0"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163233",
+      "sha256": "8bfd28ab1bdf139bf3328793b35c45be6938ae0e494f9f148d9506579b057d53",
+      "frame_hashes": [
+        "60787078787878f8",
+        "c8c8e8f0f0fcf4f8",
+        "c8c8ecf8f0f8f4f4",
+        "c8c8ecf8f0f8f4e4",
+        "6040d4d4f4f0f078"
+      ]
     }
   ],
   "media_reviewed_topics": [
@@ -719,6 +748,12 @@
       "topic": "food_cooking",
       "url": "https://t.me/vaybabamumad/180122",
       "sent_at": "2026-10-13T21:59:01.220487+00:00"
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "surprise_or_reveal",
+      "url": "https://t.me/gizmiztel/163233",
+      "sent_at": "2026-10-13T23:09:17.029180+00:00"
     }
   ]
 }
