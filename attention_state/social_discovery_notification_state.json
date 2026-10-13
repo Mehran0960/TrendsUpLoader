@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-13T16:38:37Z",
+  "media_review_updated_at": "2026-10-13T16:54:00.610763+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -173,7 +173,12 @@
     "f16409875a080aa8a8588e66a915f51bbf4ddfc6e78950f068a0a18a63619b29",
     "38bd2332318e2969641f295f5ad96cdc146966862ae89cce998fdc12e9997a76",
     "490d54dff28c3173dca81769ef4ff839f5390e89bb3b20a782a4d00cae47a7c7",
-    "https://t.me/AIpersianChannel/8109"
+    "https://t.me/AIpersianChannel/8109",
+    "0c1ae982c3dcd0f28ac5092a86d1e2a5da495c469780bc808923740bd687a8f6",
+    "a259a900effed0f3446d11e95eb14232e6e84b43eea0efc99af2b16a1fe3be4b",
+    "7d732641b76e5e3edaaa6a1b19748fecb550bb132bb8914ce8c07d5a6b9bd712",
+    "edae8190c8edf4a074857b13e24db34801ba3778fd03542859be9490523d2dc6",
+    "00a33a3ad24750d0426530e70fc1fbb068381e2b298cc9469800cb97c1e70c40"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -280,7 +285,12 @@
     "https://t.me/khandehabadd/306980",
     "https://t.me/behtarinhahameshi/133062",
     "https://t.me/comedi/54237",
-    "https://t.me/AIpersianChannel/8109"
+    "https://t.me/AIpersianChannel/8109",
+    "https://t.me/khandbazar20/176302",
+    "https://t.me/comedi/54227",
+    "https://t.me/teacheryar/44896",
+    "https://t.me/Lezath_Ashpazi/31234",
+    "https://t.me/Lezath_Ashpazi/31233"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -568,6 +578,17 @@
         "f0f2f0dcdce8f0e8",
         "e4e4c4d4dcf4e8e8"
       ]
+    },
+    {
+      "url": "https://t.me/khandbazar20/176302",
+      "sha256": "a639a63de710456d48f203d70fc71d9a7437f1c9cb3624ae462143d710bf3b91",
+      "frame_hashes": [
+        "00c9c8988d89f000",
+        "006cdc5c2c0c0c00",
+        "00b0f4f0a969f000",
+        "00dcd890d9d93100",
+        "00006096b6004000"
+      ]
     }
   ],
   "media_reviewed_topics": [
@@ -630,6 +651,12 @@
       "url": "https://t.me/AIpersianChannel/8109",
       "sent_at": "2026-10-13T16:38:37Z",
       "manual_state_sync": true
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "surprise_or_reveal",
+      "url": "https://t.me/khandbazar20/176302",
+      "sent_at": "2026-10-13T16:54:00.610260+00:00"
     }
   ]
 }
