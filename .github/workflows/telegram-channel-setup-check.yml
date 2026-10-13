@@ -16,6 +16,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install dependency
+        run: python -m pip install --disable-pip-version-check requests
+
       - name: Check destination bot, channel, and posting permission without publishing
         env:
           TELEGRAM_AUDIENCE_BOT_TOKEN: ${{ secrets.TELEGRAM_AUDIENCE_BOT_TOKEN }}
