@@ -19,6 +19,7 @@ from content_pipeline.send_review_videos import (
     content_pillar_profile,
     infer_recent_topic_history,
     MAX_SENDS,
+    run_fallback_discovery_sweep,
 )
 
 
@@ -303,6 +304,16 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
 
     def test_scheduler_sends_at_most_one_video_per_run(self):
         self.assertEqual(MAX_SENDS, 1)
+
+    def test_empty_pool_invokes_one_public_source_fallback_sweep(self):
+        previous = {"items": []}
+        with patch("content_pipeline.social_discovery.main", return_value=0) as discover:
+            self.assertTrue(run_fallback_discovery_sweep(previous))
+        discover.assert_called_once_with(force_fallback=True, _previous_payload=previous)
+
+    def test_fallback_sweep_failure_is_reported_without_raising(self):
+        with patch("content_pipeline.social_discovery.main", side_effect=RuntimeError("temporary source failure")):
+            self.assertFalse(run_fallback_discovery_sweep({"items": []}))
 
     def test_duration_content_gate_rejects_very_short_clip_even_when_technically_valid(self):
         item = {
