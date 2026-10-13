@@ -1095,7 +1095,23 @@ def send_video(path, item):
     return (payload.get("result") or {}).get("message_id")
 
 
-def main():
+def run_fallback_discovery_sweep(previous_data):
+    """Run one broad public-source discovery sweep when the selected pool is empty or unusable."""
+    try:
+        from content_pipeline.social_discovery import main as discover_main
+        print("MEDIA_REVIEW_FALLBACK_DISCOVERY_START: trying public Telegram feeds, web search, and available YouTube API.")
+        result = discover_main(force_fallback=True, _previous_payload=previous_data)
+        if result != 0:
+            print("MEDIA_REVIEW_FALLBACK_DISCOVERY_FAILED", result)
+            return False
+        return True
+    except Exception as exc:
+        # Keep diagnostics actionable but avoid secret/provider URL leakage.
+        print("MEDIA_REVIEW_FALLBACK_DISCOVERY_FAILED", type(exc).__name__, str(exc)[:180])
+        return False
+
+
+def main(_fallback_attempt=False):
     if not TOKEN or not TARGET:
         print("MEDIA_REVIEW_SEND_SKIPPED: Telegram credentials not configured.")
         return 0
@@ -1114,7 +1130,11 @@ def main():
     if not isinstance(saved_fingerprints, list):
         saved_fingerprints = []
     if not candidates:
-        print("MEDIA_REVIEW_EMPTY: no new recent, qualified video candidates.")
+        if not _fallback_attempt:
+            print("MEDIA_REVIEW_EMPTY_BEFORE_FALLBACK: no qualified video in the current queue; launching one broader discovery sweep.")
+            if run_fallback_discovery_sweep(data):
+                return main(_fallback_attempt=True)
+        print("MEDIA_REVIEW_EMPTY: no new recent, qualified video candidates after fallback.")
         return 0
 
     sent_ids = []
@@ -1268,6 +1288,12 @@ def main():
         STATE.parent.mkdir(parents=True, exist_ok=True)
         STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"MEDIA_REVIEW_TOTAL_SENT": len(sent_ids)}, ensure_ascii=False))
+    # If every chosen file failed download or a content/quality gate, do one
+    # source-expansion retry after failed IDs have been persisted as suppressed.
+    if not sent_ids and not _fallback_attempt:
+        print("MEDIA_REVIEW_EMPTY_AFTER_QC: selected candidates were not publishable; running one alternate-source discovery sweep.")
+        if run_fallback_discovery_sweep(load_json(INPUT, {})):
+            return main(_fallback_attempt=True)
     return 0
 
 
