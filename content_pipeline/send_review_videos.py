@@ -33,7 +33,7 @@ MAX_TELEGRAM_REVIEW_AGE_HOURS = 72.0
 MIN_STALE_TELEGRAM_SCORE = 50.0
 MIN_SCORE = 42.0
 MAX_VIDEO_BYTES = 48 * 1024 * 1024
-MAX_SENDS = 3
+MAX_SENDS = 1
 # Output smoke test requested 2026-10-11; keep persisted dedupe state intact.
 MAX_TRIES = 12
 SUPPORTED = {"telegram", "youtube", "tiktok", "instagram", "aparat", "x"}
@@ -154,6 +154,16 @@ def duration_content_gate(item, quality):
     except (TypeError, ValueError):
         return False, "missing_duration_or_score"
     lanes = set(item.get("hook_signals") or [])
+    # Very short clips have too little room for a payoff; technical clarity alone is not substance.
+    if duration < 8.0:
+        return False, "clip_too_short_for_substantive_content"
+    # A channel-invite link plus a call-to-action is a promotional teaser, not a useful clip.
+    source_text = " ".join(
+        str(item.get(key) or "")
+        for key in ("title", "description", "source_post_caption", "cleaned_review_caption")
+    )
+    if CTA_INVITE_URL_RE.search(source_text) and CTA_INVITE_SIGNAL_RE.search(source_text):
+        return False, "cta_or_invite_heavy_source_caption"
     if duration > 60:
         return False, "duration_over_60_seconds"
     if duration > 45 and (
@@ -207,6 +217,15 @@ CAPTION_CTA_TAIL_RE = re.compile(
     r"شعبه\s+جدید|کانال\s+(?:دوم|سوم)|پیج\s+اینستا|کانال\s+ایتا|"
     r"برای\s+عضویت|عضو\s+(?:شوید|بشید)|لینک\s+در\s+بیو|"
     r"subscribe|follow\s+for\s+more|link\s+in\s+bio|join\s+our\s+channel",
+    re.I,
+)
+CTA_INVITE_URL_RE = re.compile(
+    r"(?:https?://)?(?:www\.)?(?:t\.me|telegram\.me)/(?:\+|joinchat/)[A-Za-z0-9_-]+",
+    re.I,
+)
+CTA_INVITE_SIGNAL_RE = re.compile(
+    r"👇|⬇|برای\s+عضویت|عضو\s+(?:شوید|بشید)|join\s+(?:our\s+)?channel|"
+    r"subscribe|لینک\s+(?:زیر|کانال)|کانال\s+(?:دوم|سوم)",
     re.I,
 )
 GENERIC_GREETING_CAPTION_RE = re.compile(
