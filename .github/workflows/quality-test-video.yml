@@ -25,6 +25,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install forwarding dependency
+        run: python -m pip install --disable-pip-version-check requests
       - name: Remove the confirmed weak promotional test post from the previous run
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -57,8 +59,6 @@ jobs:
               else:
                   print(f"WEAK_TEST_DELETE_NOT_CONFIRMED target={chat_id} message_id={message_id} code={payload.get('error_code', response.status_code)}")
           PY
-      - name: Install forwarding dependency
-        run: python -m pip install --disable-pip-version-check requests
       - name: Install media review dependencies
         run: |
           set -euo pipefail
