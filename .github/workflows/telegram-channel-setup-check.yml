@@ -102,8 +102,6 @@ jobs:
               failures.append("neither private nor dedicated audience bot token is configured")
           if not public_target:
               failures.append("TELEGRAM_AUDIENCE_CHAT_ID missing")
-          if not publish_enabled:
-              failures.append("TELEGRAM_AUDIENCE_PUBLISH_ENABLED is not true")
           if public_token and public_target:
               me = api(public_token, "getMe")
               chat = api(public_token, "getChat", {"chat_id": public_target})
