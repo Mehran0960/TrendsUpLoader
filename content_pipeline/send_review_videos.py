@@ -1098,7 +1098,10 @@ def send_video(path, item):
 def run_fallback_discovery_sweep(previous_data):
     """Run one broad public-source discovery sweep when the selected pool is empty or unusable."""
     try:
-        from content_pipeline.social_discovery import main as discover_main
+        try:
+            from content_pipeline.social_discovery import main as discover_main
+        except ModuleNotFoundError:
+            from social_discovery import main as discover_main
         print("MEDIA_REVIEW_FALLBACK_DISCOVERY_START: trying public Telegram feeds, web search, and available YouTube API.")
         result = discover_main(force_fallback=True, _previous_payload=previous_data)
         if result != 0:
