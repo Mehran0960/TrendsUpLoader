@@ -1,0 +1,70 @@
+name: Telegram Channel Setup Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check destination bot, channel, and posting permission without publishing
+        env:
+          TELEGRAM_AUDIENCE_BOT_TOKEN: ${{ secrets.TELEGRAM_AUDIENCE_BOT_TOKEN }}
+          TELEGRAM_AUDIENCE_CHAT_ID: ${{ secrets.TELEGRAM_AUDIENCE_CHAT_ID }}
+        run: |
+          python - <<'PY'
+          import os
+          import requests
+
+          token = os.environ.get("TELEGRAM_AUDIENCE_BOT_TOKEN", "").strip()
+          target = os.environ.get("TELEGRAM_AUDIENCE_CHAT_ID", "").strip()
+          if not token or not target:
+              raise SystemExit(
+                  "Missing Actions secrets: configure TELEGRAM_AUDIENCE_BOT_TOKEN "
+                  "and TELEGRAM_AUDIENCE_CHAT_ID before running this check."
+              )
+
+          def call(method, payload=None):
+              response = requests.post(
+                  f"https://api.telegram.org/bot{token}/{method}",
+                  json=payload or {},
+                  timeout=20,
+              )
+              try:
+                  data = response.json()
+              except ValueError:
+                  data = {}
+              if not response.ok or not data.get("ok"):
+                  code = data.get("error_code", response.status_code)
+                  raise SystemExit(
+                      f"Telegram {method} failed (HTTP {response.status_code}, error {code}). "
+                      "Check the bot token, target channel, and bot membership."
+                  )
+              return data["result"]
+
+          bot = call("getMe")
+          chat = call("getChat", {"chat_id": target})
+          member = call("getChatMember", {"chat_id": chat["id"], "user_id": bot["id"]})
+          status = member.get("status")
+          can_post = bool(member.get("can_post_messages")) or status == "creator"
+
+          print("DESTINATION_BOT_OK username=@" + str(bot.get("username") or "unknown"))
+          print("DESTINATION_CHANNEL_OK title=" + str(chat.get("title") or "unknown"))
+          print("BOT_CHANNEL_STATUS=" + str(status))
+          print("BOT_CAN_POST_MESSAGES=" + str(can_post).lower())
+          if status not in {"administrator", "creator"} or not can_post:
+              raise SystemExit(
+                  "SETUP_INCOMPLETE: promote this bot to channel administrator "
+                  "and grant the permission to post messages. No test post was sent."
+              )
+          print("DESTINATION_SETUP_CHECK_PASSED — no message or video was published.")
+          PY
