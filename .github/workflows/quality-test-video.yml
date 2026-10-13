@@ -1,16 +1,21 @@
-name: One-shot content quality video test
+name: One-shot quality video to review bot and both channels
 
 on:
   workflow_dispatch:
   push:
     paths:
       - ".github/workflows/quality-test-video.yml"
+      - "content_pipeline/send_quality_test_video.py"
+
+concurrency:
+  group: one-shot-quality-video-publish
+  cancel-in-progress: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  quality-test:
+  send-quality-video:
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
@@ -22,10 +27,11 @@ jobs:
           python-version: "3.11"
       - name: Install media review dependencies
         run: |
+          set -euo pipefail
           python -m pip install --disable-pip-version-check requests yt-dlp pillow
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
-      - name: Run one quality-gated video review
+      - name: Choose stronger-hook video, pass quality gates, and send once to review chat plus both channels
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -33,5 +39,70 @@ jobs:
           YOUTUBE_API_ENABLED: "false"
         run: |
           set -euo pipefail
-          python -m py_compile content_pipeline/send_review_videos.py
-          python content_pipeline/send_review_videos.py
+          python -m py_compile content_pipeline/send_review_videos.py content_pipeline/send_quality_test_video.py
+          python content_pipeline/send_quality_test_video.py
+      - name: Persist duplicate-prevention state
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          if [ ! -f attention_state/social_discovery_notification_state.json ]; then
+            echo "No review state was created."
+            exit 0
+          fi
+          state_tmp="$(mktemp)"
+          cp attention_state/social_discovery_notification_state.json "$state_tmp"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            python - "$state_tmp" attention_state/social_discovery_notification_state.json <<'PY'
+          import json, pathlib, sys
+          incoming_path, current_path = map(pathlib.Path, sys.argv[1:])
+          def load(path):
+              try:
+                  value = json.loads(path.read_text(encoding="utf-8"))
+                  return value if isinstance(value, dict) else {}
+              except Exception:
+                  return {}
+          incoming, current = load(incoming_path), load(current_path)
+          merged = dict(current)
+          merged.update({k: v for k, v in incoming.items() if k not in {
+              "notified_ids", "media_reviewed_ids", "media_reviewed_urls",
+              "media_reviewed_fingerprints", "media_reviewed_topics"
+          }})
+          for key in ("notified_ids", "media_reviewed_ids", "media_reviewed_urls"):
+              merged[key] = list(dict.fromkeys(
+                  [str(x) for x in current.get(key, [])] +
+                  [str(x) for x in incoming.get(key, [])]
+              ))[-1000:]
+          fingerprints = {}
+          for row in list(current.get("media_reviewed_fingerprints", [])) + list(incoming.get("media_reviewed_fingerprints", [])):
+              if isinstance(row, dict):
+                  key = str(row.get("sha256") or row.get("url") or "")
+                  if key:
+                      fingerprints[key] = row
+          merged["media_reviewed_fingerprints"] = list(fingerprints.values())[-300:]
+          topics = {}
+          for row in list(current.get("media_reviewed_topics", [])) + list(incoming.get("media_reviewed_topics", [])):
+              if isinstance(row, dict):
+                  key = str(row.get("url") or row.get("topic") or "")
+                  if key:
+                      topics[key] = row
+          merged["media_reviewed_topics"] = list(topics.values())[-20:]
+          current_path.parent.mkdir(parents=True, exist_ok=True)
+          current_path.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          PY
+            git add attention_state/social_discovery_notification_state.json
+            if git diff --cached --quiet; then
+              echo "No duplicate-prevention state change."
+              exit 0
+            fi
+            git commit -m "Record one-shot quality video delivery"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Retrying state persistence after concurrent commit ($attempt/4)."
+          done
+          echo "Could not persist de-duplication state."
+          exit 1
