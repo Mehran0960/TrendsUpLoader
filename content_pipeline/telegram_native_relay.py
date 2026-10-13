@@ -200,12 +200,20 @@ def make_caption(x):
         return "🔥 وایرال تازه\n\n" + caption
     return "🔥 یک ویدئوی تازه و داغ"
 
+
+def destination_token_for(public_route, private_token, audience_token):
+    """Reuse the verified review bot when a separate audience bot is not configured."""
+    if public_route:
+        return str(audience_token or private_token or "").strip()
+    return str(private_token or "").strip()
+
+
 def main():
     if not TOKEN or not TARGET:
         raise RuntimeError("Private Telegram review credentials are not configured.")
-    if AUDIENCE_ENABLED and (not AUDIENCE_TOKEN or not AUDIENCE_TARGET):
+    if AUDIENCE_ENABLED and not AUDIENCE_TARGET:
         raise RuntimeError(
-            "Public Telegram relay is enabled but the separate audience bot token/target is missing."
+            "Public Telegram relay is enabled but TELEGRAM_AUDIENCE_CHAT_ID is missing."
         )
 
     state = load_state()
@@ -288,7 +296,7 @@ def main():
             policy,
         )
     )
-    destination_token = AUDIENCE_TOKEN if public_route else TOKEN
+    destination_token = destination_token_for(public_route, TOKEN, AUDIENCE_TOKEN)
     destination_chat = AUDIENCE_TARGET if public_route else TARGET
 
     result = api(
