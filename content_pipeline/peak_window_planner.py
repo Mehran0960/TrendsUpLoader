@@ -29,8 +29,8 @@ DEFAULT_CONFIG = {
     "schema_version": 1,
     "timezone": "Asia/Tehran",
     "preparation_ahead_minutes": 300,
-    "review_queue_target": 6,
-    "max_discovery_runs_per_local_day": 6,
+    "review_queue_target": 12,
+    "max_discovery_runs_per_local_day": 8,
     "windows": {},
 }
 
