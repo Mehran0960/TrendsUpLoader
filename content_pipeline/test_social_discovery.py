@@ -11,7 +11,7 @@ from content_pipeline.social_discovery import (
     QUERIES, UA, YOUTUBE_QUERIES, parse_youtube_duration, sort_discovery_items,
     youtube_query_for_time, youtube_queries_for_time, quota_ledger_for_run,
     discover_youtube_with_budget, FIRECRAWL_MONTHLY_CREDIT_BUDGET,
-    YOUTUBE_DAILY_SEARCH_BUDGET,
+    YOUTUBE_DAILY_SEARCH_BUDGET, attach_view_trajectory,
 )
 
 
@@ -47,6 +47,49 @@ class SocialDiscoveryTests(unittest.TestCase):
         ]
         kept = sort_discovery_items(rows)
         self.assertEqual(kept[0]["url"], "https://example.com/known/")
+
+    def test_view_trajectory_measures_velocity_and_acceleration_between_snapshots(self):
+        now = datetime(2026, 10, 14, 12, 0, tzinfo=timezone.utc)
+        old = {
+            "id": "telegram-123",
+            "url": "https://t.me/gizmiztel/123",
+            "source": "telegram_native_video",
+            "views": 50000,
+            "discovered_at": "2026-10-14T11:00:00+00:00",
+            "metrics_observed_at": "2026-10-14T11:00:00+00:00",
+            "views_history": [
+                {"observed_at": "2026-10-14T10:00:00+00:00", "views": 30000},
+                {"observed_at": "2026-10-14T11:00:00+00:00", "views": 50000},
+            ],
+        }
+        current = {
+            "id": "telegram-123",
+            "url": "https://t.me/gizmiztel/123",
+            "source": "telegram_native_video",
+            "views": 90000,
+            "age_hours": 2,
+        }
+        result = attach_view_trajectory([current], [old], now)[0]
+        self.assertEqual(result["views_velocity_kind"], "observed")
+        self.assertEqual(result["views_delta_last_interval"], 40000)
+        self.assertEqual(result["views_measurement_interval_hours"], 1.0)
+        self.assertEqual(result["views_velocity_per_hour"], 40000)
+        self.assertGreater(result["views_acceleration_per_hour2"], 0)
+        self.assertEqual(len(result["views_history"]), 3)
+
+    def test_first_seen_view_rate_is_marked_as_estimated_not_observed(self):
+        now = datetime(2026, 10, 14, 12, 0, tzinfo=timezone.utc)
+        current = {
+            "id": "new-telegram-post",
+            "url": "https://t.me/gizmiztel/321",
+            "source": "telegram_native_video",
+            "views": 40000,
+            "age_hours": 4,
+        }
+        result = attach_view_trajectory([current], [], now)[0]
+        self.assertEqual(result["views_velocity_kind"], "estimated_from_lifetime_views")
+        self.assertEqual(result["views_velocity_per_hour"], 10000)
+        self.assertEqual(len(result["views_history"]), 1)
 
     def test_youtube_iso_duration_is_parsed(self):
         self.assertEqual(parse_youtube_duration("PT17S"), 17)
