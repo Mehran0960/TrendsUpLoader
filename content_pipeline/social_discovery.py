@@ -21,7 +21,7 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
-RANKING_VERSION = "follower_growth_v3"
+RANKING_VERSION = "telegram_momentum_v1"
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_API_ENABLED = os.environ.get("YOUTUBE_API_ENABLED", "true").strip().lower() not in {
     "0", "false", "no", "off",
@@ -856,6 +856,127 @@ def log_growth_summary(items):
     }, ensure_ascii=False))
 
 
+def _observation_time(value):
+    """Parse an ISO timestamp used for view-count observations."""
+    try:
+        stamp = datetime.fromisoformat(str(value or "").replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return stamp.astimezone(timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def attach_view_trajectory(results, previous_items, now):
+    """Keep view-count snapshots so selection can use observed view velocity."""
+    old_by_id = {
+        str(item.get("id") or item.get("url") or ""): item
+        for item in (previous_items if isinstance(previous_items, list) else [])
+        if isinstance(item, dict)
+    }
+    now_utc = now.astimezone(timezone.utc) if now.tzinfo else now.replace(tzinfo=timezone.utc)
+    now_text = now_utc.isoformat()
+    observed_count = 0
+    estimated_count = 0
+
+    def parse_views(item):
+        try:
+            return max(0, int(item.get("views") or item.get("telegram_post_views") or 0))
+        except (TypeError, ValueError, OverflowError):
+            return 0
+
+    for item in results if isinstance(results, list) else []:
+        if not isinstance(item, dict):
+            continue
+        views = parse_views(item)
+        if views <= 0:
+            continue
+        ident = str(item.get("id") or item.get("url") or "")
+        old = old_by_id.get(ident) or {}
+        history = []
+        old_history = old.get("views_history", [])
+        for row in old_history if isinstance(old_history, list) else []:
+            if not isinstance(row, dict):
+                continue
+            stamp = _observation_time(row.get("observed_at"))
+            try:
+                count = max(0, int(row.get("views") or 0))
+            except (TypeError, ValueError, OverflowError):
+                continue
+            if stamp and count:
+                history.append({"observed_at": stamp.isoformat(), "views": count})
+
+        # Preserve a prior observation for candidates created before view history existed.
+        old_views = parse_views(old)
+        old_stamp = _observation_time(old.get("metrics_observed_at") or old.get("discovered_at"))
+        if old_views > 0 and old_stamp:
+            if not history or (
+                history[-1]["observed_at"] != old_stamp.isoformat()
+                or int(history[-1]["views"]) != old_views
+            ):
+                history.append({"observed_at": old_stamp.isoformat(), "views": old_views})
+
+        if history and history[-1]["observed_at"] == now_text:
+            history[-1] = {"observed_at": now_text, "views": views}
+        else:
+            history.append({"observed_at": now_text, "views": views})
+
+        by_time = {}
+        for row in history:
+            by_time[(row["observed_at"], int(row["views"]))] = row
+        history = sorted(by_time.values(), key=lambda row: row["observed_at"])[-8:]
+        item["views_history"] = history
+        item["metrics_observed_at"] = now_text
+
+        measured_rate = measured_delta = measured_interval = None
+        parsed = [(_observation_time(row["observed_at"]), int(row["views"])) for row in history]
+        if len(parsed) >= 2:
+            older_at, older_views = parsed[-2]
+            newer_at, newer_views = parsed[-1]
+            interval = (newer_at - older_at).total_seconds() / 3600.0
+            if interval >= 0.10:
+                measured_delta = newer_views - older_views
+                measured_interval = round(interval, 3)
+                measured_rate = round(measured_delta / interval, 2)
+
+        if measured_rate is not None:
+            item["views_velocity_per_hour"] = measured_rate
+            item["views_velocity_kind"] = "observed"
+            item["views_delta_last_interval"] = measured_delta
+            item["views_measurement_interval_hours"] = measured_interval
+            observed_count += 1
+        else:
+            try:
+                age = max(0.0, float(item.get("age_hours")))
+            except (TypeError, ValueError, OverflowError):
+                age = 999999.0
+            item["views_velocity_per_hour"] = round(views / max(age, 0.5), 2) if age < 999999 else 0.0
+            item["views_velocity_kind"] = "estimated_from_lifetime_views"
+            item["views_delta_last_interval"] = None
+            item["views_measurement_interval_hours"] = None
+            estimated_count += 1
+
+        # Positive acceleration means the newest hourly rate exceeded the previous one.
+        item["views_acceleration_per_hour2"] = 0.0
+        if len(parsed) >= 3:
+            (t0, v0), (t1, v1), (t2, v2) = parsed[-3:]
+            h0 = (t1 - t0).total_seconds() / 3600.0
+            h1 = (t2 - t1).total_seconds() / 3600.0
+            if h0 >= 0.10 and h1 >= 0.10:
+                prior_rate = (v1 - v0) / h0
+                recent_rate = (v2 - v1) / h1
+                item["views_acceleration_per_hour2"] = round(
+                    (recent_rate - prior_rate) / max((h0 + h1) / 2.0, 0.10), 2
+                )
+
+    print("VIEW_TRAJECTORY_SUMMARY", json.dumps({
+        "candidates_with_observed_velocity": observed_count,
+        "candidates_using_lifetime_view_estimate": estimated_count,
+        "note": "Observed rates use consecutive snapshots; first-seen rates are estimates, not measured growth.",
+    }, ensure_ascii=False))
+    return results
+
+
 def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     now = datetime.now(timezone.utc)
     previous_payload = _previous_payload
@@ -990,6 +1111,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
             str(x.get("id")): x for x in previous
             if is_video_post(x.get("url"))
         }
+        results = attach_view_trajectory(results, previous, now)
         for x in results:
             merged[x["id"]] = x
         # Refresh Telegram-post age for retained candidates instead of trusting stale
@@ -1127,6 +1249,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         str(x.get("id")): x for x in previous
         if is_video_post(x.get("url"))
     }
+    results = attach_view_trajectory(results, previous, now)
     for x in results:
         merged[x["id"]] = x
     # Refresh the age of retained public Telegram posts. Without this, an old
