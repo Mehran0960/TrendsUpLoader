@@ -740,6 +740,34 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         }
         self.assertEqual(duration_content_gate(vague_topic, qc), (False, "long_clip_requires_stronger_topic_fit"))
 
+    def test_long_single_story_with_exceptional_recent_momentum_can_pass(self):
+        item = {
+            "follow_growth_score": 58.7,
+            "hook_signals": ["animals"],
+            "title": "ویدیوی وایرال شده از سگ فلجی که به کمک چند نفر توانست حرکت کند",
+            "views": 73300,
+            "age_hours": 10.5,
+        }
+        quality = {"passed": True, "duration_seconds": 54.9}
+        self.assertEqual(
+            duration_content_gate(item, quality),
+            (True, "duration_and_topic_gate_passed_strong_momentum"),
+        )
+
+    def test_long_single_story_without_momentum_still_fails(self):
+        item = {
+            "follow_growth_score": 58.7,
+            "hook_signals": ["animals"],
+            "title": "A quiet animal clip",
+            "views": 1800,
+            "age_hours": 10.5,
+        }
+        quality = {"passed": True, "duration_seconds": 54.9}
+        self.assertEqual(
+            duration_content_gate(item, quality),
+            (False, "long_clip_requires_stronger_topic_fit"),
+        )
+
     def test_video_longer_than_60_seconds_is_rejected_by_technical_gate(self):
         rows = [{"mean_luma": 80, "std_luma": 20} for _ in range(5)]
         result = evaluate_video_metrics(75, 720, 1280, rows)
