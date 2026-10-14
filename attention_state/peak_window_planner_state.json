@@ -1,15 +1,15 @@
 {
   "version": 1,
   "local_day": "2026-10-14",
-  "discovery_runs": 2,
-  "last_discovery_attempt_at": "2026-10-14T17:14:47.912980+03:30",
+  "discovery_runs": 3,
+  "last_discovery_attempt_at": "2026-10-14T17:35:29.600971+03:30",
   "last_decision": "replenish_review_queue_before_platform_window",
-  "last_review_queue_count": 0,
+  "last_review_queue_count": 1,
   "review_queue_target": 12,
   "max_discovery_runs_per_local_day": 6,
   "next_window": {
     "platform": "telegram",
     "starts_at": "2026-10-14T18:00:00+03:30",
-    "minutes_until": 45
+    "minutes_until": 25
   }
 }
