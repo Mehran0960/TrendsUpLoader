@@ -29,9 +29,9 @@ STATE = ROOT / "attention_state" / "social_discovery_notification_state.json"
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TARGET = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 MAX_AGE_HOURS = 36.0
-MAX_TELEGRAM_REVIEW_AGE_HOURS = 72.0
+MAX_TELEGRAM_REVIEW_AGE_HOURS = 24.0
 MIN_STALE_TELEGRAM_SCORE = 50.0
-MIN_SCORE = 52.0
+MIN_SCORE = 45.0
 MAX_VIDEO_BYTES = 48 * 1024 * 1024
 MAX_SENDS = 1
 # Output smoke test requested 2026-10-11; keep persisted dedupe state intact.
@@ -400,8 +400,10 @@ def balanced_candidate_shortlist(eligible, recent_topics=None, limit=MAX_TRIES):
         # Topic balancing only orders the remaining shortlist; it may not demote the top pick.
         if not selected:
             choice = max(usable, key=lambda row: (
-                float(row.get("follow_growth_score") or 0),
+                float(row.get("momentum_priority_score") or 0),
+                float(row.get("views_velocity_per_hour") or 0),
                 -float(row.get("age_hours") or 0),
+                float(row.get("follow_growth_score") or 0),
             ))
             selected.append(choice)
             remaining.remove(choice)
@@ -526,6 +528,7 @@ def viral_evidence_gate(item):
 
     if score < MIN_SCORE:
         return False, "score_below_minimum"
+    # Hard freshness ceiling: accumulated lifetime views cannot rescue an old clip.
     if age < 0 or age > MAX_TELEGRAM_REVIEW_AGE_HOURS:
         return False, "outside_age_window"
     if not set(item.get("hook_signals") or []).intersection(SPECIFIC_LONG_CLIP_LANES):
@@ -533,18 +536,28 @@ def viral_evidence_gate(item):
     if views < 8_000:
         return False, "insufficient_view_evidence"
 
-    views_per_hour = views / max(age, 0.5)
-    if age <= 24:
-        # Allow either sustained growth or genuinely strong total reach.
-        if views_per_hour < 250 and views < 30_000:
-            return False, "insufficient_velocity"
-    elif age <= 36:
-        if views < 50_000 or views_per_hour < 1_000:
-            return False, "insufficient_velocity"
+    velocity_kind = str(item.get("views_velocity_kind") or "")
+    try:
+        views_per_hour = max(0.0, float(item.get("views_velocity_per_hour")))
+        has_velocity_field = item.get("views_velocity_per_hour") not in (None, "")
+    except (TypeError, ValueError, OverflowError):
+        views_per_hour = 0.0
+        has_velocity_field = False
+    if not has_velocity_field:
+        # First observation only: use lifetime views / age as a labeled proxy.
+        # The next scan replaces this with the actual delta between view snapshots.
+        views_per_hour = views / max(age, 0.5)
+        velocity_kind = "estimated_from_lifetime_views"
+
+    if velocity_kind == "observed":
+        minimum_velocity = 500 if age <= 3 else 700 if age <= 6 else 1_000 if age <= 12 else 1_500 if age <= 18 else 2_500
     else:
-        # Older candidates only survive when they are exceptional outliers.
-        if views < 100_000 or score < 60:
-            return False, "stale_weak_candidate"
+        minimum_velocity = 1_800 if age <= 3 else 2_500 if age <= 6 else 4_000 if age <= 12 else 5_000 if age <= 18 else 6_000
+        if age > 12 and views < 50_000:
+            return False, "insufficient_velocity"
+
+    if views_per_hour < minimum_velocity:
+        return False, "insufficient_velocity"
 
     if str(item.get("score_confidence") or "low") not in {"medium", "high"}:
         return False, "insufficient_engagement_confidence"
@@ -591,6 +604,11 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
                 "score": item.get("follow_growth_score"),
                 "age_hours": item.get("age_hours"),
                 "confidence": item.get("score_confidence"),
+                "views": item.get("views"),
+                "views_per_hour": item.get("views_velocity_per_hour"),
+                "velocity_kind": item.get("views_velocity_kind"),
+                "acceleration_per_hour2": item.get("views_acceleration_per_hour2"),
+                "telegram_channel": item.get("telegram_channel"),
                 "lanes": list(item.get("hook_signals") or [])[:4],
             })
 
@@ -673,8 +691,11 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
         }
     }, ensure_ascii=False))
     eligible.sort(key=lambda x: (
-        float(x.get("follow_growth_score") or 0),
+        float(x.get("momentum_priority_score") or 0),
+        1 if str(x.get("views_velocity_kind") or "") == "observed" else 0,
+        float(x.get("views_velocity_per_hour") or 0),
         -float(x.get("age_hours") or 0),
+        float(x.get("follow_growth_score") or 0),
     ), reverse=True)
 
     # Preserve the old preference for distinct subject lanes and platforms when
