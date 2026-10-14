@@ -166,12 +166,30 @@ def duration_content_gate(item, quality):
         return False, "cta_or_invite_heavy_source_caption"
     if duration > 60:
         return False, "duration_over_60_seconds"
-    if duration > 45 and (
-        score < 60
-        or len(lanes) < 2
-        or not lanes.intersection(SPECIFIC_LONG_CLIP_LANES)
-    ):
-        return False, "long_clip_requires_stronger_topic_fit"
+    if duration > 45:
+        has_specific_hook = bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
+        standard_long_clip_ok = score >= 60 and len(lanes) >= 2 and has_specific_hook
+        # A single clear story can still earn a review slot when native metrics show
+        # exceptional, recent demand. This prevents the duration rule from rejecting
+        # a 50–55s rescue/skill/science clip with verified high momentum.
+        try:
+            age = float(item.get("age_hours"))
+            views = max(0, int(float(item.get("views") or 0)))
+            views_per_hour = views / max(age, 0.5)
+        except (TypeError, ValueError, OverflowError):
+            age, views, views_per_hour = 999999.0, 0, 0.0
+        strong_momentum_single_story = (
+            duration <= 55
+            and score >= 55
+            and has_specific_hook
+            and 0 <= age <= 24
+            and views >= 50_000
+            and views_per_hour >= 1_000
+        )
+        if not standard_long_clip_ok and not strong_momentum_single_story:
+            return False, "long_clip_requires_stronger_topic_fit"
+        if strong_momentum_single_story and not standard_long_clip_ok:
+            return True, "duration_and_topic_gate_passed_strong_momentum"
     return True, "duration_and_topic_gate_passed"
 
 
