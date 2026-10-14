@@ -285,6 +285,68 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(reason, "viral_evidence_gate_passed")
 
+    def test_observed_view_velocity_overrides_high_lifetime_views(self):
+        candidate = {
+            "follow_growth_score": 90,
+            "score_confidence": "high",
+            "hook_signals": ["animals"],
+            "views": 250000,
+            "age_hours": 3,
+            "views_velocity_per_hour": 50,
+            "views_velocity_kind": "observed",
+        }
+        ok, reason = viral_evidence_gate(candidate)
+        self.assertFalse(ok)
+        self.assertEqual(reason, "insufficient_velocity")
+
+    def test_stale_video_is_rejected_even_with_huge_total_views_and_velocity(self):
+        candidate = {
+            "follow_growth_score": 98,
+            "score_confidence": "high",
+            "hook_signals": ["animals"],
+            "views": 900000,
+            "age_hours": 30,
+            "views_velocity_per_hour": 25000,
+            "views_velocity_kind": "observed",
+        }
+        ok, reason = viral_evidence_gate(candidate)
+        self.assertFalse(ok)
+        self.assertEqual(reason, "outside_age_window")
+
+    def test_fresh_fast_growing_clip_beats_larger_but_slower_clip(self):
+        slower_historical_hit = {
+            "id": "slower-historical-hit",
+            "url": "https://t.me/gizmiztel/100",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "telegram_channel": "gizmiztel",
+            "title": "A cat has a surprising reaction to a toy",
+            "description": "One clear animal moment",
+            "views": 250000,
+            "age_hours": 5,
+            "views_velocity_per_hour": 800,
+            "views_velocity_kind": "observed",
+            "score_confidence": "high",
+        }
+        faster_new_clip = {
+            "id": "faster-new-clip",
+            "url": "https://t.me/gizmiztel/200",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "telegram_channel": "gizmiztel",
+            "title": "A simple science experiment with a magnet",
+            "description": "A clear short science experiment",
+            "views": 50000,
+            "age_hours": 2,
+            "views_velocity_per_hour": 10000,
+            "views_velocity_kind": "observed",
+            "score_confidence": "high",
+        }
+        selected = select_media_candidates([slower_historical_hit, faster_new_clip], limit=2)
+        self.assertGreaterEqual(len(selected), 1)
+        self.assertEqual(selected[0]["url"], faster_new_clip["url"])
+        self.assertEqual(selected[0]["views_velocity_kind"], "observed")
+
     def test_scheduler_sends_at_most_one_video_per_run(self):
         self.assertEqual(MAX_SENDS, 1)
 
