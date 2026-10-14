@@ -154,6 +154,18 @@ def expected_platform_for_query(query):
         return "aparat"
     if "x.com" in q or "twitter.com" in q:
         return "x"
+    if "facebook.com" in q or "fb.watch" in q:
+        return "facebook"
+    if "reddit.com" in q or "redd.it" in q:
+        return "reddit"
+    if "vimeo.com" in q:
+        return "vimeo"
+    if "dailymotion.com" in q or "dai.ly" in q:
+        return "dailymotion"
+    if "twitch.tv" in q:
+        return "twitch"
+    if "rumble.com" in q:
+        return "rumble"
     return ""
 
 
