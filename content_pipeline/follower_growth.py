@@ -35,9 +35,9 @@ LANES = {
 }
 NEWS_RISK = re.compile(
     r"جنگ|انفجار|پدافند|موشک|حمله نظامی|تیراندازی|کشته|مجروح|سلاح هسته|تجمع|اعتراض|شعار|سنگ.?پرونی|لغو.{0,12}(?:مسابقه|مراسم)|"
-    r"ترامپ|رئیس.?جمهور|انتخابات|تحریم|حکومت|جمهوری اسلامی|سیاست|روسیه|اوکراین|اسرائیل|آمریکا|آمریکایی|پالایشگاه|"
+    r"ترامپ|رئیس.?جمهور|انتخابات|تحریم|حکومت|جمهوری اسلامی|سیاست|خاتمی|خامنه.?ای|روحانی|احمدی.?نژاد|پزشکیان|روسیه|اوکراین|اسرائیل|آمریکا|آمریکایی|پالایشگاه|"
     r"مرز(?:های)?|مرزی|افغان(?:ستان|ها|ی)?|مهاجر(?:ت|ان)?|پناهنده|ناامنی|ناامنه|تجاوز|جرم|قتل|ترور|قاچاق|"
-    r"دستگیر|بازداشت|اتهام|درگیری|نزاع|حادثه تلخ|وکیل پایه.?یک|پرونده قضایی|آزار جنسی|تجاوز جنسی|اخراج مهاجر|"
+    r"دستگیر|بازداشت|اتهام|درگیری|نزاع|حادثه تلخ|وکیل پایه.?یک|پرونده قضایی|آزار جنسی|آزار و اذیت|آزارواذیت|مرد.?هرزه|مورد تعرض|مزاحمت جنسی|تجاوز جنسی|اخراج مهاجر|"
     r"war|explosion|air.?defen[cs]e|missile|shooting|killed|injured|nuclear weapon|"
     r"president|election|sanction|government|politic|protest|demonstration|clash|cancelled after protest|"
     r"russia|ukraine|israel|united states|america|refinery|geopolitical|"
@@ -55,7 +55,7 @@ MULTI_CLIP_RISK = re.compile(
     re.I,
 )
 PROMOTIONAL_RISK = re.compile(r"تبلیغات|آگهی|اسپانسر|تخفیف|کد تخفیف|سفارش دهید|برای خرید|خرید از لینک|لینک خرید|ثبت.?نام کنید|به این لینک مراجعه|برای دریافت.{0,35}(?:وارد سایت|به سایت|روی لینک)|لینک در بیو|فروش ویژه|عضویت ویژه|افزایش فالوور|affiliate|sponsored|discount code|buy now|shop now|sign up now|link in bio|use my code|limited offer|promo code|visit our website", re.I)
-SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پورن|جنسی صریح|gore|self.?harm|porn|explicit sexual", re.I)
+SENSITIVE_RISK = re.compile(r"خون|لاشه|قطع عضو|خودکشی|پورن|جنسی صریح|آزار و اذیت|آزارواذیت|مرد.?هرزه|مورد تعرض|مزاحمت جنسی|gore|self.?harm|porn|explicit sexual", re.I)
 MANUAL_SAFETY_REVIEW = re.compile(r"سلاح|اسلحه|تفنگ|جنگ.?افزار|آموزش.?های.?نظامی|نیروی.?نظامی|weapon|firearm|\bgun\b|military training", re.I)
 
 
