@@ -12,6 +12,7 @@ from content_pipeline.social_discovery import (
     youtube_query_for_time, youtube_queries_for_time, quota_ledger_for_run,
     discover_youtube_with_budget, FIRECRAWL_MONTHLY_CREDIT_BUDGET,
     YOUTUBE_DAILY_SEARCH_BUDGET, attach_view_trajectory,
+    normalize_native_telegram_candidates,
 )
 
 
@@ -47,6 +48,39 @@ class SocialDiscoveryTests(unittest.TestCase):
         ]
         kept = sort_discovery_items(rows)
         self.assertEqual(kept[0]["url"], "https://example.com/known/")
+
+    def test_gizmiz_style_telegram_channels_get_priority_tiebreak(self):
+        now = datetime(2026, 10, 14, 12, 0, tzinfo=timezone.utc)
+        items = [
+            {
+                "url": "https://t.me/gizmiztel/100",
+                "title": "ویدئوی بامزه سگ",
+                "description": "لحظه جالب حیوانات",
+                "raw": {
+                    "source": "telegram_native_video",
+                    "telegram_channel": "gizmiztel",
+                    "telegram_post_views": 50000,
+                    "telegram_published_at": (now - timedelta(hours=2)).isoformat(),
+                    "age_hours": 2,
+                },
+            },
+            {
+                "url": "https://t.me/ashpaziroghi/100",
+                "title": "ویدئوی بامزه سگ",
+                "description": "لحظه جالب حیوانات",
+                "raw": {
+                    "source": "telegram_native_video",
+                    "telegram_channel": "ashpaziroghi",
+                    "telegram_post_views": 50000,
+                    "telegram_published_at": (now - timedelta(hours=2)).isoformat(),
+                    "age_hours": 2,
+                },
+            },
+        ]
+        normalized = normalize_native_telegram_candidates(items, now)
+        by_channel = {row["telegram_channel"]: row for row in normalized}
+        self.assertEqual(by_channel["gizmiztel"]["telegram_channel_priority"], 0)
+        self.assertEqual(by_channel["ashpaziroghi"]["telegram_channel_priority"], 1)
 
     def test_view_trajectory_measures_velocity_and_acceleration_between_snapshots(self):
         now = datetime(2026, 10, 14, 12, 0, tzinfo=timezone.utc)
