@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Multi-platform social discovery lane.
+"""Broad, rotating multi-platform video discovery.
 
-Combines public Telegram video feeds, keyless Firecrawl Search and the official YouTube API.
+Combines public Telegram feeds, multi-domain Firecrawl/Bing search and the official YouTube API.
 This is discovery intelligence only: it does not publish or download media.
 """
 import hashlib
@@ -32,9 +32,9 @@ PAID_SEARCH_ENABLED = os.environ.get("DISCOVERY_PAID_SEARCH_ENABLED", "true").st
 # These limits intentionally operate below provider maxima to keep a large reserve.
 FIRECRAWL_MONTHLY_CREDIT_BUDGET = 800
 FIRECRAWL_CREDITS_PER_SEARCH = 2
-FIRECRAWL_SEARCHES_PER_RUN = 1
+FIRECRAWL_SEARCHES_PER_RUN = 2
 BING_FALLBACK_SEARCHES_PER_RUN = 3
-YOUTUBE_SEARCHES_PER_RUN = 2
+YOUTUBE_SEARCHES_PER_RUN = 3
 YOUTUBE_DAILY_SEARCH_BUDGET = 30
 # One-time conservative estimate for quota already spent before the ledger existed.
 # The saved ledger carries forward afterward; the estimate is only used if no ledger exists.
@@ -44,45 +44,33 @@ QUOTA_BOOTSTRAP_YOUTUBE_DAY = "2026-10-11"
 # A quota-exhaustion error was observed earlier today, so reserve the entire internal budget until UTC midnight.
 QUOTA_BOOTSTRAP_YOUTUBE_SEARCHES = 30
 YOUTUBE_QUERIES = [
-    ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
-    ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
-    ("ویدیو کوتاه پربازدید ایران اتفاق عجیب", "fa"),
-    ("funny unexpected moment caught on camera short", "en"),
-    ("cat dog funny reaction short video", "en"),
-    ("satisfying transformation before after short", "en"),
-    ("AI photo animation demo short", "en"),
-    ("amazing one take skill trick short", "en"),
-    ("close call caught on camera short", "en"),
-    ("ترفندهای کاربردی خانه و تمیزکاری ویدیو کوتاه", "fa"),
-    ("طرز تهیه غذای سریع و آشپزی رضایت بخش ویدیو کوتاه", "fa"),
-    ("حرکت ورزشی تماشایی فوتبال بسکتبال ویدیو کوتاه", "fa"),
-    ("حیات وحش و طبیعت شگفت انگیز ویدیو کوتاه", "fa"),
-    ("آزمایش علمی ساده و چطور کار می کند ویدیو کوتاه", "fa"),
-    ("ساخت کاردستی خلاقانه و قبل و بعد ویدیو کوتاه", "fa"),
-    ("اجرای موسیقی رقص و نوازندگی جالب ویدیو کوتاه", "fa"),
-    ("wholesome heartwarming family and animal moment short video", "en"),
-    ("easy food recipe everyday life hack satisfying cleaning short video", "en"),
-    ("amazing sports skill trick shot short video", "en"),
-    ("Iran travel hidden places street and city short video", "en"),
-    ("optical illusion visual puzzle brain teaser short video", "en"),
-    ("nostalgia then and now Iran old streets everyday life short video", "en"),
-]
-
-QUERIES = [
-    'site:aparat.com/v (طنز OR کلیپ بامزه OR حیوانات جالب OR گربه OR سگ OR آشپزی OR ترفند کاربردی)',
-    'site:x.com inurl:status (ویدیو OR ویدئو OR video) (طنز OR حیوانات OR ترفند OR غذا OR مهارت OR طبیعت OR ورزش)',
-    'site:aparat.com/v (قبل و بعد OR تمیزکاری OR نظم‌دهی OR مهارت OR شوت تماشایی OR موسیقی OR نوازندگی OR رقص)',
-    'site:x.com inurl:status (animal OR funny OR trick OR skill OR cooking OR wildlife OR science OR DIY OR satisfying) (video OR clip)',
-    'site:aparat.com/v (هوش مصنوعی OR فناوری OR ربات OR آزمایش علمی OR کاردستی OR حیات وحش OR دستور پخت)',
-    'site:aparat.com/v (غذای خیابانی OR ترفند خانه OR لحظه غافلگیرکننده OR اجرای موسیقی OR رقص OR حیوانات)',
-    'site:x.com inurl:status (funny animals OR unexpected moment OR life hack OR food recipe OR sports skill OR satisfying) (video OR clip)',
-    'site:aparat.com/v (ویدیو کوتاه OR لحظه جالب OR ترفند OR طبیعت OR خانواده OR مهارت OR علم OR آشپزی)',
-    'site:aparat.com/v (جاهای دیدنی ایران OR ایرانگردی OR خطای دید OR معمای تصویری OR نوستالژی OR قدیم و جدید)',
-    'site:x.com inurl:status (Iran travel OR hidden places OR optical illusion OR brain teaser OR nostalgia OR then and now) (video OR clip)',
+    # Balanced, rotating discovery sweep: each run consumes two diverse queries.
+    # Search indexing varies by platform; every result remains a lead, not proof of quality.
+    'site:instagram.com/reel/ (طنز OR سوتی OR حیوانات OR واکنش OR لحظه غیرمنتظره OR مهارت)',
+    'site:instagram.com/reel/ (funny OR unexpected OR animal OR satisfying OR skill OR transformation) short video',
+    'site:tiktok.com/@*/video/ (ایرانی OR فارسی OR طنز OR حیوانات OR ترفند OR مهارت OR لحظه عجیب)',
+    'site:tiktok.com/@*/video/ (funny OR unexpected OR animals OR science OR satisfying OR skill) viral',
+    'site:youtube.com/shorts/ (ایرانی OR فارسی OR طنز OR حیوانات OR آزمایش OR ترفند OR ورزش OR آشپزی)',
+    'site:youtube.com/shorts/ (funny OR unexpected OR animals OR satisfying OR science OR trick shot OR wildlife)',
+    'site:x.com/*/status/ (ویدیو OR ویدئو) (طنز OR حیوانات OR مهارت OR اتفاق عجیب OR علم OR ورزش)',
+    'site:x.com/*/status/ (video OR clip) (funny OR animal OR unexpected OR skill OR science OR satisfying)',
+    'site:aparat.com/v/ (طنز OR اتفاق عجیب OR ترفند کاربردی OR حیوانات OR مهارت OR ورزش OR علم)',
+    'site:aparat.com/v/ (قبل و بعد OR آشپزی OR تمیزکاری OR کاردستی OR موسیقی OR حیات وحش OR معما)',
+    'site:facebook.com/reel/ (funny OR animals OR amazing skill OR satisfying OR unexpected) video',
+    'site:reddit.com/r/videos/comments/ (viral OR amazing OR funny OR unexpected OR skill OR science) video',
+    'site:vimeo.com/ (short film OR amazing skill OR nature OR satisfying process) video',
+    'site:dailymotion.com/video/ (funny OR animals OR amazing skill OR science OR satisfying)',
+    'viral short videos trending in the last 24 hours funny unexpected animal skill science satisfying',
+    'ویدئوهای وایرال و پربازدید ۲۴ ساعت اخیر طنز حیوانات مهارت اتفاق غیرمنتظره علم ترفند',
 ]
 
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
+
+DISCOVERABLE_PLATFORMS = {
+    "instagram", "tiktok", "youtube", "x", "aparat", "telegram",
+    "facebook", "reddit", "vimeo", "dailymotion", "twitch", "rumble",
+}
 
 
 def normalize_digits(s):
@@ -214,6 +202,12 @@ def platform(url):
     if "x.com" in h or "twitter.com" in h: return "x"
     if "aparat.com" in h: return "aparat"
     if h in {"t.me", "telegram.me"}: return "telegram"
+    if "facebook.com" in h or h == "fb.watch": return "facebook"
+    if "reddit.com" in h or h == "redd.it": return "reddit"
+    if "vimeo.com" in h: return "vimeo"
+    if "dailymotion.com" in h or h == "dai.ly": return "dailymotion"
+    if "twitch.tv" in h: return "twitch"
+    if "rumble.com" in h: return "rumble"
     return "web"
 
 
@@ -237,6 +231,21 @@ def is_video_post(url):
         return bool(re.match(r"^/v/[A-Za-z0-9]+", path))
     if p == "telegram":
         return bool(re.match(r"^/[A-Za-z0-9_]+/\d+/?$", path))
+    if p == "facebook":
+        return bool(re.match(r"^/(?:reel|reels|watch|share/v)/", path) or
+                    (path == "/watch" and bool(parsed.query)) or
+                    bool(re.search(r"/videos?/\d+", path)))
+    if p == "reddit":
+        return bool(re.match(r"^/r/[^/]+/comments/[a-z0-9]+", path, re.I))
+    if p == "vimeo":
+        return bool(re.match(r"^/(?:video/)?\d+/?$", path))
+    if p == "dailymotion":
+        return bool(re.match(r"^/(?:video|embed/video)/[A-Za-z0-9]+", path))
+    if p == "twitch":
+        return bool(re.search(r"/(?:clip|videos?)/[A-Za-z0-9_-]+", path) or
+                    parsed.netloc.lower() == "clips.twitch.tv")
+    if p == "rumble":
+        return bool(re.match(r"^/v[A-Za-z0-9]+", path))
     return False
 
 
@@ -856,7 +865,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         # This is discovery-only; media acquisition still happens downstream.
         # Rotate by scheduled four-hour windows. A half-hour index combined
         # with a four-hour schedule would repeat the same query every run.
-        qidx = int(now.timestamp() // (4 * 3600)) % len(QUERIES)
+        qidx = (int(now.timestamp() // (4 * 3600)) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
         query_variants = [
             'site:instagram.com/reel/ (خنده OR طنز OR سوتی OR واکنش انسانی OR بامزه OR غافلگیر OR احساسی OR مهربانی)',
             'site:instagram.com/reel/ (آشپزی OR دستور پخت OR ترفند کاربردی OR تمیزکاری OR قبل و بعد OR دست ساز)',
@@ -893,7 +902,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         seen_urls = set()
         for x in found:
             p = platform(x["url"])
-            if p not in {"tiktok","instagram","youtube","x","aparat","telegram"}:
+            if p not in DISCOVERABLE_PLATFORMS:
                 continue
             if not is_video_post(x["url"]):
                 continue
@@ -991,7 +1000,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     now = datetime.now(timezone.utc)
     # One keyless Firecrawl search per 4-hour run is about 360 credits/month
     # (6 runs/day × 30 days × 2 credits/search), leaving a large reserve.
-    start_index = int(now.timestamp() // (4 * 3600)) % len(QUERIES)
+    start_index = (int(now.timestamp() // (4 * 3600)) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
     selected_queries = []
     if not PAID_SEARCH_ENABLED:
         print("PAID_PUBLIC_SEARCH_SKIPPED_NON_SCHEDULED_RUN")
@@ -1038,7 +1047,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         for x in raw_candidates:
             x["discovery_query"] = q
             p = platform(x["url"])
-            if p not in {"tiktok", "instagram", "youtube", "x", "aparat"}:
+            if p not in DISCOVERABLE_PLATFORMS - {"telegram"}:
                 continue
             if not is_video_post(x["url"]):
                 print("SOCIAL_DISCOVERY_NON_VIDEO_URL_REJECT", json.dumps({
