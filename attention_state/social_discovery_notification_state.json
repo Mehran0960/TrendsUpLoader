@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-14T18:40:31.664332+00:00",
+  "media_review_updated_at": "2026-10-14T19:45:34.723653+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -208,7 +208,8 @@
     "d9e5b4ef2cf5463235fdb90c568268cad28e7b3b54bc5298825e7b3662698f1e",
     "9a80f8836f7dd04ae7c2f40e0230c524ea4cfe30aa643fb0b7db54c29e34fe49",
     "5df62bee0bd03066a6dca91f5963a5bcc38fdea450acf004bf2f1b6fed0aaae1",
-    "cb2f590095c0cf6db96aa1efe1eba95cc4b5a6cde3ecd5d3bb405bea2bb04608"
+    "cb2f590095c0cf6db96aa1efe1eba95cc4b5a6cde3ecd5d3bb405bea2bb04608",
+    "b5df20ee80b20804662fe51f74b50f39febf2df1f7e4b86ee3581b9ad00d444e"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -350,7 +351,8 @@
     "https://t.me/vaybabamumad/180183",
     "https://t.me/gizmiztel/163253",
     "https://t.me/vaybabamumad/180177",
-    "https://t.me/vaybabamumad/180174"
+    "https://t.me/vaybabamumad/180174",
+    "https://t.me/vaybabamumad/180181"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -715,6 +717,17 @@
         "e8f8f8e8e4e4ece8",
         "e0f0f0f8d4e4ece8"
       ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/180181",
+      "sha256": "fe0f64043dc4446d103747fe825913c3d4a989ef215bb7cc84e25f10a75acf02",
+      "frame_hashes": [
+        "e0e4e4e8f8f8f8fc",
+        "e0e0e4f8f0f0f8f8",
+        "e0e4e4ecf8f0f8f8",
+        "e0e4e4ecf0f8f8f8",
+        "e0e4ececccf8f8fc"
+      ]
     }
   ],
   "media_reviewed_topics": [
@@ -819,6 +832,12 @@
       "topic": "music_or_dance",
       "url": "https://t.me/vaybabamumad/180177",
       "sent_at": "2026-10-14T18:40:31.663847+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "food_cooking",
+      "url": "https://t.me/vaybabamumad/180181",
+      "sent_at": "2026-10-14T19:45:34.723261+00:00"
     }
   ]
 }
