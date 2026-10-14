@@ -180,11 +180,16 @@ def duration_content_gate(item, quality):
             age, views, views_per_hour = 999999.0, 0, 0.0
         strong_momentum_single_story = (
             duration <= 55
-            and score >= 55
-            and has_specific_hook
-            and 0 <= age <= 24
-            and views >= 50_000
-            and views_per_hour >= 1_000
+            and (
+                (
+                    score >= 55
+                    and has_specific_hook
+                    and 0 <= age <= 24
+                    and views >= 50_000
+                    and views_per_hour >= 1_000
+                )
+                or high_momentum_uncategorized_telegram(item)
+            )
         )
         if not standard_long_clip_ok and not strong_momentum_single_story:
             return False, "long_clip_requires_stronger_topic_fit"
