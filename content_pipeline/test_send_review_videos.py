@@ -347,6 +347,41 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(selected[0]["url"], faster_new_clip["url"])
         self.assertEqual(selected[0]["views_velocity_kind"], "observed")
 
+    def test_exceptionally_fast_fresh_telegram_clip_can_pass_without_topic_keywords(self):
+        candidate = {
+            "id": "fast-uncategorized",
+            "url": "https://t.me/gizmiztel/500001",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "telegram_channel": "gizmiztel",
+            "title": "این اتفاق امروز افتاد و همه تعجب کردند",
+            "description": "یک لحظه غیرمنتظره در خیابان",
+            "views": 25000,
+            "age_hours": 0.8,
+            "views_velocity_per_hour": 18000,
+            "views_velocity_kind": "observed",
+        }
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["url"], candidate["url"])
+        self.assertEqual(selected[0]["views_velocity_kind"], "observed")
+
+    def test_high_momentum_does_not_override_harassment_or_sensitive_content_gates(self):
+        candidate = {
+            "id": "harassment-news",
+            "url": "https://t.me/gizmiztel/500002",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "telegram_channel": "gizmiztel",
+            "title": "مرد هرزه چینی، زنی جوان را در وسط خیابان مورد آزار و اذیت قرار داد",
+            "description": "گزارش یک حادثه خیابانی",
+            "views": 90000,
+            "age_hours": 1,
+            "views_velocity_per_hour": 35000,
+            "views_velocity_kind": "observed",
+        }
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
     def test_scheduler_sends_at_most_one_video_per_run(self):
         self.assertEqual(MAX_SENDS, 1)
 
