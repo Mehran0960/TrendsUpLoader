@@ -20,6 +20,7 @@ from content_pipeline.send_review_videos import (
     infer_recent_topic_history,
     MAX_SENDS,
     run_fallback_discovery_sweep,
+    viral_evidence_gate,
 )
 
 
@@ -123,7 +124,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertIn("animals", selected[0]["hook_signals"])
 
 
-    def test_accepts_fresh_reveal_only_telegram_clip_for_private_review(self):
+    def test_rejects_fresh_reveal_only_telegram_clip_without_viral_evidence(self):
         candidate = {
             "id": "fresh-reveal-hook",
             "url": "https://t.me/revealclips/456",
@@ -134,28 +135,10 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "views": 0,
             "age_hours": 2,
         }
-        # Isolate selector policy from the independent scorer to specifically
-        # exercise the lower-score, fresh native Telegram review path.
-        with patch(
-            "content_pipeline.send_review_videos.annotate_candidate",
-            side_effect=lambda item: {
-                **item,
-                "follow_growth_score": 40.0,
-                "score_confidence": "low",
-                "hook_signals": ["surprise_or_reveal"],
-                "news_risk_signal": False,
-                "sensitive_risk_signal": False,
-                "safety_review_signal": False,
-                "compilation_signal": False,
-                "promotional_signal": False,
-            },
-        ):
-            selected = select_media_candidates([candidate], limit=3)
-        self.assertEqual(len(selected), 1)
-        self.assertIn("surprise_or_reveal", selected[0]["hook_signals"])
-        self.assertEqual(selected[0]["follow_growth_score"], 40.0)
+        selected = select_media_candidates([candidate], limit=3)
+        self.assertEqual(selected, [])
 
-    def test_accepts_fresh_specific_single_lane_telegram_clip_under_standard_score_floor(self):
+    def test_rejects_fresh_single_lane_telegram_clip_without_view_evidence(self):
         candidate = {
             "id": "fresh-science-low-reach",
             "url": "https://t.me/scienceclips/456",
@@ -166,14 +149,9 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "views": 0,
             "age_hours": 2,
         }
-        selected = select_media_candidates([candidate], limit=3)
-        self.assertEqual(len(selected), 1)
-        self.assertLess(selected[0]["follow_growth_score"], 42)
-        self.assertGreaterEqual(selected[0]["follow_growth_score"], 30)
-        self.assertEqual(selected[0]["score_confidence"], "low")
-        self.assertIn("science_curiosity", selected[0]["hook_signals"])
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
-    def test_accepts_strong_fresh_native_telegram_clip_without_view_counters(self):
+    def test_rejects_fresh_native_telegram_clip_without_view_counters(self):
         candidate = {
             "id": "fresh-telegram-low-confidence",
             "url": "https://t.me/funnycat/456",
@@ -184,20 +162,9 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "views": 0,
             "age_hours": 2,
         }
-        selected = select_media_candidates([candidate], limit=3)
-        self.assertEqual(len(selected), 1)
-        self.assertEqual(selected[0]["score_confidence"], "low")
-        self.assertTrue(
-            set(selected[0]["hook_signals"]).intersection(
-                {"animals", "comedy", "skill_or_spectacle", "technology_demo",
-                 "food_cooking", "practical_tips_or_life_hacks",
-                 "wholesome_or_heartwarming", "sports_or_athletic_skill",
-                 "nature_and_wildlife", "science_curiosity", "diy_and_creativity",
-                 "home_organization_or_cleaning", "music_or_dance"}
-            )
-        )
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
-    def test_allows_high_scoring_specific_telegram_clip_up_to_72_hours(self):
+    def test_rejects_older_telegram_clip_without_recent_momentum(self):
         candidate = {
             "id": "strong-telegram-48h",
             "url": "https://t.me/funnycat/789",
@@ -210,10 +177,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "comments": 200,
             "age_hours": 48,
         }
-        selected = select_media_candidates([candidate], limit=3)
-        self.assertEqual(len(selected), 1)
-        self.assertGreaterEqual(selected[0]["follow_growth_score"], 50)
-        self.assertIn("animals", selected[0]["hook_signals"])
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
     def test_rejects_older_telegram_clip_with_only_generic_reaction_hook(self):
         candidate = {
@@ -230,7 +194,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         }
         self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
-    def test_accepts_recent_topic_specific_firecrawl_result_for_private_review(self):
+    def test_rejects_search_result_without_native_engagement_evidence(self):
         candidate = {
             "id": "recent-firecrawl-home-tip",
             "url": "https://x.com/clipfeed/status/123456789",
@@ -244,11 +208,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "likes": 0,
             "comments": 0,
         }
-        selected = select_media_candidates([candidate], limit=3)
-        self.assertEqual(len(selected), 1)
-        self.assertEqual(selected[0]["score_confidence"], "low")
-        self.assertLess(selected[0]["follow_growth_score"], 42)
-        self.assertTrue(set(selected[0]["hook_signals"]).intersection(SPECIFIC_LONG_CLIP_LANES))
+        self.assertEqual(select_media_candidates([candidate], limit=3), [])
 
     def test_skips_platforms_with_unavailable_public_file_extraction(self):
         candidates = [
@@ -301,6 +261,29 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         for candidate in candidates:
             with self.subTest(platform=candidate["platform"]):
                 self.assertEqual(select_media_candidates([candidate], limit=3), [])
+
+    def test_viral_evidence_gate_requires_specific_hook_views_and_momentum(self):
+        weak = {
+            "follow_growth_score": 75,
+            "score_confidence": "medium",
+            "hook_signals": ["surprise_or_reveal"],
+            "views": 80000,
+            "age_hours": 2,
+        }
+        ok, reason = viral_evidence_gate(weak)
+        self.assertFalse(ok)
+        self.assertEqual(reason, "generic_or_weak_hook")
+
+        strong = {
+            "follow_growth_score": 75,
+            "score_confidence": "medium",
+            "hook_signals": ["animals"],
+            "views": 80000,
+            "age_hours": 2,
+        }
+        ok, reason = viral_evidence_gate(strong)
+        self.assertTrue(ok)
+        self.assertEqual(reason, "viral_evidence_gate_passed")
 
     def test_scheduler_sends_at_most_one_video_per_run(self):
         self.assertEqual(MAX_SENDS, 1)
