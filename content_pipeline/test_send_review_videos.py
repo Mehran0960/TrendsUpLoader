@@ -851,6 +851,24 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             (True, "duration_and_topic_gate_passed_strong_momentum"),
         )
 
+    def test_long_uncategorized_telegram_clip_needs_exceptional_momentum(self):
+        item = {
+            "follow_growth_score": 54.0,
+            "hook_signals": [],
+            "source": "telegram_native_video",
+            "platform": "telegram",
+            "title": "این اتفاق امروز افتاد",
+            "views": 25000,
+            "age_hours": 0.8,
+            "views_velocity_per_hour": 18000,
+            "views_velocity_kind": "observed",
+        }
+        quality = {"passed": True, "duration_seconds": 52.0}
+        self.assertEqual(
+            duration_content_gate(item, quality),
+            (True, "duration_and_topic_gate_passed_strong_momentum"),
+        )
+
     def test_long_single_story_without_momentum_still_fails(self):
         item = {
             "follow_growth_score": 58.7,
