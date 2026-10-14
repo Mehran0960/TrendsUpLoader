@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "timezone": "Asia/Tehran",
-  "note": "These are initial test windows, not verified peak-time measurements for this account. Replace with each platform's own audience/activity analytics after the accounts are available. The queue counted by the planner is a private-review candidate buffer, not a rights-cleared public-publishing queue. Discovery runs hourly, with up to eight replenishment passes on a local day and a 12-item target buffer.",
+  "note": "These are initial test windows, not verified peak-time measurements for this account. Replace with each platform's own audience/activity analytics after the accounts are available. The queue counted by the planner is a private-review candidate buffer, not a rights-cleared public-publishing queue. Discovery checks hourly but launches at most six replenishment passes per local day, using two rotating web searches and three YouTube API queries per run when quota permits. Quality gates may deliberately leave the review queue empty rather than forward weak clips.",
   "preparation_ahead_minutes": 300,
   "review_queue_target": 12,
-  "max_discovery_runs_per_local_day": 8,
+  "max_discovery_runs_per_local_day": 6,
   "windows": {
     "instagram_reels": [
       "12:30",
