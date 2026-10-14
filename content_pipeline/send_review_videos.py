@@ -513,6 +513,36 @@ def is_generic_greeting_caption(caption, lanes):
     return not bool(set(lanes or set()).intersection(CAPTION_SPECIFIC_LANES))
 
 
+def high_momentum_uncategorized_telegram(item):
+    """Permit a narrow unclassified Telegram exception when recency and momentum are exceptional.
+
+    Most candidates still need a clear content lane. This exception is only for
+    native videos from curated Telegram feeds whose view rate is outstanding;
+    safety, news, promotion, caption, and visual-QC gates still apply afterward.
+    """
+    if (
+        str(item.get("platform") or "").lower() != "telegram"
+        or str(item.get("source") or "").lower() != "telegram_native_video"
+    ):
+        return False
+    try:
+        age = max(0.0, float(item.get("age_hours")))
+        views = max(0, int(float(item.get("views") or 0)))
+        rate = item.get("views_velocity_per_hour")
+        rate = max(0.0, float(rate)) if rate not in (None, "") else views / max(age, 0.5)
+    except (TypeError, ValueError, OverflowError):
+        return False
+
+    if age > 6 or views < 15_000:
+        return False
+    kind = str(item.get("views_velocity_kind") or "")
+    if kind == "observed":
+        return rate >= 5_000
+    # A lifetime-view estimate is not measured velocity, so the first-seen
+    # exception has a higher bar and applies only to exceptionally fresh posts.
+    return age <= 2 and views >= 20_000 and rate >= 10_000
+
+
 def viral_evidence_gate(item):
     """Require measurable momentum and a specific hook before a video reaches the human-review inbox.
 
@@ -531,7 +561,9 @@ def viral_evidence_gate(item):
     # Hard freshness ceiling: accumulated lifetime views cannot rescue an old clip.
     if age < 0 or age > MAX_TELEGRAM_REVIEW_AGE_HOURS:
         return False, "outside_age_window"
-    if not set(item.get("hook_signals") or []).intersection(SPECIFIC_LONG_CLIP_LANES):
+    has_specific_hook = bool(set(item.get("hook_signals") or []).intersection(SPECIFIC_LONG_CLIP_LANES))
+    uncategorized_telegram_momentum = high_momentum_uncategorized_telegram(item)
+    if not has_specific_hook and not uncategorized_telegram_momentum:
         return False, "generic_or_weak_hook"
     if views < 8_000:
         return False, "insufficient_view_evidence"
@@ -570,6 +602,7 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
     eligible = []
     seen_source_urls = set()
     rejected_topic = 0
+    qualified_uncategorized_telegram_momentum = 0
     rejected_duplicates = 0
     rejection_reasons = {
         "file_relay_unavailable": 0,
@@ -641,10 +674,13 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
             continue
 
         lanes = set(item.get("hook_signals") or [])
-        if not lanes.intersection(TARGET_LANES):
+        uncategorized_momentum_ok = high_momentum_uncategorized_telegram(item)
+        if not lanes.intersection(TARGET_LANES) and not uncategorized_momentum_ok:
             rejected_topic += 1
             reject("no_target_topic_signal", item)
             continue
+        if uncategorized_momentum_ok and not lanes.intersection(TARGET_LANES):
+            qualified_uncategorized_telegram_momentum += 1
 
         cleaned_caption = clean_review_caption(item.get("title") or item.get("description") or "")
         if not cleaned_caption or is_generic_greeting_caption(cleaned_caption, lanes):
@@ -684,6 +720,7 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
     print(json.dumps({
         "MEDIA_REVIEW_SELECTION": {
             "eligible": len(eligible),
+            "qualified_uncategorized_telegram_momentum": qualified_uncategorized_telegram_momentum,
             "rejected_non_target_or_hashtag_only": rejected_topic,
             "rejected_duplicate_urls_or_reviewed": rejected_duplicates,
             "rejection_reasons": rejection_reasons,
