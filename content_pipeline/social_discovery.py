@@ -889,7 +889,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         # This is discovery-only; media acquisition still happens downstream.
         # Rotate by scheduled four-hour windows. A half-hour index combined
         # with a four-hour schedule would repeat the same query every run.
-        qidx = (int(now.timestamp() // (4 * 3600)) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
+        qidx = (int(now.timestamp() // 3600) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
         query_variants = [
             'site:instagram.com/reel/ (خنده OR طنز OR سوتی OR واکنش انسانی OR بامزه OR غافلگیر OR احساسی OR مهربانی)',
             'site:instagram.com/reel/ (آشپزی OR دستور پخت OR ترفند کاربردی OR تمیزکاری OR قبل و بعد OR دست ساز)',
@@ -1024,7 +1024,7 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     now = datetime.now(timezone.utc)
     # One keyless Firecrawl search per 4-hour run is about 360 credits/month
     # (6 runs/day × 30 days × 2 credits/search), leaving a large reserve.
-    start_index = (int(now.timestamp() // (4 * 3600)) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
+    start_index = (int(now.timestamp() // 3600) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
     selected_queries = []
     if not PAID_SEARCH_ENABLED:
         print("PAID_PUBLIC_SEARCH_SKIPPED_NON_SCHEDULED_RUN")
