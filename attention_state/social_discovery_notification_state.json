@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-14T20:48:13.341266+00:00",
+  "media_review_updated_at": "2026-10-14T21:57:58.795847+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -210,7 +210,8 @@
     "5df62bee0bd03066a6dca91f5963a5bcc38fdea450acf004bf2f1b6fed0aaae1",
     "cb2f590095c0cf6db96aa1efe1eba95cc4b5a6cde3ecd5d3bb405bea2bb04608",
     "b5df20ee80b20804662fe51f74b50f39febf2df1f7e4b86ee3581b9ad00d444e",
-    "8b524b050a1d1fa61a5ae8534bf736e6ecd01bdbbb88acedf8363adb501737d5"
+    "8b524b050a1d1fa61a5ae8534bf736e6ecd01bdbbb88acedf8363adb501737d5",
+    "84cd16b693e39cf7f0386e6679a80bc163bbe75fb2a00c8ba6c0ca0243b04c8a"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -354,7 +355,8 @@
     "https://t.me/vaybabamumad/180177",
     "https://t.me/vaybabamumad/180174",
     "https://t.me/vaybabamumad/180181",
-    "https://t.me/gizmiztel/163289"
+    "https://t.me/gizmiztel/163289",
+    "https://t.me/gizmiztel/163279"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -741,6 +743,17 @@
         "e0e4c4e868f8f0f4",
         "e0d0c4e4e0f8f0f4"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163279",
+      "sha256": "f4ddfbbbd02a983d34291307544b3c4c004180a2146e0c72dda96cb037ac862e",
+      "frame_hashes": [
+        "f8f8f0f0e0e4ccd0",
+        "f0f060e0e0e4ccd8",
+        "f8f0f0f0e0e4ccd8",
+        "f8f060f0e0e4ccd8",
+        "f8f0f0f0e0e4ccd8"
+      ]
     }
   ],
   "media_reviewed_topics": [
@@ -857,6 +870,12 @@
       "topic": "comedy",
       "url": "https://t.me/gizmiztel/163289",
       "sent_at": "2026-10-14T20:48:13.340815+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/163279",
+      "sent_at": "2026-10-14T21:57:58.795399+00:00"
     }
   ]
 }
