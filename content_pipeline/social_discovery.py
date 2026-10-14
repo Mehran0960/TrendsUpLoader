@@ -22,6 +22,12 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
 RANKING_VERSION = "telegram_momentum_v1"
+GIZMIZ_STYLE_CHANNELS = {
+    "gizmiztel", "regaplus", "insta_clip85", "comedi", "khandehabadd",
+    "vaybabamumad", "khandbazar20", "bikhiyalbaba", "kafeh_khande",
+    "nicebest", "vahidonline", "tanzolemareh_t", "keereker", "ersalihatun",
+    "clipsamii", "naroo_somaye", "winstnchannel", "funnyttt", "myfavcats", "pishiha",
+}
 YOUTUBE_KEY = os.environ.get("YOUTUBE_API_KEY", "").strip()
 YOUTUBE_API_ENABLED = os.environ.get("YOUTUBE_API_ENABLED", "true").strip().lower() not in {
     "0", "false", "no", "off",
@@ -557,6 +563,8 @@ def normalize_native_telegram_candidates(found, now):
         except (TypeError, ValueError):
             views = 0
         text_blob = title + " " + description
+        channel_name = str(raw.get("telegram_channel") or "").strip().lstrip("@").casefold()
+        source_channel_priority = 0 if channel_name in GIZMIZ_STYLE_CHANNELS else 1
         normalized.append({
             "id": hashlib.sha256(url.encode("utf-8")).hexdigest(),
             "url": url,
@@ -571,6 +579,7 @@ def normalize_native_telegram_candidates(found, now):
             "telegram_post_views": views,
             "telegram_repost_channels": [],
             "telegram_channel": str(raw.get("telegram_channel") or ""),
+            "telegram_channel_priority": source_channel_priority,
             "published_at": published_at,
             "age_hours": age_hours,
             "persian_signal": len(re.findall(r"[\u0600-\u06ff]", text_blob)) >= 3,
@@ -851,6 +860,12 @@ def log_growth_summary(items):
             "confidence": item.get("score_confidence"),
             "lane": item.get("content_lane"),
             "action": item.get("candidate_action"),
+            "views_per_hour": item.get("views_velocity_per_hour"),
+            "velocity_kind": item.get("views_velocity_kind"),
+            "acceleration_per_hour2": item.get("views_acceleration_per_hour2"),
+            "age_hours": item.get("age_hours"),
+            "telegram_channel": item.get("telegram_channel"),
+            "momentum_priority": item.get("momentum_priority_score"),
             "safety_review": item.get("safety_review_signal"),
         } for item in rows[:5]],
     }, ensure_ascii=False))
