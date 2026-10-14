@@ -31,7 +31,7 @@ TARGET = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 MAX_AGE_HOURS = 36.0
 MAX_TELEGRAM_REVIEW_AGE_HOURS = 72.0
 MIN_STALE_TELEGRAM_SCORE = 50.0
-MIN_SCORE = 42.0
+MIN_SCORE = 52.0
 MAX_VIDEO_BYTES = 48 * 1024 * 1024
 MAX_SENDS = 1
 # Output smoke test requested 2026-10-11; keep persisted dedupe state intact.
@@ -378,6 +378,27 @@ def balanced_candidate_shortlist(eligible, recent_topics=None, limit=MAX_TRIES):
             # qualified options are cooking videos.
             usable = remaining
 
+        # The first item must be the strongest evidence-backed candidate overall.
+        # Topic balancing only orders the remaining shortlist; it may not demote the top pick.
+        if not selected:
+            choice = max(usable, key=lambda row: (
+                float(row.get("follow_growth_score") or 0),
+                -float(row.get("age_hours") or 0),
+            ))
+            selected.append(choice)
+            remaining.remove(choice)
+            pillar, topic = profile(choice)
+            planned.append({
+                "pillar": pillar,
+                "topic": topic,
+                "url": str(choice.get("url") or ""),
+                "sent_at": "",
+                "planned": True,
+            })
+            if topic == "food_cooking":
+                food_in_batch += 1
+            continue
+
         by_pillar = {}
         for row in usable:
             pillar, _topic = profile(row)
@@ -472,6 +493,46 @@ def is_generic_greeting_caption(caption, lanes):
     return not bool(set(lanes or set()).intersection(CAPTION_SPECIFIC_LANES))
 
 
+def viral_evidence_gate(item):
+    """Require measurable momentum and a specific hook before a video reaches the human-review inbox.
+
+    Search position, a catchy caption, or a technically valid file is not enough.
+    Thresholds are conservative triage rules for the current Telegram-first file relay.
+    """
+    try:
+        score = float(item.get("follow_growth_score") or 0)
+        age = float(item.get("age_hours"))
+        views = max(0, int(float(item.get("views") or 0)))
+    except (TypeError, ValueError, OverflowError):
+        return False, "invalid_score_or_age"
+
+    if score < MIN_SCORE:
+        return False, "score_below_minimum"
+    if age < 0 or age > MAX_TELEGRAM_REVIEW_AGE_HOURS:
+        return False, "outside_age_window"
+    if not set(item.get("hook_signals") or []).intersection(SPECIFIC_LONG_CLIP_LANES):
+        return False, "generic_or_weak_hook"
+    if views < 8_000:
+        return False, "insufficient_view_evidence"
+
+    views_per_hour = views / max(age, 0.5)
+    if age <= 24:
+        # Allow either sustained growth or genuinely strong total reach.
+        if views_per_hour < 250 and views < 30_000:
+            return False, "insufficient_velocity"
+    elif age <= 36:
+        if views < 50_000 or views_per_hour < 1_000:
+            return False, "insufficient_velocity"
+    else:
+        # Older candidates only survive when they are exceptional outliers.
+        if views < 100_000 or score < 60:
+            return False, "stale_weak_candidate"
+
+    if str(item.get("score_confidence") or "low") not in {"medium", "high"}:
+        return False, "insufficient_engagement_confidence"
+    return True, "viral_evidence_gate_passed"
+
+
 def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES, recent_topics=None):
     """Select unique, fresh, substantive clips and expose the actual rejection bottleneck."""
     reviewed = {str(x) for x in (reviewed_ids or [])}
@@ -489,6 +550,10 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
         "outside_age_window": 0,
         "stale_telegram_not_strong_or_specific": 0,
         "insufficient_engagement_confidence": 0,
+        "insufficient_view_evidence": 0,
+        "insufficient_velocity": 0,
+        "generic_or_weak_hook": 0,
+        "stale_weak_candidate": 0,
         "safety_news_compilation_or_promo": 0,
         "caption_empty_or_generic_greeting": 0,
     }
@@ -557,71 +622,14 @@ def select_media_candidates(items, reviewed_ids=None, now=None, limit=MAX_TRIES,
             reject("invalid_score_or_age", item)
             continue
 
-        native_telegram = platform == "telegram" and str(item.get("source") or "").lower() == "telegram_native_video"
-        # Firecrawl's explicit qdr:d search filter is a defensible recency bound
-        # for private review, but not proof of engagement or publication rights.
-        # Allow only concrete subject lanes, a conservative minimum score, and
-        # download/visual-QC checks downstream; never use this for auto-publishing.
-        fresh_firecrawl_review_ok = (
-            str(item.get("source") or "").lower() == "firecrawl_search"
-            and platform in {"instagram", "tiktok", "aparat", "x"}
-            and str(item.get("freshness_basis") or "") in {
-                "published_date", "firecrawl_tbs_qdr_d_upper_bound"
-            }
-            and 0 <= age <= 24
-            and score >= 25
-            and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
-        )
-        # Private review is not auto-publication: let fresh, single-hook native
-        # Telegram clips qualify at a lower floor. Specific subject lanes can enter
-        # at 30; broader reveal/reaction/comedy hooks need 36. Visual QC, duplicate
-        # fingerprints, and all safety/news/promotion checks still apply downstream.
-        fresh_native_telegram_specific_review_ok = (
-            native_telegram
-            and 0 <= age <= MAX_AGE_HOURS
-            and score >= 30
-            and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES))
-        )
-        fresh_native_telegram_broad_hook_review_ok = (
-            native_telegram
-            and 0 <= age <= MAX_AGE_HOURS
-            and score >= 36
-            and bool(lanes.intersection(TARGET_LANES))
-        )
-        fresh_native_telegram_review_ok = (
-            fresh_native_telegram_specific_review_ok or fresh_native_telegram_broad_hook_review_ok
-        )
-        if score < MIN_SCORE and not fresh_firecrawl_review_ok and not fresh_native_telegram_review_ok:
-            reject("score_below_minimum", item)
-            continue
-        age_limit = MAX_TELEGRAM_REVIEW_AGE_HOURS if native_telegram else MAX_AGE_HOURS
-        if age < 0 or age > age_limit:
-            reject("outside_age_window", item)
-            continue
-        # Keep the wider 36-72h window narrow: only genuinely strong clips with
-        # a concrete topic, never generic reactions or stale reposts.
-        if age > MAX_AGE_HOURS and (
-            not native_telegram
-            or score < MIN_STALE_TELEGRAM_SCORE
-            or not lanes.intersection(SPECIFIC_LONG_CLIP_LANES)
-        ):
-            reject("stale_telegram_not_strong_or_specific", item)
+        evidence_ok, evidence_reason = viral_evidence_gate(item)
+        if not evidence_ok:
+            reject(evidence_reason, item)
             continue
 
+        native_telegram = platform == "telegram" and str(item.get("source") or "").lower() == "telegram_native_video"
         confidence = item.get("score_confidence")
-        # Missing native view counters may still be reviewed privately when a
-        # concrete subject lane and score support the candidate.
-        low_confidence_telegram_ok = (
-            native_telegram
-            and confidence == "low"
-            and 0 <= age <= MAX_AGE_HOURS
-            and (
-                (score >= 30 and bool(lanes.intersection(SPECIFIC_LONG_CLIP_LANES)))
-                or (score >= 36 and bool(lanes.intersection(TARGET_LANES)))
-            )
-        )
-        low_confidence_fresh_firecrawl_ok = fresh_firecrawl_review_ok and confidence == "low"
-        if confidence not in {"medium", "high"} and not low_confidence_telegram_ok and not low_confidence_fresh_firecrawl_ok:
+        if confidence not in {"medium", "high"}:
             reject("insufficient_engagement_confidence", item)
             continue
         if any(item.get(k) for k in (
