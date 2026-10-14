@@ -1,7 +1,7 @@
 name: Multi-Platform Social Discovery
 # Run the queue planner hourly; independently reserve five delivery slots for private review.
 # Tehran delivery slots: 12:20, 17:50, 19:20, 20:50, 22:20 (UTC: 08:50, 14:20, 15:50, 17:20, 18:50).
-# Each delivery slot sends at most one qualified review video; the hourly cadence keeps replenishing discovery.
+# Search queries rotate hourly across source families; delivery remains separate and private-review-only.
 
 concurrency:
   group: social-discovery
