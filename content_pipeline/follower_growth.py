@@ -187,6 +187,63 @@ def _freshness(age):
     return 0.0
 
 
+def momentum_priority(age_hours, velocity_per_hour, acceleration_per_hour2=0.0,
+                       views=0, source="", source_channel_priority=1,
+                       velocity_kind="estimated_from_lifetime_views", content_score=0.0):
+    """Rank primarily by recency and view velocity; lifetime reach is only supporting evidence."""
+    try:
+        age = max(0.0, float(age_hours))
+    except (TypeError, ValueError, OverflowError):
+        age = 999999.0
+    try:
+        velocity = max(0.0, float(velocity_per_hour))
+    except (TypeError, ValueError, OverflowError):
+        velocity = 0.0
+    try:
+        acceleration = float(acceleration_per_hour2 or 0)
+    except (TypeError, ValueError, OverflowError):
+        acceleration = 0.0
+    try:
+        reach = max(0, int(views or 0))
+    except (TypeError, ValueError, OverflowError):
+        reach = 0
+    try:
+        channel_tier = max(0, int(source_channel_priority))
+    except (TypeError, ValueError, OverflowError):
+        channel_tier = 1
+
+    # Freshness and current velocity jointly dominate. The lifetime view total
+    # cannot rescue a stale clip whose momentum has cooled.
+    if age <= 1:
+        freshness = 40.0
+    elif age <= 3:
+        freshness = 36.0
+    elif age <= 6:
+        freshness = 31.0
+    elif age <= 12:
+        freshness = 25.0
+    elif age <= 18:
+        freshness = 15.0
+    elif age <= 24:
+        freshness = 7.0
+    else:
+        freshness = 0.0
+
+    velocity_score = min(45.0, math.log10(velocity + 1.0) / math.log10(20001.0) * 45.0)
+    if age > 24:
+        velocity_score = min(4.0, velocity_score)
+
+    acceleration_score = max(-5.0, min(7.0, acceleration / 2500.0 * 7.0))
+    reach_score = min(5.0, math.log10(reach + 1.0) / 6.0 * 5.0)
+    measurement_score = 3.0 if str(velocity_kind) == "observed" else 0.0
+    channel_score = 3.0 if str(source).lower() == "telegram_native_video" and channel_tier == 0 else (
+        1.5 if str(source).lower() == "telegram_native_video" else 0.0
+    )
+    content_tiebreak = min(2.0, max(0.0, float(content_score or 0.0)) / 50.0)
+    return round(max(0.0, freshness + velocity_score + acceleration_score + reach_score
+                     + measurement_score + channel_score + content_tiebreak), 2)
+
+
 def annotate_candidate(item):
     """Attach transparent heuristic fields; do not infer rights or guaranteed growth."""
     x = dict(item or {})
@@ -219,9 +276,18 @@ def annotate_candidate(item):
     demand = min(24.0, math.log10(views + 1) / 6.0 * 24.0) if views else 0.0
 
     velocity = 0.0
-    if views and age is not None:
-        views_per_hour = views / max(age, 0.5)
-        velocity = min(14.0, math.log10(views_per_hour + 1) / 6.0 * 14.0)
+    if x.get("views_velocity_per_hour") not in (None, ""):
+        try:
+            views_per_hour = max(0.0, float(x.get("views_velocity_per_hour")))
+        except (TypeError, ValueError, OverflowError):
+            views_per_hour = views / max(age or 0.5, 0.5) if views else 0.0
+    else:
+        # First-seen estimates are explicitly labeled; once two snapshots exist,
+        # the measured view delta takes precedence.
+        views_per_hour = views / max(age or 0.5, 0.5) if views else 0.0
+        x["views_velocity_per_hour"] = round(views_per_hour, 2)
+        x["views_velocity_kind"] = "estimated_from_lifetime_views"
+    velocity = min(14.0, math.log10(views_per_hour + 1) / 6.0 * 14.0)
 
     likes = _int(x.get("likes"))
     comments = _int(x.get("comments"))
@@ -298,6 +364,17 @@ def annotate_candidate(item):
     else:
         lane = "unclassified"
 
+    try:
+        observed_velocity_for_rank = max(0.0, float(x.get("views_velocity_per_hour") or 0))
+    except (TypeError, ValueError, OverflowError):
+        observed_velocity_for_rank = 0.0
+    x["momentum_priority_score"] = momentum_priority(
+        age, observed_velocity_for_rank,
+        x.get("views_acceleration_per_hour2", 0),
+        views, source, x.get("telegram_channel_priority", 1),
+        x.get("views_velocity_kind", "estimated_from_lifetime_views"), score,
+    )
+
     x.update({
         "follow_growth_score": score,
         "score_confidence": confidence,
@@ -331,8 +408,11 @@ def rank_candidates(items, limit=500):
         except (TypeError, ValueError):
             return 0.0
     rows.sort(key=lambda x: (
+        float(x.get("momentum_priority_score") or 0),
+        1 if str(x.get("views_velocity_kind") or "") == "observed" else 0,
+        float(x.get("views_velocity_per_hour") or 0),
+        -(_age_hours(x) if _age_hours(x) is not None else 999999.0),
         float(x.get("follow_growth_score") or 0),
         observed_at(x),
-        _int(x.get("views")) + _int(x.get("telegram_repost_views")),
     ), reverse=True)
     return rows[:max(0, int(limit))]
