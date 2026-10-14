@@ -44,8 +44,32 @@ QUOTA_BOOTSTRAP_YOUTUBE_DAY = "2026-10-11"
 # A quota-exhaustion error was observed earlier today, so reserve the entire internal budget until UTC midnight.
 QUOTA_BOOTSTRAP_YOUTUBE_SEARCHES = 30
 YOUTUBE_QUERIES = [
-    # Balanced, rotating discovery sweep: each run consumes two diverse queries.
-    # Search indexing varies by platform; every result remains a lead, not proof of quality.
+    ("ویدیوهای خنده دار و عجیب ایرانی", "fa"),
+    ("گربه سگ واکنش جالب ویدیو کوتاه", "fa"),
+    ("ویدیو کوتاه پربازدید ایران اتفاق عجیب", "fa"),
+    ("funny unexpected moment caught on camera short", "en"),
+    ("cat dog funny reaction short video", "en"),
+    ("satisfying transformation before after short", "en"),
+    ("AI photo animation demo short", "en"),
+    ("amazing one take skill trick short", "en"),
+    ("close call caught on camera short", "en"),
+    ("ترفندهای کاربردی خانه و تمیزکاری ویدیو کوتاه", "fa"),
+    ("طرز تهیه غذای سریع و آشپزی رضایت بخش ویدیو کوتاه", "fa"),
+    ("حرکت ورزشی تماشایی فوتبال بسکتبال ویدیو کوتاه", "fa"),
+    ("حیات وحش و طبیعت شگفت انگیز ویدیو کوتاه", "fa"),
+    ("آزمایش علمی ساده و چطور کار می کند ویدیو کوتاه", "fa"),
+    ("ساخت کاردستی خلاقانه و قبل و بعد ویدیو کوتاه", "fa"),
+    ("اجرای موسیقی رقص و نوازندگی جالب ویدیو کوتاه", "fa"),
+    ("wholesome heartwarming family and animal moment short video", "en"),
+    ("easy food recipe everyday life hack satisfying cleaning short video", "en"),
+    ("amazing sports skill trick shot short video", "en"),
+    ("Iran travel hidden places street and city short video", "en"),
+    ("optical illusion visual puzzle brain teaser short video", "en"),
+    ("nostalgia then and now Iran old streets everyday life short video", "en"),
+]
+
+QUERIES = [
+    # Rotate across platform-specific searches and general viral-video discovery.
     'site:instagram.com/reel/ (طنز OR سوتی OR حیوانات OR واکنش OR لحظه غیرمنتظره OR مهارت)',
     'site:instagram.com/reel/ (funny OR unexpected OR animal OR satisfying OR skill OR transformation) short video',
     'site:tiktok.com/@*/video/ (ایرانی OR فارسی OR طنز OR حیوانات OR ترفند OR مهارت OR لحظه عجیب)',
