@@ -721,7 +721,7 @@ def discover_youtube_public_candidates(now=None, limit=50, max_search_calls=None
                     "videoDuration": "short",
                     "order": "viewCount",
                     "publishedAfter": published_after,
-                    "regionCode": "IR",
+                    # No regionCode: include globally indexed English and Persian videos.
                     "relevanceLanguage": language,
                     "maxResults": 18,
                 },
