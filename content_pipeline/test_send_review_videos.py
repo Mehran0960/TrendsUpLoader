@@ -747,7 +747,7 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
         self.assertEqual(result["reason"], "duration_out_of_range")
 
 
-    def test_moderate_but_relevant_fresh_clip_is_kept_for_private_review(self):
+    def test_moderate_but_low_view_clip_is_held_back(self):
         candidate = {
             "id": "moderate-cat",
             "url": "https://t.me/funnycat/456",
@@ -758,11 +758,10 @@ class TelegramPostMediaMatchingTests(unittest.TestCase):
             "views": 1200,
             "age_hours": 20,
         }
+        # A topic match and recent timestamp are insufficient without strong
+        # observed reach/momentum: don't send a merely accessible video.
         selected = select_media_candidates([candidate], limit=3)
-        self.assertEqual(len(selected), 1)
-        self.assertIn("animals", selected[0]["hook_signals"])
-        self.assertGreaterEqual(selected[0]["follow_growth_score"], 42)
-        self.assertLess(selected[0]["follow_growth_score"], 48)
+        self.assertEqual(selected, [])
 
 
 if __name__ == "__main__":
