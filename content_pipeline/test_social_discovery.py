@@ -74,13 +74,27 @@ class SocialDiscoveryTests(unittest.TestCase):
         self.assertEqual(len(sort_discovery_items(rows, limit=3)), 3)
 
 
-    def test_firecrawl_query_bank_uses_downloadable_individual_post_platforms(self):
+    def test_firecrawl_query_bank_covers_major_video_platforms_and_broad_web(self):
         platforms = [social_discovery.expected_platform_for_query(query) for query in QUERIES]
-        self.assertEqual(set(platforms), {"x", "aparat"})
-        self.assertNotIn("tiktok", platforms)
-        self.assertNotIn("instagram", platforms)
-        self.assertNotIn("youtube", platforms)
-        self.assertTrue(all("inurl:status" in query or "aparat.com/v" in query for query in QUERIES))
+        self.assertGreaterEqual(len(QUERIES), 12)
+        for platform in ("x", "aparat", "tiktok", "instagram", "youtube", "facebook", "reddit", "vimeo", "dailymotion"):
+            with self.subTest(platform=platform):
+                self.assertIn(platform, platforms)
+        self.assertTrue(any(not platform for platform in platforms), "include at least one cross-web query")
+        self.assertEqual(social_discovery.FIRECRAWL_SEARCHES_PER_RUN, 2)
+        self.assertEqual(social_discovery.YOUTUBE_SEARCHES_PER_RUN, 3)
+
+    def test_individual_post_url_validation_covers_new_platforms(self):
+        valid = [
+            ("https://www.facebook.com/reel/123456789", "facebook"),
+            ("https://www.reddit.com/r/videos/comments/abc123/a_clip", "reddit"),
+            ("https://vimeo.com/123456789", "vimeo"),
+            ("https://www.dailymotion.com/video/x8abcde", "dailymotion"),
+        ]
+        for url, expected in valid:
+            with self.subTest(url=url):
+                self.assertEqual(social_discovery.platform(url), expected)
+                self.assertTrue(social_discovery.is_video_post(url))
 
     def test_query_bank_covers_mainstream_evergreen_interests(self):
         searchable = " ".join([query for query, _language in YOUTUBE_QUERIES] + QUERIES).lower()
@@ -103,7 +117,7 @@ class SocialDiscoveryTests(unittest.TestCase):
                 patch.object(social_discovery, "telegram_repost_candidates", return_value=[]),
             ):
                 self.assertEqual(social_discovery.main(), 0)
-                self.assertEqual(firecrawl.call_count, 1)
+                self.assertEqual(firecrawl.call_count, 2)
                 bing.assert_not_called()
                 self.assertTrue(output.is_file())
                 payload = json.loads(output.read_text(encoding="utf-8"))
