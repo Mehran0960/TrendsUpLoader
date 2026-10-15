@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-15T19:29:25.740633+00:00",
+  "media_review_updated_at": "2026-10-15T20:25:11.415477+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -214,7 +214,9 @@
     "84cd16b693e39cf7f0386e6679a80bc163bbe75fb2a00c8ba6c0ca0243b04c8a",
     "b169b9dbd75918ffb33d47815b94257bd99ed88467acbf4a4afddabae3a42861",
     "556eb68f485599b0a6a3fe4d7efc0014b1916634dda310d52442a5e1b42504ad",
-    "ed57408f49a053a0ddb2b0d2d6aa55e676756c42d7537faecc943f9368ed0c7e"
+    "ed57408f49a053a0ddb2b0d2d6aa55e676756c42d7537faecc943f9368ed0c7e",
+    "1c6a34c4c56e7c32750f4af9ad11029152213da39e74989bbdaf285f754340c9",
+    "6498902f8399c553fadaa884f38d6915f520e02357bc0cb5e1a964db799e07f2"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -362,7 +364,9 @@
     "https://t.me/gizmiztel/163279",
     "https://t.me/gizmiztel/163304",
     "https://t.me/gizmiztel/163300",
-    "https://t.me/gizmiztel/163302"
+    "https://t.me/gizmiztel/163302",
+    "https://t.me/gizmiztel/163297",
+    "https://t.me/gizmiztel/163299"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -793,16 +797,20 @@
         "fcfcf8fcece4e0e8",
         "e8e0e0e0e0e0e0ec"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163297",
+      "sha256": "1bd93f068f4b4c2a99deb31f5a1ee9c30ad681fea99cec0269d09e1d99885887",
+      "frame_hashes": [
+        "c8e0e8d0f47070f0",
+        "6c60e4f0f07070f0",
+        "6c60e0c8ccf074e4",
+        "6c60e4c0f03070f0",
+        "6c60e0c0f0307070"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "food_cooking",
-      "url": "https://t.me/Lezath_Ashpazi/31219",
-      "sent_at": "",
-      "inferred": true
-    },
     {
       "pillar": "adjacent",
       "topic": "food_cooking",
@@ -919,6 +927,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/163302",
       "sent_at": "2026-10-15T19:29:25.740250+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/163297",
+      "sent_at": "2026-10-15T20:25:11.414945+00:00"
     }
   ]
 }
