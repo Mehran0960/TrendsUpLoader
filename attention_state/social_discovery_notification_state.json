@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-15T21:48:57.295826+00:00",
+  "media_review_updated_at": "2026-10-16T13:34:46.293800+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -217,7 +217,9 @@
     "ed57408f49a053a0ddb2b0d2d6aa55e676756c42d7537faecc943f9368ed0c7e",
     "1c6a34c4c56e7c32750f4af9ad11029152213da39e74989bbdaf285f754340c9",
     "6498902f8399c553fadaa884f38d6915f520e02357bc0cb5e1a964db799e07f2",
-    "65fdca0dddb64e39c67be43d7ac859d73df957edc44cc3b619991d6e6010c1c4"
+    "65fdca0dddb64e39c67be43d7ac859d73df957edc44cc3b619991d6e6010c1c4",
+    "2b609f3be870dc876f7fdf44be52307c5a80745c67133a93bdbbfb2f4a7a6faa",
+    "b2f285a159c361e876a260f5967db67d8f1115a3bdbd739488ee9264b3779086"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -368,7 +370,9 @@
     "https://t.me/gizmiztel/163302",
     "https://t.me/gizmiztel/163297",
     "https://t.me/gizmiztel/163299",
-    "https://t.me/gizmiztel/163295"
+    "https://t.me/gizmiztel/163295",
+    "https://t.me/gizmiztel/163342",
+    "https://t.me/gizmiztel/163364"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -821,16 +825,20 @@
         "f0e4e8e8c8e8e0f4",
         "ccd0f8ece4e8e4e4"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163342",
+      "sha256": "8ae43bb0e1dedec5454b502902a61388ab377e3507a53222bdd96f1b8ff24c8e",
+      "frame_hashes": [
+        "e8f8e0f0e4e0e0e8",
+        "f8f0e0e4e4e0e8e8",
+        "ecf8e0e4e4d8d8e0",
+        "fcf8f0e4d8f8e0e8",
+        "ecf0f0fce4ccece8"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "food_cooking",
-      "url": "https://t.me/Lezath_Ashpazi/31220",
-      "sent_at": "",
-      "inferred": true
-    },
     {
       "pillar": "reaction_and_comedy",
       "topic": "animals",
@@ -945,6 +953,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/163295",
       "sent_at": "2026-10-15T21:48:57.295355+00:00"
+    },
+    {
+      "pillar": "visual_wow",
+      "topic": "transformation_or_satisfying",
+      "url": "https://t.me/gizmiztel/163342",
+      "sent_at": "2026-10-16T13:34:46.293329+00:00"
     }
   ]
 }
