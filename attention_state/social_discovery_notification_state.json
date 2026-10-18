@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-18T12:49:34.607158+00:00",
+  "media_review_updated_at": "2026-10-18T17:25:21.669617+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -234,7 +234,8 @@
     "05fcf263d6566a2a478947cfc6e822d075e63074479306f6ca2a29c4e81c0bf5",
     "042314d7adc2538536f84e52c0df3146831dadd841c8dd46d6690568597dbf85",
     "ce0776bc3b47ea418d2639da169b3f31705741710246fa15375889a49292f02e",
-    "56c9a44cfa76594be02a4d1f78b96a6baf25ba609c28360b8223d93606aa4e09"
+    "56c9a44cfa76594be02a4d1f78b96a6baf25ba609c28360b8223d93606aa4e09",
+    "57665dce38d32f2daa36d506bb0d8b19aa873ebc17616b0cbd1cf231394b72f5"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -402,7 +403,8 @@
     "https://t.me/gizmiztel/163436",
     "https://t.me/gizmiztel/163467",
     "https://t.me/gizmiztel/163468",
-    "https://t.me/gizmiztel/163485"
+    "https://t.me/gizmiztel/163485",
+    "https://t.me/gizmiztel/163497"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -976,15 +978,20 @@
         "e4c0f0e0ccece4e4",
         "c4ccd8f0e0e8f8e0"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163497",
+      "sha256": "62c4d3b98f61a602f8be497c429ebd5f745778a2ad995d5e9ec0494cb5c38b66",
+      "frame_hashes": [
+        "f0f0f8fcf4c0f0d8",
+        "f0e0e8c8f4f4f4cc",
+        "e0e0e0f0e0dcf8f8",
+        "e8e0f0e0e0d8f8f8",
+        "e8e0f0e0e8d8d8e8"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "music_or_dance",
-      "url": "https://t.me/vaybabamumad/180177",
-      "sent_at": "2026-10-14T18:40:31.663847+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "food_cooking",
@@ -1098,6 +1105,12 @@
       "topic": "animals",
       "url": "https://t.me/gizmiztel/163468",
       "sent_at": "2026-10-18T12:49:34.606753+00:00"
+    },
+    {
+      "pillar": "experimental",
+      "topic": "travel_and_places",
+      "url": "https://t.me/gizmiztel/163497",
+      "sent_at": "2026-10-18T17:25:21.669254+00:00"
     }
   ]
 }
