@@ -1,15 +1,15 @@
 {
   "version": 1,
   "local_day": "2026-10-19",
-  "discovery_runs": 2,
-  "last_discovery_attempt_at": "2026-10-19T14:17:45.795162+03:30",
+  "discovery_runs": 3,
+  "last_discovery_attempt_at": "2026-10-19T19:24:33.046648+03:30",
   "last_decision": "replenish_review_queue_before_platform_window",
   "last_review_queue_count": 0,
   "review_queue_target": 12,
   "max_discovery_runs_per_local_day": 6,
   "next_window": {
     "platform": "youtube_shorts",
-    "starts_at": "2026-10-19T17:00:00+03:30",
-    "minutes_until": 162
+    "starts_at": "2026-10-19T20:30:00+03:30",
+    "minutes_until": 65
   }
 }
