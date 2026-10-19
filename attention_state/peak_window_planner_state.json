@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "local_day": "2026-10-18",
-  "discovery_runs": 5,
-  "last_discovery_attempt_at": "2026-10-18T20:54:58.686039+03:30",
+  "local_day": "2026-10-19",
+  "discovery_runs": 1,
+  "last_discovery_attempt_at": "2026-10-19T08:12:28.191240+03:30",
   "last_decision": "replenish_review_queue_before_platform_window",
-  "last_review_queue_count": 6,
+  "last_review_queue_count": 1,
   "review_queue_target": 12,
   "max_discovery_runs_per_local_day": 6,
   "next_window": {
-    "platform": "aparat",
-    "starts_at": "2026-10-18T21:00:00+03:30",
-    "minutes_until": 5
+    "platform": "tiktok",
+    "starts_at": "2026-10-19T12:00:00+03:30",
+    "minutes_until": 228
   }
 }
