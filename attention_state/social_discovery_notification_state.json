@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-21T22:00:05.841995+00:00",
+  "media_review_updated_at": "2026-10-22T14:09:00.688142+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -261,7 +261,9 @@
     "2d9d6dd7f352be1ef9414a912a5caa1cf8583cfafe3610daf03a109cf18e1cf6",
     "4ca359b5708bfc874fcc6843a259bee6613e8d21c50a41e8142e4c609f2ed84c",
     "87c012991f56f54fc05a574d9a67347c5bbd9af8c1659cda736c0d421a2d4b2e",
-    "2fa30dc72f6d466a1e0dea2bcfeea9049033588535580551ee41c5be86033d55"
+    "2fa30dc72f6d466a1e0dea2bcfeea9049033588535580551ee41c5be86033d55",
+    "29be72de244edf81eaab4e11d987fd965ead96e58ebbc11ac970b7a568d41d6c",
+    "489f24496d5fcf76dce575d4cb66e4d1a1a54f7dd4d0befcac9b0b7bb9c3ae8c"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -456,7 +458,9 @@
     "https://t.me/gizmiztel/163650",
     "https://t.me/gizmiztel/163647",
     "https://t.me/gizmiztel/163648",
-    "https://t.me/regaplus/24083"
+    "https://t.me/regaplus/24083",
+    "https://t.me/gizmiztel/163696",
+    "https://t.me/gizmiztel/163703"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1239,15 +1243,20 @@
         "e0e8e0f4e4e4ecf4",
         "e0f4f4c4e0f8f0ec"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163696",
+      "sha256": "78f80b408b29ae652dfefd566ae206f7e9fca48a13d8dfd0429542972bdbc112",
+      "frame_hashes": [
+        "e8e0e0e4c0e0f0dc",
+        "f0dcdcdcfcfcf0f0",
+        "f4d4f0fcecf4f8f8",
+        "d8c8c0e0f0f8e0f0",
+        "c0e4c8c4ece0f0e0"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "reaction_and_comedy",
-      "topic": "animals",
-      "url": "https://t.me/gizmiztel/163468",
-      "sent_at": "2026-10-18T12:49:34.606753+00:00"
-    },
     {
       "pillar": "experimental",
       "topic": "travel_and_places",
@@ -1361,6 +1370,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/163647",
       "sent_at": "2026-10-21T22:00:05.841396+00:00"
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "animals",
+      "url": "https://t.me/gizmiztel/163696",
+      "sent_at": "2026-10-22T14:09:00.687626+00:00"
     }
   ]
 }
