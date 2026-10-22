@@ -1,15 +1,15 @@
 {
   "version": 1,
   "local_day": "2026-10-22",
-  "discovery_runs": 1,
-  "last_discovery_attempt_at": "2026-10-22T11:06:42.759860+03:30",
+  "discovery_runs": 2,
+  "last_discovery_attempt_at": "2026-10-22T17:18:59.792596+03:30",
   "last_decision": "replenish_review_queue_before_platform_window",
-  "last_review_queue_count": 0,
+  "last_review_queue_count": 1,
   "review_queue_target": 12,
   "max_discovery_runs_per_local_day": 6,
   "next_window": {
-    "platform": "tiktok",
-    "starts_at": "2026-10-22T12:00:00+03:30",
-    "minutes_until": 53
+    "platform": "telegram",
+    "starts_at": "2026-10-22T18:00:00+03:30",
+    "minutes_until": 41
   }
 }
