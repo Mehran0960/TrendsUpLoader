@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-23T13:52:37.365245+00:00",
+  "media_review_updated_at": "2026-10-23T18:37:26.993798+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -270,7 +270,9 @@
     "ce9a4f2ca51071d76f197a145246d729ec047f5a7c9c0066ef341dd68d61dfb7",
     "28886a0a51db614f3a067a746303e17bb94365c43bb1c34b6fcb20d8dccb5952",
     "2076e91d0a810885c7ba7c2a9b49d488ed110ee75e38e5b36197e7fbec994699",
-    "3c92b23b9fe7f724a5fb25f5e33d3072336111633d6e58e41f93505a5784bae0"
+    "3c92b23b9fe7f724a5fb25f5e33d3072336111633d6e58e41f93505a5784bae0",
+    "aab26f598ca1665bfb023c7be55bc0be574765889ce2d4e88a83c51104c03700",
+    "8b7e6f261787e31c19276e843aa705ab618d561e63d0d8b82469a671d324b1dd"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -474,7 +476,9 @@
     "https://t.me/VahidOnline/78811",
     "https://t.me/gizmiztel/163758",
     "https://t.me/gizmiztel/163756",
-    "https://t.me/gizmiztel/163750"
+    "https://t.me/gizmiztel/163750",
+    "https://t.me/vaybabamumad/180663",
+    "https://t.me/gizmiztel/163789"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1301,15 +1305,20 @@
         "d8f0e8e8e8d4dccc",
         "d8f0e8e8e8d4dccc"
       ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/180663",
+      "sha256": "3d2f5d6610b7ebbe53c3f344ea1cc428cc9b0e2aee4c87f6ac7c8ba0a5560036",
+      "frame_hashes": [
+        "e8e8e0e0e0f4f4e0",
+        "e4c4d8f8f0ecfcf8",
+        "e8f8e8f8f0f4fcf0",
+        "ececc4e4e0e0e4ec",
+        "e0f8f8f8ecececf8"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/163494",
-      "sent_at": "2026-10-18T21:04:43.163182+00:00"
-    },
     {
       "pillar": "visual_wow",
       "topic": "sports_or_athletic_skill",
@@ -1423,6 +1432,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/163760",
       "sent_at": "2026-10-23T13:52:37.364846+00:00"
+    },
+    {
+      "pillar": "curiosity_and_process",
+      "topic": "science_curiosity",
+      "url": "https://t.me/vaybabamumad/180663",
+      "sent_at": "2026-10-23T18:37:26.993432+00:00"
     }
   ]
 }
