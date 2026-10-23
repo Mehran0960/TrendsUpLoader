@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-23T18:37:26.993798+00:00",
+  "media_review_updated_at": "2026-10-23T20:31:22.155927+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -272,7 +272,8 @@
     "2076e91d0a810885c7ba7c2a9b49d488ed110ee75e38e5b36197e7fbec994699",
     "3c92b23b9fe7f724a5fb25f5e33d3072336111633d6e58e41f93505a5784bae0",
     "aab26f598ca1665bfb023c7be55bc0be574765889ce2d4e88a83c51104c03700",
-    "8b7e6f261787e31c19276e843aa705ab618d561e63d0d8b82469a671d324b1dd"
+    "8b7e6f261787e31c19276e843aa705ab618d561e63d0d8b82469a671d324b1dd",
+    "43c1dac951f864f43a54ae73742b9bc5c6b402c325758f15ec39b119717a5d73"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -478,7 +479,8 @@
     "https://t.me/gizmiztel/163756",
     "https://t.me/gizmiztel/163750",
     "https://t.me/vaybabamumad/180663",
-    "https://t.me/gizmiztel/163789"
+    "https://t.me/gizmiztel/163789",
+    "https://t.me/gizmiztel/163785"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1316,15 +1318,20 @@
         "ececc4e4e0e0e4ec",
         "e0f8f8f8ecececf8"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163785",
+      "sha256": "a3840bd61dcafbb2713f1bca0ca6d0340f1ab56297d42a972a9d785381a12ec5",
+      "frame_hashes": [
+        "e4ccece8f4dcc4e0",
+        "e0ccece8f4dcc4f0",
+        "f0e8cc6ce8d8d0ec",
+        "e8c8c8e4c4d4c4d4",
+        "f0f8dcccd87cf0ec"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "visual_wow",
-      "topic": "sports_or_athletic_skill",
-      "url": "https://t.me/gizmiztel/163543",
-      "sent_at": "2026-10-19T15:55:09.249409+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -1438,6 +1445,12 @@
       "topic": "science_curiosity",
       "url": "https://t.me/vaybabamumad/180663",
       "sent_at": "2026-10-23T18:37:26.993432+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/163785",
+      "sent_at": "2026-10-23T20:31:22.155366+00:00"
     }
   ]
 }
