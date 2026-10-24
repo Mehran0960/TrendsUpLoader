@@ -124,10 +124,10 @@ jobs:
             echo "inspect_client=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLIC_REVIEW_VIDEO" = "true" ]; then
             echo "public_review_video=true" >> "$GITHUB_OUTPUT"
-            printf 'review_video_url=%s\\n' "$MANUAL_REVIEW_VIDEO_URL" >> "$GITHUB_OUTPUT"
+            printf 'review_video_url=%s\n' "$MANUAL_REVIEW_VIDEO_URL" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo publish authorized Telegram video publicly"* ]]; then
             echo "public_review_video=true" >> "$GITHUB_OUTPUT"
-            printf 'review_video_url=%s\\n' "https://t.me/gizmiztel/163845" >> "$GITHUB_OUTPUT"
+            printf 'review_video_url=%s\n' "https://t.me/gizmiztel/163845" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo upload reviewed Telegram video as unpublished draft"* ]]; then
             echo "review_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo inspect upload client"* ]]; then
