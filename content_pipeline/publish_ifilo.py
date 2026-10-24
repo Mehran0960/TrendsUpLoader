@@ -1569,10 +1569,27 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
     prior = matching_attempts[-1] if matching_attempts else {}
     # A prior rejected draft may be retried publicly only after checking the account
     # for an existing matching upload. Ambiguous/accepted attempts remain non-retryable.
-    recoverable_public_retry = (
-        public and str(prior.get("status") or "") in {
+    prior_guard = prior.get("request_guard") if isinstance(prior.get("request_guard"), dict) else {}
+    try:
+        prior_continued_count = int(prior_guard.get("continued_count", -1))
+        prior_blocked_count = int(prior_guard.get("blocked_count", 0))
+    except (TypeError, ValueError, OverflowError):
+        prior_continued_count, prior_blocked_count = -1, 0
+    known_public_post_was_not_sent = (
+        str(prior.get("status") or "") == "review_public_uncertain"
+        and prior_continued_count == 0
+        and prior_blocked_count > 0
+        and not str(prior.get("ifilo_url") or "").strip()
+    )
+    recoverable_public_retry = public and (
+        str(prior.get("status") or "") in {
             "review_draft_rejected", "submit_failed_before_click"
         }
+        or known_public_post_was_not_sent
+        or (
+            str(prior.get("status") or "") == "review_public_uncertain"
+            and prior.get("retry_safe") is True
+        )
     )
     if matching_attempts and not recoverable_public_retry:
         print(f"{mode_tag}_DUPLICATE_GUARD " + json.dumps({
@@ -1807,7 +1824,8 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
                 "canonical_host": parsed.netloc.lower() == expected_host,
                 "exact_title": str(fields.get("title", [""])[-1]) == title,
                 "exact_description": str(fields.get("description", [""])[-1]) == description,
-                "publication_state_matches": field("dontPublish") == ("false" if public else "true"),
+                # FiLo serializes unchecked checkboxes as 0/empty on some requests.
+                "publication_state_matches": field("dontPublish") in (false_values if public else true_values),
                 "monetization_false": field("canMakeMoney") in false_values,
                 "redistribution_false": field("canRepublish") in false_values,
                 "download_false": field("allowDownload") in false_values,
@@ -1959,6 +1977,12 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             "public_video_url_detected": bool(public_video_url),
             "submit_error_type": submit_error_type,
         }
+
+        # Persist the local request guard so retries can distinguish a post that
+        # never left the browser from a submission with an uncertain server result.
+        attempt["request_guard"] = dict(request_state)
+        attempt["http_response_summary"] = dict(response_summary)
+        attempt["public_video_url_detected"] = bool(public_video_url)
 
         if public_video_url and not public:
             attempt["status"] = "review_draft_unexpected_public_route"
