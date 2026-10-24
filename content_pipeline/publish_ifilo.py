@@ -51,7 +51,7 @@ ARTIFACTS = ROOT / "artifacts" / "ifilo"
 BASE_URL = "https://dashboard.tablighgram.com"
 UPLOAD_URL = BASE_URL + "/upload"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
-MAX_CANDIDATES_TO_TRY = 8
+MAX_CANDIDATES_TO_TRY = 50
 
 TITLE_SELECTORS = (
     'input[name*="title" i]',
@@ -465,15 +465,21 @@ def _eligible_candidates() -> list[dict]:
         return []
     # Keep this first adapter narrow: the current pipeline has a stable direct
     # media route for native Telegram videos, while other sources are discovery-only.
-    candidates = select_media_candidates(items, reviewed_ids=set(), limit=50)
-    state = load_state()
-    eligible = [
-        row for row in candidates
+    # Filter to the only source family with a stable direct-file acquisition
+    # path before ranking, so a different platform cannot crowd Telegram out.
+    native_telegram_items = [
+        row for row in items
         if isinstance(row, dict)
         and str(row.get("platform") or "").lower() == "telegram"
         and str(row.get("source") or "").lower() == "telegram_native_video"
-        and not has_prior_attempt(row, state)
     ]
+    candidates = select_media_candidates(
+        native_telegram_items,
+        reviewed_ids=set(),
+        limit=MAX_CANDIDATES_TO_TRY,
+    )
+    state = load_state()
+    eligible = [row for row in candidates if not has_prior_attempt(row, state)]
     return eligible
 
 
