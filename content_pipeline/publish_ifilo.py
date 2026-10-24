@@ -1545,6 +1545,8 @@ def _account_page_contains_title(page, expected_title: str) -> tuple[bool, list[
 
 def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
     """Upload one Telegram video already sent for private review, never as a public post."""
+    from urllib.parse import parse_qs
+
     normalized_url = _normalize_review_telegram_url(source_url)
     if not normalized_url:
         print("IFILO_REVIEW_DRAFT_BLOCKED_INVALID_TELEGRAM_URL")
@@ -1900,8 +1902,16 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             message_kind = "none"
 
         # Verify the draft from read-only account views after the request. Never retry if uncertain.
+        post_submit_url = str(page.url or "")
+        post_submit_path = urlparse(post_submit_url)
+        public_video_url = (
+            post_submit_url.split("?", 1)[0]
+            if post_submit_url != UPLOAD_URL
+            and post_submit_path.netloc.lower() == expected_host
+            and re.search(r"/(?:v|video|watch)/[^/]+", post_submit_path.path, re.I)
+            else ""
+        )
         found_in_account, account_reports = _account_page_contains_title(page, title)
-        public_video_url = _upload_url_from_page(page, UPLOAD_URL)
         safe_report = {
             "http_response": response_summary,
             "request_guard": request_state,
