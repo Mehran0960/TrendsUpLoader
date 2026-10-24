@@ -55,6 +55,8 @@ MAX_CANDIDATES_TO_TRY = 8
 
 TITLE_SELECTORS = (
     'input[name*="title" i]',
+    'textarea[name*="title" i]',
+    'textarea[id*="title" i]',
     'input[id*="title" i]',
     'input[placeholder*="عنوان"]',
     'input[aria-label*="عنوان"]',
@@ -72,25 +74,25 @@ DESCRIPTION_SELECTORS = (
     'textarea',
     '[contenteditable="true"]',
 )
-LOGIN_BUTTON_RE = re.compile(r"ورود|login|sign\\s*in|ادامه", re.I)
+LOGIN_BUTTON_RE = re.compile(r"ورود|login|sign\s*in|ادامه", re.I)
 SUBMIT_BUTTON_RE = re.compile(r"آپلود|بارگذاری|ارسال|ثبت|انتشار|ذخیره|upload|submit|publish|save", re.I)
 SUCCESS_TEXT_RE = re.compile(
-    r"با\\s*موفقیت|آپلود\\s*شد|بارگذاری\\s*شد|ارسال\\s*شد|ثبت\\s*شد|منتشر\\s*شد|"
-    r"در\\s*صف\\s*(?:بررسی|پردازش)|در\\s*انتظار\\s*(?:بررسی|پردازش)|upload(?:ed)?\\s*success|"
-    r"successfully\\s*(?:uploaded|submitted)|video\\s*(?:was\\s*)?uploaded",
+    r"با\s*موفقیت|آپلود\s*شد|بارگذاری\s*شد|ارسال\s*شد|ثبت\s*شد|منتشر\s*شد|"
+    r"در\s*صف\s*(?:بررسی|پردازش)|در\s*انتظار\s*(?:بررسی|پردازش)|upload(?:ed)?\s*success|"
+    r"successfully\s*(?:uploaded|submitted)|video\s*(?:was\s*)?uploaded",
     re.I,
 )
 EMOJI_RE = re.compile(
     "["
-    "\\U0001F000-\\U0001FAFF"
-    "\\U00002600-\\U000027BF"
-    "\\U0001F1E6-\\U0001F1FF"
+    "\U0001F000-\U0001FAFF"
+    "\U00002600-\U000027BF"
+    "\U0001F1E6-\U0001F1FF"
     "]+",
     flags=re.UNICODE,
 )
-URL_RE = re.compile(r"https?://\\S+", re.I)
-HASHTAG_RE = re.compile(r"(?<!\\w)#[\\w\\u0600-\\u06ff]+", re.I)
-SPACE_RE = re.compile(r"\\s+")
+URL_RE = re.compile(r"https?://\S+", re.I)
+HASHTAG_RE = re.compile(r"(?<!\w)#[\w\u0600-\u06ff]+", re.I)
+SPACE_RE = re.compile(r"\s+")
 
 
 def utc_now() -> str:
@@ -103,9 +105,9 @@ def normalized_text(value: object, limit: int = 1000) -> str:
     text = URL_RE.sub(" ", text)
     text = HASHTAG_RE.sub(" ", text)
     text = EMOJI_RE.sub(" ", text)
-    text = re.sub(r"[\\u200b\\u200e\\u200f\\ufeff]", "", text)
+    text = re.sub(r"[\u200b\u200e\u200f\ufeff]", "", text)
     text = re.sub(r"[|•]+", " ", text)
-    text = SPACE_RE.sub(" ", text).strip(" \\t\\r\\n-–—:؛،,.")
+    text = SPACE_RE.sub(" ", text).strip(" \t\r\n-–—:؛،,.")
     return text[:limit].strip()
 
 
@@ -153,7 +155,7 @@ def make_description(item: dict, title: str) -> str:
     }
     lanes = [lane_labels[x] for x in item.get("hook_signals", []) if x in lane_labels]
     if lanes:
-        body = body + "\\n\\nموضوع: " + "، ".join(dict.fromkeys(lanes[:3]))
+        body = body + "\n\nموضوع: " + "، ".join(dict.fromkeys(lanes[:3]))
     return body[:1800]
 
 
@@ -188,7 +190,7 @@ def has_prior_attempt(item: dict, state: dict) -> bool:
 def write_state(state: dict, path: Path = STATE_PATH) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     state["updated_at"] = utc_now()
-    path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    path.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def load_storage_state(path: Path) -> dict | None:
@@ -353,7 +355,7 @@ def probe_upload_form(page) -> dict:
     print("IFILO_UPLOAD_FORM_PROBE " + json.dumps(summary, ensure_ascii=False))
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
     (ARTIFACTS / "upload_form_probe.json").write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2) + "\\n",
+        json.dumps(summary, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     return summary
@@ -431,14 +433,22 @@ def choose_submit_button(page):
 
 def _upload_url_from_page(page, prior_url: str) -> str:
     current = str(page.url or "")
-    if current and current != prior_url and "/login" not in current:
-        parsed = urlparse(current)
-        if parsed.netloc.endswith("ifilo.net") or parsed.netloc.endswith("tablighgram.com"):
-            return current.split("?", 1)[0]
+    parsed = urlparse(current)
+    if (
+        current
+        and current != prior_url
+        and (parsed.netloc.endswith("ifilo.net") or parsed.netloc.endswith("tablighgram.com"))
+        and re.search(r"/(?:v|video|watch)/[^/]+", parsed.path, re.I)
+        and "/login" not in parsed.path.lower()
+    ):
+        return current.split("?", 1)[0]
     try:
         anchors = page.locator("a[href]").evaluate_all(
             """els => els.map(a => ({href: a.href, text: (a.innerText || '').trim()}))
-               .filter(a => /\\/(?:v|video|watch)\\//i.test(new URL(a.href).pathname))
+               .filter(a => {
+                 try { return /\/(?:v|video|watch)\//i.test(new URL(a.href).pathname); }
+                 catch { return false; }
+               })
                .slice(0, 20)"""
         )
         for row in anchors:
@@ -448,7 +458,6 @@ def _upload_url_from_page(page, prior_url: str) -> str:
         pass
     return ""
 
-
 def _eligible_candidates() -> list[dict]:
     payload = load_json(DISCOVERY_INPUT, {"items": []})
     items = payload.get("items", []) if isinstance(payload, dict) else []
@@ -456,7 +465,7 @@ def _eligible_candidates() -> list[dict]:
         return []
     # Keep this first adapter narrow: the current pipeline has a stable direct
     # media route for native Telegram videos, while other sources are discovery-only.
-    candidates = select_media_candidates(items, reviewed_ids=set(), limit=MAX_CANDIDATES_TO_TRY)
+    candidates = select_media_candidates(items, reviewed_ids=set(), limit=50)
     state = load_state()
     eligible = [
         row for row in candidates
