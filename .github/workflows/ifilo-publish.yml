@@ -32,6 +32,7 @@ permissions:
 
 jobs:
   regression-tests:
+    if: ${{ github.event_name != 'schedule' || vars.IFILO_AUTOPUBLISH_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -45,15 +46,15 @@ jobs:
         run: python -m unittest -v content_pipeline.test_publish_ifilo
 
   publish:
-    if: \${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
     needs: regression-tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      IFILO_LOGIN_ID: \${{ secrets.IFILO_LOGIN_ID }}
-      IFILO_PASSWORD: \${{ secrets.IFILO_PASSWORD }}
-      IFILO_STORAGE_STATE_B64: \${{ secrets.IFILO_STORAGE_STATE_B64 }}
-      IFILO_AUTOPUBLISH_ENABLED: \${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
+      IFILO_LOGIN_ID: ${{ secrets.IFILO_LOGIN_ID }}
+      IFILO_PASSWORD: ${{ secrets.IFILO_PASSWORD }}
+      IFILO_STORAGE_STATE_B64: ${{ secrets.IFILO_STORAGE_STATE_B64 }}
+      IFILO_AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
       TZ: Asia/Tehran
     steps:
       - uses: actions/checkout@v4
@@ -74,9 +75,9 @@ jobs:
       - name: Determine safe probe or publish mode
         id: mode
         env:
-          EVENT_NAME: \${{ github.event_name }}
-          MANUAL_PUBLISH: \${{ inputs.publish }}
-          AUTOPUBLISH_ENABLED: \${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
+          EVENT_NAME: ${{ github.event_name }}
+          MANUAL_PUBLISH: ${{ inputs.publish }}
+          AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
         run: |
           if [ "$EVENT_NAME" = "schedule" ] && [ "$AUTOPUBLISH_ENABLED" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
@@ -86,13 +87,13 @@ jobs:
             echo "publish=false" >> "$GITHUB_OUTPUT"
           fi
       - name: Probe upload form without publishing
-        if: \${{ steps.mode.outputs.publish != 'true' }}
+        if: ${{ steps.mode.outputs.publish != 'true' }}
         run: python content_pipeline/publish_ifilo.py
       - name: Upload one selected video
-        if: \${{ steps.mode.outputs.publish == 'true' }}
+        if: ${{ steps.mode.outputs.publish == 'true' }}
         run: python content_pipeline/publish_ifilo.py --publish
       - name: Preserve safe form-probe diagnostics
-        if: \${{ always() && hashFiles('artifacts/ifilo/upload_form_probe.json') != '' }}
+        if: ${{ always() && hashFiles('artifacts/ifilo/upload_form_probe.json') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: ifilo-upload-form-probe
@@ -100,9 +101,9 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Persist FiLo deduplication state
-        if: \${{ always() && hashFiles('attention_state/ifilo_upload_state.json') != '' }}
+        if: ${{ always() && hashFiles('attention_state/ifilo_upload_state.json') != '' }}
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
