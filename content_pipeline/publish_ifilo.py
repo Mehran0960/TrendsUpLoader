@@ -689,6 +689,40 @@ def probe_public_hosts() -> dict:
     return report
 
 
+def probe_upload_rules(page) -> dict:
+    """Read the public upload rules for review before accepting any upload checkbox."""
+    report = {"url": BASE_URL + "/userRules", "title": "", "text": "", "status": "unknown"}
+    try:
+        page.goto(BASE_URL + "/userRules", wait_until="domcontentloaded", timeout=60000)
+        page.wait_for_timeout(1200)
+        report["title"] = str(page.title() or "")[:160]
+        # Prefer the main content region to avoid logging account sidebar data.
+        text_value = ""
+        for selector in ("main", "article", ".page-content", ".content-page", "#content"):
+            try:
+                locator = page.locator(selector)
+                if locator.count() and locator.first.is_visible():
+                    candidate = locator.first.inner_text(timeout=5000).strip()
+                    if len(candidate) > len(text_value):
+                        text_value = candidate
+            except Exception:
+                continue
+        if not text_value:
+            text_value = page.locator("body").inner_text(timeout=5000)
+            lines = [line.strip() for line in text_value.splitlines() if line.strip()]
+            for idx, line in enumerate(lines):
+                if re.search(r"قوانین کاربر|قوانین انتشار|قوانین آپلود|شرایط استفاده|قوانین فیلو", line):
+                    text_value = "\n".join(lines[idx:])
+                    break
+        report["text"] = re.sub(r"\s+", " ", text_value).strip()[:6000]
+        report["status"] = "read"
+    except Exception as exc:
+        report["status"] = "read_failed"
+        report["error_type"] = type(exc).__name__
+    print("IFILO_UPLOAD_RULES_PROBE " + json.dumps(report, ensure_ascii=False))
+    return report
+
+
 def run_browser(publish: bool) -> int:
     # A safe, no-auth network check reveals redirects/domain status; it never posts data.
     probe_public_hosts()
@@ -722,6 +756,10 @@ def run_browser(publish: bool) -> int:
                     return 2
                 summary = probe_upload_form(page)
                 if not publish:
+                    probe_upload_rules(page)
+                    # Return to the authenticated upload form after inspecting rules.
+                    page.goto(UPLOAD_URL, wait_until="domcontentloaded", timeout=60000)
+                    page.wait_for_timeout(800)
                     if summary.get("file_input_count", 0) > 0:
                         print("IFILO_PROBE_OK: Authenticated upload page exposes a file input. No video was uploaded.")
                         return 0
