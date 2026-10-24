@@ -1443,6 +1443,529 @@ def upload_unpublished_test_draft(page) -> int:
         return 4
 
 
+
+def _normalize_review_telegram_url(raw_url: str) -> str:
+    parsed = urlparse(str(raw_url or "").strip())
+    host = (parsed.netloc or "").lower().removeprefix("www.")
+    match = re.fullmatch(r"/([A-Za-z0-9_]+)/([0-9]+)/?", parsed.path or "")
+    if host not in {"t.me", "telegram.me"} or not match:
+        return ""
+    channel, post_id = match.groups()
+    return f"https://t.me/{channel}/{post_id}"
+
+
+def _load_previously_sent_review_item(source_url: str) -> dict | None:
+    """Return one exact Telegram review item only when its URL is in the sent state."""
+    normalized = _normalize_review_telegram_url(source_url)
+    if not normalized:
+        return None
+
+    review_state_path = ROOT / "attention_state" / "social_discovery_notification_state.json"
+    review_state = load_json(review_state_path, {})
+    sent_urls = {
+        _normalize_review_telegram_url(value)
+        for value in review_state.get("media_reviewed_urls", [])
+        if _normalize_review_telegram_url(value)
+    }
+    sent_fingerprints = {
+        _normalize_review_telegram_url(row.get("url"))
+        for row in review_state.get("media_reviewed_fingerprints", [])
+        if isinstance(row, dict) and _normalize_review_telegram_url(row.get("url"))
+    }
+    if normalized not in sent_urls and normalized not in sent_fingerprints:
+        return None
+
+    payload = load_json(DISCOVERY_INPUT, {"items": []})
+    items = payload.get("items", []) if isinstance(payload, dict) else []
+    for row in items if isinstance(items, list) else []:
+        if not isinstance(row, dict):
+            continue
+        if (
+            _normalize_review_telegram_url(row.get("url")) == normalized
+            and str(row.get("platform") or "").lower() == "telegram"
+            and str(row.get("source") or "").lower() == "telegram_native_video"
+        ):
+            item = dict(row)
+            item["url"] = normalized
+            item["platform"] = "telegram"
+            item["source"] = "telegram_native_video"
+            return item
+    return None
+
+
+def _account_page_contains_title(page, expected_title: str) -> tuple[bool, list[dict]]:
+    """Read-only account-page verification. Never logs page text or private account details."""
+    targets = [BASE_URL + "/my", BASE_URL + "/myVideos", BASE_URL + "/my/videos"]
+    expected_host = urlparse(BASE_URL).netloc.lower()
+    reports: list[dict] = []
+    visited: set[str] = set()
+    while targets and len(visited) < 6:
+        target = targets.pop(0)
+        parsed_target = urlparse(target)
+        if parsed_target.netloc.lower() != expected_host or parsed_target.path in visited:
+            continue
+        visited.add(parsed_target.path)
+        try:
+            page.goto(target, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(900)
+            current = urlparse(str(page.url))
+            if current.netloc.lower() != expected_host:
+                reports.append({"requested_path": parsed_target.path, "result": "redirected_off_host"})
+                continue
+            if re.search(r"/login(?:/|$)", current.path, re.I):
+                reports.append({"requested_path": parsed_target.path, "result": "login_required"})
+                continue
+            body = page.locator("body").inner_text(timeout=8000)
+            found = expected_title.casefold() in body.casefold()
+            reports.append({
+                "requested_path": parsed_target.path,
+                "result_path": current.path,
+                "title_found": found,
+            })
+            if found:
+                return True, reports
+            links = page.locator("a[href]").evaluate_all(
+                """els => els.map(a => ({
+                    href: a.href,
+                    path: (() => { try { return new URL(a.href, location.href).pathname; } catch { return ''; } })(),
+                    text: (a.innerText || a.getAttribute('aria-label') || '').replace(/\\s+/g, ' ').trim()
+                })).filter(a => /ویدیوهای من|مدیریت ویدیو|ویدیوهای آپلودشده|my videos|uploaded videos/i.test(a.text))
+                  .map(a => ({href: a.href, path: a.path}))
+                  .slice(0, 8)"""
+            )
+            for link in links:
+                parsed_link = urlparse(str(link.get("href") or ""))
+                path = str(link.get("path") or "")
+                if parsed_link.netloc.lower() == expected_host and path and path not in visited:
+                    targets.append(str(link["href"]))
+        except Exception as exc:
+            reports.append({"requested_path": parsed_target.path, "navigation_error": type(exc).__name__})
+    return False, reports
+
+
+def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
+    """Upload one Telegram video already sent for private review, never as a public post."""
+    normalized_url = _normalize_review_telegram_url(source_url)
+    if not normalized_url:
+        print("IFILO_REVIEW_DRAFT_BLOCKED_INVALID_TELEGRAM_URL")
+        return 3
+
+    item = _load_previously_sent_review_item(normalized_url)
+    if item is None:
+        print("IFILO_REVIEW_DRAFT_BLOCKED_NOT_FOUND_IN_SENT_REVIEW_STATE")
+        return 3
+
+    state = load_state()
+    if has_prior_attempt(item, state):
+        prior = next((
+            row for row in state.get("attempts", [])
+            if isinstance(row, dict) and str(row.get("source_key") or "") == source_key(item)
+        ), {})
+        print("IFILO_REVIEW_DRAFT_DUPLICATE_GUARD " + json.dumps({
+            "status": str(prior.get("status") or "prior_attempt"),
+            "retry_policy": "no_duplicate_upload_attempt",
+            "source_url": normalized_url,
+        }, ensure_ascii=False))
+        return 4
+
+    with tempfile.TemporaryDirectory(prefix="ifilo-review-draft-") as temp_dir:
+        video_path, quality = prepare_candidate_video(item, Path(temp_dir))
+        if video_path is None:
+            print("IFILO_REVIEW_DRAFT_BLOCKED_MEDIA_QC " + json.dumps({
+                "reason": str(quality.get("reason") or quality.get("content_gate_reason") or "media_not_qualified"),
+                "source_url": normalized_url,
+            }, ensure_ascii=False))
+            return 3
+
+        source_title = str(item.get("title") or item.get("source_post_caption") or "")[:300]
+        base_title = make_title(item)
+        title = normalized_text("پیش‌نویس خصوصی | " + base_title, limit=100)[:100]
+        description = (
+            make_description(item, base_title)
+            + "\n\nپیش‌نویس غیرعمومی برای بررسی فنی؛ انتشار عمومی، کسب درآمد، دانلود و بازنشر خاموش است."
+            + "\nمنبع اصلی: " + normalized_url
+        )[:1800]
+
+        file_input = page.locator("#fileInput")
+        if file_input.count() == 0:
+            print("IFILO_REVIEW_DRAFT_BLOCKED_NO_PRIMARY_FILE_INPUT")
+            return 3
+        try:
+            file_input.set_input_files(str(video_path), timeout=30000)
+        except Exception as exc:
+            print("IFILO_REVIEW_DRAFT_FILE_SELECTION_FAILED", type(exc).__name__)
+            return 3
+
+        # Wait for the actual chunk transfer, not an arbitrary sleep or only the progress bar.
+        from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+        try:
+            page.wait_for_function(
+                """() => {
+                    const root = document.querySelector('[ng-controller="ctrl"]');
+                    if (!root || !window.angular) return false;
+                    const scope = window.angular.element(root).scope();
+                    return !!scope && (
+                        !!scope.uploadComplete
+                        || (!!scope.messageIsError && !!String(scope.message || '').trim())
+                    );
+                }""",
+                timeout=120000,
+                polling=1000,
+            )
+        except PlaywrightTimeoutError:
+            pass
+
+        try:
+            upload_state = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return {};
+                const scope = window.angular.element(root).scope();
+                if (!scope) return {};
+                const item = scope.item || {};
+                return {
+                    fileSelected: !!scope.fileSelected,
+                    uploadStarted: !!scope.uploadStarted,
+                    uploadComplete: !!scope.uploadComplete,
+                    publishing: !!scope.publishing,
+                    messageIsError: !!scope.messageIsError,
+                    videoCodePresent: !!String(item.videoCode || '').trim(),
+                    durationPresent: Number(item.duration || 0) > 0
+                };
+            }""")
+        except Exception:
+            upload_state = {}
+
+        if not upload_state.get("uploadComplete") or not upload_state.get("videoCodePresent"):
+            print("IFILO_REVIEW_DRAFT_FILE_TRANSFER_INCOMPLETE " + json.dumps({
+                **upload_state,
+                "final_publish_request_sent": False,
+            }, ensure_ascii=False))
+            return 3
+
+        title_ok, description_ok = fill_metadata(page, title, description)
+        rules_ok = _set_checkbox(page, "#acceptRules", True)
+        unpublished_ok = _set_checkbox(page, "#dontPublish", True)
+        monetization_off = _set_checkbox(page, "#canMakeMoney", False, allow_hidden=True)
+        redistribution_off = _set_checkbox(page, "#canRepublish", False, allow_hidden=True)
+        download_off = _set_checkbox(page, "#allowDownload", False, allow_hidden=True)
+        ownership_not_claimed = _set_checkbox(page, "#isMadeByMe", False, allow_hidden=True)
+
+        try:
+            model = page.evaluate("""(expected) => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return {};
+                const scope = window.angular.element(root).scope();
+                if (!scope) return {};
+                const item = scope.item || {};
+                return {
+                    titleMatches: String(item.title || '') === expected.title,
+                    descriptionMatches: String(item.description || '') === expected.description,
+                    dontPublish: !!Number(item.dontPublish),
+                    canMakeMoney: !!item.canMakeMoney,
+                    canRepublish: !!item.canRepublish,
+                    allowDownload: !!item.allowDownload,
+                    isMadeByMe: !!item.isMadeByMe,
+                    acceptRules: !!scope.acceptRules,
+                    uploadComplete: !!scope.uploadComplete,
+                    videoCodePresent: !!String(item.videoCode || '').trim()
+                };
+            }""", {"title": title, "description": description})
+        except Exception:
+            model = {}
+
+        dom_safe = all((
+            title_ok, description_ok, rules_ok, unpublished_ok, monetization_off,
+            redistribution_off, download_off, ownership_not_claimed,
+            page.locator("#dontPublish").is_checked(),
+            not page.locator("#canMakeMoney").is_checked(),
+            not page.locator("#canRepublish").is_checked(),
+            not page.locator("#allowDownload").is_checked(),
+            not page.locator("#isMadeByMe").is_checked(),
+        ))
+        model_safe = (
+            model.get("titleMatches") is True
+            and model.get("descriptionMatches") is True
+            and model.get("dontPublish") is True
+            and model.get("canMakeMoney") is False
+            and model.get("canRepublish") is False
+            and model.get("allowDownload") is False
+            and model.get("isMadeByMe") is False
+            and model.get("acceptRules") is True
+            and model.get("uploadComplete") is True
+            and model.get("videoCodePresent") is True
+        )
+        if not dom_safe or not model_safe:
+            print("IFILO_REVIEW_DRAFT_BLOCKED_SAFETY_CHECK " + json.dumps({
+                "dom_safe": bool(dom_safe),
+                "model_safe": bool(model_safe),
+                "model": model,
+                "source_url": normalized_url,
+            }, ensure_ascii=False))
+            return 3
+
+        button = None
+        for locator in page.get_by_role("button", name=re.compile(r"انتشار ویدیو", re.I)).all():
+            try:
+                if locator.is_visible() and locator.is_enabled():
+                    button = locator
+                    break
+            except Exception:
+                continue
+        if button is None:
+            print("IFILO_REVIEW_DRAFT_BLOCKED_FINAL_ACTION_NOT_READY")
+            return 3
+
+        attempt = {
+            "source_key": source_key(item),
+            "source_url": normalized_url,
+            "source_title": source_title,
+            "title": title,
+            "status": "pending",
+            "mode": "telegram_review_draft_not_public",
+            "started_at": utc_now(),
+            "video_sha256": hashlib.sha256(video_path.read_bytes()).hexdigest(),
+            "bytes": video_path.stat().st_size,
+            "quality": quality,
+            "publication_checkbox": "dontPublish=true",
+            "monetization_checkbox": "canMakeMoney=false",
+            "redistribution_checkbox": "canRepublish=false",
+            "download_checkbox": "allowDownload=false",
+            "ownership_checkbox": "isMadeByMe=false",
+        }
+        state.setdefault("attempts", []).append(attempt)
+        write_state(state)
+
+        request_state = {"matching_post_count": 0, "continued_count": 0, "blocked_count": 0, "checks": {}}
+        expected_host = urlparse(BASE_URL).netloc.lower()
+        false_values = {"", "0", "false", "off", "no", "none", "null"}
+        true_values = {"1", "true", "on", "yes"}
+        response_summary = {
+            "response_received": False,
+            "http_status": None,
+            "payload_success": None,
+            "content_type": "",
+            "body_kind": "not_available",
+        }
+        submit_error_type = None
+
+        def guard_publish_route(route):
+            request = route.request
+            parsed = urlparse(request.url)
+            if request.method.upper() != "POST" or parsed.path.rstrip("/") != "/video/publish":
+                route.continue_()
+                return
+            request_state["matching_post_count"] += 1
+            fields = {}
+            try:
+                fields = parse_qs(request.post_data or "", keep_blank_values=True)
+            except Exception:
+                fields = {}
+
+            def field(name):
+                vals = fields.get(name, [""])
+                return str(vals[-1] if vals else "").strip().casefold()
+
+            checks = {
+                "canonical_host": parsed.netloc.lower() == expected_host,
+                "exact_title": str(fields.get("title", [""])[-1]) == title,
+                "exact_description": str(fields.get("description", [""])[-1]) == description,
+                "dont_publish_true": field("dontPublish") in true_values,
+                "monetization_false": field("canMakeMoney") in false_values,
+                "redistribution_false": field("canRepublish") in false_values,
+                "download_false": field("allowDownload") in false_values,
+                "not_claiming_ownership": field("isMadeByMe") in false_values,
+                "first_request_only": request_state["matching_post_count"] == 1,
+            }
+            request_state["checks"] = checks
+            if all(checks.values()) and request_state["continued_count"] == 0:
+                request_state["continued_count"] += 1
+                route.continue_()
+            else:
+                request_state["blocked_count"] += 1
+                route.abort("blockedbyclient")
+
+        try:
+            page.route("**/video/publish", guard_publish_route)
+            try:
+                with page.expect_response(
+                    lambda response: (
+                        response.request.method.upper() == "POST"
+                        and urlparse(response.url).netloc.lower() == expected_host
+                        and urlparse(response.url).path.rstrip("/") == "/video/publish"
+                    ),
+                    timeout=60000,
+                ) as response_info:
+                    button.click(timeout=15000)
+                response = response_info.value
+                response_summary["response_received"] = True
+                response_summary["http_status"] = int(response.status)
+                response_summary["content_type"] = str(response.headers.get("content-type") or "")[:80]
+                try:
+                    payload = response.json()
+                    response_summary["body_kind"] = type(payload).__name__
+                    for _ in range(3):
+                        if isinstance(payload, str):
+                            try:
+                                payload = json.loads(payload)
+                                continue
+                            except Exception:
+                                break
+                        if isinstance(payload, dict) and "s" not in payload and "data" in payload:
+                            payload = payload.get("data")
+                            continue
+                        break
+                    if isinstance(payload, dict):
+                        if "s" in payload:
+                            response_summary["payload_success"] = bool(payload.get("s"))
+                        response_summary["response_keys"] = sorted(str(k) for k in payload.keys())[:20]
+                except Exception:
+                    try:
+                        raw_body = response.text()
+                        response_summary["body_kind"] = "text" if raw_body.strip() else "empty"
+                        response_summary["body_length"] = len(raw_body)
+                        response_summary["body_prefix_kind"] = (
+                            "json_object" if raw_body.lstrip().startswith("{")
+                            else "json_array" if raw_body.lstrip().startswith("[")
+                            else "html" if raw_body.lstrip().startswith("<")
+                            else "plain_text"
+                        )
+                    except Exception:
+                        pass
+            except PlaywrightTimeoutError:
+                submit_error_type = "response_timeout"
+            except Exception as exc:
+                submit_error_type = type(exc).__name__
+            finally:
+                try:
+                    page.unroute("**/video/publish", guard_publish_route)
+                except Exception:
+                    pass
+        except Exception as exc:
+            submit_error_type = type(exc).__name__
+
+        try:
+            page.wait_for_timeout(1200)
+        except Exception:
+            pass
+        final_model = {}
+        message = ""
+        try:
+            final_model = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return {};
+                const scope = window.angular.element(root).scope();
+                if (!scope) return {};
+                const item = scope.item || {};
+                return {
+                    published: !!scope.published,
+                    publishing: !!scope.publishing,
+                    uploadComplete: !!scope.uploadComplete,
+                    dontPublish: !!Number(item.dontPublish),
+                    canMakeMoney: !!item.canMakeMoney,
+                    canRepublish: !!item.canRepublish,
+                    allowDownload: !!item.allowDownload,
+                    isMadeByMe: !!item.isMadeByMe,
+                    acceptRules: !!scope.acceptRules,
+                    messageIsError: !!scope.messageIsError,
+                    titleCleared: String(item.title || '') === '',
+                    descriptionCleared: String(item.description || '') === ''
+                };
+            }""")
+            message = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return '';
+                const scope = window.angular.element(root).scope();
+                return scope ? String(scope.message || '').slice(0, 500) : '';
+            }""")
+        except Exception:
+            final_model = {}
+
+        message_success = bool(DRAFT_SUCCESS_RE.search(message)) and final_model.get("messageIsError") is False
+        if message:
+            if "عنوان" in message:
+                message_kind = "title_validation"
+            elif "توضیح" in message:
+                message_kind = "description_validation"
+            elif "فرمت" in message:
+                message_kind = "file_format_validation"
+            elif "حجم" in message:
+                message_kind = "file_size_validation"
+            elif "مجوز" in message or "مالک" in message or "حق نشر" in message:
+                message_kind = "rights_or_ownership_message"
+            elif "با موفقیت" in message or "آپلود" in message or "ثبت شد" in message:
+                message_kind = "success_like_or_upload_related"
+            else:
+                message_kind = "other_message"
+        else:
+            message_kind = "none"
+
+        # Verify the draft from read-only account views after the request. Never retry if uncertain.
+        found_in_account, account_reports = _account_page_contains_title(page, title)
+        public_video_url = _upload_url_from_page(page, UPLOAD_URL)
+        safe_report = {
+            "http_response": response_summary,
+            "request_guard": request_state,
+            "final_angular_state": final_model,
+            "message_kind": message_kind,
+            "message_present": bool(message),
+            "account_title_found": found_in_account,
+            "account_paths_checked": account_reports,
+            "public_video_url_detected": bool(public_video_url),
+            "submit_error_type": submit_error_type,
+        }
+
+        if public_video_url:
+            attempt["status"] = "review_draft_unexpected_public_route"
+            attempt["finished_at"] = utc_now()
+            attempt["ifilo_url"] = public_video_url
+            write_state(state)
+            print("IFILO_REVIEW_DRAFT_UNEXPECTED_PUBLIC_ROUTE " + json.dumps({
+                "source_url": normalized_url,
+                "safety_flags_were_set_before_submit": True,
+                "verification": safe_report,
+            }, ensure_ascii=False))
+            return 4
+
+        success = (
+            request_state["continued_count"] == 1
+            and (response_summary["payload_success"] is True or message_success or found_in_account)
+        )
+        if success:
+            attempt["status"] = "draft_uploaded"
+            attempt["finished_at"] = utc_now()
+            attempt["confirmation"] = (
+                "account_title_found" if found_in_account
+                else "server_success_payload" if response_summary["payload_success"] is True
+                else "success_message_without_error_flag"
+            )
+            write_state(state)
+            print("IFILO_REVIEW_DRAFT_SUCCESS " + json.dumps({
+                "title": title,
+                "source_url": normalized_url,
+                "status": "draft_uploaded",
+                "public_post": False,
+                "monetization_enabled": False,
+                "redistribution_enabled": False,
+                "download_enabled": False,
+                "ownership_claimed": False,
+                "bytes": attempt["bytes"],
+                "verification": safe_report,
+            }, ensure_ascii=False))
+            return 0
+
+        attempt["status"] = "review_draft_rejected" if final_model.get("messageIsError") is True else "review_draft_uncertain"
+        attempt["finished_at"] = utc_now()
+        attempt["server_reason_kind"] = message_kind
+        write_state(state)
+        print("IFILO_REVIEW_DRAFT_FAILED " + json.dumps({
+            "source_url": normalized_url,
+            "status": attempt["status"],
+            "retry_policy": "no_retry_after_uncertain_or_rejected_result",
+            "verification": safe_report,
+        }, ensure_ascii=False))
+        return 5 if attempt["status"] == "review_draft_rejected" else 4
+
+
 def verify_unpublished_test_draft(page) -> int:
     """Read-only check for a previously attempted unpublished test draft; never submits."""
     state = load_state()
@@ -1537,7 +2060,7 @@ def verify_unpublished_test_draft(page) -> int:
     return 4
 
 
-def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool = False, inspect_client: bool = False) -> int:
+def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool = False, inspect_client: bool = False, review_draft_source_url: str = "") -> int:
     # A safe, no-auth network check reveals redirects/domain status; it never posts data.
     probe_public_hosts()
     # Import only when needed so the helper tests can run without browser binaries.
@@ -1573,6 +2096,8 @@ def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool
                     return verify_unpublished_test_draft(page)
                 if inspect_client:
                     return inspect_upload_client(page)
+                if review_draft_source_url:
+                    return upload_review_video_as_unpublished_draft(page, review_draft_source_url)
                 if test_draft:
                     return upload_unpublished_test_draft(page)
                 if not publish:
@@ -1734,12 +2259,19 @@ def main() -> int:
         action="store_true",
         help="Read-only inspect of same-origin upload JavaScript and form controls; never submits a video.",
     )
+    parser.add_argument(
+        "--upload-review-draft",
+        metavar="TELEGRAM_POST_URL",
+        help="Upload one previously sent Telegram review video as an unpublished, non-monetized draft only.",
+    )
     args = parser.parse_args()
-    if sum(bool(x) for x in (args.publish, args.test_draft, args.verify_test_draft, args.inspect_upload_client)) > 1:
-        parser.error("--publish, --test-draft, --verify-test-draft, and --inspect-upload-client are mutually exclusive")
+    if sum(bool(x) for x in (args.publish, args.test_draft, args.verify_test_draft, args.inspect_upload_client, args.upload_review_draft)) > 1:
+        parser.error("--publish, --test-draft, --verify-test-draft, --inspect-upload-client, and --upload-review-draft are mutually exclusive")
     mode = "inspect_upload_client_read_only" if args.inspect_upload_client else (
         "verify_test_draft_read_only" if args.verify_test_draft else (
-            "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only")
+            "review_video_draft_not_public" if args.upload_review_draft else (
+                "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only")
+            )
         )
     )
     print(json.dumps({
@@ -1751,7 +2283,7 @@ def main() -> int:
         }
     }, ensure_ascii=False))
     try:
-        return run_browser(publish=args.publish, test_draft=args.test_draft, verify_test_draft=args.verify_test_draft, inspect_client=args.inspect_upload_client)
+        return run_browser(publish=args.publish, test_draft=args.test_draft, verify_test_draft=args.verify_test_draft, inspect_client=args.inspect_upload_client, review_draft_source_url=args.upload_review_draft or "")
     except Exception as exc:
         # Avoid exception messages from browser/network layers because they can
         # include full request URLs, query tokens, or personal account details.
