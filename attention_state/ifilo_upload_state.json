@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:18:29.930055+00:00",
+  "updated_at": "2026-10-24T23:26:25.603349+00:00",
   "attempts": [
     {
       "source_key": "3f80c43194fbbc9d8a7b4a42c6d4c91291fd69713a2aa8f5f2167e42a2141251",
@@ -39,9 +39,9 @@
       "source_url": "https://t.me/gizmiztel/163845",
       "source_title": "دهکده «گوجو هاشیمان» در ژاپن 🆔 @GizmizTel 💯",
       "title": "لحظه‌ای دیدنی از دهکده «گوجو هاشیمان» در ژاپن",
-      "status": "review_public_uncertain",
+      "status": "review_public_rejected",
       "mode": "telegram_review_public",
-      "started_at": "2026-10-24T23:17:23.894870+00:00",
+      "started_at": "2026-10-24T23:26:18.613187+00:00",
       "video_sha256": "049596b2b283212bf8a0e80da4fd941b6550c2008aee1551907bc907c8a4d37e",
       "bytes": 7485862,
       "quality": {
@@ -52,7 +52,7 @@
         "width": 360,
         "height": 640,
         "sampled_frames": 5,
-        "black_frame_ratio": 0,
+        "black_frame_ratio": 0.0,
         "mean_frame_difference": 40.32,
         "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
         "frame_hashes": [
@@ -70,34 +70,35 @@
       "redistribution_checkbox": "canRepublish=false",
       "download_checkbox": "allowDownload=false",
       "ownership_checkbox": "isMadeByMe=false",
-      "finished_at": "2026-10-24T23:18:29.929986+00:00",
-      "server_reason_kind": "other_message",
       "request_guard": {
-        "matching_post_count": 60,
-        "continued_count": 0,
-        "blocked_count": 60,
+        "matching_post_count": 1,
+        "continued_count": 1,
+        "blocked_count": 0,
         "checks": {
           "canonical_host": true,
           "exact_title": true,
           "exact_description": true,
-          "publication_state_matches": false,
+          "publication_state_matches": true,
           "monetization_false": true,
           "redistribution_false": true,
           "download_false": true,
           "not_claiming_ownership": true,
-          "first_request_only": false
+          "first_request_only": true
         }
       },
       "http_response_summary": {
-        "response_received": false,
-        "http_status": null,
+        "response_received": true,
+        "http_status": 200,
         "payload_success": null,
-        "content_type": "",
-        "body_kind": "not_available"
+        "content_type": "text/html; charset=utf-8",
+        "body_kind": "dict",
+        "response_keys": [
+          "r"
+        ]
       },
       "public_video_url_detected": false,
-      "retry_safe": true,
-      "retry_safe_reason": "All 60 matching publish requests were blocked by the local browser guard; continued_count was 0, so no publish POST reached FiLo."
+      "finished_at": "2026-10-24T23:26:25.603279+00:00",
+      "server_reason_kind": "success_like_or_upload_related"
     }
   ]
 }
