@@ -1576,6 +1576,111 @@ def _account_page_contains_title(page, expected_title: str) -> tuple[bool, list[
     return False, reports
 
 
+def create_video_thumbnail(video_path: Path, destination: Path) -> Path | None:
+    """Extract a representative JPEG frame for FiLo's required custom thumbnail."""
+    try:
+        result = subprocess.run(
+            [
+                "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                "-ss", "1", "-i", str(video_path),
+                "-frames:v", "1",
+                "-vf", "scale=640:640:force_original_aspect_ratio=decrease",
+                "-q:v", "3", str(destination),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=45,
+        )
+    except Exception as exc:
+        print("IFILO_THUMBNAIL_FRAME_EXTRACTION_FAILED", type(exc).__name__)
+        return None
+    if (
+        result.returncode != 0
+        or not destination.is_file()
+        or destination.stat().st_size < 1000
+        or destination.stat().st_size > 8 * 1024 * 1024
+    ):
+        print("IFILO_THUMBNAIL_FRAME_EXTRACTION_FAILED " + json.dumps({
+            "return_code": int(result.returncode),
+            "file_present": destination.is_file(),
+            "file_bytes": destination.stat().st_size if destination.is_file() else 0,
+        }, ensure_ascii=False))
+        destination.unlink(missing_ok=True)
+        return None
+    return destination
+
+
+def upload_video_thumbnail(page, video_path: Path, workdir: Path, mode_tag: str) -> dict:
+    """Upload a representative frame through FiLo's own thumbnail uploader and verify Angular state."""
+    thumbnail_path = workdir / "ifilo-video-thumbnail.jpg"
+    if create_video_thumbnail(video_path, thumbnail_path) is None:
+        return {"uploaded": False, "reason": "thumbnail_frame_extraction_failed"}
+
+    custom_thumb_radio = page.locator("#cbCustomThumb")
+    thumb_file_input = page.locator("#dut")
+    if custom_thumb_radio.count() == 0 or thumb_file_input.count() == 0:
+        print(f"{mode_tag}_THUMBNAIL_CONTROLS_NOT_FOUND")
+        return {"uploaded": False, "reason": "thumbnail_controls_not_found"}
+
+    try:
+        # FiLo only sends the custom thumbnail upload when this radio option is selected.
+        custom_thumb_radio.check(force=True, timeout=10000)
+        thumb_file_input.set_input_files(str(thumbnail_path), timeout=30000)
+        page.wait_for_function(
+            """() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return false;
+                const scope = window.angular.element(root).scope();
+                if (!scope) return false;
+                const item = scope.item || {};
+                return (
+                    (Number(item.customThumb) === 1 &&
+                     !!String(item.selectedFrame || item.image || '').trim())
+                    || (!!scope.messageIsError && !!String(scope.message || '').trim())
+                );
+            }""",
+            timeout=90000,
+            polling=1000,
+        )
+    except Exception as exc:
+        print(f"{mode_tag}_THUMBNAIL_UPLOAD_WAIT_FAILED", type(exc).__name__)
+        return {"uploaded": False, "reason": "thumbnail_upload_wait_failed"}
+
+    try:
+        status = page.evaluate("""() => {
+            const root = document.querySelector('[ng-controller="ctrl"]');
+            if (!root || !window.angular) return {};
+            const scope = window.angular.element(root).scope();
+            if (!scope) return {};
+            const item = scope.item || {};
+            return {
+                customThumb: Number(item.customThumb || 0),
+                selectedFramePresent: !!String(item.selectedFrame || '').trim(),
+                imagePresent: !!String(item.image || '').trim(),
+                messageIsError: !!scope.messageIsError,
+                messagePresent: !!String(scope.message || '').trim()
+            };
+        }""")
+    except Exception:
+        status = {}
+
+    uploaded = (
+        status.get("customThumb") == 1
+        and (status.get("selectedFramePresent") is True or status.get("imagePresent") is True)
+        and status.get("messageIsError") is not True
+    )
+    safe_status = {
+        "custom_thumb_selected": status.get("customThumb") == 1,
+        "selected_frame_present": bool(status.get("selectedFramePresent")),
+        "image_present": bool(status.get("imagePresent")),
+        "provider_error_present": bool(status.get("messageIsError")),
+        "provider_message_present": bool(status.get("messagePresent")),
+        "thumbnail_bytes": thumbnail_path.stat().st_size if thumbnail_path.is_file() else 0,
+    }
+    print(f"{mode_tag}_THUMBNAIL_UPLOAD_" + ("OK " if uploaded else "FAILED ") + json.dumps(safe_status))
+    return {"uploaded": uploaded, **safe_status}
+
+
 def upload_review_video_from_telegram(page, source_url: str, *, public: bool = False) -> int:
     """Upload one exact Telegram video publicly when explicitly authorized, or as a private draft."""
     mode_tag = "IFILO_REVIEW_PUBLIC" if public else "IFILO_REVIEW_DRAFT"
@@ -1730,6 +1835,18 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             }, ensure_ascii=False))
             return 3
 
+        # FiLo refuses publication without a selected/uploaded thumbnail. Extract one
+        # representative frame from this same verified video and confirm the site's
+        # own thumbnail uploader has committed it to the current video model.
+        thumbnail_state = upload_video_thumbnail(page, video_path, Path(temp_dir), mode_tag)
+        if not thumbnail_state.get("uploaded"):
+            print(f"{mode_tag}_BLOCKED_THUMBNAIL_NOT_CONFIRMED " + json.dumps({
+                **thumbnail_state,
+                "final_publish_request_sent": False,
+                "source_url": normalized_url,
+            }, ensure_ascii=False))
+            return 3
+
         title_ok, description_ok = fill_metadata(page, title, description)
         rules_ok = _set_checkbox(page, "#acceptRules", True)
         publication_flag_ok = _set_checkbox(page, "#dontPublish", not public)
@@ -1755,7 +1872,10 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
                     isMadeByMe: !!item.isMadeByMe,
                     acceptRules: !!scope.acceptRules,
                     uploadComplete: !!scope.uploadComplete,
-                    videoCodePresent: !!String(item.videoCode || '').trim()
+                    videoCodePresent: !!String(item.videoCode || '').trim(),
+                    customThumb: Number(item.customThumb || 0),
+                    selectedFramePresent: !!String(item.selectedFrame || '').trim(),
+                    imagePresent: !!String(item.image || '').trim()
                 };
             }""", {"title": title, "description": description})
         except Exception:
@@ -1769,6 +1889,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             not page.locator("#canRepublish").is_checked(),
             not page.locator("#allowDownload").is_checked(),
             not page.locator("#isMadeByMe").is_checked(),
+            page.locator("#cbCustomThumb").is_checked(),
         ))
         model_safe = (
             model.get("titleMatches") is True
@@ -1781,6 +1902,11 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             and model.get("acceptRules") is True
             and model.get("uploadComplete") is True
             and model.get("videoCodePresent") is True
+            and model.get("customThumb") == 1
+            and (
+                model.get("selectedFramePresent") is True
+                or model.get("imagePresent") is True
+            )
         )
         if not dom_safe or not model_safe:
             print(f"{mode_tag}_BLOCKED_SAFETY_CHECK " + json.dumps({
