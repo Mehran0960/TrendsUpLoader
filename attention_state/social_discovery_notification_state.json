@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-24T18:24:02.733065+00:00",
+  "media_review_updated_at": "2026-10-24T19:34:40.778473+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -283,7 +283,8 @@
     "bbb22e106732f5d7df6d0834969166f0273eaa18c76a3339d6ef747fb995fc18",
     "1066231a33f2c978252d94e59c89f1902e2c42a98089abda10ebb6c291dd8918",
     "d4f594bf81645d2045b24e7c7960ad795841616c71f65aac5eb88db48c485a9f",
-    "8b47c52e26d909660fe38c89042ef99b73812b04f68eaa086815ed68b9e0b4e4"
+    "8b47c52e26d909660fe38c89042ef99b73812b04f68eaa086815ed68b9e0b4e4",
+    "8b6b72679edeaef022563d6e7fe21200e2c8f1e19c2b143aba0fa98d4a72acd0"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -500,7 +501,8 @@
     "https://t.me/gizmiztel/163829",
     "https://t.me/gizmiztel/163837",
     "https://t.me/gizmiztel/163830",
-    "https://t.me/vaybabamumad/180709"
+    "https://t.me/vaybabamumad/180709",
+    "https://t.me/khandbazar20/176628"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1393,15 +1395,20 @@
         "00466364e7291900",
         "00464260e7291900"
       ]
+    },
+    {
+      "url": "https://t.me/khandbazar20/176628",
+      "sha256": "a775efa6fda8ce615ecd0db360e10c7915b5768ba68bf411927ab28ed640e7c0",
+      "frame_hashes": [
+        "8799fb9a9e7e9b8b",
+        "e8f06672326d6565",
+        "999c848488a9a8aa",
+        "c3f26ca2e24bc5c5",
+        "8c9883520aa26242"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "reaction_and_comedy",
-      "topic": "human_reaction_or_relatable",
-      "url": "https://t.me/gizmiztel/163589",
-      "sent_at": "2026-10-20T13:54:15.629702+00:00"
-    },
     {
       "pillar": "reaction_and_comedy",
       "topic": "comedy",
@@ -1515,6 +1522,12 @@
       "topic": "skill_or_spectacle",
       "url": "https://t.me/vaybabamumad/180709",
       "sent_at": "2026-10-24T18:24:02.732564+00:00"
+    },
+    {
+      "pillar": "curiosity_and_process",
+      "topic": "technology_demo",
+      "url": "https://t.me/khandbazar20/176628",
+      "sent_at": "2026-10-24T19:34:40.778004+00:00"
     }
   ]
 }
