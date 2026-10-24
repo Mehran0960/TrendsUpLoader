@@ -874,6 +874,12 @@ def inspect_upload_client(page) -> int:
                         break
                 if matches:
                     row["matches"] = matches
+                handler_start = body.find("$scope.startPublish=function")
+                if handler_start < 0:
+                    handler_start = body.find("$scope.startPublish = function")
+                if handler_start >= 0:
+                    handler = body[handler_start:handler_start + 3600]
+                    row["publish_handler_snippet"] = re.sub(r"\\s+", " ", handler).strip()[:3600]
             response.close()
         except Exception as exc:
             row["status"] = "request_failed"
