@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:31:44.683396+00:00",
+  "updated_at": "2026-10-24T23:37:17.119318+00:00",
   "attempts": [
     {
       "source_key": "3f80c43194fbbc9d8a7b4a42c6d4c91291fd69713a2aa8f5f2167e42a2141251",
@@ -41,7 +41,7 @@
       "title": "لحظه‌ای دیدنی از دهکده «گوجو هاشیمان» در ژاپن",
       "status": "review_public_rejected",
       "mode": "telegram_review_public",
-      "started_at": "2026-10-24T23:31:37.763766+00:00",
+      "started_at": "2026-10-24T23:37:10.178832+00:00",
       "video_sha256": "049596b2b283212bf8a0e80da4fd941b6550c2008aee1551907bc907c8a4d37e",
       "bytes": 7485862,
       "quality": {
@@ -101,6 +101,7 @@
       "provider_message_signals": [
         "upload"
       ],
+      "provider_message_excerpt": "لطفا برای ویدیو عکس انتخاب و یا آپلود کنید!",
       "verification_summary": {
         "final_angular_state": {
           "published": false,
@@ -136,7 +137,7 @@
         ],
         "submit_error_type": null
       },
-      "finished_at": "2026-10-24T23:31:44.683315+00:00"
+      "finished_at": "2026-10-24T23:37:17.119249+00:00"
     }
   ]
 }
