@@ -306,12 +306,12 @@ def _find_login_input(page):
 
 
 def ensure_authenticated(page, context) -> bool:
+    """Use the site's normal login page; never bypass interactive verification."""
     page.goto(UPLOAD_URL, wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_timeout(1500)
+    page.wait_for_timeout(1200)
     current = urlparse(page.url)
     expected_host = urlparse(BASE_URL).netloc.lower()
     current_host = current.netloc.lower()
-    # A redirect to an unrelated/parked host is not an authenticated session.
     if current_host != expected_host:
         print("IFILO_HOST_REDIRECTED " + json.dumps({
             "expected_host": expected_host,
@@ -320,28 +320,80 @@ def ensure_authenticated(page, context) -> bool:
             "reason": "upload_route_redirected_away_from_configured_host",
         }, ensure_ascii=False))
         return False
+
+    if page.locator('input[type="file"]').count() > 0:
+        return True
+
+    # FiLo currently responds to an unauthenticated /upload request with an
+    # access-denied page that contains a normal /login link. Follow that link
+    # instead of treating the 403 page as an upload form.
     if "/login" not in current.path.lower():
-        file_input = page.locator('input[type="file"]')
-        if file_input.count() > 0:
-            return True
-        # Previously, any redirect away from /login was mistaken for an
-        # authenticated upload page. Fail closed unless the real upload control exists.
-        print("IFILO_UPLOAD_ROUTE_HAS_NO_FILE_INPUT " + json.dumps(
-            _visible_control_summary(page), ensure_ascii=False
-        ))
+        login_link = page.locator('a[href="/login"], a[href^="/login"], a:has-text("ورود")')
+        clicked = False
+        try:
+            for index in range(login_link.count()):
+                candidate = login_link.nth(index)
+                if candidate.is_visible() and candidate.is_enabled():
+                    candidate.click(timeout=8000)
+                    clicked = True
+                    break
+        except Exception:
+            clicked = False
+        if clicked:
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=15000)
+            except Exception:
+                pass
+            page.wait_for_timeout(1200)
+        if "/login" not in urlparse(page.url).path.lower():
+            page.goto(BASE_URL + "/login", wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(1200)
+
+    current = urlparse(page.url)
+    current_host = current.netloc.lower()
+    if current_host != expected_host:
+        print("IFILO_LOGIN_HOST_REDIRECTED " + json.dumps({
+            "expected_host": expected_host,
+            "actual_host": current_host,
+            "path": current.path,
+            "reason": "login_route_redirected_away_from_configured_host",
+        }, ensure_ascii=False))
         return False
 
     username = os.environ.get("IFILO_LOGIN_ID", "").strip()
     password = os.environ.get("IFILO_PASSWORD", "")
+    if "/login" not in current.path.lower():
+        print("IFILO_LOGIN_ROUTE_NOT_REACHED " + json.dumps(
+            _visible_control_summary(page), ensure_ascii=False
+        ))
+        probe_upload_form(page)
+        return False
+
+    body = ""
+    try:
+        body = page.locator("body").inner_text(timeout=5000)[:8000]
+    except Exception:
+        pass
+    challenge = re.search(
+        r"captcha|recaptcha|رمز\s*یکبار\s*مصرف|کد\s*(?:پیامک|امنیتی|تأیید|تایید)|"
+        r"one.?time\s*password|two.?factor|\botp\b",
+        body, re.I
+    )
+    if challenge:
+        print("IFILO_INTERACTIVE_LOGIN_REQUIRED: Sign-in asks for a verification step; the automation will not bypass it.")
+        probe_upload_form(page)
+        return False
+
     if not username or not password:
         print("IFILO_AUTH_REQUIRED: Configure IFILO_LOGIN_ID and IFILO_PASSWORD as repository Actions secrets, or provide IFILO_STORAGE_STATE_B64.")
+        probe_upload_form(page)
         return False
 
     user_field = _find_login_input(page)
     password_field = _first_ready(page, ('input[type="password"]',))
     if user_field is None or password_field is None:
         print("IFILO_LOGIN_FORM_UNSUPPORTED: Login page did not expose both an identifier and password field.")
-        print("IFILO_LOGIN_FORM_PROBE " + json.dumps(_visible_control_summary(page), ensure_ascii=False))
+        probe_upload_form(page)
         return False
 
     user_field.fill(username)
@@ -359,6 +411,7 @@ def ensure_authenticated(page, context) -> bool:
         login_button = _first_ready(page, ('form button[type="submit"]', 'form input[type="submit"]'))
     if login_button is None:
         print("IFILO_LOGIN_SUBMIT_NOT_FOUND")
+        probe_upload_form(page)
         return False
 
     try:
@@ -367,14 +420,52 @@ def ensure_authenticated(page, context) -> bool:
     except Exception as exc:
         print("IFILO_LOGIN_SUBMIT_ERROR", type(exc).__name__)
         return False
-    if "/login" in urlparse(page.url).path.lower():
-        print("IFILO_LOGIN_INCOMPLETE: The site still shows its login page; it may require OTP, CAPTCHA, or a different sign-in step.")
-        print("IFILO_LOGIN_RESULT_PROBE " + json.dumps(_visible_control_summary(page), ensure_ascii=False))
+
+    current = urlparse(page.url)
+    body = ""
+    try:
+        body = page.locator("body").inner_text(timeout=5000)[:8000]
+    except Exception:
+        pass
+    if current.netloc.lower() != expected_host:
+        print("IFILO_LOGIN_HOST_REDIRECTED " + json.dumps({
+            "expected_host": expected_host,
+            "actual_host": current.netloc.lower(),
+            "path": current.path,
+            "reason": "post_login_redirect_left_configured_host",
+        }, ensure_ascii=False))
+        return False
+    if re.search(
+        r"captcha|recaptcha|رمز\s*یکبار\s*مصرف|کد\s*(?:پیامک|امنیتی|تأیید|تایید)|"
+        r"one.?time\s*password|two.?factor|\botp\b",
+        body, re.I
+    ):
+        print("IFILO_INTERACTIVE_LOGIN_REQUIRED: Manual verification is required; automation stopped without bypass.")
+        probe_upload_form(page)
+        return False
+    if "/login" in current.path.lower() or page.locator('input[type="password"]').count() > 0:
+        print("IFILO_LOGIN_INCOMPLETE: Login did not finish; an extra step may be required.")
+        probe_upload_form(page)
         return False
 
     page.goto(UPLOAD_URL, wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_timeout(1000)
-    return "/login" not in urlparse(page.url).path.lower()
+    page.wait_for_timeout(1200)
+    current = urlparse(page.url)
+    if current.netloc.lower() != expected_host:
+        print("IFILO_HOST_REDIRECTED " + json.dumps({
+            "expected_host": expected_host,
+            "actual_host": current.netloc.lower(),
+            "path": current.path,
+            "reason": "post_login_upload_redirect_left_configured_host",
+        }, ensure_ascii=False))
+        return False
+    if page.locator('input[type="file"]').count() == 0:
+        print("IFILO_UPLOAD_FORM_NOT_FOUND_AFTER_LOGIN " + json.dumps(
+            _visible_control_summary(page), ensure_ascii=False
+        ))
+        probe_upload_form(page)
+        return False
+    return True
 
 
 def probe_upload_form(page) -> dict:
