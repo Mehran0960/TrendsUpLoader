@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-24T21:34:55.388682+00:00",
+  "attempts": [
+    {
+      "source_key": "3f80c43194fbbc9d8a7b4a42c6d4c91291fd69713a2aa8f5f2167e42a2141251",
+      "source_url": "",
+      "source_title": "آزمایش فنی بارگذاری فیلو — پیش‌نویس",
+      "title": "آزمایش فنی بارگذاری فیلو — پیش‌نویس",
+      "status": "test_draft_uncertain",
+      "mode": "test_draft_not_public",
+      "started_at": "2026-10-24T21:34:46.351059+00:00",
+      "video_sha256": "8c3fc3e182f0ea940db5eaababd7af92a9c6cbf7050251ae079b7c7923f506c4",
+      "bytes": 7381948,
+      "publication_checkbox": "dontPublish=true",
+      "monetization_checkbox": "canMakeMoney=false",
+      "redistribution_checkbox": "canRepublish=false",
+      "finished_at": "2026-10-24T21:34:55.388594+00:00"
+    }
+  ]
+}
