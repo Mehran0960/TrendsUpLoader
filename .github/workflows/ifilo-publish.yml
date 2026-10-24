@@ -4,9 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: "Upload one top-ranked eligible video (leave unchecked for a safe form probe)"
+        description: "Upload one top-ranked eligible video only when rights evidence is present"
         type: boolean
         required: true
+        default: false
+      test_draft:
+        description: "Upload one original synthetic test clip as a private/unpublished draft"
+        type: boolean
+        required: false
         default: false
   schedule:
     # Five low-frequency slots matching the existing Tehran audience windows.
@@ -74,23 +79,32 @@ jobs:
             sudo apt-get install -y -qq ffmpeg
           fi
           python -m playwright install --with-deps chromium
-      - name: Determine safe probe or publish mode
+      - name: Determine safe probe, draft, or publish mode
         id: mode
         env:
           EVENT_NAME: ${{ github.event_name }}
           MANUAL_PUBLISH: ${{ inputs.publish }}
+          MANUAL_TEST_DRAFT: ${{ inputs.test_draft }}
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
         run: |
+          echo "publish=false" >> "$GITHUB_OUTPUT"
+          echo "test_draft=false" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ] && [ "$AUTOPUBLISH_ENABLED" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "publish=false" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_TEST_DRAFT" = "true" ]; then
+            echo "test_draft=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo draft smoke test"* ]]; then
+            echo "test_draft=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Probe upload form without publishing
-        if: ${{ steps.mode.outputs.publish != 'true' }}
+        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' }}
         run: python content_pipeline/publish_ifilo.py
+      - name: Upload original smoke-test clip as unpublished draft
+        if: ${{ steps.mode.outputs.test_draft == 'true' }}
+        run: python content_pipeline/publish_ifilo.py --test-draft
       - name: Upload one selected video
         if: ${{ steps.mode.outputs.publish == 'true' }}
         run: python content_pipeline/publish_ifilo.py --publish
@@ -135,7 +149,8 @@ jobs:
               if not key:
                   continue
               old = merged.get(key)
-              rank = {"uploaded": 5, "uncertain_after_submit": 4, "pending": 3,
+              rank = {"uploaded": 5, "draft_uploaded": 5, "test_draft_unexpected_public_route": 5,
+                      "uncertain_after_submit": 4, "test_draft_uncertain": 4, "pending": 3,
                       "submit_failed_before_click": 2, "download_failed": 1}
               if old is None or rank.get(str(row.get("status")), 0) >= rank.get(str(old.get("status")), 0):
                   merged[key] = row
