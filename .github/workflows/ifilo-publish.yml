@@ -166,7 +166,7 @@ jobs:
         env:
           IFILO_REVIEW_DRAFT_SOURCE_URL: https://t.me/gizmiztel/163845
         run: python content_pipeline/publish_ifilo.py --upload-review-draft "$IFILO_REVIEW_DRAFT_SOURCE_URL"
-      # One-off, exact-source public upload; this does not enable recurring autopublish.
+      # One-off exact-source public upload; scheduled publishing remains separately opt-in.
       - name: Publish one explicitly authorized Telegram video publicly
         if: ${{ steps.mode.outputs.public_review_video == 'true' }}
         env:
