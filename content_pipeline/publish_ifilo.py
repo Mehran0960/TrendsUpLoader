@@ -260,6 +260,9 @@ def _visible_control_summary(page) -> dict:
     )
     parsed = urlparse(page.url)
     return {
+        # Never store query strings, cookies, or field values in diagnostics.
+        "host": parsed.netloc,
+        "page_url": f"{parsed.scheme}://{parsed.netloc}{parsed.path}",
         "page_path": parsed.path,
         "title": (page.title() or "")[:120],
         "inputs_and_fields": controls,
@@ -300,9 +303,29 @@ def _find_login_input(page):
 
 def ensure_authenticated(page, context) -> bool:
     page.goto(UPLOAD_URL, wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_timeout(1200)
-    if "/login" not in urlparse(page.url).path.lower():
-        return True
+    page.wait_for_timeout(1500)
+    current = urlparse(page.url)
+    expected_host = urlparse(BASE_URL).netloc.lower()
+    current_host = current.netloc.lower()
+    # A redirect to an unrelated/parked host is not an authenticated session.
+    if current_host != expected_host:
+        print("IFILO_HOST_REDIRECTED " + json.dumps({
+            "expected_host": expected_host,
+            "actual_host": current_host,
+            "path": current.path,
+            "reason": "upload_route_redirected_away_from_configured_host",
+        }, ensure_ascii=False))
+        return False
+    if "/login" not in current.path.lower():
+        file_input = page.locator('input[type="file"]')
+        if file_input.count() > 0:
+            return True
+        # Previously, any redirect away from /login was mistaken for an
+        # authenticated upload page. Fail closed unless the real upload control exists.
+        print("IFILO_UPLOAD_ROUTE_HAS_NO_FILE_INPUT " + json.dumps(
+            _visible_control_summary(page), ensure_ascii=False
+        ))
+        return False
 
     username = os.environ.get("IFILO_LOGIN_ID", "").strip()
     password = os.environ.get("IFILO_PASSWORD", "")
@@ -507,7 +530,52 @@ def prepare_candidate_video(item: dict, workdir: Path) -> tuple[Path | None, dic
     return target, quality
 
 
+def probe_public_hosts() -> dict:
+    """Record public host redirects/statuses before launching browser automation."""
+    urls = [
+        "https://ifilo.net/",
+        "https://www.ifilo.net/",
+        "https://dashboard.tablighgram.com/",
+        "https://dashboard.tablighgram.com/upload",
+        "https://dashboard.tablighgram.com/login",
+    ]
+    rows = []
+    for url in urls:
+        row = {"requested_host": urlparse(url).netloc, "requested_path": urlparse(url).path}
+        try:
+            response = requests.get(url, headers={"User-Agent": UA}, timeout=(10, 18), allow_redirects=True)
+            final = urlparse(response.url)
+            body = response.text[:150_000] if "text/html" in str(response.headers.get("Content-Type") or "").lower() else ""
+            title_match = re.search(r"<title[^>]*>(.*?)</title>", body, re.I | re.S)
+            title = re.sub(r"\s+", " ", title_match.group(1)).strip()[:120] if title_match else ""
+            plain = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>", " ", body, flags=re.I | re.S)
+            plain = re.sub(r"<[^>]+>", " ", plain)
+            plain = re.sub(r"\s+", " ", html.unescape(plain)).strip()
+            row.update({
+                "status": response.status_code,
+                "final_host": final.netloc,
+                "final_path": final.path,
+                "redirects": [
+                    {"status": item.status_code, "host": urlparse(item.url).netloc, "path": urlparse(item.url).path}
+                    for item in response.history
+                ],
+                "content_type": str(response.headers.get("Content-Type") or "")[:100],
+                "title": title,
+                "has_upload_word": bool(re.search(r"آپلود|بارگذاری|upload", plain + " " + title, re.I)),
+                "body_excerpt": plain[:180],
+            })
+            response.close()
+        except Exception as exc:
+            row.update({"error_type": type(exc).__name__, "error": str(exc)[:160]})
+        rows.append(row)
+    report = {"checked_at": utc_now(), "hosts": rows}
+    print("IFILO_PUBLIC_HOST_DIAGNOSTICS " + json.dumps(report, ensure_ascii=False))
+    return report
+
+
 def run_browser(publish: bool) -> int:
+    # A safe, no-auth network check reveals redirects/domain status; it never posts data.
+    probe_public_hosts()
     # Import only when needed so the helper tests can run without browser binaries.
     try:
         from playwright.sync_api import sync_playwright
