@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T22:15:15.889425+00:00",
+  "updated_at": "2026-10-24T23:18:29.930055+00:00",
   "attempts": [
     {
       "source_key": "3f80c43194fbbc9d8a7b4a42c6d4c91291fd69713a2aa8f5f2167e42a2141251",
@@ -38,10 +38,10 @@
       "source_key": "e3e44c58625ab657ddd0acd83cc0cabcdbffe800a21d91914e5bf13fb8000d94",
       "source_url": "https://t.me/gizmiztel/163845",
       "source_title": "دهکده «گوجو هاشیمان» در ژاپن 🆔 @GizmizTel 💯",
-      "title": "پیش‌نویس خصوصی لحظه‌ای دیدنی از دهکده «گوجو هاشیمان» در ژاپن",
-      "status": "review_draft_rejected",
-      "mode": "telegram_review_draft_not_public",
-      "started_at": "2026-10-24T22:15:08.645348+00:00",
+      "title": "لحظه‌ای دیدنی از دهکده «گوجو هاشیمان» در ژاپن",
+      "status": "review_public_uncertain",
+      "mode": "telegram_review_public",
+      "started_at": "2026-10-24T23:17:23.894870+00:00",
       "video_sha256": "049596b2b283212bf8a0e80da4fd941b6550c2008aee1551907bc907c8a4d37e",
       "bytes": 7485862,
       "quality": {
@@ -65,13 +65,13 @@
         "content_gate_passed": true,
         "content_gate_reason": "duration_and_topic_gate_passed"
       },
-      "publication_checkbox": "dontPublish=true",
+      "publication_checkbox": "dontPublish=false",
       "monetization_checkbox": "canMakeMoney=false",
       "redistribution_checkbox": "canRepublish=false",
       "download_checkbox": "allowDownload=false",
       "ownership_checkbox": "isMadeByMe=false",
-      "finished_at": "2026-10-24T22:15:15.889349+00:00",
-      "server_reason_kind": "success_like_or_upload_related"
+      "finished_at": "2026-10-24T23:18:29.929986+00:00",
+      "server_reason_kind": "other_message"
     }
   ]
 }
