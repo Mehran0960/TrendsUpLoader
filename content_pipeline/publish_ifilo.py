@@ -767,6 +767,110 @@ def probe_upload_rules(page) -> dict:
     return report
 
 
+def inspect_upload_client(page) -> int:
+    """Read-only inspect of same-origin upload-page JavaScript and form wiring."""
+    expected_host = urlparse(BASE_URL).netloc.lower()
+    report = {
+        "page_path": urlparse(str(page.url)).path,
+        "page_title": str(page.title() or "")[:120],
+        "controls": [],
+        "scripts_checked": [],
+    }
+    allowed_ids = {
+        "fileInput", "acceptRule", "unixTime", "acceptRules", "canMakeMoney",
+        "canRepublish", "dontPublish", "isMadeByMe", "title",
+    }
+    try:
+        report["controls"] = page.locator("input,textarea,select,button").evaluate_all(
+            """els => els.filter(el => {
+                const id = el.id || '';
+                const name = el.name || '';
+                const ph = el.getAttribute('placeholder') || '';
+                return ['fileInput','acceptRule','unixTime','acceptRules','canMakeMoney',
+                        'canRepublish','dontPublish','isMadeByMe'].includes(id)
+                    || name === 'title' || ph === 'توضیحات ویدیو'
+                    || ((el.innerText || '').trim() === 'انتشار ویدیو');
+            }).slice(0, 30).map(el => ({
+                id: el.id || '',
+                name: el.name || '',
+                type: el.type || el.tagName.toLowerCase(),
+                checked: typeof el.checked === 'boolean' ? el.checked : null,
+                disabled: !!el.disabled,
+                required: !!el.required,
+                value_present: String(el.value || '').length > 0,
+                value_length: String(el.value || '').length,
+                visible: !!(el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'),
+                onclick: String(el.getAttribute('onclick') || '').slice(0, 160)
+            }))"""
+        )
+    except Exception as exc:
+        report["controls_error_type"] = type(exc).__name__
+
+    try:
+        script_urls = page.locator("script[src]").evaluate_all(
+            "els => els.map(el => el.src).filter(Boolean).slice(0, 30)"
+        )
+    except Exception:
+        script_urls = []
+
+    terms = [
+        "fileInput", "acceptRule", "acceptRules", "canMakeMoney", "canRepublish",
+        "dontPublish", "isMadeByMe", "unixTime", "انتشار ویدیو",
+        "startUpload", "uploadVideo", "ajax",
+    ]
+    seen_paths = set()
+    for script_url in script_urls:
+        parsed = urlparse(str(script_url))
+        if parsed.netloc.lower() != expected_host or parsed.path in seen_paths:
+            continue
+        seen_paths.add(parsed.path)
+        if len(report["scripts_checked"]) >= 18:
+            break
+        row = {"path": parsed.path, "status": "not_checked"}
+        try:
+            response = requests.get(
+                str(script_url), headers={"User-Agent": UA},
+                timeout=(5, 12), allow_redirects=True,
+            )
+            final = urlparse(response.url)
+            row["status_code"] = response.status_code
+            if final.netloc.lower() != expected_host:
+                row["status"] = "redirected_off_canonical_host"
+            elif response.status_code != 200:
+                row["status"] = "http_error"
+            else:
+                body = response.text[:2_000_000]
+                row["status"] = "read"
+                row["bytes_checked"] = len(body.encode("utf-8", errors="ignore"))
+                matches = []
+                seen_terms = set()
+                for term in terms:
+                    if term.casefold() in seen_terms:
+                        continue
+                    idx = body.casefold().find(term.casefold())
+                    if idx < 0:
+                        continue
+                    seen_terms.add(term.casefold())
+                    snippet = re.sub(r"\\s+", " ", body[max(0, idx - 170):min(len(body), idx + len(term) + 230)]).strip()
+                    matches.append({"term": term, "snippet": snippet[:420]})
+                    if len(matches) >= 8:
+                        break
+                row["matches"] = matches
+            response.close()
+        except Exception as exc:
+            row["status"] = "request_failed"
+            row["error_type"] = type(exc).__name__
+        report["scripts_checked"].append(row)
+
+    # This is static code and UI metadata only; no account profile/body text is emitted.
+    print("IFILO_UPLOAD_CLIENT_DIAGNOSTICS " + json.dumps(report, ensure_ascii=False))
+    ARTIFACTS.mkdir(parents=True, exist_ok=True)
+    (ARTIFACTS / "upload_client_diagnostics.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8"
+    )
+    return 0 if report["scripts_checked"] else 3
+
+
 DRAFT_TEST_TITLE = "آزمایش فنی بارگذاری فیلو — پیش‌نویس"
 DRAFT_TEST_DESCRIPTION = (
     "ویدیوی آزمایشیِ ساخته‌شده برای بررسی فنی بارگذاری. "
@@ -1100,7 +1204,7 @@ def verify_unpublished_test_draft(page) -> int:
     return 4
 
 
-def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool = False) -> int:
+def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool = False, inspect_client: bool = False) -> int:
     # A safe, no-auth network check reveals redirects/domain status; it never posts data.
     probe_public_hosts()
     # Import only when needed so the helper tests can run without browser binaries.
@@ -1134,6 +1238,8 @@ def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool
                 summary = probe_upload_form(page)
                 if verify_test_draft:
                     return verify_unpublished_test_draft(page)
+                if inspect_client:
+                    return inspect_upload_client(page)
                 if test_draft:
                     return upload_unpublished_test_draft(page)
                 if not publish:
@@ -1290,11 +1396,18 @@ def main() -> int:
         action="store_true",
         help="Read-only check for a prior unpublished test-draft attempt; never submits a video.",
     )
+    parser.add_argument(
+        "--inspect-upload-client",
+        action="store_true",
+        help="Read-only inspect of same-origin upload JavaScript and form controls; never submits a video.",
+    )
     args = parser.parse_args()
-    if sum(bool(x) for x in (args.publish, args.test_draft, args.verify_test_draft)) > 1:
-        parser.error("--publish, --test-draft, and --verify-test-draft are mutually exclusive")
-    mode = "verify_test_draft_read_only" if args.verify_test_draft else (
-        "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only")
+    if sum(bool(x) for x in (args.publish, args.test_draft, args.verify_test_draft, args.inspect_upload_client)) > 1:
+        parser.error("--publish, --test-draft, --verify-test-draft, and --inspect-upload-client are mutually exclusive")
+    mode = "inspect_upload_client_read_only" if args.inspect_upload_client else (
+        "verify_test_draft_read_only" if args.verify_test_draft else (
+            "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only")
+        )
     )
     print(json.dumps({
         "IFILO_RUN": {
@@ -1305,7 +1418,7 @@ def main() -> int:
         }
     }, ensure_ascii=False))
     try:
-        return run_browser(publish=args.publish, test_draft=args.test_draft, verify_test_draft=args.verify_test_draft)
+        return run_browser(publish=args.publish, test_draft=args.test_draft, verify_test_draft=args.verify_test_draft, inspect_client=args.inspect_upload_client)
     except Exception as exc:
         # Avoid exception messages from browser/network layers because they can
         # include full request URLs, query tokens, or personal account details.
