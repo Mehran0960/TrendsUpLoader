@@ -1236,6 +1236,12 @@ def main(_fallback_attempt=False):
     suppressed_ids = []
     suppressed_urls = []
     session_fingerprints = list(saved_fingerprints)
+    # Filo is an independent, opt-in sink. Its failure must never stop Telegram review.
+    filo_history = state.get("filo_upload_history", [])
+    if not isinstance(filo_history, list):
+        filo_history = []
+    filo_results = []
+    filo_attempted_this_run = False
     with tempfile.TemporaryDirectory(prefix="short-review-") as workdir:
         for item in candidates:
             if len(sent_ids) >= MAX_SENDS:
@@ -1327,6 +1333,31 @@ def main(_fallback_attempt=False):
                 suppressed_urls.append(current_fingerprint["url"])
                 continue
 
+            # Attempt Filo independently before the private-review Telegram send.
+            # Only one Filo upload attempt is made per run; errors are captured and
+            # do not interrupt Telegram delivery or future discovery runs.
+            filo_enabled = os.environ.get("FILO_UPLOAD_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+            if filo_enabled and not filo_attempted_this_run:
+                filo_attempted_this_run = True
+                try:
+                    try:
+                        from content_pipeline.filo_uploader import upload_video
+                    except ModuleNotFoundError:
+                        from filo_uploader import upload_video
+                    filo_result = upload_video(str(video_path), item, history=filo_history)
+                except Exception as exc:
+                    filo_result = {
+                        "checked_at": datetime.now(timezone.utc).isoformat(),
+                        "status": "failed",
+                        "success": False,
+                        "source_url": url,
+                        "reason": "uploader_exception:" + type(exc).__name__,
+                    }
+                filo_history.append(filo_result)
+                filo_history = filo_history[-100:]
+                filo_results.append(filo_result)
+                print(json.dumps({"FILO_UPLOAD_RESULT": filo_result}, ensure_ascii=False))
+
             try:
                 message_id = send_video(str(video_path), item)
                 ident = item["_review_id"]
@@ -1356,7 +1387,7 @@ def main(_fallback_attempt=False):
                 if video_path.exists():
                     video_path.unlink(missing_ok=True)
 
-    if sent_ids or suppressed_ids:
+    if sent_ids or suppressed_ids or filo_results:
         existing_ids = [str(x) for x in state.get("media_reviewed_ids", [])]
         existing_urls = [str(x) for x in state.get("media_reviewed_urls", [])]
         prior_fingerprints = [
@@ -1376,6 +1407,8 @@ def main(_fallback_attempt=False):
             "media_reviewed_fingerprints": list(fingerprints_by_sha.values())[-300:],
             "media_reviewed_topics": normalize_topic_history(recent_topics + sent_topic_records)[-20:],
             "media_review_last_count": len(sent_ids),
+            "filo_upload_history": filo_history[-100:],
+            "filo_upload_last_status": filo_results[-1].get("status") if filo_results else state.get("filo_upload_last_status", "not_attempted"),
         })
         STATE.parent.mkdir(parents=True, exist_ok=True)
         STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
