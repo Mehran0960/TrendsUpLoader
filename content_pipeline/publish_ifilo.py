@@ -1622,10 +1622,17 @@ def upload_video_thumbnail(page, video_path: Path, workdir: Path, mode_tag: str)
         print(f"{mode_tag}_THUMBNAIL_CONTROLS_NOT_FOUND")
         return {"uploaded": False, "reason": "thumbnail_controls_not_found"}
 
+    stage = "select_custom_thumbnail"
     try:
         # FiLo only sends the custom thumbnail upload when this radio option is selected.
-        custom_thumb_radio.check(force=True, timeout=10000)
+        try:
+            custom_thumb_radio.check(force=True, timeout=10000)
+        except Exception:
+            # Some FiLo builds wire the hidden radio through its visible label only.
+            page.locator("label[for='cbCustomThumb']").click(force=True, timeout=10000)
+        stage = "attach_thumbnail_file"
         thumb_file_input.set_input_files(str(thumbnail_path), timeout=30000)
+        stage = "wait_for_thumbnail_commit"
         page.wait_for_function(
             """() => {
                 const root = document.querySelector('[ng-controller="ctrl"]');
@@ -1643,8 +1650,12 @@ def upload_video_thumbnail(page, video_path: Path, workdir: Path, mode_tag: str)
             polling=1000,
         )
     except Exception as exc:
-        print(f"{mode_tag}_THUMBNAIL_UPLOAD_WAIT_FAILED", type(exc).__name__)
-        return {"uploaded": False, "reason": "thumbnail_upload_wait_failed"}
+        print(f"{mode_tag}_THUMBNAIL_UPLOAD_WAIT_FAILED " + json.dumps({
+            "stage": stage,
+            "error_type": type(exc).__name__,
+            "error": safe_provider_message_excerpt(str(exc), limit=200),
+        }, ensure_ascii=False))
+        return {"uploaded": False, "reason": "thumbnail_upload_wait_failed", "stage": stage}
 
     try:
         status = page.evaluate("""() => {
