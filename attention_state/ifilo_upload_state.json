@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:26:25.603349+00:00",
+  "updated_at": "2026-10-24T23:31:44.683396+00:00",
   "attempts": [
     {
       "source_key": "3f80c43194fbbc9d8a7b4a42c6d4c91291fd69713a2aa8f5f2167e42a2141251",
@@ -41,7 +41,7 @@
       "title": "لحظه‌ای دیدنی از دهکده «گوجو هاشیمان» در ژاپن",
       "status": "review_public_rejected",
       "mode": "telegram_review_public",
-      "started_at": "2026-10-24T23:26:18.613187+00:00",
+      "started_at": "2026-10-24T23:31:37.763766+00:00",
       "video_sha256": "049596b2b283212bf8a0e80da4fd941b6550c2008aee1551907bc907c8a4d37e",
       "bytes": 7485862,
       "quality": {
@@ -97,8 +97,46 @@
         ]
       },
       "public_video_url_detected": false,
-      "finished_at": "2026-10-24T23:26:25.603279+00:00",
-      "server_reason_kind": "success_like_or_upload_related"
+      "server_reason_kind": "provider_upload_rejection",
+      "provider_message_signals": [
+        "upload"
+      ],
+      "verification_summary": {
+        "final_angular_state": {
+          "published": false,
+          "publishing": false,
+          "uploadComplete": true,
+          "dontPublish": false,
+          "canMakeMoney": false,
+          "canRepublish": false,
+          "allowDownload": false,
+          "isMadeByMe": false,
+          "acceptRules": true,
+          "messageIsError": true,
+          "titleCleared": false,
+          "descriptionCleared": false
+        },
+        "account_title_found": false,
+        "account_paths_checked": [
+          {
+            "requested_path": "/my",
+            "result_path": "/funtime24",
+            "title_found": false
+          },
+          {
+            "requested_path": "/myVideos",
+            "result_path": "/myvideos",
+            "title_found": false
+          },
+          {
+            "requested_path": "/my/videos",
+            "result_path": "/my/videos",
+            "title_found": false
+          }
+        ],
+        "submit_error_type": null
+      },
+      "finished_at": "2026-10-24T23:31:44.683315+00:00"
     }
   ]
 }
