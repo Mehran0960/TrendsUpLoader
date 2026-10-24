@@ -1955,6 +1955,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             final_model = {}
 
         message_success = bool(DRAFT_SUCCESS_RE.search(message)) and final_model.get("messageIsError") is False
+        # One-time read-only FiLo client inspection follows this diagnostic improvement.
         # Persist only a coarse reason code, never raw UI text or account-specific data.
         message_signals = []
         signal_patterns = (
