@@ -32,6 +32,7 @@ try:
         MAX_VIDEO_BYTES,
         clean_review_caption,
         download_direct_telegram_post,
+        download_with_ytdlp,
         duration_content_gate,
         inspect_video_quality,
         load_json,
@@ -43,6 +44,7 @@ except ModuleNotFoundError:
         MAX_VIDEO_BYTES,
         clean_review_caption,
         download_direct_telegram_post,
+        download_with_ytdlp,
         duration_content_gate,
         inspect_video_quality,
         load_json,
@@ -653,8 +655,22 @@ def prepare_candidate_video(item: dict, workdir: Path) -> tuple[Path | None, dic
     if not url:
         return None, {"passed": False, "reason": "missing_source_url"}
     target = workdir / "selected-video.mp4"
-    if not download_direct_telegram_post(url, target, item=item):
-        return None, {"passed": False, "reason": "source_video_download_failed"}
+    downloaded_directly = download_direct_telegram_post(url, target, item=item)
+    if not downloaded_directly:
+        # Telegram can render the public post while its embedded media URL returns
+        # an HTTP error. Retry through yt-dlp's supported extractor, still using this
+        # exact post URL (never a neighboring post or an unverified media URL).
+        target.unlink(missing_ok=True)
+        try:
+            fallback_path = download_with_ytdlp(url, workdir)
+        except Exception as exc:
+            print("IFILO_TELEGRAM_YTDLP_FALLBACK_FAILED", type(exc).__name__)
+            fallback_path = None
+        if fallback_path is None or not Path(fallback_path).is_file():
+            return None, {"passed": False, "reason": "source_video_download_failed"}
+        fallback_path = Path(fallback_path)
+        if fallback_path.resolve() != target.resolve():
+            fallback_path.replace(target)
     if not target.exists() or not 0 < target.stat().st_size <= MAX_VIDEO_BYTES:
         target.unlink(missing_ok=True)
         return None, {"passed": False, "reason": "downloaded_file_missing_or_too_large"}
