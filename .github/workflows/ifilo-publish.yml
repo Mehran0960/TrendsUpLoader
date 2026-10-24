@@ -51,7 +51,8 @@ jobs:
         run: python -m unittest -v content_pipeline.test_publish_ifilo
 
   publish:
-    # Push-triggered runs are diagnostics only unless a commit message explicitly requests the original unpublished draft smoke test.
+    # Push-triggered runs are diagnostics only unless a commit message explicitly requests an original unpublished draft smoke test.
+    # Draft mode verifies do-not-publish and disables monetization/redistribution before submitting the synthetic clip.
     # Public posting still requires the manual publish input or the separate scheduled opt-in.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
     needs: regression-tests
