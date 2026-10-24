@@ -295,7 +295,7 @@ def _visible_control_summary(page) -> dict:
                 display: style.display,
                 visibility: style.visibility
               };
-            }).filter(el => el.visible || /upload|video|file|publish|accept|rule|title|description|dontPublish|canMakeMoney|canRepublish/i.test(el.id + ' ' + el.cls + ' ' + el.text)).slice(0, 80)"""
+            }).filter(el => /upload|video|file|publish|accept|rule|title|description|dontPublish|canMakeMoney|canRepublish|thumbnail|comment|madeForKids|over18|آپلود|ویدیو|فایل|عنوان|توضیح|انتشار|قوانین/i.test(el.id + ' ' + el.cls + ' ' + el.text)).slice(0, 80)"""
         )
     except Exception:
         clickable = []
@@ -797,7 +797,8 @@ def create_draft_test_video(destination: Path) -> Path:
     return destination
 
 
-def _set_checkbox(page, selector: str, checked: bool) -> bool:
+def _set_checkbox(page, selector: str, checked: bool, *, allow_hidden: bool = False) -> bool:
+    """Set one checkbox and verify its final state, including hidden native form fields."""
     locator = page.locator(selector)
     if locator.count() == 0:
         return False
@@ -805,13 +806,27 @@ def _set_checkbox(page, selector: str, checked: bool) -> bool:
         current = locator.first.is_checked()
         if current == checked:
             return True
-        # Prefer the visible associated label; do not force-click a hidden control.
+        # Prefer the visible associated label when the site exposes one.
         ident = selector.lstrip("#")
         label = page.locator(f'label[for="{ident}"]')
         if label.count() and label.first.is_visible() and label.first.is_enabled():
             label.first.click(timeout=8000)
         elif locator.first.is_visible() and locator.first.is_enabled():
             locator.first.set_checked(checked, timeout=8000)
+        elif allow_hidden:
+            # FiLo renders the monetization/redistribution checkboxes as hidden but
+            # enabled native inputs. Trigger their normal click event and verify
+            # the resulting checked property before any form submission.
+            changed = locator.first.evaluate(
+                """(el, desired) => {
+                    if (el.disabled || (el.type || '').toLowerCase() !== 'checkbox') return false;
+                    if (!!el.checked !== !!desired) el.click();
+                    return !!el.checked === !!desired;
+                }""",
+                checked,
+            )
+            if not changed:
+                return False
         else:
             return False
         return locator.first.is_checked() == checked
@@ -870,8 +885,8 @@ def upload_unpublished_test_draft(page) -> int:
         # monetized, or offered for redistribution.
         rules_ok = _set_checkbox(page, "#acceptRules", True)
         unpublished_ok = _set_checkbox(page, "#dontPublish", True)
-        monetization_off = _set_checkbox(page, "#canMakeMoney", False)
-        redistribution_off = _set_checkbox(page, "#canRepublish", False)
+        monetization_off = _set_checkbox(page, "#canMakeMoney", False, allow_hidden=True)
+        redistribution_off = _set_checkbox(page, "#canRepublish", False, allow_hidden=True)
         if not all((title_ok, description_ok, rules_ok, unpublished_ok, monetization_off, redistribution_off)):
             probe_upload_form(page)
             print("IFILO_TEST_DRAFT_BLOCKED_FORM_REQUIREMENTS " + json.dumps({
