@@ -62,8 +62,8 @@ jobs:
         run: python -m unittest -v content_pipeline.test_publish_ifilo
 
   publish:
-    # Push-triggered runs are diagnostics only unless a commit message explicitly requests an original unpublished draft smoke test.
-    # Draft smoke tests use synthetic v2 media, verify Angular safety flags and allow at most one matching POST; public publishing remains a separate opt-in.
+    # Push-triggered runs are diagnostics unless a specifically named private draft smoke test is requested.
+    # Both draft modes force publication, monetization, redistribution, and download off; they never enable public auto-publishing.
     # Public posting still requires the manual publish input or the separate scheduled opt-in.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
     needs: regression-tests
@@ -95,6 +95,7 @@ jobs:
         run: |
           echo "publish=false" >> "$GITHUB_OUTPUT"
           echo "test_draft=false" >> "$GITHUB_OUTPUT"
+          echo "review_draft=false" >> "$GITHUB_OUTPUT"
           echo "verify_test_draft=false" >> "$GITHUB_OUTPUT"
           echo "inspect_client=false" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ] && [ "$AUTOPUBLISH_ENABLED" = "true" ]; then
@@ -107,6 +108,8 @@ jobs:
             echo "verify_test_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_INSPECT_UPLOAD_CLIENT" = "true" ]; then
             echo "inspect_client=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo upload reviewed Telegram video as unpublished draft"* ]]; then
+            echo "review_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo inspect upload client"* ]]; then
             echo "inspect_client=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo draft smoke test"* ]]; then
@@ -116,7 +119,7 @@ jobs:
           fi
       - name: Install uploader dependencies
         env:
-          NEED_MEDIA_TOOLS: ${{ steps.mode.outputs.publish == 'true' || steps.mode.outputs.test_draft == 'true' }}
+          NEED_MEDIA_TOOLS: ${{ steps.mode.outputs.publish == 'true' || steps.mode.outputs.test_draft == 'true' || steps.mode.outputs.review_draft == 'true' }}
         run: |
           set -euo pipefail
           pip install --disable-pip-version-check requests pillow yt-dlp playwright
@@ -127,7 +130,7 @@ jobs:
             sudo apt-get install -y -qq ffmpeg
           fi
       - name: Probe upload form without publishing
-        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.verify_test_draft != 'true' && steps.mode.outputs.inspect_client != 'true' }}
+        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.review_draft != 'true' && steps.mode.outputs.verify_test_draft != 'true' && steps.mode.outputs.inspect_client != 'true' }}
         run: python content_pipeline/publish_ifilo.py
       - name: Inspect FiLo upload client without submitting
         if: ${{ steps.mode.outputs.inspect_client == 'true' }}
@@ -138,6 +141,11 @@ jobs:
       - name: Verify prior test draft without uploading
         if: ${{ steps.mode.outputs.verify_test_draft == 'true' }}
         run: python content_pipeline/publish_ifilo.py --verify-test-draft
+      - name: Upload one previously reviewed Telegram video as unpublished draft
+        if: ${{ steps.mode.outputs.review_draft == 'true' }}
+        env:
+          IFILO_REVIEW_DRAFT_SOURCE_URL: https://t.me/gizmiztel/163845
+        run: python content_pipeline/publish_ifilo.py --upload-review-draft "$IFILO_REVIEW_DRAFT_SOURCE_URL"
       - name: Upload one selected video
         if: ${{ steps.mode.outputs.publish == 'true' }}
         run: python content_pipeline/publish_ifilo.py --publish
