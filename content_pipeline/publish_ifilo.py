@@ -1900,7 +1900,8 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             not page.locator("#canRepublish").is_checked(),
             not page.locator("#allowDownload").is_checked(),
             not page.locator("#isMadeByMe").is_checked(),
-            page.locator("#cbCustomThumb").is_checked(),
+            # FiLo may unset the radio's visual checked state after the async
+            # uploader commits the thumbnail; Angular's item model is checked below.
         ))
         model_safe = (
             model.get("titleMatches") is True
