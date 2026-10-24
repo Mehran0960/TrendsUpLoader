@@ -109,7 +109,7 @@ def create_distribution_plan(metadata: dict, rights: dict) -> dict:
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "project_goal": "audience_acquisition_plus_direct_filo_and_indirect_monetization",
-        "direct_platform_ad_revenue_is_a_goal": True,
+        "direct_platform_ad_revenue_is_a_goal": False,
         "direct_filo_creator_payouts_are_a_goal": True,
         "content_key": str(metadata.get("content_key") or ""),
         "content_title": str(metadata.get("display_title_fa") or metadata.get("title") or ""),
