@@ -13,6 +13,11 @@ on:
         type: boolean
         required: false
         default: false
+      verify_test_draft:
+        description: "Read-only verification of a previous uncertain test-draft upload; no upload occurs"
+        type: boolean
+        required: false
+        default: false
   schedule:
     # Five low-frequency slots matching the existing Tehran audience windows.
     # Scheduled publishing stays off unless the repository variable is explicitly enabled.
@@ -86,26 +91,35 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           MANUAL_PUBLISH: ${{ inputs.publish }}
           MANUAL_TEST_DRAFT: ${{ inputs.test_draft }}
+          MANUAL_VERIFY_TEST_DRAFT: ${{ inputs.verify_test_draft }}
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
         run: |
           echo "publish=false" >> "$GITHUB_OUTPUT"
           echo "test_draft=false" >> "$GITHUB_OUTPUT"
+          echo "verify_test_draft=false" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ] && [ "$AUTOPUBLISH_ENABLED" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_TEST_DRAFT" = "true" ]; then
             echo "test_draft=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_VERIFY_TEST_DRAFT" = "true" ]; then
+            echo "verify_test_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo draft smoke test"* ]]; then
             echo "test_draft=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo verify draft"* ]]; then
+            echo "verify_test_draft=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Probe upload form without publishing
-        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' }}
+        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.verify_test_draft != 'true' }}
         run: python content_pipeline/publish_ifilo.py
       - name: Upload original smoke-test clip as unpublished draft
         if: ${{ steps.mode.outputs.test_draft == 'true' }}
         run: python content_pipeline/publish_ifilo.py --test-draft
+      - name: Verify prior test draft without uploading
+        if: ${{ steps.mode.outputs.verify_test_draft == 'true' }}
+        run: python content_pipeline/publish_ifilo.py --verify-test-draft
       - name: Upload one selected video
         if: ${{ steps.mode.outputs.publish == 'true' }}
         run: python content_pipeline/publish_ifilo.py --publish
