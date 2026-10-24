@@ -18,6 +18,11 @@ on:
         type: boolean
         required: false
         default: false
+      inspect_upload_client:
+        description: "Read-only inspect of FiLo's upload-page JavaScript and form wiring; no upload occurs"
+        type: boolean
+        required: false
+        default: false
   schedule:
     # Five low-frequency slots matching the existing Tehran audience windows.
     # Scheduled publishing stays off unless the repository variable is explicitly enabled.
@@ -35,7 +40,7 @@ on:
 
 concurrency:
   # Read-only verification gets an independent queue; all uploading/probe runs remain serialized.
-  group: ifilo-${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'FiLo verify draft') && format('verify-{0}', github.run_id) || 'publish' }}
+  group: ifilo-${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'FiLo verify draft') && format('verify-{0}', github.run_id) || github.event_name == 'push' && contains(github.event.head_commit.message, 'FiLo inspect upload client') && format('inspect-{0}', github.run_id) || 'publish' }}
   cancel-in-progress: false
 
 permissions:
@@ -84,12 +89,14 @@ jobs:
           MANUAL_PUBLISH: ${{ inputs.publish }}
           MANUAL_TEST_DRAFT: ${{ inputs.test_draft }}
           MANUAL_VERIFY_TEST_DRAFT: ${{ inputs.verify_test_draft }}
+          MANUAL_INSPECT_UPLOAD_CLIENT: ${{ inputs.inspect_upload_client }}
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
         run: |
           echo "publish=false" >> "$GITHUB_OUTPUT"
           echo "test_draft=false" >> "$GITHUB_OUTPUT"
           echo "verify_test_draft=false" >> "$GITHUB_OUTPUT"
+          echo "inspect_client=false" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ] && [ "$AUTOPUBLISH_ENABLED" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
@@ -98,6 +105,10 @@ jobs:
             echo "test_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_VERIFY_TEST_DRAFT" = "true" ]; then
             echo "verify_test_draft=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_INSPECT_UPLOAD_CLIENT" = "true" ]; then
+            echo "inspect_client=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo inspect upload client"* ]]; then
+            echo "inspect_client=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo draft smoke test"* ]]; then
             echo "test_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo verify draft"* ]]; then
@@ -116,8 +127,11 @@ jobs:
             sudo apt-get install -y -qq ffmpeg
           fi
       - name: Probe upload form without publishing
-        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.verify_test_draft != 'true' }}
+        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.verify_test_draft != 'true' && steps.mode.outputs.inspect_client != 'true' }}
         run: python content_pipeline/publish_ifilo.py
+      - name: Inspect FiLo upload client without submitting
+        if: ${{ steps.mode.outputs.inspect_client == 'true' }}
+        run: python content_pipeline/publish_ifilo.py --inspect-upload-client
       - name: Upload original smoke-test clip as unpublished draft
         if: ${{ steps.mode.outputs.test_draft == 'true' }}
         run: python content_pipeline/publish_ifilo.py --test-draft
