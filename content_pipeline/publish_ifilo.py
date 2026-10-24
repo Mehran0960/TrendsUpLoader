@@ -1006,7 +1006,101 @@ def upload_unpublished_test_draft(page) -> int:
         return 4
 
 
-def run_browser(publish: bool, test_draft: bool = False) -> int:
+def verify_unpublished_test_draft(page) -> int:
+    """Read-only check for a previously attempted unpublished test draft; never submits."""
+    state = load_state()
+    attempts = [
+        row for row in state.get("attempts", [])
+        if isinstance(row, dict)
+        and str(row.get("title") or row.get("source_title") or "") == DRAFT_TEST_TITLE
+        and str(row.get("status") or "") in {
+            "draft_uploaded", "test_draft_uncertain", "test_draft_unexpected_public_route",
+            "pending", "submit_failed_before_click"
+        }
+    ]
+    if not attempts:
+        print("IFILO_TEST_DRAFT_VERIFY_NO_PRIOR_ATTEMPT")
+        return 3
+
+    start_url = BASE_URL + "/my"
+    targets: list[str] = [start_url, BASE_URL + "/myVideos"]
+    visited: set[str] = set()
+    reports: list[dict] = []
+    expected_host = urlparse(BASE_URL).netloc.lower()
+
+    while targets and len(visited) < 8:
+        target = targets.pop(0)
+        parsed_target = urlparse(target)
+        if parsed_target.netloc.lower() != expected_host:
+            continue
+        key = parsed_target.path
+        if key in visited:
+            continue
+        visited.add(key)
+        try:
+            page.goto(target, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(1000)
+        except Exception as exc:
+            reports.append({"requested_path": key, "navigation_error": type(exc).__name__})
+            continue
+
+        current = urlparse(str(page.url))
+        if current.netloc.lower() != expected_host:
+            reports.append({"requested_path": key, "result": "redirected_off_canonical_host"})
+            continue
+        if re.search(r"/login(?:/|$)", current.path, re.I):
+            reports.append({"requested_path": key, "result": "login_required"})
+            continue
+
+        try:
+            body = page.locator("body").inner_text(timeout=8000)
+        except Exception:
+            body = ""
+        found = DRAFT_TEST_TITLE.casefold() in body.casefold()
+        reports.append({
+            "requested_path": key,
+            "result_path": current.path,
+            "expected_title_found": found,
+        })
+        if found:
+            print("IFILO_TEST_DRAFT_VERIFIED " + json.dumps({
+                "title": DRAFT_TEST_TITLE,
+                "found_on_path": current.path,
+                "public_post": False,
+                "monetization_enabled": False,
+                "verification": "title_found_in_authenticated_account_page_after_do_not_publish_submission",
+            }, ensure_ascii=False))
+            return 0
+
+        # Follow only account-page links whose visible labels point to uploaded videos;
+        # never log arbitrary link text, account details, or page body content.
+        try:
+            links = page.locator("a[href]").evaluate_all(
+                """els => els.map(a => ({
+                    href: a.href,
+                    path: (() => { try { return new URL(a.href, location.href).pathname; } catch { return ''; } })(),
+                    text: (a.innerText || a.getAttribute('aria-label') || '').replace(/\\s+/g, ' ').trim()
+                })).filter(a => /ویدیوهای من|مدیریت ویدیو|ویدیوهای آپلودشده|my videos|uploaded videos/i.test(a.text))
+                  .map(a => ({href: a.href, path: a.path}))
+                  .slice(0, 10)"""
+            )
+            for link in links:
+                if link.get("href") and link.get("path"):
+                    parsed_link = urlparse(str(link["href"]))
+                    if parsed_link.netloc.lower() == expected_host and link["path"] not in visited:
+                        targets.append(str(link["href"]))
+        except Exception:
+            pass
+
+    print("IFILO_TEST_DRAFT_NOT_FOUND_ON_ACCOUNT_PAGES " + json.dumps({
+        "title": DRAFT_TEST_TITLE,
+        "checked_paths": reports,
+        "conclusion": "Not found in checked account pages; this does not prove the upload failed, and no retry was made.",
+    }, ensure_ascii=False))
+    return 4
+
+
+def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool = False) -> int:
     # A safe, no-auth network check reveals redirects/domain status; it never posts data.
     probe_public_hosts()
     # Import only when needed so the helper tests can run without browser binaries.
@@ -1038,6 +1132,8 @@ def run_browser(publish: bool, test_draft: bool = False) -> int:
                 if not ensure_authenticated(page, context):
                     return 2
                 summary = probe_upload_form(page)
+                if verify_test_draft:
+                    return verify_unpublished_test_draft(page)
                 if test_draft:
                     return upload_unpublished_test_draft(page)
                 if not publish:
@@ -1189,19 +1285,27 @@ def main() -> int:
         action="store_true",
         help="Upload one original generated test clip as an unpublished, non-monetized draft.",
     )
+    parser.add_argument(
+        "--verify-test-draft",
+        action="store_true",
+        help="Read-only check for a prior unpublished test-draft attempt; never submits a video.",
+    )
     args = parser.parse_args()
-    if args.publish and args.test_draft:
-        parser.error("--publish and --test-draft are mutually exclusive")
+    if sum(bool(x) for x in (args.publish, args.test_draft, args.verify_test_draft)) > 1:
+        parser.error("--publish, --test-draft, and --verify-test-draft are mutually exclusive")
+    mode = "verify_test_draft_read_only" if args.verify_test_draft else (
+        "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only")
+    )
     print(json.dumps({
         "IFILO_RUN": {
-            "mode": "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only"),
+            "mode": mode,
             "at": utc_now(),
             "upload_url": UPLOAD_URL,
             "state_file": str(STATE_PATH.relative_to(ROOT)),
         }
     }, ensure_ascii=False))
     try:
-        return run_browser(publish=args.publish, test_draft=args.test_draft)
+        return run_browser(publish=args.publish, test_draft=args.test_draft, verify_test_draft=args.verify_test_draft)
     except Exception as exc:
         # Avoid exception messages from browser/network layers because they can
         # include full request URLs, query tokens, or personal account details.
