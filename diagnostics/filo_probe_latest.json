@@ -1,0 +1,8 @@
+{
+  "checked_at": "2026-10-24T16:23:50.000916+00:00",
+  "base_url": "https://ifilo.net",
+  "mode": "probe_only",
+  "status": "probe_failed",
+  "error": "ValueError",
+  "detail": "FILO_STORAGE_STATE_BASE64 must contain base64 Playwright storage-state JSON"
+}
