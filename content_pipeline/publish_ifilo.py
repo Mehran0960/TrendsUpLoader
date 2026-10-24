@@ -1026,10 +1026,75 @@ def upload_unpublished_test_draft(page) -> int:
             return 3
         try:
             file_input.set_input_files(str(video), timeout=30000)
-            page.wait_for_timeout(3500)
         except Exception as exc:
             print("IFILO_TEST_DRAFT_FILE_SELECTION_FAILED", type(exc).__name__)
             return 3
+
+        # FiLo sends the file in chunks after file selection. A 100% progress
+        # indicator is not enough: wait for the Angular model's uploadComplete flag.
+        try:
+            page.wait_for_function(
+                """() => {
+                    const root = document.querySelector('[ng-controller="ctrl"]');
+                    if (!root || !window.angular) return false;
+                    const scope = window.angular.element(root).scope();
+                    return !!scope && (
+                        !!scope.uploadComplete
+                        || (!!scope.messageIsError && !!String(scope.message || '').trim())
+                    );
+                }""",
+                timeout=120000,
+                polling=1000,
+            )
+        except PlaywrightTimeoutError:
+            pass
+
+        try:
+            upload_state = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return {};
+                const scope = window.angular.element(root).scope();
+                if (!scope) return {};
+                const item = scope.item || {};
+                return {
+                    fileSelected: !!scope.fileSelected,
+                    uploadStarted: !!scope.uploadStarted,
+                    uploadComplete: !!scope.uploadComplete,
+                    publishing: !!scope.publishing,
+                    messageIsError: !!scope.messageIsError,
+                    message: String(scope.message || '').slice(0, 500),
+                    videoUrlPresent: !!String(item.videoUrl || '').trim(),
+                    videoCodePresent: !!String(item.videoCode || '').trim(),
+                    durationPresent: Number(item.duration || 0) > 0
+                };
+            }""")
+        except Exception:
+            upload_state = {}
+
+        if not upload_state.get("uploadComplete"):
+            message = str(upload_state.pop("message", "") or "")
+            if message:
+                if "فرمت" in message:
+                    kind = "file_format_validation"
+                elif "حجم" in message:
+                    kind = "file_size_validation"
+                elif "network" in message.casefold() or "ارتباط" in message:
+                    kind = "network_or_connection_error"
+                elif "خطا" in message or "ناموفق" in message:
+                    kind = "upload_error"
+                else:
+                    kind = "other_upload_message"
+            else:
+                kind = "none"
+            print("IFILO_TEST_DRAFT_UPLOAD_INCOMPLETE " + json.dumps({
+                **upload_state,
+                "message_kind": kind,
+                "retry_policy": "no_publish_post_sent",
+            }, ensure_ascii=False))
+            return 3
+
+        upload_state.pop("message", None)
+        print("IFILO_TEST_DRAFT_FILE_TRANSFER_COMPLETE " + json.dumps(upload_state, ensure_ascii=False))
 
         title_field = find_title_field(page)
         description_field = find_description_field(page)
