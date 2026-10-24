@@ -2,7 +2,7 @@
 
 ## Business objective
 
-Use social platforms to acquire relevant followers, then build a portable audience relationship and monetize indirectly. Direct creator payouts and platform advertising revenue are explicitly out of scope.
+Use social platforms to acquire relevant followers while pursuing both direct creator payouts where practical (initially FiLo) and indirect monetization through a portable audience relationship. Direct payout is supplementary, not assumed income: verify real views, RPM, withdrawal eligibility, and operating effort.
 
 ## Current implementation state
 
@@ -13,9 +13,19 @@ Use social platforms to acquire relevant followers, then build a portable audien
 | TikTok | Official Content Posting API | Not connected; app/user authorization and audit may be required | Keep as a growth target, but don't assume unattended public posting is available |
 | Instagram | Official publishing route | Not connected; account eligibility and permissions must be verified | Prefer original content and platform-native sharing/remix features; don't rely on simple copied reposts for recommendations |
 | Aparat | Official route to be verified | Not connected | Keep in the candidate rollout; verify supported publishing route and account requirements before automating |
+| FiLo | Playwright browser automation against the upload UI; no public upload API found in this review | Adapter + isolated workflow implemented; authenticated form probe and real upload still unverified. Manual runs default to probe-only; scheduled publishing is disabled until `IFILO_AUTOPUBLISH_ENABLED=true`. | Start with a no-upload form probe, then one manually triggered upload, then enable one-video-per-slot scheduling only after observing a confirmed success |
 | X | Official API or manual export | Not connected | Use distinct, contextualized posts; avoid repeated identical or near-identical automated posts |
 
 This table describes the repository, not a guarantee that a platform's API is available from every country or account. Do not bypass a platform's access, sanctions, or authorization restrictions.
+
+## FiLo publishing adapter
+
+- The standalone workflow is `.github/workflows/ifilo-publish.yml`; it does not change or block discovery, the private Telegram review, or any other destination.
+- `content_pipeline/publish_ifilo.py` currently uses the publicly visible FiLo web panel at `https://dashboard.tablighgram.com/upload`. This review did not find a public upload API, so the current approach uses Playwright and an authenticated browser context.
+- The workflow runs a safe form probe by default. A manual run must explicitly set `publish=true` to attempt one video. Scheduled upload runs remain disabled unless the repository variable `IFILO_AUTOPUBLISH_ENABLED` is explicitly set to `true` after a verified first upload.
+- Configure GitHub Actions secrets `IFILO_LOGIN_ID` and `IFILO_PASSWORD` for identifier/password sign-in. If FiLo requires OTP/CAPTCHA or another sign-in method, the current script fails closed and emits form diagnostics; it does not bypass those steps. An optional `IFILO_STORAGE_STATE_B64` secret can supply a Playwright storage-state JSON if managed securely.
+- The adapter currently considers one new, top-ranked, native Telegram video per run and keeps an attempt ledger in `attention_state/ifilo_upload_state.json`. It checks the file and duration/visual technical gates, tries to avoid duplicates, and does not auto-retry an ambiguous submission because the server may already have accepted it.
+- First upload success has not yet been verified against an authenticated FiLo account. Treat the code as an implementation awaiting that real-account test, not as an already-running publisher.
 
 ## Peak-window-aware preparation
 
@@ -32,7 +42,8 @@ This table describes the repository, not a guarantee that a platform's API is av
 - **TikTok:** Eligibility for the For You feed is distinct from permission to remain on the platform. Direct public posting requires the Content Posting API product, approved `video.publish` scope, user authorization, and an audit before an unaudited client can publish publicly. [For You recommendations](https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content) · [Content Posting API: Direct Post](https://developers.tiktok.com/docs/en/content-posting-api-get-started/)
 - **YouTube:** Eligibility and copyright are distinct. Copyright, Community Guidelines, spam, and deceptive practices still matter; repeated uploads designed to manipulate engagement should be avoided. Prefer native Remix when available, or media cleared for the exact use with useful context. The YouTube Partner Program’s reused-content policy concerns monetization and is not a universal ban on posting, so it is not used as a blanket filter in this project. [YouTube Spam Policy](https://support.google.com/youtube/answer/2801973) · [Community Guidelines](https://support.google.com/youtube/answer/9288567) · [YPP reused-content policy (monetization context only)](https://support.google.com/youtube/answer/1311392)
 - **X:** Its authenticity and automation rules prohibit spammy bulk/duplicative content, including repeated identical or nearly identical posts and prohibited automated activity. A cross-post should be relevant and, where appropriate, localized or rewritten for the destination. [Authenticity rules](https://help.x.com/en/rules-and-policies/authenticity) · [Automation rules](https://help.x.com/en/rules-and-policies/x-automation)
-- **Telegram:** The Bot API upload route is technically implemented, but audience publishing stays opt-in. Authorization to post in a channel does not establish media rights or exempt a post from other rules. [Telegram Bot API](https://core.telegram.org/bots/api#sendvideo)
+- **Telegram:** The Bot API upload route is technically implemented, but audience publishing stays opt-in. [Telegram Bot API](https://core.telegram.org/bots/api#sendvideo)
+- **FiLo:** A browser-driven upload route is in the repository, but it still needs an authenticated form probe and a confirmed first upload. Direct creator earnings are treated as an experiment and must be measured from the account's actual analytics/RPM. No public upload API was confirmed during this review.
 - **Aparat:** We have not yet verified a stable, authorized API route for this repository. Until that check is completed, retain a portable export instead of assuming automation exists.
 
 These references are policy starting points, not permanent promises: review current wording and account-specific eligibility again before enabling a destination. None of the strategy is based on direct platform payouts.
