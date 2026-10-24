@@ -22,6 +22,8 @@ from urllib.parse import urlparse
 
 import html
 
+import requests
+
 try:
     from content_pipeline.send_review_videos import (
         INPUT as DISCOVERY_INPUT,
