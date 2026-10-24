@@ -46,7 +46,9 @@ jobs:
         run: python -m unittest -v content_pipeline.test_publish_ifilo
 
   publish:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
+    # Push-triggered runs are diagnostics only: the mode step below keeps publish=false.
+    # Live posting requires an explicit manual input or the separate scheduled opt-in.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
     needs: regression-tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
