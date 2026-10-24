@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-24T17:29:16.099973+00:00",
+  "media_review_updated_at": "2026-10-24T18:24:02.733065+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -282,7 +282,8 @@
     "6e1ab936fbe4ee055f6ee87815d24bf0b5182e441c6667e8a236101599b1b6cb",
     "bbb22e106732f5d7df6d0834969166f0273eaa18c76a3339d6ef747fb995fc18",
     "1066231a33f2c978252d94e59c89f1902e2c42a98089abda10ebb6c291dd8918",
-    "d4f594bf81645d2045b24e7c7960ad795841616c71f65aac5eb88db48c485a9f"
+    "d4f594bf81645d2045b24e7c7960ad795841616c71f65aac5eb88db48c485a9f",
+    "8b47c52e26d909660fe38c89042ef99b73812b04f68eaa086815ed68b9e0b4e4"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -498,7 +499,8 @@
     "https://t.me/gizmiztel/163804",
     "https://t.me/gizmiztel/163829",
     "https://t.me/gizmiztel/163837",
-    "https://t.me/gizmiztel/163830"
+    "https://t.me/gizmiztel/163830",
+    "https://t.me/vaybabamumad/180709"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1380,15 +1382,20 @@
         "020e86ce9b93b3b0",
         "010e84ca9b93b3b0"
       ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/180709",
+      "sha256": "5606a73aceb3b07a510d09522901ae81ed5e13dd0c2df0f2c730995448a05d4c",
+      "frame_hashes": [
+        "00466363ec092900",
+        "00474365e3291900",
+        "00466261e7291900",
+        "00466364e7291900",
+        "00464260e7291900"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/163550",
-      "sent_at": "2026-10-19T22:39:30.406774+00:00"
-    },
     {
       "pillar": "reaction_and_comedy",
       "topic": "human_reaction_or_relatable",
@@ -1502,6 +1509,12 @@
       "topic": "surprise_or_reveal",
       "url": "https://t.me/gizmiztel/163829",
       "sent_at": "2026-10-24T17:29:16.099465+00:00"
+    },
+    {
+      "pillar": "visual_wow",
+      "topic": "skill_or_spectacle",
+      "url": "https://t.me/vaybabamumad/180709",
+      "sent_at": "2026-10-24T18:24:02.732564+00:00"
     }
   ]
 }
