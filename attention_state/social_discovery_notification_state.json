@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-23T21:42:54.848789+00:00",
+  "media_review_updated_at": "2026-10-24T12:57:50.936774+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -274,7 +274,12 @@
     "aab26f598ca1665bfb023c7be55bc0be574765889ce2d4e88a83c51104c03700",
     "8b7e6f261787e31c19276e843aa705ab618d561e63d0d8b82469a671d324b1dd",
     "43c1dac951f864f43a54ae73742b9bc5c6b402c325758f15ec39b119717a5d73",
-    "c7d85e2fee961e9448d7b681c2091220594efa02432654f623fa32e3e2195121"
+    "c7d85e2fee961e9448d7b681c2091220594efa02432654f623fa32e3e2195121",
+    "bf5b5353bd0e1b69dfb39a464479f3e0ba024481b03223adc30394ae342b9678",
+    "5428230a09ad7d952c9eb75412ddf9fe39efcc6b673228f7374e17ca9c3201a4",
+    "9d4852d4cc2be94e82d200d38ff6d09de78f3f588d1baf823f88c86212ffecb0",
+    "366b319d283d85ba2e84e7a6eac819eb374b6d62e9675322bd13de5583c7f3dc",
+    "6e1ab936fbe4ee055f6ee87815d24bf0b5182e441c6667e8a236101599b1b6cb"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -482,7 +487,12 @@
     "https://t.me/vaybabamumad/180663",
     "https://t.me/gizmiztel/163789",
     "https://t.me/gizmiztel/163785",
-    "https://t.me/gizmiztel/163796"
+    "https://t.me/gizmiztel/163796",
+    "https://t.me/khandbazar20/176622",
+    "https://t.me/gizmiztel/163825",
+    "https://t.me/keereker/257077",
+    "https://t.me/keereker/257071",
+    "https://t.me/gizmiztel/163804"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1342,15 +1352,20 @@
         "6ce0c8ccd4d4dccc",
         "6cf0c8ccd4d4dccc"
       ]
+    },
+    {
+      "url": "https://t.me/khandbazar20/176622",
+      "sha256": "eaa923b7de5e4461a7cdca95d6096ca887c57d44b75dcd9ee7c4b0cae0ffe7f3",
+      "frame_hashes": [
+        "ccc8caccdcccd8d2",
+        "ccc8caccc8ccd8c2",
+        "cac4cac8e2d2c8c0",
+        "c8c8c4c8ccc8d8c0",
+        "ccc8caccccccd8c6"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/163554",
-      "sent_at": "2026-10-19T20:44:57.468244+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -1464,6 +1479,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/163796",
       "sent_at": "2026-10-23T21:42:54.848443+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "music_or_dance",
+      "url": "https://t.me/khandbazar20/176622",
+      "sent_at": "2026-10-24T12:57:50.936389+00:00"
     }
   ]
 }
