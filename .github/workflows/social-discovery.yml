@@ -22,6 +22,8 @@ on:
       - "content_pipeline/follower_growth.py"
       - "content_pipeline/send_review_videos.py"
       - "content_pipeline/test_send_review_videos.py"
+      - "content_pipeline/filo_uploader.py"
+      - "content_pipeline/test_filo_uploader.py"
       - "content_pipeline/test_follower_growth.py"
       - "content_pipeline/test_social_discovery.py"
       - ".github/workflows/social-discovery.yml"
@@ -46,7 +48,7 @@ jobs:
           python-version: "3.11"
       - run: pip install --disable-pip-version-check requests yt-dlp pillow
       - name: Run topic-selection regression tests
-        run: python -m unittest -v content_pipeline.test_follower_growth content_pipeline.test_social_discovery content_pipeline.test_send_review_videos content_pipeline.test_peak_window_planner
+        run: python -m unittest -v content_pipeline.test_follower_growth content_pipeline.test_social_discovery content_pipeline.test_send_review_videos content_pipeline.test_peak_window_planner content_pipeline.test_filo_uploader
       - name: Verify frame-analysis tools
         run: |
           set -euo pipefail
@@ -95,12 +97,22 @@ jobs:
               ;;
           esac
 
-      - name: Send one qualified existing video for private review
-        # Posting is separate from the hourly discovery check.
+      - name: Install Filo browser automation when explicitly enabled
+        if: ${{ success() && vars.FILO_UPLOAD_ENABLED == 'true' && hashFiles('attention_state/social_discovery.json') != '' && (github.event_name == 'workflow_dispatch' || steps.send_slot.outputs.send_due == 'true') }}
+        run: |
+          python -m pip install --disable-pip-version-check playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Send selected video to independent destinations
+        # Filo is an optional separate sink; it cannot prevent the Telegram review send.
         if: ${{ success() && hashFiles('attention_state/social_discovery.json') != '' && (github.event_name == 'workflow_dispatch' || steps.send_slot.outputs.send_due == 'true') }}
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          FILO_UPLOAD_ENABLED: ${{ vars.FILO_UPLOAD_ENABLED }}
+          FILO_USERNAME: ${{ secrets.FILO_USERNAME }}
+          FILO_PASSWORD: ${{ secrets.FILO_PASSWORD }}
+          FILO_STORAGE_STATE_BASE64: ${{ secrets.FILO_STORAGE_STATE_BASE64 }}
         run: python content_pipeline/send_review_videos.py
       - name: Persist discovery state
         if: ${{ always() && hashFiles('attention_state/social_discovery.json') != '' }}
