@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T21:34:55.388682+00:00",
+  "updated_at": "2026-10-24T22:02:10.823461+00:00",
   "attempts": [
     {
       "source_key": "3f80c43194fbbc9d8a7b4a42c6d4c91291fd69713a2aa8f5f2167e42a2141251",
@@ -16,6 +16,23 @@
       "monetization_checkbox": "canMakeMoney=false",
       "redistribution_checkbox": "canRepublish=false",
       "finished_at": "2026-10-24T21:34:55.388594+00:00"
+    },
+    {
+      "source_key": "eacdc821036d64f1e865f46d4138e621213ab43a33c40359598ce837333c2364",
+      "source_url": "",
+      "source_title": "آزمایش فنی بارگذاری فیلو — پیش‌نویس آزمایشی ۲",
+      "title": "آزمایش فنی بارگذاری فیلو — پیش‌نویس آزمایشی ۲",
+      "status": "test_draft_uncertain",
+      "mode": "test_draft_not_public",
+      "started_at": "2026-10-24T22:02:08.622058+00:00",
+      "video_sha256": "98bc1350a1dbe771a18afc5cfcab15ad8733982c25efab1c47549ca6ee73a478",
+      "bytes": 8350640,
+      "publication_checkbox": "dontPublish=true",
+      "monetization_checkbox": "canMakeMoney=false",
+      "redistribution_checkbox": "canRepublish=false",
+      "submission_guard": "exact-title-and-safety-flags-one-post-only",
+      "finished_at": "2026-10-24T22:02:10.823408+00:00",
+      "server_reason_kind": "unparseable_response"
     }
   ]
 }
