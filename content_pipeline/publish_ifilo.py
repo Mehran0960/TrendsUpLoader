@@ -933,7 +933,7 @@ def inspect_upload_client(page) -> int:
     return 0 if report["scripts_checked"] else 3
 
 
-DRAFT_TEST_TITLE = "آزمایش فنی بارگذاری فیلو — پیش‌نویس"
+DRAFT_TEST_TITLE = "آزمایش فنی بارگذاری فیلو — پیش‌نویس آزمایشی ۲"
 DRAFT_TEST_DESCRIPTION = (
     "ویدیوی آزمایشیِ ساخته‌شده برای بررسی فنی بارگذاری. "
     "این فایل پیش‌نویس است و نباید عمومی یا درآمدزا شود."
@@ -951,7 +951,7 @@ def create_draft_test_video(destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     command = [
         "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-        "-f", "lavfi", "-i", "testsrc2=duration=15:size=720x1280:rate=25",
+        "-f", "lavfi", "-i", "testsrc2=duration=17:size=720x1280:rate=25",
         "-an", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "30",
         "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(destination),
     ]
@@ -1001,9 +1001,12 @@ def _set_checkbox(page, selector: str, checked: bool, *, allow_hidden: bool = Fa
 
 
 def upload_unpublished_test_draft(page) -> int:
-    """Upload one original test clip while explicitly preventing public publication."""
+    """Upload one synthetic test clip only after checking Angular safety flags and guarding the POST."""
+    from urllib.parse import parse_qs
+    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
     with tempfile.TemporaryDirectory(prefix="ifilo-draft-smoke-") as temp_dir:
-        video = Path(temp_dir) / "ifilo-upload-test-draft.mp4"
+        video = Path(temp_dir) / "ifilo-upload-test-draft-v2.mp4"
         try:
             create_draft_test_video(video)
         except Exception as exc:
@@ -1011,7 +1014,7 @@ def upload_unpublished_test_draft(page) -> int:
             return 3
 
         digest = hashlib.sha256(video.read_bytes()).hexdigest()
-        test_item = {"id": "ifilo-test-draft-" + digest, "url": ""}
+        test_item = {"id": "ifilo-test-draft-v2-" + digest, "url": ""}
         state = load_state()
         if has_prior_attempt(test_item, state):
             print("IFILO_TEST_DRAFT_ALREADY_ATTEMPTED: Refusing to create duplicate drafts.")
@@ -1028,12 +1031,6 @@ def upload_unpublished_test_draft(page) -> int:
             print("IFILO_TEST_DRAFT_FILE_SELECTION_FAILED", type(exc).__name__)
             return 3
 
-        print("IFILO_TEST_DRAFT_AFTER_FILE_SELECTION " + json.dumps({
-            "title": str(page.title() or "")[:120],
-            "path": urlparse(str(page.url)).path,
-            "form": _visible_control_summary(page),
-        }, ensure_ascii=False))
-
         title_field = find_title_field(page)
         description_field = find_description_field(page)
         try:
@@ -1047,28 +1044,59 @@ def upload_unpublished_test_draft(page) -> int:
         title_ok = title_field is not None
         description_ok = description_field is not None
 
-        # The normal upload rule is accepted, but the test cannot be published,
-        # monetized, or offered for redistribution.
         rules_ok = _set_checkbox(page, "#acceptRules", True)
         unpublished_ok = _set_checkbox(page, "#dontPublish", True)
         monetization_off = _set_checkbox(page, "#canMakeMoney", False, allow_hidden=True)
         redistribution_off = _set_checkbox(page, "#canRepublish", False, allow_hidden=True)
-        if not all((title_ok, description_ok, rules_ok, unpublished_ok, monetization_off, redistribution_off)):
-            probe_upload_form(page)
-            print("IFILO_TEST_DRAFT_BLOCKED_FORM_REQUIREMENTS " + json.dumps({
-                "title_ok": title_ok,
-                "description_ok": description_ok,
-                "upload_rules_accepted": rules_ok,
-                "do_not_publish": unpublished_ok,
-                "monetization_off": monetization_off,
-                "redistribution_off": redistribution_off,
+
+        try:
+            model = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return {};
+                const scope = window.angular.element(root).scope();
+                if (!scope) return {};
+                const item = scope.item || {};
+                return {
+                    titleMatches: String(item.title || '') === 'آزمایش فنی بارگذاری فیلو — پیش‌نویس آزمایشی ۲',
+                    descriptionMatches: String(item.description || '') === 'ویدیوی آزمایشیِ ساخته‌شده برای بررسی فنی بارگذاری. این فایل پیش‌نویس است و نباید عمومی یا درآمدزا شود.',
+                    dontPublish: !!Number(item.dontPublish),
+                    canMakeMoney: !!item.canMakeMoney,
+                    canRepublish: !!item.canRepublish,
+                    acceptRules: !!scope.acceptRules,
+                    fileSelected: !!scope.fileSelected,
+                    uploadComplete: !!scope.uploadComplete,
+                    uploadStarted: !!scope.uploadStarted,
+                    publishing: !!scope.publishing
+                };
+            }""")
+        except Exception:
+            model = {}
+
+        model_safe = (
+            model.get("titleMatches") is True
+            and model.get("descriptionMatches") is True
+            and model.get("dontPublish") is True
+            and model.get("canMakeMoney") is False
+            and model.get("canRepublish") is False
+            and model.get("acceptRules") is True
+            and model.get("uploadComplete") is True
+        )
+        dom_safe = (
+            rules_ok and unpublished_ok and monetization_off and redistribution_off
+            and title_ok and description_ok
+            and page.locator("#dontPublish").is_checked()
+            and not page.locator("#canMakeMoney").is_checked()
+            and not page.locator("#canRepublish").is_checked()
+        )
+        if not dom_safe or not model_safe:
+            print("IFILO_TEST_DRAFT_BLOCKED_ANGULAR_SAFETY_FLAGS " + json.dumps({
+                "dom_safe": bool(dom_safe),
+                "model_safe": bool(model_safe),
+                "model": model,
+                "rules_ok": bool(rules_ok),
+                "title_field_present": bool(title_ok),
+                "description_field_present": bool(description_ok),
             }, ensure_ascii=False))
-            return 3
-        if not page.locator("#dontPublish").is_checked():
-            print("IFILO_TEST_DRAFT_BLOCKED_DO_NOT_PUBLISH_NOT_SET")
-            return 3
-        if page.locator("#canMakeMoney").is_checked() or page.locator("#canRepublish").is_checked():
-            print("IFILO_TEST_DRAFT_BLOCKED_MONETIZATION_OR_REDISTRIBUTION_CHECKED")
             return 3
 
         button = None
@@ -1080,7 +1108,6 @@ def upload_unpublished_test_draft(page) -> int:
             except Exception:
                 continue
         if button is None:
-            probe_upload_form(page)
             print("IFILO_TEST_DRAFT_BLOCKED_FINAL_ACTION_NOT_READY")
             return 3
 
@@ -1097,56 +1124,227 @@ def upload_unpublished_test_draft(page) -> int:
             "publication_checkbox": "dontPublish=true",
             "monetization_checkbox": "canMakeMoney=false",
             "redistribution_checkbox": "canRepublish=false",
+            "submission_guard": "exact-title-and-safety-flags-one-post-only",
         }
         state.setdefault("attempts", []).append(attempt)
         write_state(state)
-        prior_url = str(page.url)
+
+        request_state = {
+            "matching_post_count": 0,
+            "continued_count": 0,
+            "blocked_count": 0,
+            "first_post_safety_checks": {},
+        }
+        expected_host = urlparse(BASE_URL).netloc.lower()
+        false_values = {"", "0", "false", "off", "no", "none"}
+        true_values = {"1", "true", "on", "yes"}
+
+        def guard_publish_route(route):
+            request = route.request
+            parsed = urlparse(request.url)
+            if request.method.upper() != "POST" or parsed.path.rstrip("/") != "/video/publish":
+                route.continue_()
+                return
+
+            request_state["matching_post_count"] += 1
+            post_fields = {}
+            try:
+                post_fields = parse_qs(request.post_data or "", keep_blank_values=True)
+            except Exception:
+                post_fields = {}
+
+            def value_of(name):
+                values = post_fields.get(name, [""])
+                return str(values[-1] if values else "").strip()
+
+            dont_publish_value = value_of("dontPublish").casefold()
+            make_money_value = value_of("canMakeMoney").casefold()
+            republish_value = value_of("canRepublish").casefold()
+            checks = {
+                "canonical_host": parsed.netloc.lower() == expected_host,
+                "title_matches": value_of("title") == DRAFT_TEST_TITLE,
+                "description_matches": value_of("description") == DRAFT_TEST_DESCRIPTION,
+                "dont_publish_true": dont_publish_value in true_values,
+                "monetization_false": make_money_value in false_values,
+                "redistribution_false": republish_value in false_values,
+                "first_request_only": request_state["matching_post_count"] == 1,
+            }
+            if request_state["matching_post_count"] == 1:
+                request_state["first_post_safety_checks"] = checks
+
+            if all(checks.values()) and request_state["continued_count"] == 0:
+                request_state["continued_count"] += 1
+                route.continue_()
+            else:
+                request_state["blocked_count"] += 1
+                route.abort("blockedbyclient")
+
+        response_summary = {
+            "response_received": False,
+            "http_status": None,
+            "payload_success": None,
+            "server_reason_kind": "not_available",
+            "server_reason_present": False,
+        }
+        submit_error_type = None
         clicked = False
         try:
-            button.click(timeout=60000)
-            clicked = True
+            # This guard allows at most one request and only when the POST contains the
+            # exact synthetic test metadata with do-not-publish enabled and monetization
+            # and redistribution disabled. FiLo's JS retries rejected requests; retry #2
+            # is deliberately aborted here.
+            page.route("**/video/publish", guard_publish_route)
             try:
-                page.wait_for_load_state("domcontentloaded", timeout=25000)
-            except Exception:
-                pass
-            page.wait_for_timeout(9000)
-        except Exception as exc:
-            attempt["status"] = "test_draft_uncertain" if clicked else "submit_failed_before_click"
-            attempt["finished_at"] = utc_now()
-            attempt["error_type"] = type(exc).__name__
-            write_state(state)
-            print("IFILO_TEST_DRAFT_SUBMIT_ERROR " + json.dumps({
-                "status": attempt["status"], "error_type": type(exc).__name__,
-                "do_not_publish": True,
-            }, ensure_ascii=False))
-            return 4
+                with page.expect_response(
+                    lambda response: (
+                        response.request.method.upper() == "POST"
+                        and urlparse(response.url).netloc.lower() == expected_host
+                        and urlparse(response.url).path.rstrip("/") == "/video/publish"
+                    ),
+                    timeout=60000,
+                ) as response_info:
+                    button.click(timeout=15000)
+                    clicked = True
 
-        body = ""
+                response = response_info.value
+                response_summary["response_received"] = True
+                response_summary["http_status"] = int(response.status)
+
+                payload = None
+                try:
+                    payload = response.json()
+                except Exception:
+                    try:
+                        payload = json.loads(response.text())
+                    except Exception:
+                        payload = None
+
+                # Some site versions wrap the JSON payload in another JSON string.
+                for _ in range(3):
+                    if isinstance(payload, str):
+                        try:
+                            payload = json.loads(payload)
+                            continue
+                        except Exception:
+                            break
+                    if isinstance(payload, dict) and "s" not in payload and "data" in payload:
+                        payload = payload.get("data")
+                        continue
+                    break
+
+                if isinstance(payload, dict) and "s" in payload:
+                    response_summary["payload_success"] = bool(payload.get("s"))
+                    reason = str(payload.get("r") or "")
+                    response_summary["server_reason_present"] = bool(reason)
+                    if reason:
+                        lowered = reason.casefold()
+                        if "عنوان" in reason:
+                            kind = "title_validation"
+                        elif "توضیح" in reason:
+                            kind = "description_validation"
+                        elif "دسته" in reason:
+                            kind = "category_validation"
+                        elif "فرمت" in reason or "حجم" in reason or "ویدیو" in reason:
+                            kind = "file_or_video_validation"
+                        elif "قانون" in reason or "پذیرش" in reason:
+                            kind = "rules_validation"
+                        elif "موفق" in reason or "ثبت" in reason:
+                            kind = "success_or_saved_message"
+                        else:
+                            kind = "other_server_rejection"
+                        response_summary["server_reason_kind"] = kind
+                    else:
+                        response_summary["server_reason_kind"] = "none"
+                else:
+                    response_summary["server_reason_kind"] = "unparseable_response"
+
+            except PlaywrightTimeoutError:
+                submit_error_type = "response_timeout"
+            except Exception as exc:
+                submit_error_type = type(exc).__name__
+            finally:
+                try:
+                    page.unroute("**/video/publish", guard_publish_route)
+                except Exception:
+                    pass
+        except Exception as exc:
+            submit_error_type = type(exc).__name__
+
+        # Inspect the Angular model after the response. Never log raw page text,
+        # full server response, identifiers, cookies, profile data, or account balance.
         try:
-            body = page.locator("body").inner_text(timeout=8000)[:9000]
+            page.wait_for_timeout(1500)
         except Exception:
             pass
-        result_path = urlparse(str(page.url)).path
-        if re.search(r"/(?:video|watch|v)/[^/]+", result_path, re.I):
-            attempt["status"] = "test_draft_unexpected_public_route"
-            attempt["finished_at"] = utc_now()
-            attempt["result_path"] = result_path
-            write_state(state)
-            print("IFILO_TEST_DRAFT_UNEXPECTED_PUBLIC_ROUTE " + json.dumps({
-                "path": result_path, "do_not_publish_was_checked": True,
-            }, ensure_ascii=False))
-            return 4
+        final_model = {}
+        message = ""
+        try:
+            final_model = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return {};
+                const scope = window.angular.element(root).scope();
+                if (!scope) return {};
+                const item = scope.item || {};
+                return {
+                    published: !!scope.published,
+                    publishing: !!scope.publishing,
+                    uploadComplete: !!scope.uploadComplete,
+                    uploadStarted: !!scope.uploadStarted,
+                    dontPublish: !!Number(item.dontPublish),
+                    canMakeMoney: !!item.canMakeMoney,
+                    canRepublish: !!item.canRepublish,
+                    acceptRules: !!scope.acceptRules,
+                    messageIsError: !!scope.messageIsError,
+                    titleCleared: String(item.title || '') === '',
+                    descriptionCleared: String(item.description || '') === ''
+                };
+            }""")
+            # Read the message separately then classify it without logging the actual text.
+            message = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return '';
+                const scope = window.angular.element(root).scope();
+                return scope ? String(scope.message || '').slice(0, 500) : '';
+            }""")
+        except Exception:
+            final_model = {}
 
-        confirmed = bool(DRAFT_SUCCESS_RE.search(body)) or (
-            str(page.url) != prior_url
-            and re.search(r"/(?:myVideos|videos|upload)(?:/|$)", result_path, re.I)
-            and not re.search(r"/login(?:/|$)", result_path, re.I)
+        if message:
+            if "عنوان" in message:
+                message_kind = "title_validation"
+            elif "توضیح" in message:
+                message_kind = "description_validation"
+            elif "دسته" in message:
+                message_kind = "category_validation"
+            elif "فرمت" in message or "حجم" in message:
+                message_kind = "file_or_video_validation"
+            elif "قانون" in message or "پذیرش" in message:
+                message_kind = "rules_validation"
+            elif "با موفقیت" in message or "آپلود" in message or "ثبت شد" in message:
+                message_kind = "success_or_saved_message"
+            else:
+                message_kind = "other_message"
+        else:
+            message_kind = "none"
+
+        response_summary["second_or_blocked_posts"] = max(
+            0, request_state["matching_post_count"] - request_state["continued_count"]
         )
-        if confirmed:
+        safe_report = {
+            "http_response": response_summary,
+            "request_guard": request_state,
+            "final_angular_state": final_model,
+            "page_path": urlparse(str(page.url)).path,
+            "message_kind": message_kind,
+            "message_present": bool(message),
+            "submit_error_type": submit_error_type,
+        }
+
+        if response_summary["payload_success"] is True and request_state["continued_count"] == 1:
             attempt["status"] = "draft_uploaded"
             attempt["finished_at"] = utc_now()
-            attempt["confirmation"] = "draft_success_text_or_navigation"
-            attempt["result_path"] = result_path
+            attempt["confirmation"] = "video_publish_response_s_true_with_safe_payload"
+            attempt["result_path"] = urlparse(str(page.url)).path
             write_state(state)
             print("IFILO_TEST_DRAFT_SUCCESS " + json.dumps({
                 "title": DRAFT_TEST_TITLE,
@@ -1155,74 +1353,27 @@ def upload_unpublished_test_draft(page) -> int:
                 "monetization_enabled": False,
                 "redistribution_enabled": False,
                 "bytes": attempt["bytes"],
-                "result_path": result_path,
+                "result_path": attempt["result_path"],
+                "verification": safe_report,
             }, ensure_ascii=False))
             return 0
 
+        if response_summary["payload_success"] is False:
+            attempt["status"] = "test_draft_rejected"
+            attempt["finished_at"] = utc_now()
+            attempt["result_path"] = urlparse(str(page.url)).path
+            attempt["server_reason_kind"] = response_summary["server_reason_kind"]
+            write_state(state)
+            print("IFILO_TEST_DRAFT_REJECTED " + json.dumps(safe_report, ensure_ascii=False))
+            return 5
+
         attempt["status"] = "test_draft_uncertain"
         attempt["finished_at"] = utc_now()
+        attempt["server_reason_kind"] = response_summary["server_reason_kind"]
         write_state(state)
-        print("IFILO_TEST_DRAFT_UNCERTAIN: Submit was attempted with do-not-publish enabled, but success could not be verified. It will not be retried automatically.")
-        # Never log raw text from an authenticated page: the sidebar can contain
-        # account/profile/financial details. Emit only a small, classified state summary.
-        site_message = ""
-        angular_state = {}
-        try:
-            angular_state = page.evaluate("""() => {
-                const root = document.querySelector('[ng-controller="ctrl"]');
-                if (!root || !window.angular) return {};
-                const scope = window.angular.element(root).scope();
-                if (!scope) return {};
-                const item = scope.item || {};
-                return {
-                    message: String(scope.message || '').slice(0, 500),
-                    messageIsError: !!scope.messageIsError,
-                    publishing: !!scope.publishing,
-                    uploadComplete: !!scope.uploadComplete,
-                    uploadStarted: !!scope.uploadStarted,
-                    published: !!scope.published,
-                    titleMatches: String(item.title || '') === 'آزمایش فنی بارگذاری فیلو — پیش‌نویس',
-                    doNotPublish: !!Number(item.dontPublish),
-                    canMakeMoney: !!item.canMakeMoney,
-                    canRepublish: !!item.canRepublish,
-                    acceptRules: !!scope.acceptRules,
-                    categoryPresent: item.category !== null && item.category !== undefined && String(item.category) !== ''
-                };
-            }""")
-            site_message = str(angular_state.pop("message", "") or "")
-        except Exception:
-            angular_state = {}
-
-        message_kind = "none"
-        if site_message:
-            if "پذیرش قوانین" in site_message or "قوانین" in site_message:
-                message_kind = "rules_confirmation_or_validation"
-            elif "عنوان" in site_message:
-                message_kind = "title_validation"
-            elif "توضیح" in site_message:
-                message_kind = "description_validation"
-            elif "دسته" in site_message:
-                message_kind = "category_validation"
-            elif "فرمت" in site_message or "حجم" in site_message:
-                message_kind = "file_validation"
-            elif "موفق" in site_message or "ثبت شد" in site_message:
-                message_kind = "success_message"
-            else:
-                message_kind = "other_message"
-
-        print("IFILO_TEST_DRAFT_FINAL_PAGE " + json.dumps({
-            "title": str(page.title() or "")[:160],
-            "path": result_path,
-            "upload_form_present": page.locator("#fileInput").count() > 0,
-            "title_field_present": page.locator('input[name="title"]').count() > 0,
-            "accept_rule_gate": (page.locator("#acceptRule").input_value() if page.locator("#acceptRule").count() else None),
-            "message_kind": message_kind,
-            "message_is_error": bool(angular_state.get("messageIsError", False)),
-            "message_present": bool(site_message),
-            "angular_state": angular_state,
-            "do_not_publish_checkbox": (page.locator("#dontPublish").is_checked() if page.locator("#dontPublish").count() else False),
-            "monetization_checkbox": (page.locator("#canMakeMoney").is_checked() if page.locator("#canMakeMoney").count() else None),
-            "redistribution_checkbox": (page.locator("#canRepublish").is_checked() if page.locator("#canRepublish").count() else None),
+        print("IFILO_TEST_DRAFT_UNCERTAIN " + json.dumps({
+            **safe_report,
+            "retry_policy": "no_retry_after_uncertain_result",
         }, ensure_ascii=False))
         return 4
 
