@@ -119,6 +119,21 @@ def normalized_text(value: object, limit: int = 1000) -> str:
     return text[:limit].strip()
 
 
+def safe_provider_message_excerpt(value: object, limit: int = 180) -> str:
+    """Keep a short generic site error for debugging while redacting private fields."""
+    text = str(value or "").replace("\\n", " ").replace("\\r", " ")
+    text = re.sub(
+        r"(?i)(token|cookie|password|authorization|secret|authv1)\s*[=:]\s*[^\s,;]+",
+        r"\1=[redacted]",
+        text,
+    )
+    text = re.sub(r"https?://[^\s\"']+", "[url]", text)
+    text = re.sub(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", "[email]", text)
+    text = re.sub(r"\b\d{5,}\b", "[number]", text)
+    text = re.sub(r"[\x00-\x1f\x7f]+", " ", text)
+    return " ".join(text.split())[:limit]
+
+
 def make_title(item: dict) -> str:
     """Produce a concise descriptive title, not a verbatim copied headline."""
     caption = str(item.get("source_post_caption") or item.get("title") or "").strip()
@@ -1955,8 +1970,8 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             final_model = {}
 
         message_success = bool(DRAFT_SUCCESS_RE.search(message)) and final_model.get("messageIsError") is False
-        # One-time read-only FiLo client inspection follows this diagnostic improvement.
-        # Persist only a coarse reason code, never raw UI text or account-specific data.
+        provider_message_excerpt = safe_provider_message_excerpt(message)
+        # Persist only a coarse reason code and scrubbed provider text, not account data.
         message_signals = []
         signal_patterns = (
             ("title", ("عنوان",)),
@@ -2028,6 +2043,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             "request_guard": request_state,
             "final_angular_state": final_model,
             "message_kind": message_kind,
+            "provider_message_excerpt": provider_message_excerpt,
             "message_present": bool(message),
             "account_title_found": found_in_account,
             "account_paths_checked": account_reports,
@@ -2042,6 +2058,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
         attempt["public_video_url_detected"] = bool(public_video_url)
         attempt["server_reason_kind"] = message_kind
         attempt["provider_message_signals"] = list(message_signals)
+        attempt["provider_message_excerpt"] = provider_message_excerpt
         attempt["verification_summary"] = {
             "final_angular_state": dict(final_model),
             "account_title_found": bool(found_in_account),
