@@ -236,6 +236,7 @@ def _visible_control_summary(page) -> dict:
         """els => els.map(el => {
           const label = el.id ? document.querySelector('label[for="' + CSS.escape(el.id) + '"]') : null;
           const parentLabel = el.closest('label');
+          const style = getComputedStyle(el);
           return {
             tag: (el.tagName || '').toLowerCase(),
             type: (el.getAttribute('type') || '').toLowerCase(),
@@ -244,8 +245,15 @@ def _visible_control_summary(page) -> dict:
             placeholder: el.getAttribute('placeholder') || '',
             ariaLabel: el.getAttribute('aria-label') || '',
             label: (label?.innerText || parentLabel?.innerText || '').trim().slice(0, 80),
+            labelVisible: !!((label || parentLabel) && ((label || parentLabel).offsetWidth || (label || parentLabel).offsetHeight || (label || parentLabel).getClientRects().length)),
+            checked: ['checkbox','radio'].includes((el.getAttribute('type') || '').toLowerCase()) ? !!el.checked : null,
+            disabled: !!el.disabled,
             required: !!el.required,
-            visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length)
+            visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
+            display: style.display,
+            visibility: style.visibility,
+            opacity: style.opacity,
+            parentClass: el.parentElement ? String(el.parentElement.className || '').slice(0, 100) : ''
           };
         }).slice(0, 60)"""
     )
@@ -265,8 +273,34 @@ def _visible_control_summary(page) -> dict:
         })).slice(0, 20)"""
     )
     parsed = urlparse(page.url)
+    try:
+        visible_text = page.locator("body").inner_text(timeout=3000)
+        relevant_text = [
+            line.strip()[:100] for line in visible_text.splitlines()
+            if line.strip() and re.search(r"آپلود|ویدیو|عنوان|توضیح|قوانین|کسب درآمد|بازنشر|منتشر|فایل|تایید|تأیید|تصویر", line, re.I)
+        ][:50]
+    except Exception:
+        relevant_text = []
+    try:
+        clickable = page.locator("button, label, [role='button'], [onclick], a[href]").evaluate_all(
+            """els => els.map(el => {
+              const style = getComputedStyle(el);
+              return {
+                tag: (el.tagName || '').toLowerCase(),
+                id: el.id || '',
+                cls: String(el.className || '').slice(0, 80),
+                text: (el.innerText || el.textContent || el.getAttribute('aria-label') || '').trim().replace(/\\s+/g,' ').slice(0, 90),
+                hrefPath: (() => { try { return new URL(el.href, location.href).pathname; } catch { return ''; } })(),
+                visible: !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length),
+                display: style.display,
+                visibility: style.visibility
+              };
+            }).filter(el => el.visible || /upload|video|file|publish|accept|rule|title|description|dontPublish|canMakeMoney|canRepublish/i.test(el.id + ' ' + el.cls + ' ' + el.text)).slice(0, 80)"""
+        )
+    except Exception:
+        clickable = []
     return {
-        # Never store query strings, cookies, or field values in diagnostics.
+        # Never store query strings, cookies, input values, or auth state in diagnostics.
         "host": parsed.netloc,
         "page_url": f"{parsed.scheme}://{parsed.netloc}{parsed.path}",
         "page_path": parsed.path,
@@ -274,6 +308,8 @@ def _visible_control_summary(page) -> dict:
         "inputs_and_fields": controls,
         "buttons": buttons,
         "forms": forms,
+        "relevant_visible_text": relevant_text,
+        "interactive_elements": clickable,
         "file_input_count": sum(1 for row in controls if row.get("type") == "file"),
         "password_input_present": any(row.get("type") == "password" for row in controls),
     }
@@ -767,8 +803,17 @@ def _set_checkbox(page, selector: str, checked: bool) -> bool:
         return False
     try:
         current = locator.first.is_checked()
-        if current != checked:
-            locator.first.set_checked(checked, force=True, timeout=8000)
+        if current == checked:
+            return True
+        # Prefer the visible associated label; do not force-click a hidden control.
+        ident = selector.lstrip("#")
+        label = page.locator(f'label[for="{ident}"]')
+        if label.count() and label.first.is_visible() and label.first.is_enabled():
+            label.first.click(timeout=8000)
+        elif locator.first.is_visible() and locator.first.is_enabled():
+            locator.first.set_checked(checked, timeout=8000)
+        else:
+            return False
         return locator.first.is_checked() == checked
     except Exception:
         return False
@@ -801,6 +846,12 @@ def upload_unpublished_test_draft(page) -> int:
         except Exception as exc:
             print("IFILO_TEST_DRAFT_FILE_SELECTION_FAILED", type(exc).__name__)
             return 3
+
+        print("IFILO_TEST_DRAFT_AFTER_FILE_SELECTION " + json.dumps({
+            "title": str(page.title() or "")[:120],
+            "path": urlparse(str(page.url)).path,
+            "form": _visible_control_summary(page),
+        }, ensure_ascii=False))
 
         title_field = find_title_field(page)
         description_field = find_description_field(page)
