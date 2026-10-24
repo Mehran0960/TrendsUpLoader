@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-24T12:57:50.936774+00:00",
+  "media_review_updated_at": "2026-10-24T17:29:16.099973+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -279,7 +279,10 @@
     "5428230a09ad7d952c9eb75412ddf9fe39efcc6b673228f7374e17ca9c3201a4",
     "9d4852d4cc2be94e82d200d38ff6d09de78f3f588d1baf823f88c86212ffecb0",
     "366b319d283d85ba2e84e7a6eac819eb374b6d62e9675322bd13de5583c7f3dc",
-    "6e1ab936fbe4ee055f6ee87815d24bf0b5182e441c6667e8a236101599b1b6cb"
+    "6e1ab936fbe4ee055f6ee87815d24bf0b5182e441c6667e8a236101599b1b6cb",
+    "bbb22e106732f5d7df6d0834969166f0273eaa18c76a3339d6ef747fb995fc18",
+    "1066231a33f2c978252d94e59c89f1902e2c42a98089abda10ebb6c291dd8918",
+    "d4f594bf81645d2045b24e7c7960ad795841616c71f65aac5eb88db48c485a9f"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -492,7 +495,10 @@
     "https://t.me/gizmiztel/163825",
     "https://t.me/keereker/257077",
     "https://t.me/keereker/257071",
-    "https://t.me/gizmiztel/163804"
+    "https://t.me/gizmiztel/163804",
+    "https://t.me/gizmiztel/163829",
+    "https://t.me/gizmiztel/163837",
+    "https://t.me/gizmiztel/163830"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1363,15 +1369,20 @@
         "c8c8c4c8ccc8d8c0",
         "ccc8caccccccd8c6"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163829",
+      "sha256": "7ce4cb442f7b0fd4b3888fb77e191f60cdedb18886c25fc4492f7e544ad4d96e",
+      "frame_hashes": [
+        "080e87d79493b3b0",
+        "0a0f89cb9393b3b0",
+        "020f86ca9b93b3b0",
+        "020e86ce9b93b3b0",
+        "010e84ca9b93b3b0"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/163552",
-      "sent_at": "2026-10-19T21:36:16.791641+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -1485,6 +1496,12 @@
       "topic": "music_or_dance",
       "url": "https://t.me/khandbazar20/176622",
       "sent_at": "2026-10-24T12:57:50.936389+00:00"
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "surprise_or_reveal",
+      "url": "https://t.me/gizmiztel/163829",
+      "sent_at": "2026-10-24T17:29:16.099465+00:00"
     }
   ]
 }
