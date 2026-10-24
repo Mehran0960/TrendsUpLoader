@@ -39,7 +39,7 @@ on:
       - ".github/workflows/ifilo-publish.yml"
 
 concurrency:
-  # Read-only verification gets an independent queue; all uploading/probe runs remain serialized.
+  # Read-only verification gets an independent queue; current uncertain smoke-test state is checked before any further upload.
   group: ifilo-${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'FiLo verify draft') && format('verify-{0}', github.run_id) || github.event_name == 'push' && contains(github.event.head_commit.message, 'FiLo inspect upload client') && format('inspect-{0}', github.run_id) || 'publish' }}
   cancel-in-progress: false
 
