@@ -800,6 +800,7 @@ def inspect_upload_client(page) -> int:
                 required: !!el.required,
                 value_present: String(el.value || '').length > 0,
                 value_length: String(el.value || '').length,
+                safe_value: el.id === 'acceptRule' && ['0','1'].includes(String(el.value)) ? String(el.value) : null,
                 visible: !!(el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'),
                 attributes: Array.from(el.attributes || [])
                     .filter(a => /^(?:id|name|type|class|placeholder|required|disabled|onclick|ng-|data-ng-|aria-)/i.test(a.name))
@@ -823,6 +824,7 @@ def inspect_upload_client(page) -> int:
         "انتشار ویدیو", "startUpload", "uploadComplete", "uploadStarted",
         "fileSelected", "publishing", "messageIsError", "message", "videoCode",
         "scopeUpload", "publishVideo", "saveVideo", "uploadVideo", "startUrlUpload",
+        "startPublish", "checkDontPublish", "checkMadeByMe",
     ]
     seen_paths = set()
     for script_url in script_urls:
