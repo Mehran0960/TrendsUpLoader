@@ -994,7 +994,17 @@ def download_direct_telegram_post(url, destination, item=None):
 
     for media_url in media_urls:
         try:
-            with requests.get(media_url, headers={"User-Agent": UA}, stream=True, timeout=40) as response:
+            with requests.get(
+                media_url,
+                headers={
+                    "User-Agent": UA,
+                    "Referer": page_url,
+                    "Origin": "https://t.me",
+                    "Accept": "*/*",
+                },
+                stream=True,
+                timeout=40,
+            ) as response:
                 response.raise_for_status()
                 length = int(response.headers.get("Content-Length") or 0)
                 if length and length > MAX_VIDEO_BYTES:
@@ -1027,9 +1037,8 @@ def download_with_ytdlp(url, workdir):
         "--retries", "2", "--fragment-retries", "2", "--socket-timeout", "20",
         "--max-filesize", "48M",
         "-f",
-        "bv*[height<=720][ext=mp4][filesize<48000000]+ba[ext=m4a]/"
-        "b[height<=720][ext=mp4][filesize<48000000]/b[ext=mp4][filesize<48000000]/"
-        "best[filesize<48000000]",
+        "bv*[height<=720][ext=mp4]+ba[ext=m4a]/"
+        "b[height<=720][ext=mp4]/b[ext=mp4]/best[height<=720]/best",
         "--merge-output-format", "mp4", "-o", output_template, url,
     ]
     result = subprocess.run(command, capture_output=True, text=True, timeout=180)
