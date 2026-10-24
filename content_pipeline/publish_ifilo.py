@@ -1600,7 +1600,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
     )
     recoverable_public_retry = public and (
         str(prior.get("status") or "") in {
-            "review_draft_rejected", "submit_failed_before_click"
+            "review_draft_rejected", "review_public_rejected", "submit_failed_before_click"
         }
         or known_public_post_was_not_sent
         or (
@@ -1954,23 +1954,61 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             final_model = {}
 
         message_success = bool(DRAFT_SUCCESS_RE.search(message)) and final_model.get("messageIsError") is False
-        if message:
-            if "عنوان" in message:
-                message_kind = "title_validation"
-            elif "توضیح" in message:
-                message_kind = "description_validation"
-            elif "فرمت" in message:
-                message_kind = "file_format_validation"
-            elif "حجم" in message:
-                message_kind = "file_size_validation"
-            elif "مجوز" in message or "مالک" in message or "حق نشر" in message:
-                message_kind = "rights_or_ownership_message"
-            elif "با موفقیت" in message or "آپلود" in message or "ثبت شد" in message:
-                message_kind = "success_like_or_upload_related"
-            else:
-                message_kind = "other_message"
-        else:
+        # Persist only a coarse reason code, never raw UI text or account-specific data.
+        message_signals = []
+        signal_patterns = (
+            ("title", ("عنوان",)),
+            ("description", ("توضیح",)),
+            ("format", ("فرمت",)),
+            ("size", ("حجم",)),
+            ("duplicate", ("تکراری", "قبلا", "قبلاً")),
+            ("rights_or_policy", ("مجوز", "مالک", "حق نشر", "قانون", "مجاز")),
+            ("publication", ("انتشار", "منتشر")),
+            ("verification", ("کد تایید", "کد تأیید", "captcha", "تایید کنید", "تأیید کنید")),
+            ("upload", ("آپلود", "بارگذاری")),
+            ("failure", ("ناموفق", "خطا", "نشد", "نمی توان", "نمی‌توان", "امکان ندارد")),
+        )
+        folded_message = message.casefold()
+        for signal, phrases in signal_patterns:
+            if any(phrase.casefold() in folded_message for phrase in phrases):
+                message_signals.append(signal)
+        if not message:
             message_kind = "none"
+        elif final_model.get("messageIsError") is True:
+            if "title" in message_signals:
+                message_kind = "title_validation"
+            elif "description" in message_signals:
+                message_kind = "description_validation"
+            elif "format" in message_signals:
+                message_kind = "file_format_validation"
+            elif "size" in message_signals:
+                message_kind = "file_size_validation"
+            elif "duplicate" in message_signals:
+                message_kind = "duplicate_video_or_post"
+            elif "rights_or_policy" in message_signals:
+                message_kind = "rights_or_policy_rejection"
+            elif "verification" in message_signals:
+                message_kind = "verification_required"
+            elif "failure" in message_signals:
+                message_kind = "provider_reported_failure"
+            elif "upload" in message_signals:
+                message_kind = "provider_upload_rejection"
+            else:
+                message_kind = "unclassified_provider_rejection"
+        elif "title" in message_signals:
+            message_kind = "title_validation"
+        elif "description" in message_signals:
+            message_kind = "description_validation"
+        elif "format" in message_signals:
+            message_kind = "file_format_validation"
+        elif "size" in message_signals:
+            message_kind = "file_size_validation"
+        elif "rights_or_policy" in message_signals:
+            message_kind = "rights_or_ownership_message"
+        elif "upload" in message_signals or "با موفقیت" in folded_message or "ثبت شد" in folded_message:
+            message_kind = "success_like_or_upload_related"
+        else:
+            message_kind = "other_message"
 
         # Verify the draft from read-only account views after the request. Never retry if uncertain.
         post_submit_url = str(page.url or "")
@@ -2000,6 +2038,14 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
         attempt["request_guard"] = dict(request_state)
         attempt["http_response_summary"] = dict(response_summary)
         attempt["public_video_url_detected"] = bool(public_video_url)
+        attempt["server_reason_kind"] = message_kind
+        attempt["provider_message_signals"] = list(message_signals)
+        attempt["verification_summary"] = {
+            "final_angular_state": dict(final_model),
+            "account_title_found": bool(found_in_account),
+            "account_paths_checked": account_reports,
+            "submit_error_type": submit_error_type,
+        }
 
         if public_video_url and not public:
             attempt["status"] = "review_draft_unexpected_public_route"
