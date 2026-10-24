@@ -578,6 +578,13 @@ def _upload_url_from_page(page, prior_url: str) -> str:
         pass
     return ""
 
+def rights_cleared_for_ifilo(item: dict) -> bool:
+    """Public reposts need explicit rights evidence; popularity is never permission."""
+    item = item if isinstance(item, dict) else {}
+    evidence = str(item.get("rights_evidence_url") or item.get("license_url") or "").strip()
+    return item.get("rights_cleared_for_publication") is True and bool(evidence)
+
+
 def _eligible_candidates() -> list[dict]:
     payload = load_json(DISCOVERY_INPUT, {"items": []})
     items = payload.get("items", []) if isinstance(payload, dict) else []
@@ -592,6 +599,7 @@ def _eligible_candidates() -> list[dict]:
         if isinstance(row, dict)
         and str(row.get("platform") or "").lower() == "telegram"
         and str(row.get("source") or "").lower() == "telegram_native_video"
+        and rights_cleared_for_ifilo(row)
     ]
     candidates = select_media_candidates(
         native_telegram_items,
@@ -723,7 +731,216 @@ def probe_upload_rules(page) -> dict:
     return report
 
 
-def run_browser(publish: bool) -> int:
+DRAFT_TEST_TITLE = "آزمایش فنی بارگذاری فیلو — پیش‌نویس"
+DRAFT_TEST_DESCRIPTION = (
+    "ویدیوی آزمایشیِ ساخته‌شده برای بررسی فنی بارگذاری. "
+    "این فایل پیش‌نویس است و نباید عمومی یا درآمدزا شود."
+)
+DRAFT_SUCCESS_RE = re.compile(
+    r"با\s*موفقیت|آپلود\s*شد|بارگذاری\s*شد|ذخیره\s*شد|ثبت\s*شد|"
+    r"در\s*صف\s*(?:بررسی|پردازش)|در\s*انتظار\s*(?:بررسی|پردازش)|"
+    r"successfully\s*(?:uploaded|submitted)|draft\s*(?:saved|created)",
+    re.I,
+)
+
+
+def create_draft_test_video(destination: Path) -> Path:
+    """Create an original moving test pattern locally; it contains no third-party media."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    command = [
+        "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+        "-f", "lavfi", "-i", "testsrc2=duration=15:size=720x1280:rate=25",
+        "-an", "-c:v", "libx264", "-preset", "ultrafast", "-crf", "30",
+        "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(destination),
+    ]
+    result = subprocess.run(command, capture_output=True, text=True, timeout=120)
+    if result.returncode != 0 or not destination.is_file() or destination.stat().st_size < 100_000:
+        raise RuntimeError("ffmpeg_could_not_create_original_test_video")
+    if destination.stat().st_size > MAX_VIDEO_BYTES:
+        raise RuntimeError("generated_test_video_exceeds_size_limit")
+    return destination
+
+
+def _set_checkbox(page, selector: str, checked: bool) -> bool:
+    locator = page.locator(selector)
+    if locator.count() == 0:
+        return False
+    try:
+        current = locator.first.is_checked()
+        if current != checked:
+            locator.first.set_checked(checked, force=True, timeout=8000)
+        return locator.first.is_checked() == checked
+    except Exception:
+        return False
+
+
+def upload_unpublished_test_draft(page) -> int:
+    """Upload one original test clip while explicitly preventing public publication."""
+    with tempfile.TemporaryDirectory(prefix="ifilo-draft-smoke-") as temp_dir:
+        video = Path(temp_dir) / "ifilo-upload-test-draft.mp4"
+        try:
+            create_draft_test_video(video)
+        except Exception as exc:
+            print("IFILO_TEST_DRAFT_VIDEO_CREATE_FAILED", type(exc).__name__)
+            return 3
+
+        digest = hashlib.sha256(video.read_bytes()).hexdigest()
+        test_item = {"id": "ifilo-test-draft-" + digest, "url": ""}
+        state = load_state()
+        if has_prior_attempt(test_item, state):
+            print("IFILO_TEST_DRAFT_ALREADY_ATTEMPTED: Refusing to create duplicate drafts.")
+            return 0
+
+        file_input = page.locator("#fileInput")
+        if file_input.count() == 0:
+            print("IFILO_TEST_DRAFT_BLOCKED_NO_PRIMARY_FILE_INPUT")
+            return 3
+        try:
+            file_input.set_input_files(str(video), timeout=30000)
+            page.wait_for_timeout(3500)
+        except Exception as exc:
+            print("IFILO_TEST_DRAFT_FILE_SELECTION_FAILED", type(exc).__name__)
+            return 3
+
+        title_field = find_title_field(page)
+        description_field = find_description_field(page)
+        try:
+            if title_field is not None:
+                title_field.fill(DRAFT_TEST_TITLE)
+            if description_field is not None:
+                description_field.fill(DRAFT_TEST_DESCRIPTION)
+        except Exception as exc:
+            print("IFILO_TEST_DRAFT_METADATA_FILL_FAILED", type(exc).__name__)
+            return 3
+        title_ok = title_field is not None
+        description_ok = description_field is not None
+
+        # The normal upload rule is accepted, but the test cannot be published,
+        # monetized, or offered for redistribution.
+        rules_ok = _set_checkbox(page, "#acceptRules", True)
+        unpublished_ok = _set_checkbox(page, "#dontPublish", True)
+        monetization_off = _set_checkbox(page, "#canMakeMoney", False)
+        redistribution_off = _set_checkbox(page, "#canRepublish", False)
+        if not all((title_ok, description_ok, rules_ok, unpublished_ok, monetization_off, redistribution_off)):
+            probe_upload_form(page)
+            print("IFILO_TEST_DRAFT_BLOCKED_FORM_REQUIREMENTS " + json.dumps({
+                "title_ok": title_ok,
+                "description_ok": description_ok,
+                "upload_rules_accepted": rules_ok,
+                "do_not_publish": unpublished_ok,
+                "monetization_off": monetization_off,
+                "redistribution_off": redistribution_off,
+            }, ensure_ascii=False))
+            return 3
+        if not page.locator("#dontPublish").is_checked():
+            print("IFILO_TEST_DRAFT_BLOCKED_DO_NOT_PUBLISH_NOT_SET")
+            return 3
+        if page.locator("#canMakeMoney").is_checked() or page.locator("#canRepublish").is_checked():
+            print("IFILO_TEST_DRAFT_BLOCKED_MONETIZATION_OR_REDISTRIBUTION_CHECKED")
+            return 3
+
+        button = None
+        for locator in page.get_by_role("button", name=re.compile(r"انتشار ویدیو", re.I)).all():
+            try:
+                if locator.is_visible() and locator.is_enabled():
+                    button = locator
+                    break
+            except Exception:
+                continue
+        if button is None:
+            probe_upload_form(page)
+            print("IFILO_TEST_DRAFT_BLOCKED_FINAL_ACTION_NOT_READY")
+            return 3
+
+        attempt = {
+            "source_key": source_key(test_item),
+            "source_url": "",
+            "source_title": DRAFT_TEST_TITLE,
+            "title": DRAFT_TEST_TITLE,
+            "status": "pending",
+            "mode": "test_draft_not_public",
+            "started_at": utc_now(),
+            "video_sha256": digest,
+            "bytes": video.stat().st_size,
+            "publication_checkbox": "dontPublish=true",
+            "monetization_checkbox": "canMakeMoney=false",
+            "redistribution_checkbox": "canRepublish=false",
+        }
+        state.setdefault("attempts", []).append(attempt)
+        write_state(state)
+        prior_url = str(page.url)
+        clicked = False
+        try:
+            button.click(timeout=60000)
+            clicked = True
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=25000)
+            except Exception:
+                pass
+            page.wait_for_timeout(9000)
+        except Exception as exc:
+            attempt["status"] = "test_draft_uncertain" if clicked else "submit_failed_before_click"
+            attempt["finished_at"] = utc_now()
+            attempt["error_type"] = type(exc).__name__
+            write_state(state)
+            print("IFILO_TEST_DRAFT_SUBMIT_ERROR " + json.dumps({
+                "status": attempt["status"], "error_type": type(exc).__name__,
+                "do_not_publish": True,
+            }, ensure_ascii=False))
+            return 4
+
+        body = ""
+        try:
+            body = page.locator("body").inner_text(timeout=8000)[:9000]
+        except Exception:
+            pass
+        result_path = urlparse(str(page.url)).path
+        if re.search(r"/(?:video|watch|v)/[^/]+", result_path, re.I):
+            attempt["status"] = "test_draft_unexpected_public_route"
+            attempt["finished_at"] = utc_now()
+            attempt["result_path"] = result_path
+            write_state(state)
+            print("IFILO_TEST_DRAFT_UNEXPECTED_PUBLIC_ROUTE " + json.dumps({
+                "path": result_path, "do_not_publish_was_checked": True,
+            }, ensure_ascii=False))
+            return 4
+
+        confirmed = bool(DRAFT_SUCCESS_RE.search(body)) or (
+            str(page.url) != prior_url
+            and re.search(r"/(?:myVideos|videos|upload)(?:/|$)", result_path, re.I)
+            and not re.search(r"/login(?:/|$)", result_path, re.I)
+        )
+        if confirmed:
+            attempt["status"] = "draft_uploaded"
+            attempt["finished_at"] = utc_now()
+            attempt["confirmation"] = "draft_success_text_or_navigation"
+            attempt["result_path"] = result_path
+            write_state(state)
+            print("IFILO_TEST_DRAFT_SUCCESS " + json.dumps({
+                "title": DRAFT_TEST_TITLE,
+                "status": "draft_uploaded",
+                "public_post": False,
+                "monetization_enabled": False,
+                "redistribution_enabled": False,
+                "bytes": attempt["bytes"],
+                "result_path": result_path,
+            }, ensure_ascii=False))
+            return 0
+
+        attempt["status"] = "test_draft_uncertain"
+        attempt["finished_at"] = utc_now()
+        write_state(state)
+        print("IFILO_TEST_DRAFT_UNCERTAIN: Submit was attempted with do-not-publish enabled, but success could not be verified. It will not be retried automatically.")
+        print("IFILO_TEST_DRAFT_FINAL_PAGE " + json.dumps({
+            "title": str(page.title() or "")[:160],
+            "path": result_path,
+            "body_excerpt": body[:1200],
+            "do_not_publish": True,
+        }, ensure_ascii=False))
+        return 4
+
+
+def run_browser(publish: bool, test_draft: bool = False) -> int:
     # A safe, no-auth network check reveals redirects/domain status; it never posts data.
     probe_public_hosts()
     # Import only when needed so the helper tests can run without browser binaries.
@@ -755,6 +972,8 @@ def run_browser(publish: bool) -> int:
                 if not ensure_authenticated(page, context):
                     return 2
                 summary = probe_upload_form(page)
+                if test_draft:
+                    return upload_unpublished_test_draft(page)
                 if not publish:
                     probe_upload_rules(page)
                     # Return to the authenticated upload form after inspecting rules.
@@ -897,19 +1116,26 @@ def main() -> int:
     parser.add_argument(
         "--publish",
         action="store_true",
-        help="Upload one top-ranked eligible video; without this flag the script only probes the upload form.",
+        help="Upload one top-ranked eligible video only when rights evidence is present.",
+    )
+    parser.add_argument(
+        "--test-draft",
+        action="store_true",
+        help="Upload one original generated test clip as an unpublished, non-monetized draft.",
     )
     args = parser.parse_args()
+    if args.publish and args.test_draft:
+        parser.error("--publish and --test-draft are mutually exclusive")
     print(json.dumps({
         "IFILO_RUN": {
-            "mode": "publish_one" if args.publish else "probe_only",
+            "mode": "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only"),
             "at": utc_now(),
             "upload_url": UPLOAD_URL,
             "state_file": str(STATE_PATH.relative_to(ROOT)),
         }
     }, ensure_ascii=False))
     try:
-        return run_browser(publish=args.publish)
+        return run_browser(publish=args.publish, test_draft=args.test_draft)
     except Exception as exc:
         # Avoid exception messages from browser/network layers because they can
         # include full request URLs, query tokens, or personal account details.
