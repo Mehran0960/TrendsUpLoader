@@ -2,7 +2,7 @@
 
 ## Primary objective: aggregate audience and monetize indirectly
 
-This project uses social platforms as audience-acquisition channels, then guides interested people—when appropriate and voluntary—to a central destination that the project controls as much as practical. Direct creator payouts and platform advertising revenue are explicitly out of scope.
+This project uses social platforms for distribution and audience growth. Affiliate monetization remains a core goal; direct creator payouts are now an optional, measured experiment on Filo (ifilo.net). No other platform payout route is assumed to be available or profitable.
 
 Intended future monetization includes affiliate referrals, sponsorships, qualified leads, and useful digital products with automated delivery. Views and follower counts are intermediate signals, not the business model.
 
@@ -29,10 +29,10 @@ Every destination is evaluated separately. Rights, current platform rules, and a
 - The manual workflow `Telegram Channel Setup Check` validates the configured audience bot token, destination channel, and posting permission without sending a test message or video. Run it after adding the destination secrets.
 - Public audience routing requires the Actions variable `TELEGRAM_AUDIENCE_PUBLISH_ENABLED=true`, the destination secret `TELEGRAM_AUDIENCE_CHAT_ID`, and an explicit source allowlist in `config/telegram_source_policy.json` under `authorized_public_repost_usernames` or `authorized_public_repost_chat_ids`. `TELEGRAM_AUDIENCE_BOT_TOKEN` is optional: when absent, the relay reuses the already-configured `TELEGRAM_BOT_TOKEN`; that bot must be able to read the source and be an administrator with posting permission in the destination.
 - The public audience route remains disabled until the destination chat, the publish-enable variable, and the authorized source list are configured. A separate audience bot token is optional if the existing bot has the required permissions. Those settings cannot be inferred from public source popularity.
-- Telegram is the only direct post-transfer route currently implemented. YouTube uploads remain paused while OAuth is unresolved. TikTok, Instagram, Aparat, and X public upload adapters are not connected. The system does not bypass sign-in, anti-bot challenges, or platform access restrictions.
+- Telegram is the existing direct transfer route. Filo now has an isolated visible-browser adapter, but it is disabled unless `FILO_UPLOAD_ENABLED=true` and login secrets/session state are configured. A separate connectivity workflow probes Filo's site and upload form without publishing. Actual Filo upload remains unverified until that probe and a real account test succeed. YouTube, TikTok, Instagram, Aparat, and X public upload adapters remain unconnected or separately gated. The system does not bypass sign-in, OTP/captcha challenges, or platform access restrictions.
 - Discovery rankings are triage signals, not permission or a way around platform restrictions. Public relay requires explicit source authorization and a working destination connection.
 
-See [DISTRIBUTION_ARCHITECTURE.md](DISTRIBUTION_ARCHITECTURE.md) for the platform-by-platform implementation roadmap.
+See [DISTRIBUTION_ARCHITECTURE.md](DISTRIBUTION_ARCHITECTURE.md) for the platform-by-platform implementation roadmap. Filo diagnostics are recorded in `diagnostics/filo_probe_latest.json` after the probe workflow runs.
 
 ## Trend Radar collector
 
