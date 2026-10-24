@@ -1543,37 +1543,49 @@ def _account_page_contains_title(page, expected_title: str) -> tuple[bool, list[
     return False, reports
 
 
-def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
-    """Upload one Telegram video already sent for private review, never as a public post."""
+def upload_review_video_from_telegram(page, source_url: str, *, public: bool = False) -> int:
+    """Upload one exact Telegram video publicly when explicitly authorized, or as a private draft."""
+    mode_tag = "IFILO_REVIEW_PUBLIC" if public else "IFILO_REVIEW_DRAFT"
     from urllib.parse import parse_qs
 
     normalized_url = _normalize_review_telegram_url(source_url)
     if not normalized_url:
-        print("IFILO_REVIEW_DRAFT_BLOCKED_INVALID_TELEGRAM_URL")
+        print(f"{mode_tag}_BLOCKED_INVALID_TELEGRAM_URL")
         return 3
 
     item = _load_previously_sent_review_item(normalized_url)
     if item is None:
-        print("IFILO_REVIEW_DRAFT_BLOCKED_NOT_FOUND_IN_SENT_REVIEW_STATE")
+        print(f"{mode_tag}_BLOCKED_NOT_FOUND_IN_SENT_REVIEW_STATE")
         return 3
 
     state = load_state()
-    if has_prior_attempt(item, state):
-        prior = next((
-            row for row in state.get("attempts", [])
-            if isinstance(row, dict) and str(row.get("source_key") or "") == source_key(item)
-        ), {})
-        print("IFILO_REVIEW_DRAFT_DUPLICATE_GUARD " + json.dumps({
+    matching_attempts = [
+        row for row in state.get("attempts", [])
+        if isinstance(row, dict) and (
+            str(row.get("source_key") or "") == source_key(item)
+            or str(row.get("source_url") or "") == normalized_url
+        )
+    ]
+    prior = matching_attempts[-1] if matching_attempts else {}
+    # A prior rejected draft may be retried publicly only after checking the account
+    # for an existing matching upload. Ambiguous/accepted attempts remain non-retryable.
+    recoverable_public_retry = (
+        public and str(prior.get("status") or "") in {
+            "review_draft_rejected", "submit_failed_before_click"
+        }
+    )
+    if matching_attempts and not recoverable_public_retry:
+        print(f"{mode_tag}_DUPLICATE_GUARD " + json.dumps({
             "status": str(prior.get("status") or "prior_attempt"),
             "retry_policy": "no_duplicate_upload_attempt",
             "source_url": normalized_url,
         }, ensure_ascii=False))
         return 4
 
-    with tempfile.TemporaryDirectory(prefix="ifilo-review-draft-") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix=("ifilo-review-public-" if public else "ifilo-review-draft-")) as temp_dir:
         video_path, quality = prepare_candidate_video(item, Path(temp_dir))
         if video_path is None:
-            print("IFILO_REVIEW_DRAFT_BLOCKED_MEDIA_QC " + json.dumps({
+            print(f"{mode_tag}_BLOCKED_MEDIA_QC " + json.dumps({
                 "reason": str(quality.get("reason") or quality.get("content_gate_reason") or "media_not_qualified"),
                 "source_url": normalized_url,
             }, ensure_ascii=False))
@@ -1581,21 +1593,45 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
 
         source_title = str(item.get("title") or item.get("source_post_caption") or "")[:300]
         base_title = make_title(item)
-        title = normalized_text("پیش‌نویس خصوصی | " + base_title, limit=100)[:100]
-        description = (
-            make_description(item, base_title)
-            + "\n\nپیش‌نویس غیرعمومی برای بررسی فنی؛ انتشار عمومی، کسب درآمد، دانلود و بازنشر خاموش است."
-            + "\nمنبع اصلی: " + normalized_url
-        )[:1800]
+        draft_title = normalized_text("پیش‌نویس خصوصی | " + base_title, limit=100)[:100]
+        title = base_title if public else draft_title
+        if public:
+            description = make_description(item, base_title) + "\n\nمنبع اصلی: " + normalized_url
+            # A previous uncertain/rejected draft can exist despite its status. Do not
+            # create a duplicate if either its private title or the intended public title
+            # is already present in the authenticated account.
+            found_public, _ = _account_page_contains_title(page, title)
+            found_draft, _ = _account_page_contains_title(page, draft_title)
+            if found_public or found_draft:
+                print(f"{mode_tag}_BLOCKED_EXISTING_ACCOUNT_VIDEO " + json.dumps({
+                    "public_title_found": bool(found_public),
+                    "prior_draft_title_found": bool(found_draft),
+                    "action": "no_duplicate_upload; existing item needs visibility review",
+                    "source_url": normalized_url,
+                }, ensure_ascii=False))
+                return 4
+            page.goto(UPLOAD_URL, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(800)
+            form_summary = probe_upload_form(page)
+            if not form_summary.get("file_input_count", 0):
+                print(f"{mode_tag}_BLOCKED_UPLOAD_FORM_NOT_READY")
+                return 3
+        else:
+            description = (
+                make_description(item, base_title)
+                + "\n\nپیش‌نویس غیرعمومی برای بررسی فنی؛ انتشار عمومی، کسب درآمد، دانلود و بازنشر خاموش است."
+                + "\nمنبع اصلی: " + normalized_url
+            )
+        description = description[:1800]
 
         file_input = page.locator("#fileInput")
         if file_input.count() == 0:
-            print("IFILO_REVIEW_DRAFT_BLOCKED_NO_PRIMARY_FILE_INPUT")
+            print(f"{mode_tag}_BLOCKED_NO_PRIMARY_FILE_INPUT")
             return 3
         try:
             file_input.set_input_files(str(video_path), timeout=30000)
         except Exception as exc:
-            print("IFILO_REVIEW_DRAFT_FILE_SELECTION_FAILED", type(exc).__name__)
+            print(f"{mode_tag}_FILE_SELECTION_FAILED", type(exc).__name__)
             return 3
 
         # Wait for the actual chunk transfer, not an arbitrary sleep or only the progress bar.
@@ -1638,7 +1674,7 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             upload_state = {}
 
         if not upload_state.get("uploadComplete") or not upload_state.get("videoCodePresent"):
-            print("IFILO_REVIEW_DRAFT_FILE_TRANSFER_INCOMPLETE " + json.dumps({
+            print(f"{mode_tag}_FILE_TRANSFER_INCOMPLETE " + json.dumps({
                 **upload_state,
                 "final_publish_request_sent": False,
             }, ensure_ascii=False))
@@ -1646,7 +1682,7 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
 
         title_ok, description_ok = fill_metadata(page, title, description)
         rules_ok = _set_checkbox(page, "#acceptRules", True)
-        unpublished_ok = _set_checkbox(page, "#dontPublish", True)
+        publication_flag_ok = _set_checkbox(page, "#dontPublish", not public)
         monetization_off = _set_checkbox(page, "#canMakeMoney", False, allow_hidden=True)
         redistribution_off = _set_checkbox(page, "#canRepublish", False, allow_hidden=True)
         download_off = _set_checkbox(page, "#allowDownload", False, allow_hidden=True)
@@ -1676,9 +1712,9 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             model = {}
 
         dom_safe = all((
-            title_ok, description_ok, rules_ok, unpublished_ok, monetization_off,
+            title_ok, description_ok, rules_ok, publication_flag_ok, monetization_off,
             redistribution_off, download_off, ownership_not_claimed,
-            page.locator("#dontPublish").is_checked(),
+            page.locator("#dontPublish").is_checked() is (not public),
             not page.locator("#canMakeMoney").is_checked(),
             not page.locator("#canRepublish").is_checked(),
             not page.locator("#allowDownload").is_checked(),
@@ -1687,7 +1723,7 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
         model_safe = (
             model.get("titleMatches") is True
             and model.get("descriptionMatches") is True
-            and model.get("dontPublish") is True
+            and model.get("dontPublish") is (not public)
             and model.get("canMakeMoney") is False
             and model.get("canRepublish") is False
             and model.get("allowDownload") is False
@@ -1697,7 +1733,7 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             and model.get("videoCodePresent") is True
         )
         if not dom_safe or not model_safe:
-            print("IFILO_REVIEW_DRAFT_BLOCKED_SAFETY_CHECK " + json.dumps({
+            print(f"{mode_tag}_BLOCKED_SAFETY_CHECK " + json.dumps({
                 "dom_safe": bool(dom_safe),
                 "model_safe": bool(model_safe),
                 "model": model,
@@ -1714,7 +1750,7 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             except Exception:
                 continue
         if button is None:
-            print("IFILO_REVIEW_DRAFT_BLOCKED_FINAL_ACTION_NOT_READY")
+            print(f"{mode_tag}_BLOCKED_FINAL_ACTION_NOT_READY")
             return 3
 
         attempt = {
@@ -1723,12 +1759,12 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             "source_title": source_title,
             "title": title,
             "status": "pending",
-            "mode": "telegram_review_draft_not_public",
+            "mode": "telegram_review_public" if public else "telegram_review_draft_not_public",
             "started_at": utc_now(),
             "video_sha256": hashlib.sha256(video_path.read_bytes()).hexdigest(),
             "bytes": video_path.stat().st_size,
             "quality": quality,
-            "publication_checkbox": "dontPublish=true",
+            "publication_checkbox": "dontPublish=false" if public else "dontPublish=true",
             "monetization_checkbox": "canMakeMoney=false",
             "redistribution_checkbox": "canRepublish=false",
             "download_checkbox": "allowDownload=false",
@@ -1771,7 +1807,7 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
                 "canonical_host": parsed.netloc.lower() == expected_host,
                 "exact_title": str(fields.get("title", [""])[-1]) == title,
                 "exact_description": str(fields.get("description", [""])[-1]) == description,
-                "dont_publish_true": field("dontPublish") in true_values,
+                "publication_state_matches": field("dontPublish") == ("false" if public else "true"),
                 "monetization_false": field("canMakeMoney") in false_values,
                 "redistribution_false": field("canRepublish") in false_values,
                 "download_false": field("allowDownload") in false_values,
@@ -1924,12 +1960,12 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             "submit_error_type": submit_error_type,
         }
 
-        if public_video_url:
+        if public_video_url and not public:
             attempt["status"] = "review_draft_unexpected_public_route"
             attempt["finished_at"] = utc_now()
             attempt["ifilo_url"] = public_video_url
             write_state(state)
-            print("IFILO_REVIEW_DRAFT_UNEXPECTED_PUBLIC_ROUTE " + json.dumps({
+            print(f"{mode_tag}_UNEXPECTED_PUBLIC_ROUTE " + json.dumps({
                 "source_url": normalized_url,
                 "safety_flags_were_set_before_submit": True,
                 "verification": safe_report,
@@ -1938,22 +1974,30 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
 
         success = (
             request_state["continued_count"] == 1
-            and (response_summary["payload_success"] is True or message_success or found_in_account)
+            and (
+                response_summary["payload_success"] is True
+                or message_success
+                or found_in_account
+                or (public and bool(public_video_url))
+            )
         )
         if success:
-            attempt["status"] = "draft_uploaded"
+            attempt["status"] = "uploaded" if public else "draft_uploaded"
             attempt["finished_at"] = utc_now()
+            attempt["ifilo_url"] = public_video_url
             attempt["confirmation"] = (
-                "account_title_found" if found_in_account
+                "public_video_route_detected" if public and public_video_url
+                else "account_title_found" if found_in_account
                 else "server_success_payload" if response_summary["payload_success"] is True
                 else "success_message_without_error_flag"
             )
             write_state(state)
-            print("IFILO_REVIEW_DRAFT_SUCCESS " + json.dumps({
+            print(f"{mode_tag}_SUCCESS " + json.dumps({
                 "title": title,
                 "source_url": normalized_url,
-                "status": "draft_uploaded",
-                "public_post": False,
+                "status": attempt["status"],
+                "ifilo_url": public_video_url,
+                "public_post": bool(public),
                 "monetization_enabled": False,
                 "redistribution_enabled": False,
                 "download_enabled": False,
@@ -1963,11 +2007,15 @@ def upload_review_video_as_unpublished_draft(page, source_url: str) -> int:
             }, ensure_ascii=False))
             return 0
 
-        attempt["status"] = "review_draft_rejected" if final_model.get("messageIsError") is True else "review_draft_uncertain"
+        attempt["status"] = (
+            ("review_public_rejected" if public else "review_draft_rejected")
+            if final_model.get("messageIsError") is True
+            else ("review_public_uncertain" if public else "review_draft_uncertain")
+        )
         attempt["finished_at"] = utc_now()
         attempt["server_reason_kind"] = message_kind
         write_state(state)
-        print("IFILO_REVIEW_DRAFT_FAILED " + json.dumps({
+        print(f"{mode_tag}_FAILED " + json.dumps({
             "source_url": normalized_url,
             "status": attempt["status"],
             "retry_policy": "no_retry_after_uncertain_or_rejected_result",
@@ -2070,7 +2118,7 @@ def verify_unpublished_test_draft(page) -> int:
     return 4
 
 
-def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool = False, inspect_client: bool = False, review_draft_source_url: str = "") -> int:
+def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool = False, inspect_client: bool = False, review_draft_source_url: str = "", review_public_source_url: str = "") -> int:
     # A safe, no-auth network check reveals redirects/domain status; it never posts data.
     probe_public_hosts()
     # Import only when needed so the helper tests can run without browser binaries.
@@ -2106,8 +2154,10 @@ def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool
                     return verify_unpublished_test_draft(page)
                 if inspect_client:
                     return inspect_upload_client(page)
+                if review_public_source_url:
+                    return upload_review_video_from_telegram(page, review_public_source_url, public=True)
                 if review_draft_source_url:
-                    return upload_review_video_as_unpublished_draft(page, review_draft_source_url)
+                    return upload_review_video_from_telegram(page, review_draft_source_url, public=False)
                 if test_draft:
                     return upload_unpublished_test_draft(page)
                 if not publish:
@@ -2274,13 +2324,20 @@ def main() -> int:
         metavar="TELEGRAM_POST_URL",
         help="Upload one previously sent Telegram review video as an unpublished, non-monetized draft only.",
     )
+    parser.add_argument(
+        "--publish-review-video",
+        metavar="TELEGRAM_POST_URL",
+        help="Publish one exact, previously reviewed Telegram video publicly after checking the authenticated account for duplicates.",
+    )
     args = parser.parse_args()
-    if sum(bool(x) for x in (args.publish, args.test_draft, args.verify_test_draft, args.inspect_upload_client, args.upload_review_draft)) > 1:
-        parser.error("--publish, --test-draft, --verify-test-draft, --inspect-upload-client, and --upload-review-draft are mutually exclusive")
+    if sum(bool(x) for x in (args.publish, args.test_draft, args.verify_test_draft, args.inspect_upload_client, args.upload_review_draft, args.publish_review_video)) > 1:
+        parser.error("--publish, --test-draft, --verify-test-draft, --inspect-upload-client, --upload-review-draft, and --publish-review-video are mutually exclusive")
     mode = "inspect_upload_client_read_only" if args.inspect_upload_client else (
         "verify_test_draft_read_only" if args.verify_test_draft else (
-            "review_video_draft_not_public" if args.upload_review_draft else (
-                "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only")
+            "review_video_public" if args.publish_review_video else (
+                "review_video_draft_not_public" if args.upload_review_draft else (
+                    "test_draft_not_public" if args.test_draft else ("publish_one" if args.publish else "probe_only")
+                )
             )
         )
     )
@@ -2293,7 +2350,7 @@ def main() -> int:
         }
     }, ensure_ascii=False))
     try:
-        return run_browser(publish=args.publish, test_draft=args.test_draft, verify_test_draft=args.verify_test_draft, inspect_client=args.inspect_upload_client, review_draft_source_url=args.upload_review_draft or "")
+        return run_browser(publish=args.publish, test_draft=args.test_draft, verify_test_draft=args.verify_test_draft, inspect_client=args.inspect_upload_client, review_draft_source_url=args.upload_review_draft or "", review_public_source_url=args.publish_review_video or "")
     except Exception as exc:
         # Avoid exception messages from browser/network layers because they can
         # include full request URLs, query tokens, or personal account details.
