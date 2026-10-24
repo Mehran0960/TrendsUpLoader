@@ -51,6 +51,32 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Install test dependencies
+        run: pip install --disable-pip-version-check requests pillow yt-dlp
+      - name: Test FiLo metadata and duplicate protection
+        run: python -m unittest -v content_pipeline.test_publish_ifilo
+
+  publish:
+    # Push-triggered runs are diagnostics only unless a commit message explicitly requests an original unpublished draft smoke test.
+    # Draft mode verifies do-not-publish and disables monetization/redistribution before submitting the synthetic clip.
+    # Public posting still requires the manual publish input or the separate scheduled opt-in.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
+    needs: regression-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      IFILO_LOGIN_ID: ${{ secrets.IFILO_LOGIN_ID }}
+      IFILO_PASSWORD: ${{ secrets.IFILO_PASSWORD }}
+      IFILO_STORAGE_STATE_B64: ${{ secrets.IFILO_STORAGE_STATE_B64 }}
+      IFILO_AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
+      TZ: Asia/Tehran
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Determine safe probe, draft, or publish mode
         id: mode
         env:
@@ -89,32 +115,6 @@ jobs:
             sudo apt-get update -qq
             sudo apt-get install -y -qq ffmpeg
           fi
-      - name: Install test dependencies
-        run: pip install --disable-pip-version-check requests pillow yt-dlp
-      - name: Test FiLo metadata and duplicate protection
-        run: python -m unittest -v content_pipeline.test_publish_ifilo
-
-  publish:
-    # Push-triggered runs are diagnostics only unless a commit message explicitly requests an original unpublished draft smoke test.
-    # Draft mode verifies do-not-publish and disables monetization/redistribution before submitting the synthetic clip.
-    # Public posting still requires the manual publish input or the separate scheduled opt-in.
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
-    needs: regression-tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      IFILO_LOGIN_ID: ${{ secrets.IFILO_LOGIN_ID }}
-      IFILO_PASSWORD: ${{ secrets.IFILO_PASSWORD }}
-      IFILO_STORAGE_STATE_B64: ${{ secrets.IFILO_STORAGE_STATE_B64 }}
-      IFILO_AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
-      TZ: Asia/Tehran
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
       - name: Probe upload form without publishing
         if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.verify_test_draft != 'true' }}
         run: python content_pipeline/publish_ifilo.py
