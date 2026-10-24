@@ -47,6 +47,17 @@ TARGETS = {
         "integration_status": "not_connected",
         "required_configuration": ["verify current supported upload route"],
     },
+    "ifilo": {
+        "adapter": "playwright_browser_upload",
+        "integration_status": "implemented_probe_pending_account_authentication",
+        "required_configuration": [
+            "IFILO_LOGIN_ID secret or IFILO_STORAGE_STATE_B64 secret",
+            "IFILO_PASSWORD secret when using identifier/password login",
+            "run FiLo video publisher in probe mode first",
+            "workflow_dispatch publish=true for one test upload",
+            "repository variable IFILO_AUTOPUBLISH_ENABLED=true only after a verified test",
+        ],
+    },
     "x": {
         "adapter": "official_api_or_manual_export",
         "integration_status": "not_connected",
