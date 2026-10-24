@@ -770,9 +770,47 @@ def probe_upload_rules(page) -> dict:
 def inspect_upload_client(page) -> int:
     """Read-only inspect of same-origin upload-page JavaScript and form wiring."""
     expected_host = urlparse(BASE_URL).netloc.lower()
+    # Dry-run checkbox changes in the browser only. No file is selected and no submit occurs.
+    flag_toggles = {
+        "dont_publish": _set_checkbox(page, "#dontPublish", True, allow_hidden=True),
+        "monetization_off": _set_checkbox(page, "#canMakeMoney", False, allow_hidden=True),
+        "redistribution_off": _set_checkbox(page, "#canRepublish", False, allow_hidden=True),
+        "rules_accepted": _set_checkbox(page, "#acceptRules", True),
+    }
+    try:
+        angular_flags = page.evaluate("""() => {
+            const root = document.querySelector('[ng-controller="ctrl"]');
+            if (!root || !window.angular) return {};
+            const scope = window.angular.element(root).scope();
+            if (!scope) return {};
+            const item = scope.item || {};
+            return {
+                dontPublish: !!Number(item.dontPublish),
+                canMakeMoney: !!item.canMakeMoney,
+                canRepublish: !!item.canRepublish,
+                acceptRules: !!scope.acceptRules
+            };
+        }""")
+    except Exception:
+        angular_flags = {}
+    flags_consistent = (
+        flag_toggles["dont_publish"] and flag_toggles["monetization_off"]
+        and flag_toggles["redistribution_off"] and flag_toggles["rules_accepted"]
+        and angular_flags.get("dontPublish") is True
+        and angular_flags.get("canMakeMoney") is False
+        and angular_flags.get("canRepublish") is False
+        and angular_flags.get("acceptRules") is True
+    )
     report = {
         "page_path": urlparse(str(page.url)).path,
         "page_title": str(page.title() or "")[:120],
+        "flag_dry_run": {
+            "dom_toggles": flag_toggles,
+            "angular_model": angular_flags,
+            "consistent": bool(flags_consistent),
+            "file_selected": False,
+            "submit_clicked": False,
+        },
         "controls": [],
         "scripts_checked": [],
     }
