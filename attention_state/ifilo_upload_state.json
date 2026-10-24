@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-24T23:37:17.119318+00:00",
+  "updated_at": "2026-10-24T23:45:05.634748+00:00",
   "attempts": [
     {
       "source_key": "3f80c43194fbbc9d8a7b4a42c6d4c91291fd69713a2aa8f5f2167e42a2141251",
@@ -39,9 +39,9 @@
       "source_url": "https://t.me/gizmiztel/163845",
       "source_title": "دهکده «گوجو هاشیمان» در ژاپن 🆔 @GizmizTel 💯",
       "title": "لحظه‌ای دیدنی از دهکده «گوجو هاشیمان» در ژاپن",
-      "status": "review_public_rejected",
+      "status": "uploaded",
       "mode": "telegram_review_public",
-      "started_at": "2026-10-24T23:37:10.178832+00:00",
+      "started_at": "2026-10-24T23:44:59.007579+00:00",
       "video_sha256": "049596b2b283212bf8a0e80da4fd941b6550c2008aee1551907bc907c8a4d37e",
       "bytes": 7485862,
       "quality": {
@@ -89,22 +89,22 @@
       "http_response_summary": {
         "response_received": true,
         "http_status": 200,
-        "payload_success": null,
+        "payload_success": true,
         "content_type": "text/html; charset=utf-8",
         "body_kind": "dict",
         "response_keys": [
-          "r"
+          "s"
         ]
       },
       "public_video_url_detected": false,
-      "server_reason_kind": "provider_upload_rejection",
+      "server_reason_kind": "success_like_or_upload_related",
       "provider_message_signals": [
         "upload"
       ],
-      "provider_message_excerpt": "لطفا برای ویدیو عکس انتخاب و یا آپلود کنید!",
+      "provider_message_excerpt": "آپلود با موفقیت انجام شد",
       "verification_summary": {
         "final_angular_state": {
-          "published": false,
+          "published": true,
           "publishing": false,
           "uploadComplete": true,
           "dontPublish": false,
@@ -113,9 +113,9 @@
           "allowDownload": false,
           "isMadeByMe": false,
           "acceptRules": true,
-          "messageIsError": true,
-          "titleCleared": false,
-          "descriptionCleared": false
+          "messageIsError": false,
+          "titleCleared": true,
+          "descriptionCleared": true
         },
         "account_title_found": false,
         "account_paths_checked": [
@@ -137,7 +137,9 @@
         ],
         "submit_error_type": null
       },
-      "finished_at": "2026-10-24T23:37:17.119249+00:00"
+      "finished_at": "2026-10-24T23:45:05.634667+00:00",
+      "ifilo_url": "",
+      "confirmation": "server_success_payload"
     }
   ]
 }
