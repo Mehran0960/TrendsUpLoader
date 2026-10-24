@@ -63,7 +63,7 @@ jobs:
 
   publish:
     # Push-triggered runs are diagnostics only unless a commit message explicitly requests an original unpublished draft smoke test.
-    # Draft mode verifies do-not-publish and disables monetization/redistribution before submitting the synthetic clip.
+    # Draft smoke tests use synthetic v2 media, verify Angular safety flags and allow at most one matching POST; public publishing remains a separate opt-in.
     # Public posting still requires the manual publish input or the separate scheduled opt-in.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
     needs: regression-tests
