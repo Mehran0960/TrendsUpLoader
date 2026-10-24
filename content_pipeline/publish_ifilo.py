@@ -656,6 +656,7 @@ def prepare_candidate_video(item: dict, workdir: Path) -> tuple[Path | None, dic
         return None, {"passed": False, "reason": "missing_source_url"}
     target = workdir / "selected-video.mp4"
     # One-off public FiLo retry for the authorized Telegram video.
+    # Use refreshed Telegram media headers and a flexible yt-dlp selector if direct media is denied.
     downloaded_directly = download_direct_telegram_post(url, target, item=item)
     if not downloaded_directly:
         # Telegram can render the public post while its embedded media URL returns
