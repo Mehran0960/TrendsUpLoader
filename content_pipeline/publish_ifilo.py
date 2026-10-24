@@ -50,7 +50,9 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / "attention_state" / "ifilo_upload_state.json"
 ARTIFACTS = ROOT / "artifacts" / "ifilo"
-BASE_URL = "https://dashboard.tablighgram.com"
+# Prefer the public canonical domain. The legacy dashboard host was observed
+# redirecting its root to an unrelated parked domain, so do not use it for login.
+BASE_URL = os.environ.get("IFILO_BASE_URL", "https://ifilo.net").strip().rstrip("/")
 UPLOAD_URL = BASE_URL + "/upload"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 MAX_CANDIDATES_TO_TRY = 50
@@ -536,6 +538,8 @@ def probe_public_hosts() -> dict:
     """Record public host redirects/statuses before launching browser automation."""
     urls = [
         "https://ifilo.net/",
+        "https://ifilo.net/upload",
+        "https://ifilo.net/login",
         "https://www.ifilo.net/",
         "https://dashboard.tablighgram.com/",
         "https://dashboard.tablighgram.com/upload",
@@ -553,6 +557,20 @@ def probe_public_hosts() -> dict:
             plain = re.sub(r"<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>", " ", body, flags=re.I | re.S)
             plain = re.sub(r"<[^>]+>", " ", plain)
             plain = re.sub(r"\s+", " ", html.unescape(plain)).strip()
+            anchors = [
+                {"label": re.sub(r"\s+", " ", html.unescape(tag_text)).strip()[:60],
+                 "path": urlparse(href).path}
+                for href, tag_text in re.findall(
+                    r"<a\b[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>",
+                    body, flags=re.I | re.S
+                )[:80]
+            ]
+            scripts = [
+                urlparse(src).path for src in re.findall(
+                    r"<script\b[^>]*src=[\"']([^\"']+)[\"']",
+                    body, flags=re.I | re.S
+                )[:30]
+            ]
             row.update({
                 "status": response.status_code,
                 "final_host": final.netloc,
@@ -562,9 +580,12 @@ def probe_public_hosts() -> dict:
                     for item in response.history
                 ],
                 "content_type": str(response.headers.get("Content-Type") or "")[:100],
+                "html_bytes": len(body.encode("utf-8")),
                 "title": title,
                 "has_upload_word": bool(re.search(r"آپلود|بارگذاری|upload", plain + " " + title, re.I)),
-                "body_excerpt": plain[:180],
+                "body_excerpt": plain[:250],
+                "anchor_paths": anchors,
+                "script_paths": scripts,
             })
             response.close()
         except Exception as exc:
