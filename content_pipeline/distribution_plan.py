@@ -94,6 +94,8 @@ def create_distribution_plan(metadata: dict, rights: dict) -> dict:
             status = "opt_in_route_available_not_enabled_by_manifest"
         elif platform == "youtube":
             status = "private_upload_route_available_opt_in_not_enabled"
+        elif platform == "ifilo":
+            status = "browser_adapter_probe_required_account_auth_pending"
         else:
             status = "adapter_not_connected"
         results[platform] = {
@@ -106,8 +108,9 @@ def create_distribution_plan(metadata: dict, rights: dict) -> dict:
     return {
         "schema_version": 1,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "project_goal": "audience_acquisition_and_indirect_monetization",
-        "direct_platform_ad_revenue_is_a_goal": False,
+        "project_goal": "audience_acquisition_plus_direct_filo_and_indirect_monetization",
+        "direct_platform_ad_revenue_is_a_goal": True,
+        "direct_filo_creator_payouts_are_a_goal": True,
         "content_key": str(metadata.get("content_key") or ""),
         "content_title": str(metadata.get("display_title_fa") or metadata.get("title") or ""),
         "editorial_quality_passed": quality_ok,
