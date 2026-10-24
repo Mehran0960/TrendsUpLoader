@@ -787,20 +787,24 @@ def inspect_upload_client(page) -> int:
                 const name = el.name || '';
                 const ph = el.getAttribute('placeholder') || '';
                 return ['fileInput','acceptRule','unixTime','acceptRules','canMakeMoney',
-                        'canRepublish','dontPublish','isMadeByMe'].includes(id)
+                        'canRepublish','dontPublish','isMadeByMe','madeForKids','over18'].includes(id)
                     || name === 'title' || ph === 'توضیحات ویدیو'
                     || ((el.innerText || '').trim() === 'انتشار ویدیو');
-            }).slice(0, 30).map(el => ({
+            }).slice(0, 35).map(el => ({
                 id: el.id || '',
                 name: el.name || '',
                 type: el.type || el.tagName.toLowerCase(),
+                class_name: String(el.className || '').slice(0, 100),
                 checked: typeof el.checked === 'boolean' ? el.checked : null,
                 disabled: !!el.disabled,
                 required: !!el.required,
                 value_present: String(el.value || '').length > 0,
                 value_length: String(el.value || '').length,
                 visible: !!(el.getClientRects().length && getComputedStyle(el).visibility !== 'hidden'),
-                onclick: String(el.getAttribute('onclick') || '').slice(0, 160)
+                attributes: Array.from(el.attributes || [])
+                    .filter(a => /^(?:id|name|type|class|placeholder|required|disabled|onclick|ng-|data-ng-|aria-)/i.test(a.name))
+                    .slice(0, 18).map(a => ({name: a.name, value: String(a.value || '').slice(0, 160)})),
+                parent_text: String((el.closest('label') || el.parentElement || {}).innerText || '').replace(/\\s+/g, ' ').trim().slice(0, 180)
             }))"""
         )
     except Exception as exc:
@@ -815,8 +819,10 @@ def inspect_upload_client(page) -> int:
 
     terms = [
         "fileInput", "acceptRule", "acceptRules", "canMakeMoney", "canRepublish",
-        "dontPublish", "isMadeByMe", "unixTime", "انتشار ویدیو",
-        "startUpload", "uploadVideo", "ajax",
+        "dontPublish", "isMadeByMe", "madeForKids", "over18", "unixTime",
+        "انتشار ویدیو", "startUpload", "uploadComplete", "uploadStarted",
+        "fileSelected", "publishing", "messageIsError", "message", "videoCode",
+        "scopeUpload", "publishVideo", "saveVideo", "uploadVideo", "startUrlUpload",
     ]
     seen_paths = set()
     for script_url in script_urls:
@@ -844,18 +850,28 @@ def inspect_upload_client(page) -> int:
                 row["bytes_checked"] = len(body.encode("utf-8", errors="ignore"))
                 matches = []
                 seen_terms = set()
+                lowered = body.casefold()
                 for term in terms:
-                    if term.casefold() in seen_terms:
+                    key = term.casefold()
+                    if key in seen_terms:
                         continue
-                    idx = body.casefold().find(term.casefold())
-                    if idx < 0:
-                        continue
-                    seen_terms.add(term.casefold())
-                    snippet = re.sub(r"\\s+", " ", body[max(0, idx - 170):min(len(body), idx + len(term) + 230)]).strip()
-                    matches.append({"term": term, "snippet": snippet[:420]})
-                    if len(matches) >= 8:
+                    idx = 0
+                    occurrences = 0
+                    while occurrences < 3:
+                        idx = lowered.find(key, idx)
+                        if idx < 0:
+                            break
+                        snippet = re.sub(r"\\s+", " ", body[max(0, idx - 190):min(len(body), idx + len(term) + 260)]).strip()
+                        matches.append({"term": term, "offset": idx, "snippet": snippet[:480]})
+                        occurrences += 1
+                        idx += max(1, len(term))
+                        if len(matches) >= 24:
+                            break
+                    seen_terms.add(key)
+                    if len(matches) >= 24:
                         break
-                row["matches"] = matches
+                if matches:
+                    row["matches"] = matches
             response.close()
         except Exception as exc:
             row["status"] = "request_failed"
