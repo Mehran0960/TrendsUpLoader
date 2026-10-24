@@ -23,6 +23,16 @@ on:
         type: boolean
         required: false
         default: false
+      publish_review_video:
+        description: "Publish one exact, authorized Telegram video publicly after duplicate checks"
+        type: boolean
+        required: false
+        default: false
+      review_video_source_url:
+        description: "Exact Telegram post URL to publish when publish_review_video is selected"
+        type: string
+        required: false
+        default: "https://t.me/gizmiztel/163845"
   schedule:
     # Five low-frequency slots matching the existing Tehran audience windows.
     # Scheduled publishing stays off unless the repository variable is explicitly enabled.
@@ -90,6 +100,8 @@ jobs:
           MANUAL_TEST_DRAFT: ${{ inputs.test_draft }}
           MANUAL_VERIFY_TEST_DRAFT: ${{ inputs.verify_test_draft }}
           MANUAL_INSPECT_UPLOAD_CLIENT: ${{ inputs.inspect_upload_client }}
+          MANUAL_PUBLIC_REVIEW_VIDEO: ${{ inputs.publish_review_video }}
+          MANUAL_REVIEW_VIDEO_URL: ${{ inputs.review_video_source_url }}
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
         run: |
@@ -98,6 +110,8 @@ jobs:
           echo "review_draft=false" >> "$GITHUB_OUTPUT"
           echo "verify_test_draft=false" >> "$GITHUB_OUTPUT"
           echo "inspect_client=false" >> "$GITHUB_OUTPUT"
+          echo "public_review_video=false" >> "$GITHUB_OUTPUT"
+          echo "review_video_url=" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ] && [ "$AUTOPUBLISH_ENABLED" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
@@ -108,6 +122,12 @@ jobs:
             echo "verify_test_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_INSPECT_UPLOAD_CLIENT" = "true" ]; then
             echo "inspect_client=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLIC_REVIEW_VIDEO" = "true" ]; then
+            echo "public_review_video=true" >> "$GITHUB_OUTPUT"
+            printf 'review_video_url=%s\\n' "$MANUAL_REVIEW_VIDEO_URL" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo publish authorized Telegram video publicly"* ]]; then
+            echo "public_review_video=true" >> "$GITHUB_OUTPUT"
+            printf 'review_video_url=%s\\n' "https://t.me/gizmiztel/163845" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo upload reviewed Telegram video as unpublished draft"* ]]; then
             echo "review_draft=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [[ "$HEAD_COMMIT_MESSAGE" == *"FiLo inspect upload client"* ]]; then
@@ -119,7 +139,7 @@ jobs:
           fi
       - name: Install uploader dependencies
         env:
-          NEED_MEDIA_TOOLS: ${{ steps.mode.outputs.publish == 'true' || steps.mode.outputs.test_draft == 'true' || steps.mode.outputs.review_draft == 'true' }}
+          NEED_MEDIA_TOOLS: ${{ steps.mode.outputs.publish == 'true' || steps.mode.outputs.test_draft == 'true' || steps.mode.outputs.review_draft == 'true' || steps.mode.outputs.public_review_video == 'true' }}
         run: |
           set -euo pipefail
           pip install --disable-pip-version-check requests pillow yt-dlp playwright
@@ -130,7 +150,7 @@ jobs:
             sudo apt-get install -y -qq ffmpeg
           fi
       - name: Probe upload form without publishing
-        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.review_draft != 'true' && steps.mode.outputs.verify_test_draft != 'true' && steps.mode.outputs.inspect_client != 'true' }}
+        if: ${{ steps.mode.outputs.publish != 'true' && steps.mode.outputs.test_draft != 'true' && steps.mode.outputs.review_draft != 'true' && steps.mode.outputs.public_review_video != 'true' && steps.mode.outputs.verify_test_draft != 'true' && steps.mode.outputs.inspect_client != 'true' }}
         run: python content_pipeline/publish_ifilo.py
       - name: Inspect FiLo upload client without submitting
         if: ${{ steps.mode.outputs.inspect_client == 'true' }}
@@ -146,6 +166,11 @@ jobs:
         env:
           IFILO_REVIEW_DRAFT_SOURCE_URL: https://t.me/gizmiztel/163845
         run: python content_pipeline/publish_ifilo.py --upload-review-draft "$IFILO_REVIEW_DRAFT_SOURCE_URL"
+      - name: Publish one explicitly authorized Telegram video publicly
+        if: ${{ steps.mode.outputs.public_review_video == 'true' }}
+        env:
+          IFILO_PUBLIC_REVIEW_SOURCE_URL: ${{ steps.mode.outputs.review_video_url }}
+        run: python content_pipeline/publish_ifilo.py --publish-review-video "$IFILO_PUBLIC_REVIEW_SOURCE_URL"
       - name: Upload one selected video
         if: ${{ steps.mode.outputs.publish == 'true' }}
         run: python content_pipeline/publish_ifilo.py --publish
