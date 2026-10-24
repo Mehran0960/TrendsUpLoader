@@ -1125,11 +1125,66 @@ def upload_unpublished_test_draft(page) -> int:
         attempt["finished_at"] = utc_now()
         write_state(state)
         print("IFILO_TEST_DRAFT_UNCERTAIN: Submit was attempted with do-not-publish enabled, but success could not be verified. It will not be retried automatically.")
+        # Never log raw text from an authenticated page: the sidebar can contain
+        # account/profile/financial details. Emit only a small, classified state summary.
+        site_message = ""
+        angular_state = {}
+        try:
+            angular_state = page.evaluate("""() => {
+                const root = document.querySelector('[ng-controller="ctrl"]');
+                if (!root || !window.angular) return {};
+                const scope = window.angular.element(root).scope();
+                if (!scope) return {};
+                const item = scope.item || {};
+                return {
+                    message: String(scope.message || '').slice(0, 500),
+                    messageIsError: !!scope.messageIsError,
+                    publishing: !!scope.publishing,
+                    uploadComplete: !!scope.uploadComplete,
+                    uploadStarted: !!scope.uploadStarted,
+                    published: !!scope.published,
+                    titleMatches: String(item.title || '') === 'آزمایش فنی بارگذاری فیلو — پیش‌نویس',
+                    doNotPublish: !!Number(item.dontPublish),
+                    canMakeMoney: !!item.canMakeMoney,
+                    canRepublish: !!item.canRepublish,
+                    acceptRules: !!scope.acceptRules,
+                    categoryPresent: item.category !== null && item.category !== undefined && String(item.category) !== ''
+                };
+            }""")
+            site_message = str(angular_state.pop("message", "") or "")
+        except Exception:
+            angular_state = {}
+
+        message_kind = "none"
+        if site_message:
+            if "پذیرش قوانین" in site_message or "قوانین" in site_message:
+                message_kind = "rules_confirmation_or_validation"
+            elif "عنوان" in site_message:
+                message_kind = "title_validation"
+            elif "توضیح" in site_message:
+                message_kind = "description_validation"
+            elif "دسته" in site_message:
+                message_kind = "category_validation"
+            elif "فرمت" in site_message or "حجم" in site_message:
+                message_kind = "file_validation"
+            elif "موفق" in site_message or "ثبت شد" in site_message:
+                message_kind = "success_message"
+            else:
+                message_kind = "other_message"
+
         print("IFILO_TEST_DRAFT_FINAL_PAGE " + json.dumps({
             "title": str(page.title() or "")[:160],
             "path": result_path,
-            "body_excerpt": body[:1200],
-            "do_not_publish": True,
+            "upload_form_present": page.locator("#fileInput").count() > 0,
+            "title_field_present": page.locator('input[name="title"]').count() > 0,
+            "accept_rule_gate": (page.locator("#acceptRule").input_value() if page.locator("#acceptRule").count() else None),
+            "message_kind": message_kind,
+            "message_is_error": bool(angular_state.get("messageIsError", False)),
+            "message_present": bool(site_message),
+            "angular_state": angular_state,
+            "do_not_publish_checkbox": (page.locator("#dontPublish").is_checked() if page.locator("#dontPublish").count() else False),
+            "monetization_checkbox": (page.locator("#canMakeMoney").is_checked() if page.locator("#canMakeMoney").count() else None),
+            "redistribution_checkbox": (page.locator("#canRepublish").is_checked() if page.locator("#canRepublish").count() else None),
         }, ensure_ascii=False))
         return 4
 
