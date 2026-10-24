@@ -1,10 +1,10 @@
-# Project objective: audience aggregation and indirect monetization
+# Project objective: audience growth plus direct and indirect monetization
 
 ## North star
 
-Build a low-cost, mostly automated system that acquires relevant audiences across suitable platforms, then makes it easy for interested people to find and revisit a central destination controlled by the project as much as practicable.
+Build a low-cost, mostly automated system that finds high-potential videos and reaches audiences across suitable platforms, while pursuing both direct creator payouts where the platform supports them and indirect monetization through affiliate referrals, sponsorships, leads, and automated digital products.
 
-**Direct platform payouts and platform advertising revenue are explicitly out of scope.** Social platforms are distribution and discovery channels, not the business model. The intended monetization paths are indirect: affiliate referrals, sponsorships, leads, and eventually useful digital products where delivery can be automated.
+**Direct platform payouts are now in scope as a supplementary revenue channel, beginning with FiLo.** They must be measured against actual verified views, RPM, payout eligibility, operating cost, and account stability; no fixed earnings are assumed.
 
 ## What success means
 
@@ -47,14 +47,14 @@ Raw views alone are not success. Nor is a large follower count useful if the aud
 - `content_pipeline/follower_growth.py` provides a transparent heuristic triage score with freshness, topic-lane, and safety flags. It does not verify rights or forecast actual audience growth.
 - The scheduled discovery workflow can send selected existing video files to the private Telegram review chat when direct media acquisition is supported. The native relay can copy posts from explicitly allowed Telegram source channels.
 - `content_pipeline/publication_rights.py` records basic asset license evidence and blocks unknown or unresolved rights from automated publication.
-- `content_pipeline/distribution_plan.py` records destination-specific readiness. In this repository, Telegram has an opt-in Bot API route; YouTube, TikTok, Instagram, Aparat, and X publishing adapters remain unconnected.
+- `content_pipeline/distribution_plan.py` records destination-specific readiness. Telegram has an opt-in Bot API route; the FiLo browser adapter and isolated workflow have been added, but require an authenticated form probe and a verified first upload. YouTube, TikTok, Instagram, Aparat, and X routes remain separately gated.
 - The old video-builder entry point now fails closed, and automatic generation/remix workflows have been removed.
 - Public Telegram audience publishing is opt-in and requires a separate audience-channel bot/token, a repository variable, and an affirmative workflow input. It must not reuse the internal discovery-alert bot credentials.
 
 ## Next sequence
 
-1. Improve discovery precision and inspect high-potential candidates, including sources that are currently underrepresented.
-2. Keep a rights/attribution ledger and destination-specific readiness for every asset.
-3. Connect the next official publishing adapter only after current access, permissions, and platform requirements are verified.
-4. Maintain a central audience destination with clear, voluntary paths from distribution platforms.
-5. Measure visits, follows, saves/shares, and indirect conversions; improve the system based on observed results rather than assumptions.
+1. Complete the authenticated FiLo upload-form probe and verify one manually triggered test upload before enabling scheduled uploads.
+2. Measure FiLo views, RPM, balances, payout eligibility, and upload failure rate; treat earnings as unproven until dashboard data confirms them.
+3. Improve discovery precision and inspect high-potential candidates, including sources that are currently underrepresented.
+4. Keep destination-specific readiness, provenance, deduplication, and recovery options for every asset.
+5. Maintain the indirect-monetization funnel and measure direct FiLo revenue alongside affiliate conversions and other observed results.
