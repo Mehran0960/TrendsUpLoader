@@ -52,7 +52,7 @@
         "width": 360,
         "height": 640,
         "sampled_frames": 5,
-        "black_frame_ratio": 0.0,
+        "black_frame_ratio": 0,
         "mean_frame_difference": 40.32,
         "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
         "frame_hashes": [
@@ -71,7 +71,33 @@
       "download_checkbox": "allowDownload=false",
       "ownership_checkbox": "isMadeByMe=false",
       "finished_at": "2026-10-24T23:18:29.929986+00:00",
-      "server_reason_kind": "other_message"
+      "server_reason_kind": "other_message",
+      "request_guard": {
+        "matching_post_count": 60,
+        "continued_count": 0,
+        "blocked_count": 60,
+        "checks": {
+          "canonical_host": true,
+          "exact_title": true,
+          "exact_description": true,
+          "publication_state_matches": false,
+          "monetization_false": true,
+          "redistribution_false": true,
+          "download_false": true,
+          "not_claiming_ownership": true,
+          "first_request_only": false
+        }
+      },
+      "http_response_summary": {
+        "response_received": false,
+        "http_status": null,
+        "payload_success": null,
+        "content_type": "",
+        "body_kind": "not_available"
+      },
+      "public_video_url_detected": false,
+      "retry_safe": true,
+      "retry_safe_reason": "All 60 matching publish requests were blocked by the local browser guard; continued_count was 0, so no publish POST reached FiLo."
     }
   ]
 }
