@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Independent FiLo publisher/probe for a top-ranked Telegram video candidate.
 
+# Probe revision: authenticate with current repository secrets on each code-triggered safe run.
+
 This adapter intentionally does not affect the existing discovery/review workflow.
 The default mode only inspects the authenticated upload form; public upload needs
 an explicit --publish flag. Login secrets are read from the environment and never
