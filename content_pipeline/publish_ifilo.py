@@ -208,14 +208,54 @@ def load_state(path: Path = STATE_PATH) -> dict:
 def has_prior_attempt(item: dict, state: dict) -> bool:
     key = source_key(item)
     url = str(item.get("url") or "")
-    return bool(key) and any(
-        isinstance(row, dict)
-        and (
+    if not key:
+        return False
+    now = datetime.now(timezone.utc)
+    for row in state.get("attempts", []):
+        if not isinstance(row, dict):
+            continue
+        matches = (
             str(row.get("source_key") or "") == key
             or (url and str(row.get("source_url") or "") == url)
         )
-        for row in state.get("attempts", [])
-    )
+        if not matches:
+            continue
+        # A temporary direct-download failure may be retried after six hours.
+        # Accepted/uncertain submissions and deterministic media rejections never auto-retry.
+        if str(row.get("status") or "") == "download_failed":
+            stamp = str(row.get("finished_at") or row.get("started_at") or "")
+            try:
+                parsed = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+                if parsed.tzinfo is None:
+                    parsed = parsed.replace(tzinfo=timezone.utc)
+                if (now - parsed.astimezone(timezone.utc)).total_seconds() >= 6 * 3600:
+                    continue
+            except (TypeError, ValueError):
+                pass
+        return True
+    return False
+
+
+def record_queue_media_failure(item: dict, reason: str) -> None:
+    """Avoid re-downloading files that deterministically fail FiLo's media gates."""
+    if str(item.get("source") or "").lower() != "nasa_public_domain_video":
+        return
+    state = load_state()
+    if has_prior_attempt(item, state):
+        return
+    retryable = reason == "nasa_download_failed"
+    attempt = {
+        "source_key": source_key(item),
+        "source_url": str(item.get("url") or ""),
+        "source_title": str(item.get("title") or "")[:300],
+        "status": "download_failed" if retryable else "media_rejected",
+        "reason_code": str(reason or "media_gate_rejected")[:80],
+        "started_at": utc_now(),
+        "finished_at": utc_now(),
+        "mode": "nasa_rights_screened_queue",
+    }
+    state.setdefault("attempts", []).append(attempt)
+    write_state(state)
 
 
 def write_state(state: dict, path: Path = STATE_PATH) -> None:
@@ -2590,6 +2630,10 @@ def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool
                     for row in candidates:
                         video_path, quality = prepare_candidate_video(row, Path(media_tmp))
                         if video_path is None:
+                            record_queue_media_failure(
+                                row,
+                                str(quality.get("reason") or quality.get("content_gate_reason") or "media_gate_rejected"),
+                            )
                             continue
                         if has_prior_attempt(row, load_state()):
                             print("IFILO_DUPLICATE_GUARD: Candidate was attempted by another run.")
