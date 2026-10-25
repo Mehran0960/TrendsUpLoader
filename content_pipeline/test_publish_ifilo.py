@@ -11,6 +11,7 @@ from content_pipeline.publish_ifilo import (
     make_title,
     normalized_text,
     source_key,
+    rights_cleared_for_ifilo,
     write_state,
 )
 
@@ -50,6 +51,17 @@ class FiLoMetadataTests(unittest.TestCase):
         self.assertIn("موضوع:", description)
         self.assertIn("حیوانات", description)
         self.assertNotIn("https://", description)
+
+
+class FiLoRightsTests(unittest.TestCase):
+    def test_rights_evidence_requires_explicit_clearance_and_a_reference(self):
+        self.assertFalse(rights_cleared_for_ifilo({"rights_evidence_url": "https://example.org/license"}))
+        self.assertFalse(rights_cleared_for_ifilo({"rights_cleared_for_publication": True}))
+        self.assertFalse(rights_cleared_for_ifilo({"rights_cleared_for_publication": False, "license_url": "https://example.org/license"}))
+        self.assertTrue(rights_cleared_for_ifilo({
+            "rights_cleared_for_publication": True,
+            "license_url": "https://example.org/license",
+        }))
 
 
 class FiLoDeduplicationTests(unittest.TestCase):
