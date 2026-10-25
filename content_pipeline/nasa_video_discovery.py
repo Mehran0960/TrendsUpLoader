@@ -27,6 +27,22 @@ MAX_SEARCH_RESULTS_TO_INSPECT = 60
 MAX_QUEUE_ITEMS = 500
 TIMEOUT = (10, 30)
 
+# NASA Image Library center codes; combined with an empty/NASA-only secondary creator,
+# this avoids treating any arbitrary third-party center as NASA-owned material.
+NASA_CENTER_VALUES = {
+    "NASA", "HQ", "NASA HEADQUARTERS", "HEADQUARTERS",
+    "JPL", "JET PROPULSION LABORATORY", "NASA JET PROPULSION LABORATORY",
+    "GSFC", "GODDARD SPACE FLIGHT CENTER", "NASA GODDARD SPACE FLIGHT CENTER",
+    "JSC", "JOHNSON SPACE CENTER", "NASA JOHNSON SPACE CENTER",
+    "KSC", "KENNEDY SPACE CENTER", "NASA KENNEDY SPACE CENTER",
+    "MSFC", "MARSHALL SPACE FLIGHT CENTER", "NASA MARSHALL SPACE FLIGHT CENTER",
+    "GRC", "GLENN RESEARCH CENTER", "NASA GLENN RESEARCH CENTER",
+    "ARC", "AMES RESEARCH CENTER", "NASA AMES RESEARCH CENTER",
+    "LRC", "LARC", "LANGLEY RESEARCH CENTER", "NASA LANGLEY RESEARCH CENTER",
+    "DFRC", "AFRC", "DRYDEN FLIGHT RESEARCH CENTER", "ARMSTRONG FLIGHT RESEARCH CENTER",
+    "SSC", "STENNIS SPACE CENTER", "NASA STENNIS SPACE CENTER",
+}
+
 SEARCHES = [
     ("Earth from space", ["science_curiosity", "nature_and_wildlife"]),
     ("aurora", ["science_curiosity", "nature_and_wildlife"]),
@@ -78,9 +94,9 @@ def squash(value: object, limit: int = 2200) -> str:
 
 
 def allowed_nasa_metadata(data: dict) -> tuple[bool, str]:
-    """Return true only for NASA-center records with no visible rights/person/audio warnings."""
+    """Return true for recognized NASA-center records with no visible rights/person/audio warnings."""
     center = squash(data.get("center"), 120)
-    if center.strip().casefold() != "nasa":
+    if center.strip().upper() not in NASA_CENTER_VALUES:
         return False, "non_nasa_center"
 
     secondary = squash(data.get("secondary_creator"), 500)
