@@ -81,6 +81,7 @@ jobs:
         run: python content_pipeline/social_discovery.py
       - name: Add rights-screened NASA videos to the shared queue
         # This adapter is independent of whether a viral-platform search returned results.
+        # NASA center-code, third-party, person, music, and copyright screens are maintained in the source adapter.
         # It runs before Telegram delivery so a Telegram failure cannot block FiLo's source pool.
         if: ${{ always() && !cancelled() && steps.verify_tools.outcome == 'success' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, 'Prime viral discovery run'))) }}
         run: python content_pipeline/nasa_video_discovery.py
