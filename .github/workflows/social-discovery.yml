@@ -134,9 +134,6 @@ jobs:
           if [ -f attention_state/peak_window_planner_state.json ]; then
             cp attention_state/peak_window_planner_state.json "$state_tmp/peak_window_planner_state.json"
           fi
-          if [ -f attention_state/ifilo_upload_state.json ]; then
-            cp attention_state/ifilo_upload_state.json "$state_tmp/ifilo_upload_state.json"
-          fi
 
           pushed=false
           for attempt in 1 2 3 4; do
@@ -186,45 +183,6 @@ jobs:
           merged["media_reviewed_fingerprints"] = list(fingerprints.values())[-300:]
           current_path.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
           PY
-            fi
-
-            if [ -f "$state_tmp/ifilo_upload_state.json" ]; then
-              python - "$state_tmp/ifilo_upload_state.json" attention_state/ifilo_upload_state.json <<'PY'
-          import json, pathlib, sys
-          incoming_path, current_path = map(pathlib.Path, sys.argv[1:])
-          def load(path):
-              try:
-                  value = json.loads(path.read_text(encoding="utf-8"))
-                  return value if isinstance(value, dict) else {}
-              except Exception:
-                  return {}
-          incoming, current = load(incoming_path), load(current_path)
-          merged = {}
-          rank = {
-              "uploaded": 8, "draft_uploaded": 8, "test_draft_unexpected_public_route": 8,
-              "uncertain_after_submit": 6, "review_public_uncertain": 6, "test_draft_uncertain": 6,
-              "pending": 4, "review_public_rejected": 3, "review_draft_rejected": 3,
-              "submit_failed_before_click": 2, "download_failed": 1,
-          }
-          for row in (current.get("attempts") or []) + (incoming.get("attempts") or []):
-              if not isinstance(row, dict):
-                  continue
-              key = str(row.get("source_key") or row.get("source_url") or "")
-              if not key:
-                  continue
-              old = merged.get(key)
-              if old is None or rank.get(str(row.get("status") or ""), 0) >= rank.get(str(old.get("status") or ""), 0):
-                  merged.pop(key, None)
-                  merged[key] = row
-          payload = {
-              "schema_version": 1,
-              "updated_at": incoming.get("updated_at") or current.get("updated_at"),
-              "attempts": list(merged.values())[-500:],
-          }
-          current_path.parent.mkdir(parents=True, exist_ok=True)
-          current_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-          PY
-              git add attention_state/ifilo_upload_state.json
             fi
 
             if [ -f "$state_tmp/social_discovery.json" ]; then
