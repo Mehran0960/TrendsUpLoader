@@ -1,21 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T05:26:25.233826+00:00",
-  "query": "Mars rover",
-  "api_results": 97,
-  "records_inspected": 60,
-  "metadata_screen_passes": 42,
-  "metadata_rejections": {
-    "secondary_creator_present": 7,
-    "person_or_audio_signal": 10,
-    "third_party_partner_signal": 1
-  },
-  "post_screen_build_failures": 42,
+  "updated_at": "2026-10-25T05:31:08.334561+00:00",
+  "query": "solar flare",
+  "api_results": 0,
+  "records_inspected": 0,
+  "metadata_screen_passes": 0,
+  "metadata_rejections": {},
+  "post_screen_build_failures": 0,
   "duplicate_records": 0,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
   "nasa_queue_items": 0,
+  "asset_lookup_diagnostics": {
+    "manifest_mp4_found": 0,
+    "fallback_mp4_verified": 0,
+    "failures": {},
+    "samples": []
+  },
   "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
   "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
 }
