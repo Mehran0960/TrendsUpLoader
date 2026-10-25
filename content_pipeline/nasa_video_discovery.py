@@ -142,11 +142,17 @@ def _request_json(url: str, params: dict | None = None) -> dict | None:
         return None
 
 
+def search_slot(now: datetime) -> int:
+    """Use two distinct source slots per hour so the independent collector doesn't repeat one query."""
+    return now.timetuple().tm_yday * 48 + now.hour * 2 + now.minute // 30
+
+
 def search_items(now: datetime | None = None) -> tuple[str, list[dict]]:
     current = now or datetime.now(timezone.utc)
-    index = (current.timetuple().tm_yday + current.hour) % len(SEARCHES)
+    slot = search_slot(current)
+    index = slot % len(SEARCHES)
     query, _lanes = SEARCHES[index]
-    page = 1 + ((current.timetuple().tm_yday * 24 + current.hour) // len(SEARCHES)) % 4
+    page = 1 + (slot // len(SEARCHES)) % 4
     response = _request_json(
         NASA_API + "/search",
         {"q": query, "media_type": "video", "page_size": 100, "page": page},
@@ -304,7 +310,7 @@ def main() -> int:
         detail_url = "https://images.nasa.gov/details/" + nasa_id if nasa_id else ""
         if not detail_url or detail_url in existing_urls:
             continue
-        candidate = build_candidate(api_item, query, SEARCHES[(now.timetuple().tm_yday + now.hour) % len(SEARCHES)][1], timestamp)
+        candidate = build_candidate(api_item, query, SEARCHES[search_slot(now) % len(SEARCHES)][1], timestamp)
         if candidate:
             additions.append(candidate)
             existing_urls.add(candidate["url"])
