@@ -27,6 +27,17 @@ class NasaRightsScreenTests(unittest.TestCase):
         self.assertTrue(accepted)
         self.assertEqual(reason, "metadata_passed_conservative_nasa_screen")
 
+    def test_recognized_nasa_centre_with_nasa_secondary_creator_passes(self):
+        accepted, reason = allowed_nasa_metadata({
+            "center": "JPL",
+            "secondary_creator": "NASA",
+            "title": "A planetary landscape",
+            "description": "NASA robotic mission imagery of a planetary landscape.",
+            "keywords": ["planetary science", "space"],
+        })
+        self.assertTrue(accepted)
+        self.assertEqual(reason, "metadata_passed_conservative_nasa_screen")
+
     def test_non_nasa_centre_is_rejected(self):
         accepted, reason = allowed_nasa_metadata({
             "center": "ESA",
