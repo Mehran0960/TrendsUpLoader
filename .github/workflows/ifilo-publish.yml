@@ -45,6 +45,8 @@ on:
     paths:
       - "content_pipeline/publish_ifilo.py"
       - "content_pipeline/test_publish_ifilo.py"
+      - "content_pipeline/nasa_video_discovery.py"
+      - "content_pipeline/test_nasa_video_discovery.py"
       - "content_pipeline/distribution_plan.py"
       - "attention_state/social_discovery.json"
       - ".github/workflows/ifilo-publish.yml"
@@ -70,7 +72,7 @@ jobs:
       - name: Install test dependencies
         run: pip install --disable-pip-version-check requests pillow yt-dlp
       - name: Test FiLo metadata and duplicate protection
-        run: python -m unittest -v content_pipeline.test_publish_ifilo
+        run: python -m unittest -v content_pipeline.test_publish_ifilo content_pipeline.test_nasa_video_discovery
 
   publish:
     # Push-triggered runs are diagnostics unless a specifically named private draft smoke test is requested.
