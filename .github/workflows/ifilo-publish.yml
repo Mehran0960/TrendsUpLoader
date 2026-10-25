@@ -224,7 +224,7 @@ jobs:
               old = merged.get(key)
               rank = {"uploaded": 5, "draft_uploaded": 5, "test_draft_unexpected_public_route": 5,
                       "uncertain_after_submit": 4, "test_draft_uncertain": 4, "pending": 3,
-                      "submit_failed_before_click": 2, "download_failed": 1}
+                      "media_rejected": 2, "submit_failed_before_click": 2, "download_failed": 1}
               if old is None or rank.get(str(row.get("status")), 0) >= rank.get(str(old.get("status")), 0):
                   merged[key] = row
           payload = {
