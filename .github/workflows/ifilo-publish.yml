@@ -35,7 +35,7 @@ on:
         default: "https://t.me/gizmiztel/163845"
   schedule:
     # Five low-frequency slots matching the existing Tehran audience windows.
-    # Scheduled publishing stays off unless the repository variable is explicitly enabled.
+    # FiLo is a separate destination: its own schedule selects directly from the discovery queue and does not wait for Telegram delivery.
     - cron: "50 8 * * *"
     - cron: "20 14 * * *"
     - cron: "50 15 * * *"
@@ -58,7 +58,6 @@ permissions:
 
 jobs:
   regression-tests:
-    if: ${{ github.event_name != 'schedule' || vars.IFILO_AUTOPUBLISH_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -74,8 +73,8 @@ jobs:
   publish:
     # Push-triggered runs are diagnostics unless a specifically named private draft smoke test is requested.
     # Both draft modes force publication, monetization, redistribution, and download off; they never enable public auto-publishing.
-    # Public posting still requires the manual publish input or the separate scheduled opt-in.
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || (github.event_name == 'schedule' && vars.IFILO_AUTOPUBLISH_ENABLED == 'true') }}
+    # Scheduled FiLo publishing is independent of the Telegram workflow and takes one eligible candidate per slot.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule' }}
     needs: regression-tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -83,7 +82,6 @@ jobs:
       IFILO_LOGIN_ID: ${{ secrets.IFILO_LOGIN_ID }}
       IFILO_PASSWORD: ${{ secrets.IFILO_PASSWORD }}
       IFILO_STORAGE_STATE_B64: ${{ secrets.IFILO_STORAGE_STATE_B64 }}
-      IFILO_AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
       TZ: Asia/Tehran
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +101,6 @@ jobs:
           MANUAL_PUBLIC_REVIEW_VIDEO: ${{ inputs.publish_review_video }}
           MANUAL_REVIEW_VIDEO_URL: ${{ inputs.review_video_source_url }}
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-          AUTOPUBLISH_ENABLED: ${{ vars.IFILO_AUTOPUBLISH_ENABLED }}
         run: |
           echo "publish=false" >> "$GITHUB_OUTPUT"
           echo "test_draft=false" >> "$GITHUB_OUTPUT"
@@ -112,7 +109,7 @@ jobs:
           echo "inspect_client=false" >> "$GITHUB_OUTPUT"
           echo "public_review_video=false" >> "$GITHUB_OUTPUT"
           echo "review_video_url=" >> "$GITHUB_OUTPUT"
-          if [ "$EVENT_NAME" = "schedule" ] && [ "$AUTOPUBLISH_ENABLED" = "true" ]; then
+          if [ "$EVENT_NAME" = "schedule" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_PUBLISH" = "true" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
@@ -166,7 +163,7 @@ jobs:
         env:
           IFILO_REVIEW_DRAFT_SOURCE_URL: https://t.me/gizmiztel/163845
         run: python content_pipeline/publish_ifilo.py --upload-review-draft "$IFILO_REVIEW_DRAFT_SOURCE_URL"
-      # One-off exact-source public upload; scheduled publishing remains separately opt-in.
+      # One-off exact-source manual upload remains available. Scheduled FiLo publishing uses --publish from the independent queue above.
       - name: Publish one explicitly authorized Telegram video publicly
         if: ${{ steps.mode.outputs.public_review_video == 'true' }}
         env:
