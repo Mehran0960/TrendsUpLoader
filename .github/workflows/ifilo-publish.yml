@@ -34,13 +34,9 @@ on:
         required: false
         default: "https://t.me/gizmiztel/163845"
   schedule:
-    # Five low-frequency slots matching the existing Tehran audience windows.
-    # FiLo is a separate destination: its own schedule selects directly from the discovery queue and does not wait for Telegram delivery.
-    - cron: "50 8 * * *"
-    - cron: "20 14 * * *"
-    - cron: "50 15 * * *"
-    - cron: "20 17 * * *"
-    - cron: "50 18 * * *"
+    # Highest practical cadence supported by GitHub Actions, offset from minute 0 to reduce schedule contention.
+    # Each run checks the shared discovery queue; FiLo publishing is independent of Telegram delivery.
+    - cron: "2-57/5 * * * *"
   push:
     paths:
       - "content_pipeline/publish_ifilo.py"
@@ -58,6 +54,7 @@ permissions:
 
 jobs:
   regression-tests:
+    if: ${{ github.event_name != 'schedule' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -73,8 +70,8 @@ jobs:
   publish:
     # Push-triggered runs are diagnostics unless a specifically named private draft smoke test is requested.
     # Both draft modes force publication, monetization, redistribution, and download off; they never enable public auto-publishing.
-    # Scheduled FiLo publishing is independent of the Telegram workflow and takes one eligible candidate per slot.
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule' }}
+    # Scheduled FiLo publishing is independent of the Telegram workflow and attempts one eligible candidate on each five-minute check.
+    if: ${{ always() && (github.event_name == 'schedule' || needs.regression-tests.result == 'success') && (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule') }}
     needs: regression-tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
