@@ -1,6 +1,7 @@
 name: NASA Licensed Video Discovery
 
-# Independent of the social/Telegram workflow. Every run adds only source-screened
+# Prime licensed video discovery: this queue source is independent of the social/Telegram workflow.
+# Every scheduled run adds only source-screened
 # NASA-origin MP4s and writes small screening metrics; the separate FiLo workflow handles publishing.
 on:
   schedule:
