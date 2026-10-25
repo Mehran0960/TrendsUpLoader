@@ -255,7 +255,7 @@ def mp4_media_url(nasa_id: str) -> str:
     if urls:
         # Prefer a middle/small derivative to reduce bandwidth; fall back to the
         # official manifest's available MP4s. Verify that the media URL is live.
-        preference = ("~medium.mp4", "~small.mp4", "~large.mp4", "~orig.mp4")
+        preference = ("~small.mp4", "~medium.mp4", "~large.mp4", "~orig.mp4")
         ordered = []
         for suffix in preference:
             ordered.extend(url for url in urls if url.lower().endswith(suffix))
@@ -270,7 +270,7 @@ def mp4_media_url(nasa_id: str) -> str:
     # then verify the candidate with an actual ranged request before returning it.
     fallback_candidates = [
         f"https://images-assets.nasa.gov/video/{nasa_id}/{nasa_id}~{size}.mp4"
-        for size in ("medium", "small", "orig")
+        for size in ("small", "medium", "orig")
     ]
     for candidate in fallback_candidates:
         if _verify_official_mp4_url(candidate):
