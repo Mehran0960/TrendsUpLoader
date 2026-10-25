@@ -1,5 +1,46 @@
 {
   "schema_version": 1,
-  "updated_at": null,
-  "attempts": []
+  "updated_at": "2026-10-25T05:35:57.018904+00:00",
+  "attempts": [
+    {
+      "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
+      "source_url": "https://images.nasa.gov/details/KSC-20191008-VP-CDC01-0001-Pegasus_ICON_Prelaunch_Mission_Briefing-3234088",
+      "source_title": "Pegasus ICON Prelaunch Mission Briefing",
+      "status": "media_rejected",
+      "reason_code": "nasa_video_over_size_limit",
+      "started_at": "2026-10-25T05:35:53.603101+00:00",
+      "finished_at": "2026-10-25T05:35:53.603110+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "b13ccb9fe53d5e0414b86d535f079b7234dd7d1356212a0abf8c6f526050d148",
+      "source_url": "https://images.nasa.gov/details/MSFC_2025_March_CenterHighlightReel",
+      "source_title": "Marshall Space Flight Center 2024-2025 Highlight Reel",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T05:35:54.804964+00:00",
+      "finished_at": "2026-10-25T05:35:54.804971+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "439f9c8f10b564a117a16271fec457d8295e0b11685d9ae5b5e7ee3611379c35",
+      "source_url": "https://images.nasa.gov/details/JPL-20230929-PSYCHEf-0002-Imager",
+      "source_title": "How Will #MissionToPsyche See Its Target Asteroid?",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T05:35:56.335560+00:00",
+      "finished_at": "2026-10-25T05:35:56.335566+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "2f8a5ba9fa11086bceacbfa0fefd059c133afbf2d4a8b4ea24e82514fc8bcfe8",
+      "source_url": "https://images.nasa.gov/details/ksc_061404_t-nebula",
+      "source_title": "KSC-04-S-00193",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T05:35:57.018857+00:00",
+      "finished_at": "2026-10-25T05:35:57.018865+00:00",
+      "mode": "nasa_rights_screened_queue"
+    }
+  ]
 }
