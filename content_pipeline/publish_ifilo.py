@@ -694,7 +694,9 @@ def rights_cleared_for_ifilo(item: dict) -> bool:
             and str(item.get("license_url") or "").strip() == NASA_MEDIA_POLICY_URL
             and str(screen.get("basis") or "") == "metadata_passed_conservative_nasa_screen"
             and str(screen.get("center") or "").strip().casefold() == "nasa"
-            and not str(screen.get("secondary_creator") or "").strip()
+            and str(screen.get("secondary_creator") or "").strip().casefold() in {
+                "", "nasa", "national aeronautics and space administration"
+            }
             and screen.get("third_party_warning_found") is False
             and screen.get("person_or_audio_signal_found") is False
         )
