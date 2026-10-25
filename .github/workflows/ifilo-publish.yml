@@ -76,7 +76,7 @@ jobs:
     # Push-triggered runs are diagnostics unless a specifically named private draft smoke test is requested.
     # Both draft modes force publication, monetization, redistribution, and download off; they never enable public auto-publishing.
     # FiLo publishes independently: after successful discovery runs, plus every five minutes as a retry/check cadence.
-    if: ${{ always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && github.event.head_commit.message == 'Update multi-platform social discovery state') || needs.regression-tests.result == 'success') && (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')) }}
+    if: ${{ always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'cancelled') || (github.event_name == 'push' && github.event.head_commit.message == 'Update multi-platform social discovery state') || needs.regression-tests.result == 'success') && (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'cancelled')) }}
     needs: regression-tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -114,7 +114,7 @@ jobs:
           echo "review_video_url=" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
-          elif [ "$EVENT_NAME" = "workflow_run" ] && [ "$WORKFLOW_RUN_CONCLUSION" = "success" ]; then
+          elif [ "$EVENT_NAME" = "workflow_run" ] && [ "$WORKFLOW_RUN_CONCLUSION" != "cancelled" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [ "$HEAD_COMMIT_MESSAGE" = "Update multi-platform social discovery state" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
