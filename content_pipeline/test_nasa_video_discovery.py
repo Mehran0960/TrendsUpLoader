@@ -1,6 +1,9 @@
 import unittest
 
-from content_pipeline.nasa_video_discovery import allowed_nasa_metadata, merge_candidates
+from unittest.mock import patch
+
+from content_pipeline.nasa_video_discovery import allowed_nasa_metadata, build_candidate, merge_candidates
+from content_pipeline.publish_ifilo import rights_cleared_for_ifilo
 from content_pipeline.social_discovery import platform, is_video_post
 
 
@@ -64,6 +67,32 @@ class NasaRightsScreenTests(unittest.TestCase):
             })
             self.assertFalse(accepted)
             self.assertEqual(reason, "person_or_audio_signal")
+
+    def test_candidate_builder_emits_auditable_nasa_rights_record(self):
+        api_item = {
+            "data": [{
+                "nasa_id": "NASA001_ABC",
+                "media_type": "video",
+                "center": "NASA",
+                "secondary_creator": "",
+                "title": "Earth at night from orbit",
+                "description": "Views of Earth at night from orbital altitude.",
+                "keywords": ["Earth", "orbit", "science"],
+                "date_created": "2024-01-01T00:00:00Z",
+            }]
+        }
+        media_url = "https://images-assets.nasa.gov/video/NASA001_ABC~medium.mp4"
+        with patch("content_pipeline.nasa_video_discovery.mp4_media_url", return_value=media_url):
+            candidate = build_candidate(
+                api_item,
+                "Earth from space",
+                ["science_curiosity", "nature_and_wildlife"],
+                "2026-10-25T00:00:00+00:00",
+            )
+        self.assertIsNotNone(candidate)
+        self.assertEqual(candidate["source"], "nasa_public_domain_video")
+        self.assertEqual(candidate["direct_media_url"], media_url)
+        self.assertTrue(rights_cleared_for_ifilo(candidate))
 
     def test_merge_preserves_other_sources_and_deduplicates_nasa_url(self):
         payload = {
