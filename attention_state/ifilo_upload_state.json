@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T14:25:51.513253+00:00",
+  "updated_at": "2026-10-25T17:21:06.014158+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -408,6 +408,16 @@
       "finished_at": "2026-10-25T14:25:51.513182+00:00",
       "ifilo_url": "",
       "confirmation": "account_title_found"
+    },
+    {
+      "source_key": "e3dbc32905bfd3ef75eb8632a12653f732a52810453c2816c57d08fcdd989176",
+      "source_url": "https://images.nasa.gov/details/KSC-20231205-VP-MWC01-002-ISS25TH-HORIZONTAL-M1852-SUPERCUT-UHD",
+      "source_title": "ISS@25: What We Learn",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T17:21:06.014116+00:00",
+      "finished_at": "2026-10-25T17:21:06.014125+00:00",
+      "mode": "nasa_rights_screened_queue"
     }
   ]
 }
