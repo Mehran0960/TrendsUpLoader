@@ -24,6 +24,7 @@ NASA_API = "https://images-api.nasa.gov"
 NASA_POLICY_URL = "https://www.nasa.gov/nasa-brand-center/images-and-media/"
 USER_AGENT = "TrendsUpLoader/1.0 (source metadata and attribution retained)"
 MAX_ADDITIONS_PER_RUN = 15
+MAX_SEARCH_QUERIES_PER_RUN = 3
 MAX_SEARCH_RESULTS_TO_INSPECT = 60
 MAX_QUEUE_ITEMS = 500
 TIMEOUT = (10, 30)
@@ -178,21 +179,28 @@ def search_slot(now: datetime) -> int:
     return now.timetuple().tm_yday * 48 + now.hour * 2 + now.minute // 30
 
 
-def search_items(now: datetime | None = None) -> tuple[str, list[dict]]:
+def search_items(now: datetime | None = None) -> list[dict]:
+    """Try up to three distinct query/page pairs instead of wasting a slot on one empty page."""
     current = now or datetime.now(timezone.utc)
     slot = search_slot(current)
-    index = slot % len(SEARCHES)
-    query, _lanes = SEARCHES[index]
-    page = 1 + (slot // len(SEARCHES)) % 4
-    response = _request_json(
-        NASA_API + "/search",
-        {"q": query, "media_type": "video", "page_size": 100, "page": page},
-    )
-    if not response:
-        return query, []
-    collection = response.get("collection")
-    items = collection.get("items", []) if isinstance(collection, dict) else []
-    return query, [x for x in items if isinstance(x, dict)]
+    runs = []
+    for offset in range(MAX_SEARCH_QUERIES_PER_RUN):
+        index = (slot + offset) % len(SEARCHES)
+        query, lanes = SEARCHES[index]
+        page = 1 + ((slot // len(SEARCHES) + offset) % 4)
+        response = _request_json(
+            NASA_API + "/search",
+            {"q": query, "media_type": "video", "page_size": 100, "page": page},
+        )
+        collection = response.get("collection") if isinstance(response, dict) else None
+        items = collection.get("items", []) if isinstance(collection, dict) else []
+        runs.append({
+            "query": query,
+            "lanes": lanes,
+            "page": page,
+            "items": [x for x in items if isinstance(x, dict)],
+        })
+    return runs
 
 
 def _verify_official_mp4_url(url: str) -> bool:
@@ -389,7 +397,9 @@ def merge_candidates(payload: dict, additions: list[dict], timestamp: str) -> di
 def main() -> int:
     now = datetime.now(timezone.utc)
     timestamp = now.isoformat()
-    query, api_items = search_items(now)
+    query_runs = search_items(now)
+    primary_query = next((row["query"] for row in query_runs if row["items"]), query_runs[0]["query"] if query_runs else "")
+    total_api_results = sum(len(row["items"]) for row in query_runs)
     payload = load_payload()
     existing_urls = {
         str(row.get("url") or "")
@@ -402,42 +412,48 @@ def main() -> int:
     metadata_screen_passes = 0
     metadata_rejections: dict[str, int] = {}
     post_screen_build_failures = 0
-    lanes = SEARCHES[search_slot(now) % len(SEARCHES)][1]
-    for api_item in api_items[:MAX_SEARCH_RESULTS_TO_INSPECT]:
-        if len(additions) >= MAX_ADDITIONS_PER_RUN:
+    records_inspected = 0
+    for query_run in query_runs:
+      for api_item in query_run["items"]:
+        if len(additions) >= MAX_ADDITIONS_PER_RUN or records_inspected >= MAX_SEARCH_RESULTS_TO_INSPECT:
             break
+        records_inspected += 1
         data_rows = api_item.get("data") or []
-        if not data_rows or not isinstance(data_rows[0], dict):
-            invalid_records += 1
-            continue
-        data = data_rows[0]
-        nasa_id = squash(data.get("nasa_id"), 100)
-        detail_url = "https://images.nasa.gov/details/" + nasa_id if nasa_id else ""
-        if not detail_url:
-            invalid_records += 1
-            continue
-        if detail_url in existing_urls:
-            duplicate_records += 1
-            continue
-        allowed, reason = allowed_nasa_metadata(data)
-        if not allowed:
-            metadata_rejections[reason] = metadata_rejections.get(reason, 0) + 1
-            continue
-        metadata_screen_passes += 1
-        candidate = build_candidate(api_item, query, lanes, timestamp)
-        if candidate:
-            additions.append(candidate)
-            existing_urls.add(candidate["url"])
-        else:
-            post_screen_build_failures += 1
+          if not data_rows or not isinstance(data_rows[0], dict):
+              invalid_records += 1
+              continue
+          data = data_rows[0]
+          nasa_id = squash(data.get("nasa_id"), 100)
+          detail_url = "https://images.nasa.gov/details/" + nasa_id if nasa_id else ""
+          if not detail_url:
+              invalid_records += 1
+              continue
+          if detail_url in existing_urls:
+              duplicate_records += 1
+              continue
+          allowed, reason = allowed_nasa_metadata(data)
+          if not allowed:
+              metadata_rejections[reason] = metadata_rejections.get(reason, 0) + 1
+              continue
+          metadata_screen_passes += 1
+          candidate = build_candidate(api_item, query_run["query"], query_run["lanes"], timestamp)
+          if candidate:
+              additions.append(candidate)
+              existing_urls.add(candidate["url"])
+          else:
+              post_screen_build_failures += 1
 
     merged = merge_candidates(payload, additions, timestamp)
     status = {
         "schema_version": 1,
         "updated_at": timestamp,
-        "query": query,
-        "api_results": len(api_items),
-        "records_inspected": min(len(api_items), MAX_SEARCH_RESULTS_TO_INSPECT),
+        "query": primary_query,
+        "queries": [
+            {"query": row["query"], "page": row["page"], "results": len(row["items"])}
+            for row in query_runs
+        ],
+        "api_results": total_api_results,
+        "records_inspected": records_inspected,
         "metadata_screen_passes": metadata_screen_passes,
         "metadata_rejections": metadata_rejections,
         "post_screen_build_failures": post_screen_build_failures,
