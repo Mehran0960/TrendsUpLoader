@@ -37,6 +37,10 @@ on:
     # Highest practical cadence supported by GitHub Actions, offset from minute 0 to reduce schedule contention.
     # Each run checks the shared discovery queue; FiLo publishing is independent of Telegram delivery.
     - cron: "2-57/5 * * * *"
+  workflow_run:
+    workflows: ["Multi-Platform Social Discovery"]
+    types: [completed]
+    branches: [main]
   push:
     paths:
       - "content_pipeline/publish_ifilo.py"
@@ -55,7 +59,7 @@ permissions:
 
 jobs:
   regression-tests:
-    if: ${{ github.event_name != 'schedule' && (github.event_name != 'push' || github.event.head_commit.message != 'Update multi-platform social discovery state') }}
+    if: ${{ github.event_name != 'schedule' && github.event_name != 'workflow_run' && (github.event_name != 'push' || github.event.head_commit.message != 'Update multi-platform social discovery state') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -71,8 +75,8 @@ jobs:
   publish:
     # Push-triggered runs are diagnostics unless a specifically named private draft smoke test is requested.
     # Both draft modes force publication, monetization, redistribution, and download off; they never enable public auto-publishing.
-    # FiLo publishes independently: immediately after a queue refresh, plus every five minutes as a retry/check cadence.
-    if: ${{ always() && (github.event_name == 'schedule' || (github.event_name == 'push' && github.event.head_commit.message == 'Update multi-platform social discovery state') || needs.regression-tests.result == 'success') && (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule') }}
+    # FiLo publishes independently: after successful discovery runs, plus every five minutes as a retry/check cadence.
+    if: ${{ always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || (github.event_name == 'push' && github.event.head_commit.message == 'Update multi-platform social discovery state') || needs.regression-tests.result == 'success') && (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')) }}
     needs: regression-tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -99,6 +103,7 @@ jobs:
           MANUAL_PUBLIC_REVIEW_VIDEO: ${{ inputs.publish_review_video }}
           MANUAL_REVIEW_VIDEO_URL: ${{ inputs.review_video_source_url }}
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          WORKFLOW_RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         run: |
           echo "publish=false" >> "$GITHUB_OUTPUT"
           echo "test_draft=false" >> "$GITHUB_OUTPUT"
@@ -108,6 +113,8 @@ jobs:
           echo "public_review_video=false" >> "$GITHUB_OUTPUT"
           echo "review_video_url=" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          elif [ "$EVENT_NAME" = "workflow_run" ] && [ "$WORKFLOW_RUN_CONCLUSION" = "success" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [ "$HEAD_COMMIT_MESSAGE" = "Update multi-platform social discovery state" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
