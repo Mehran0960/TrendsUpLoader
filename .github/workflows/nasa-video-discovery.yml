@@ -1,0 +1,81 @@
+name: NASA Licensed Video Discovery
+
+# Independent of the social/Telegram workflow. Every run adds only source-screened
+# NASA-origin MP4s to the shared queue; the separate FiLo workflow handles publishing.
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "content_pipeline/nasa_video_discovery.py"
+      - "content_pipeline/test_nasa_video_discovery.py"
+      - ".github/workflows/nasa-video-discovery.yml"
+
+concurrency:
+  # Share the queue-writer lock with social discovery to avoid lost updates.
+  group: social-discovery
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  discover-nasa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install small source/test dependencies
+        run: pip install --disable-pip-version-check requests pillow yt-dlp
+      - name: Test the NASA source screen and FiLo gate
+        run: python -m unittest -v content_pipeline.test_nasa_video_discovery content_pipeline.test_publish_ifilo
+      - name: Discover NASA source-screened videos
+        id: discover_nasa
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, 'Prime licensed video discovery')) }}
+        run: python content_pipeline/nasa_video_discovery.py
+      - name: Persist the shared discovery queue
+        if: ${{ always() && !cancelled() && steps.discover_nasa.outcome == 'success' && hashFiles('attention_state/social_discovery.json') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          state_tmp="$(mktemp)"
+          cp attention_state/social_discovery.json "$state_tmp"
+          pushed=false
+          for attempt in 1 2 3 4; do
+            git fetch origin main
+            git reset --hard origin/main
+            mkdir -p attention_state
+            cp "$state_tmp" attention_state/social_discovery.json
+            python - attention_state/social_discovery.json <<'PY'
+          import json, pathlib, sys
+          path = pathlib.Path(sys.argv[1])
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          if not isinstance(payload, dict) or not isinstance(payload.get("items"), list):
+              raise SystemExit("Refusing to persist invalid shared discovery queue.")
+          PY
+            git add attention_state/social_discovery.json
+            if git diff --cached --quiet; then
+              pushed=true
+              break
+            fi
+            git commit -m "Update shared queue with NASA video candidates"
+            if git push origin HEAD:main; then
+              pushed=true
+              break
+            fi
+            sleep "$attempt"
+          done
+          rm -f "$state_tmp"
+          if [ "$pushed" != "true" ]; then
+            echo "Failed to persist the shared discovery queue after four attempts." >&2
+            exit 1
+          fi
