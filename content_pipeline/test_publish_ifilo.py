@@ -12,6 +12,7 @@ from content_pipeline.publish_ifilo import (
     normalized_text,
     source_key,
     rights_cleared_for_ifilo,
+    _normalize_queue_candidate_url,
     write_state,
 )
 
@@ -51,6 +52,31 @@ class FiLoMetadataTests(unittest.TestCase):
         self.assertIn("موضوع:", description)
         self.assertIn("حیوانات", description)
         self.assertNotIn("https://", description)
+
+
+class FiLoQueueSourceTests(unittest.TestCase):
+    def test_nasa_candidate_url_requires_official_detail_host(self):
+        item = {"source": "nasa_public_domain_video"}
+        self.assertEqual(
+            _normalize_queue_candidate_url("https://images.nasa.gov/details/ABC_123", item),
+            "https://images.nasa.gov/details/ABC_123",
+        )
+        self.assertEqual(_normalize_queue_candidate_url("https://example.com/details/ABC_123", item), "")
+        self.assertEqual(_normalize_queue_candidate_url("http://images.nasa.gov/details/ABC_123", item), "")
+
+    def test_nasa_description_includes_source_and_reuse_guidance(self):
+        item = {
+            "source": "nasa_public_domain_video",
+            "title": "Earth at night from orbit",
+            "description": "Earth observation footage.",
+            "url": "https://images.nasa.gov/details/NASA001",
+            "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+            "hook_signals": ["science_curiosity"],
+        }
+        description = make_description(item, "لحظه‌ای دیدنی از زمین")
+        self.assertIn("منبع ویدئو: NASA", description)
+        self.assertIn("https://images.nasa.gov/details/NASA001", description)
+        self.assertIn("https://www.nasa.gov/nasa-brand-center/images-and-media/", description)
 
 
 class FiLoRightsTests(unittest.TestCase):
