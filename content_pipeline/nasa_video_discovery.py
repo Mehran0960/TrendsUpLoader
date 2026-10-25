@@ -414,8 +414,9 @@ def main() -> int:
     post_screen_build_failures = 0
     records_inspected = 0
     stop_inspecting = False
+    per_query_inspection_limit = max(1, MAX_SEARCH_RESULTS_TO_INSPECT // max(1, len(query_runs)))
     for query_run in query_runs:
-        for api_item in query_run["items"]:
+        for api_item in query_run["items"][:per_query_inspection_limit]:
             if len(additions) >= MAX_ADDITIONS_PER_RUN or records_inspected >= MAX_SEARCH_RESULTS_TO_INSPECT:
                 stop_inspecting = True
                 break
