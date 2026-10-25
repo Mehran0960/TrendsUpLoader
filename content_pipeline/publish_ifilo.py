@@ -58,6 +58,7 @@ ARTIFACTS = ROOT / "artifacts" / "ifilo"
 # redirecting its root to an unrelated parked domain, so do not use it for login.
 BASE_URL = os.environ.get("IFILO_BASE_URL", "https://ifilo.net").strip().rstrip("/")
 UPLOAD_URL = BASE_URL + "/upload"
+NASA_MEDIA_POLICY_URL = "https://www.nasa.gov/nasa-brand-center/images-and-media/"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 MAX_CANDIDATES_TO_TRY = 50
 
@@ -680,10 +681,24 @@ def _upload_url_from_page(page, prior_url: str) -> str:
     return ""
 
 def rights_cleared_for_ifilo(item: dict) -> bool:
-    """Public reposts need explicit rights evidence; popularity is never permission."""
+    """Public reposts need a source-specific rights basis; popularity is never permission."""
     item = item if isinstance(item, dict) else {}
     evidence = str(item.get("rights_evidence_url") or item.get("license_url") or "").strip()
-    return item.get("rights_cleared_for_publication") is True and bool(evidence)
+    if item.get("rights_cleared_for_publication") is not True or not evidence:
+        return False
+    if str(item.get("source") or "").lower() == "nasa_public_domain_video":
+        screen = item.get("rights_screen") if isinstance(item.get("rights_screen"), dict) else {}
+        return (
+            evidence == NASA_MEDIA_POLICY_URL
+            and str(item.get("rights_evidence_url") or "").strip() == NASA_MEDIA_POLICY_URL
+            and str(item.get("license_url") or "").strip() == NASA_MEDIA_POLICY_URL
+            and str(screen.get("basis") or "") == "metadata_passed_conservative_nasa_screen"
+            and str(screen.get("center") or "").strip().casefold() == "nasa"
+            and not str(screen.get("secondary_creator") or "").strip()
+            and screen.get("third_party_warning_found") is False
+            and screen.get("person_or_audio_signal_found") is False
+        )
+    return True
 
 
 def _eligible_candidates() -> list[dict]:
