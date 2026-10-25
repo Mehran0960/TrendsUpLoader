@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T18:26:34.944078+00:00",
+  "updated_at": "2026-10-25T23:12:30.648833+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -616,6 +616,26 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-25T18:26:34.944033+00:00",
       "finished_at": "2026-10-25T18:26:34.944041+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "c1881fd01614e5c01f9df65787b16ab49c307cc85a9b6bd47e42e7e8ce1d0941",
+      "source_url": "https://images.nasa.gov/details/HumanHealth",
+      "source_title": "Advancing Human Health: Space Station Benefits",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T23:12:29.490494+00:00",
+      "finished_at": "2026-10-25T23:12:29.490502+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "fd5619e8ccf692837b1db7639bfe06e4470f1cc050940218fa2f9e30b21eb671",
+      "source_url": "https://images.nasa.gov/details/Explore_Your_Project_Ideas_for_Space_Station",
+      "source_title": "Explore Your Project Ideas for Space Station",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T23:12:30.648793+00:00",
+      "finished_at": "2026-10-25T23:12:30.648800+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
