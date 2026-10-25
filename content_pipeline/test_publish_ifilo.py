@@ -70,6 +70,9 @@ class FiLoNasaRightsGateTests(unittest.TestCase):
             },
         }
         self.assertTrue(rights_cleared_for_ifilo(valid))
+        jpl_valid = dict(valid)
+        jpl_valid["rights_screen"] = dict(valid["rights_screen"], center="JPL", secondary_creator="NASA")
+        self.assertTrue(rights_cleared_for_ifilo(jpl_valid))
         unverified = dict(valid)
         unverified["rights_evidence_url"] = "https://example.com/license"
         self.assertFalse(rights_cleared_for_ifilo(unverified))
