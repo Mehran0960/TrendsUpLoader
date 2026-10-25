@@ -2,12 +2,20 @@ import unittest
 
 from unittest.mock import patch
 
-from content_pipeline.nasa_video_discovery import allowed_nasa_metadata, build_candidate, merge_candidates
+from content_pipeline.nasa_video_discovery import allowed_nasa_metadata, build_candidate, merge_candidates, search_slot
 from content_pipeline.publish_ifilo import rights_cleared_for_ifilo
 from content_pipeline.social_discovery import platform, is_video_post
 
 
 class NasaQueueCompatibilityTests(unittest.TestCase):
+    def test_search_slot_rotates_every_half_hour(self):
+        from datetime import datetime, timezone
+        first = datetime(2026, 10, 25, 0, 7, tzinfo=timezone.utc)
+        second = datetime(2026, 10, 25, 0, 37, tzinfo=timezone.utc)
+        third = datetime(2026, 10, 25, 1, 7, tzinfo=timezone.utc)
+        self.assertEqual(search_slot(second), search_slot(first) + 1)
+        self.assertEqual(search_slot(third), search_slot(second) + 1)
+
     def test_nasa_detail_pages_are_recognized_as_video_posts(self):
         url = "https://images.nasa.gov/details/NASA001_ABC"
         self.assertEqual(platform(url), "nasa")
