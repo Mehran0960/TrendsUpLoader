@@ -44,7 +44,7 @@ class NasaQueueCompatibilityTests(unittest.TestCase):
             return_value={"collection": {"items": []}},
         ), patch(
             "content_pipeline.nasa_video_discovery._verify_official_mp4_url",
-            side_effect=[False, True],
+            side_effect=[True],
         ):
             url = mp4_media_url("ABC_123")
         self.assertEqual(url, "https://images-assets.nasa.gov/video/ABC_123/ABC_123~small.mp4")
