@@ -63,6 +63,17 @@ NASA_CENTER_VALUES = {
     "SSC", "STENNIS SPACE CENTER", "NASA STENNIS SPACE CENTER",
 }
 
+PERSIAN_HEADLINES = {
+    "Earth from space": "نمای شگفت‌انگیز زمین از فضا",
+    "aurora": "شفق قطبی رنگارنگ در آسمان",
+    "Mars rover": "تصاویر کاوشگر مریخ از سطح سیاره",
+    "solar flare": "فوران خورشیدی؛ پدیده‌ای تماشایی",
+    "rocket launch": "لحظه پرتاب موشک به فضا",
+    "space telescope": "تصاویر تماشایی تلسکوپ فضایی",
+    "International Space Station Earth": "نمای زمین از ایستگاه فضایی",
+    "planetary science": "پدیده‌های شگفت‌انگیز سیاره‌ها",
+}
+
 SEARCHES = [
     ("Earth from space", ["science_curiosity", "nature_and_wildlife"]),
     ("aurora", ["science_curiosity", "nature_and_wildlife"]),
@@ -303,6 +314,7 @@ def build_candidate(api_item: dict, query: str, lanes: list[str], discovered_at:
         "platform": "nasa",
         "source": "nasa_public_domain_video",
         "title": title,
+        "title_fa": PERSIAN_HEADLINES.get(query, "ویدیوی علمی و فضایی تماشایی"),
         "description": description,
         "source_post_caption": title,
         "published_at": str(data.get("date_created") or ""),
