@@ -150,6 +150,16 @@ def safe_provider_message_excerpt(value: object, limit: int = 180) -> str:
 
 def make_title(item: dict) -> str:
     """Produce a concise descriptive title, not a verbatim copied headline."""
+    if str(item.get("source") or "").lower() == "nasa_public_domain_video":
+        localized = normalized_text(item.get("title_fa") or "", limit=70)
+        original = normalized_text(item.get("title") or "", limit=150)
+        if localized:
+            # Keep some source-title text for distinction so unrelated clips don't
+            # collide in FiLo's account-side duplicate guard.
+            if original and original.casefold() not in localized.casefold():
+                return (localized + " | " + original)[:100].rstrip(" |")
+            return localized[:100].rstrip()
+
     caption = str(item.get("source_post_caption") or item.get("title") or "").strip()
     caption = clean_review_caption(caption, max_chars=500)
     title = normalized_text(caption, limit=120)
@@ -168,6 +178,10 @@ def make_description(item: dict, title: str) -> str:
     body = clean_review_caption(caption, max_chars=1400)
     if not body or normalized_text(body).casefold() == normalized_text(title).casefold():
         body = title
+    if str(item.get("source") or "").lower() == "nasa_public_domain_video":
+        localized_summary = normalized_text(item.get("title_fa") or "", limit=220)
+        if localized_summary and localized_summary.casefold() not in normalized_text(body, limit=1400).casefold():
+            body = localized_summary + "\n\n" + body
     lane_labels = {
         "comedy": "طنز و سرگرمی",
         "animals": "حیوانات",
