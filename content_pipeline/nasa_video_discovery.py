@@ -19,6 +19,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 QUEUE_PATH = ROOT / "attention_state" / "social_discovery.json"
+STATUS_PATH = ROOT / "attention_state" / "nasa_video_discovery_status.json"
 NASA_API = "https://images-api.nasa.gov"
 NASA_POLICY_URL = "https://www.nasa.gov/nasa-brand-center/images-and-media/"
 USER_AGENT = "TrendsUpLoader/1.0 (source metadata and attribution retained)"
@@ -302,30 +303,66 @@ def main() -> int:
         if isinstance(row, dict)
     }
     additions = []
+    duplicate_records = 0
+    invalid_records = 0
+    metadata_screen_passes = 0
+    metadata_rejections: dict[str, int] = {}
+    post_screen_build_failures = 0
+    lanes = SEARCHES[search_slot(now) % len(SEARCHES)][1]
     for api_item in api_items[:MAX_SEARCH_RESULTS_TO_INSPECT]:
         if len(additions) >= MAX_ADDITIONS_PER_RUN:
             break
         data_rows = api_item.get("data") or []
-        nasa_id = squash(data_rows[0].get("nasa_id"), 100) if data_rows and isinstance(data_rows[0], dict) else ""
-        detail_url = "https://images.nasa.gov/details/" + nasa_id if nasa_id else ""
-        if not detail_url or detail_url in existing_urls:
+        if not data_rows or not isinstance(data_rows[0], dict):
+            invalid_records += 1
             continue
-        candidate = build_candidate(api_item, query, SEARCHES[search_slot(now) % len(SEARCHES)][1], timestamp)
+        data = data_rows[0]
+        nasa_id = squash(data.get("nasa_id"), 100)
+        detail_url = "https://images.nasa.gov/details/" + nasa_id if nasa_id else ""
+        if not detail_url:
+            invalid_records += 1
+            continue
+        if detail_url in existing_urls:
+            duplicate_records += 1
+            continue
+        allowed, reason = allowed_nasa_metadata(data)
+        if not allowed:
+            metadata_rejections[reason] = metadata_rejections.get(reason, 0) + 1
+            continue
+        metadata_screen_passes += 1
+        candidate = build_candidate(api_item, query, lanes, timestamp)
         if candidate:
             additions.append(candidate)
             existing_urls.add(candidate["url"])
+        else:
+            post_screen_build_failures += 1
 
     merged = merge_candidates(payload, additions, timestamp)
-    QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    QUEUE_PATH.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("NASA_VIDEO_DISCOVERY", json.dumps({
+    status = {
+        "schema_version": 1,
+        "updated_at": timestamp,
         "query": query,
         "api_results": len(api_items),
+        "records_inspected": min(len(api_items), MAX_SEARCH_RESULTS_TO_INSPECT),
+        "metadata_screen_passes": metadata_screen_passes,
+        "metadata_rejections": metadata_rejections,
+        "post_screen_build_failures": post_screen_build_failures,
+        "duplicate_records": duplicate_records,
+        "invalid_records": invalid_records,
         "new_candidates": len(additions),
-        "total_queue": len(merged.get("items", [])),
-        "license_basis": "NASA published media-use guidelines; conservative metadata screening",
+        "total_queue_items": len(merged.get("items", [])),
+        "nasa_queue_items": sum(
+            1 for row in merged.get("items", [])
+            if isinstance(row, dict) and str(row.get("source") or "").lower() == "nasa_public_domain_video"
+        ),
         "source_policy_url": NASA_POLICY_URL,
-    }, ensure_ascii=False))
+        "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility.",
+    }
+    merged["nasa_video_discovery"].update(status)
+    QUEUE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    QUEUE_PATH.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    STATUS_PATH.write_text(json.dumps(status, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print("NASA_VIDEO_DISCOVERY", json.dumps(status, ensure_ascii=False))
     return 0
 
 
