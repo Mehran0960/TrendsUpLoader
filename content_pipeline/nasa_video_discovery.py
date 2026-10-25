@@ -27,6 +27,25 @@ MAX_ADDITIONS_PER_RUN = 15
 MAX_SEARCH_RESULTS_TO_INSPECT = 60
 MAX_QUEUE_ITEMS = 500
 TIMEOUT = (10, 30)
+ASSET_DIAGNOSTICS = {
+    "manifest_mp4_found": 0,
+    "fallback_mp4_verified": 0,
+    "failures": {},
+    "samples": [],
+}
+
+
+def record_asset_failure(nasa_id: str, reason: str, item_count: int = 0, href_samples: list[str] | None = None) -> None:
+    failures = ASSET_DIAGNOSTICS["failures"]
+    failures[reason] = failures.get(reason, 0) + 1
+    if len(ASSET_DIAGNOSTICS["samples"]) < 5:
+        ASSET_DIAGNOSTICS["samples"].append({
+            "nasa_id": nasa_id,
+            "reason": reason,
+            "manifest_item_count": item_count,
+            "href_samples": (href_samples or [])[:3],
+        })
+
 
 # NASA Image Library center codes; combined with an empty/NASA-only secondary creator,
 # this avoids treating any arbitrary third-party center as NASA-owned material.
@@ -165,14 +184,55 @@ def search_items(now: datetime | None = None) -> tuple[str, list[dict]]:
     return query, [x for x in items if isinstance(x, dict)]
 
 
+def _verify_official_mp4_url(url: str) -> bool:
+    parsed = urlparse(str(url or ""))
+    if (
+        parsed.scheme != "https"
+        or parsed.hostname != "images-assets.nasa.gov"
+        or not parsed.path.lower().endswith(".mp4")
+        or parsed.username
+        or parsed.password
+    ):
+        return False
+    try:
+        with requests.get(
+            url,
+            headers={"User-Agent": USER_AGENT, "Range": "bytes=0-0"},
+            stream=True,
+            timeout=TIMEOUT,
+        ) as response:
+            final = urlparse(str(response.url or ""))
+            content_type = str(response.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
+            if (
+                response.status_code not in {200, 206}
+                or final.scheme != "https"
+                or final.hostname != "images-assets.nasa.gov"
+                or not final.path.lower().endswith(".mp4")
+                or (content_type and content_type not in {"video/mp4", "application/octet-stream", "binary/octet-stream"})
+            ):
+                return False
+            return True
+    except requests.RequestException:
+        return False
+
+
 def mp4_media_url(nasa_id: str) -> str:
+    """Get a verified official MP4 from the NASA asset manifest, with a checked fallback."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]{2,100}", str(nasa_id or "")):
+        record_asset_failure(str(nasa_id or "")[:100], "invalid_nasa_id")
+        return ""
+
     manifest = _request_json(NASA_API + "/asset/" + nasa_id)
     collection = manifest.get("collection") if isinstance(manifest, dict) else None
     items = collection.get("items", []) if isinstance(collection, dict) else []
     urls = []
-    for row in items:
+    href_samples = []
+    for row in items if isinstance(items, list) else []:
         href = str(row.get("href") or "") if isinstance(row, dict) else ""
         parsed = urlparse(href)
+        if href and len(href_samples) < 3:
+            # Store only scheme, host, path, and suffix; never record query strings.
+            href_samples.append(f"{parsed.scheme}://{parsed.netloc}{parsed.path}"[:220])
         if (
             parsed.scheme == "https"
             and parsed.hostname == "images-assets.nasa.gov"
@@ -181,16 +241,38 @@ def mp4_media_url(nasa_id: str) -> str:
             and not parsed.password
         ):
             urls.append(href)
-    if not urls:
-        return ""
-    # Prefer a middle/small derivative to reduce runner bandwidth; retain the original
-    # only when the official manifest provides no smaller MP4 variant.
-    preference = ("~medium.mp4", "~small.mp4", "~large.mp4", "~orig.mp4")
-    for suffix in preference:
-        for url in urls:
-            if url.lower().endswith(suffix):
+    if urls:
+        # Prefer a middle/small derivative to reduce bandwidth; fall back to the
+        # official manifest's available MP4s. Verify that the media URL is live.
+        preference = ("~medium.mp4", "~small.mp4", "~large.mp4", "~orig.mp4")
+        ordered = []
+        for suffix in preference:
+            ordered.extend(url for url in urls if url.lower().endswith(suffix))
+        ordered.extend(url for url in urls if url not in ordered)
+        for url in ordered:
+            if _verify_official_mp4_url(url):
+                ASSET_DIAGNOSTICS["manifest_mp4_found"] += 1
                 return url
-    return urls[0]
+
+    # NASA asset manifests normally list direct MP4 URLs. If an item manifest is
+    # unavailable/incomplete, try only the documented official host/ID layout,
+    # then verify the candidate with an actual ranged request before returning it.
+    fallback_candidates = [
+        f"https://images-assets.nasa.gov/video/{nasa_id}/{nasa_id}~{size}.mp4"
+        for size in ("medium", "small", "orig")
+    ]
+    for candidate in fallback_candidates:
+        if _verify_official_mp4_url(candidate):
+            ASSET_DIAGNOSTICS["fallback_mp4_verified"] += 1
+            return candidate
+
+    reason = (
+        "asset_manifest_unavailable" if manifest is None
+        else "asset_manifest_no_mp4_url" if items
+        else "asset_manifest_empty"
+    )
+    record_asset_failure(nasa_id, reason, len(items) if isinstance(items, list) else 0, href_samples)
+    return ""
 
 
 def build_candidate(api_item: dict, query: str, lanes: list[str], discovered_at: str) -> dict | None:
