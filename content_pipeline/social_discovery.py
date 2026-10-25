@@ -232,6 +232,7 @@ def platform(url):
     if "x.com" in h or "twitter.com" in h: return "x"
     if "aparat.com" in h: return "aparat"
     if h in {"t.me", "telegram.me"}: return "telegram"
+    if h == "images.nasa.gov": return "nasa"
     if "facebook.com" in h or h == "fb.watch": return "facebook"
     if "reddit.com" in h or h == "redd.it": return "reddit"
     if "vimeo.com" in h: return "vimeo"
@@ -261,6 +262,8 @@ def is_video_post(url):
         return bool(re.match(r"^/v/[A-Za-z0-9]+", path))
     if p == "telegram":
         return bool(re.match(r"^/[A-Za-z0-9_]+/\d+/?$", path))
+    if p == "nasa":
+        return bool(re.match(r"^/details/[A-Za-z0-9_-]{2,100}/?$", path))
     if p == "facebook":
         return bool(re.match(r"^/(?:reel|reels|watch|share/v)/", path) or
                     (path == "/watch" and bool(parsed.query)) or
@@ -1259,10 +1262,13 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         previous = list(previous_payload.get("items") or [])
     except Exception:
         pass
-    # Do not carry legacy profile URLs forward as if they were video candidates.
+    # Keep explicitly rights-screened NASA video candidates even though they are
+    # an evergreen media library rather than a social-network post with view metrics.
+    # Their score/rights metadata is intentionally preserved by the dedicated uploader.
     merged = {
         str(x.get("id")): x for x in previous
         if is_video_post(x.get("url"))
+        or str(x.get("source") or "").lower() == "nasa_public_domain_video"
     }
     results = attach_view_trajectory(results, previous, now)
     for x in results:
@@ -1283,7 +1289,22 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
                 )
             except (TypeError, ValueError):
                 pass
-    items = rank_candidates(merged.values(), limit=500)
+    # Rank the social-discovery candidates as usual, but retain a separate bounded
+    # pool of licensed NASA-source rows without recomputing their source-specific
+    # rights evidence or evergreen-content score.
+    nasa_items = [
+        dict(x) for x in merged.values()
+        if isinstance(x, dict) and str(x.get("source") or "").lower() == "nasa_public_domain_video"
+    ]
+    nasa_items.sort(key=lambda x: str(x.get("discovered_at") or ""), reverse=True)
+    nasa_items = nasa_items[:200]
+    social_items = [
+        x for x in merged.values()
+        if not (isinstance(x, dict) and str(x.get("source") or "").lower() == "nasa_public_domain_video")
+    ]
+    items = rank_candidates(social_items, limit=max(0, 500 - len(nasa_items)))
+    existing_urls = {str(x.get("url") or "") for x in items if isinstance(x, dict)}
+    items.extend(x for x in nasa_items if str(x.get("url") or "") not in existing_urls)
     log_growth_summary(items)
 
     OUT.write_text(json.dumps({
