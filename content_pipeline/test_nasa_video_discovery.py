@@ -7,6 +7,7 @@ from content_pipeline.nasa_video_discovery import (
     build_candidate,
     merge_candidates,
     mp4_media_url,
+    search_items,
     search_slot,
 )
 from content_pipeline.publish_ifilo import rights_cleared_for_ifilo
@@ -21,6 +22,22 @@ class NasaQueueCompatibilityTests(unittest.TestCase):
         third = datetime(2026, 10, 25, 1, 7, tzinfo=timezone.utc)
         self.assertEqual(search_slot(second), search_slot(first) + 1)
         self.assertEqual(search_slot(third), search_slot(second) + 1)
+
+    def test_search_items_tries_alternate_topic_when_first_page_is_empty(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 10, 25, 0, 7, tzinfo=timezone.utc)
+        empty = {"collection": {"items": []}}
+        populated = {"collection": {"items": [{"data": [{"nasa_id": "NASA001", "media_type": "video"}]}]}}
+        with patch(
+            "content_pipeline.nasa_video_discovery._request_json",
+            side_effect=[empty, populated, empty],
+        ) as request:
+            runs = search_items(now)
+        self.assertEqual(len(runs), 3)
+        self.assertEqual(len(runs[0]["items"]), 0)
+        self.assertEqual(len(runs[1]["items"]), 1)
+        self.assertEqual(request.call_count, 3)
+        self.assertTrue(all("query" in row and "page" in row and "lanes" in row for row in runs))
 
     def test_mp4_manifest_prefers_verified_medium_derivative(self):
         manifest = {
