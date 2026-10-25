@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T05:40:24.053488+00:00",
+  "updated_at": "2026-10-25T10:07:10.648264+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -159,6 +159,36 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-25T05:40:24.053443+00:00",
       "finished_at": "2026-10-25T05:40:24.053450+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "d574dcfb9e0efabe6e6b9c14b1e7a265179fcd94b8537da0f28def85dd0cb157",
+      "source_url": "https://images.nasa.gov/details/SeeingHome",
+      "source_title": "Seeing Our Home in a Whole New Light: Space Station Benefits",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T10:07:09.008422+00:00",
+      "finished_at": "2026-10-25T10:07:09.008431+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "b9e7155d06d9674cdc69dfdb8a0ff684f965d452bcafe08a45b4419047dc303e",
+      "source_url": "https://images.nasa.gov/details/LEO_Economy",
+      "source_title": "Growing the Low-Earth Orbit Economy: Space Station Benefits",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T10:07:09.847714+00:00",
+      "finished_at": "2026-10-25T10:07:09.847724+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "8d36cc13d10745f5d16cda76bd92fe41cc823307d5c3c58731509f1e296346f1",
+      "source_url": "https://images.nasa.gov/details/YourOrbitingLab",
+      "source_title": "Your Orbiting Laboratory: Space Station Benefits",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T10:07:10.648212+00:00",
+      "finished_at": "2026-10-25T10:07:10.648222+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
