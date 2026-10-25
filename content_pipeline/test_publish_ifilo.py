@@ -39,6 +39,29 @@ class FiLoMetadataTests(unittest.TestCase):
         title = make_title({"title": "", "description": "یک ترفند کاربردی برای خانه"})
         self.assertIn("ترفند کاربردی", title)
 
+    def test_nasa_title_uses_persian_headline_and_keeps_source_distinction(self):
+        title = make_title({
+            "source": "nasa_public_domain_video",
+            "title_fa": "تصاویر کاوشگر مریخ از سطح سیاره",
+            "title": "Mars rover captures dust storm on the red planet",
+        })
+        self.assertTrue(title.startswith("تصاویر کاوشگر مریخ"))
+        self.assertIn("Mars rover", title)
+
+    def test_nasa_description_starts_with_localized_summary(self):
+        description = make_description({
+            "source": "nasa_public_domain_video",
+            "title_fa": "نمای شگفت‌انگیز زمین از فضا",
+            "title": "Earth from orbit",
+            "description": "A video of Earth from orbit.",
+            "url": "https://images.nasa.gov/details/NASA001",
+            "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+            "hook_signals": ["science_curiosity"],
+        }, "نمای شگفت‌انگیز زمین از فضا | Earth from orbit")
+        self.assertTrue(description.startswith("نمای شگفت‌انگیز زمین از فضا"))
+        self.assertIn("منبع ویدئو: NASA", description)
+
+
     def test_empty_title_raises_instead_of_inventing_a_caption(self):
         with self.assertRaises(ValueError):
             make_title({"title": "", "description": "", "source_post_caption": ""})
