@@ -59,6 +59,19 @@ ARTIFACTS = ROOT / "artifacts" / "ifilo"
 BASE_URL = os.environ.get("IFILO_BASE_URL", "https://ifilo.net").strip().rstrip("/")
 UPLOAD_URL = BASE_URL + "/upload"
 NASA_MEDIA_POLICY_URL = "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+NASA_CENTER_VALUES = {
+    "NASA", "HQ", "NASA HEADQUARTERS", "HEADQUARTERS",
+    "JPL", "JET PROPULSION LABORATORY", "NASA JET PROPULSION LABORATORY",
+    "GSFC", "GODDARD SPACE FLIGHT CENTER", "NASA GODDARD SPACE FLIGHT CENTER",
+    "JSC", "JOHNSON SPACE CENTER", "NASA JOHNSON SPACE CENTER",
+    "KSC", "KENNEDY SPACE CENTER", "NASA KENNEDY SPACE CENTER",
+    "MSFC", "MARSHALL SPACE FLIGHT CENTER", "NASA MARSHALL SPACE FLIGHT CENTER",
+    "GRC", "GLENN RESEARCH CENTER", "NASA GLENN RESEARCH CENTER",
+    "ARC", "AMES RESEARCH CENTER", "NASA AMES RESEARCH CENTER",
+    "LRC", "LARC", "LANGLEY RESEARCH CENTER", "NASA LANGLEY RESEARCH CENTER",
+    "DFRC", "AFRC", "DRYDEN FLIGHT RESEARCH CENTER", "ARMSTRONG FLIGHT RESEARCH CENTER",
+    "SSC", "STENNIS SPACE CENTER", "NASA STENNIS SPACE CENTER",
+}
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 MAX_CANDIDATES_TO_TRY = 50
 
@@ -693,7 +706,7 @@ def rights_cleared_for_ifilo(item: dict) -> bool:
             and str(item.get("rights_evidence_url") or "").strip() == NASA_MEDIA_POLICY_URL
             and str(item.get("license_url") or "").strip() == NASA_MEDIA_POLICY_URL
             and str(screen.get("basis") or "") == "metadata_passed_conservative_nasa_screen"
-            and str(screen.get("center") or "").strip().casefold() == "nasa"
+            and str(screen.get("center") or "").strip().upper() in NASA_CENTER_VALUES
             and str(screen.get("secondary_creator") or "").strip().casefold() in {
                 "", "nasa", "national aeronautics and space administration"
             }
