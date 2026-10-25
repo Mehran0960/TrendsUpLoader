@@ -1,13 +1,8 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T05:37:43.095803+00:00",
+  "updated_at": "2026-10-25T10:06:04.503173+00:00",
   "query": "rocket launch",
   "queries": [
-    {
-      "query": "solar flare",
-      "page": 2,
-      "results": 0
-    },
     {
       "query": "rocket launch",
       "page": 3,
@@ -17,26 +12,32 @@
       "query": "space telescope",
       "page": 4,
       "results": 100
+    },
+    {
+      "query": "International Space Station Earth",
+      "page": 1,
+      "results": 100
     }
   ],
-  "api_results": 200,
+  "api_results": 300,
   "records_inspected": 60,
-  "metadata_screen_passes": 7,
+  "metadata_screen_passes": 15,
   "metadata_rejections": {
-    "secondary_creator_present": 9,
-    "non_nasa_center": 3,
-    "third_party_partner_signal": 12,
-    "person_or_audio_signal": 23
+    "secondary_creator_present": 8,
+    "non_nasa_center": 2,
+    "third_party_partner_signal": 13,
+    "person_or_audio_signal": 17,
+    "missing_metadata": 1
   },
-  "post_screen_build_failures": 7,
-  "duplicate_records": 6,
+  "post_screen_build_failures": 12,
+  "duplicate_records": 4,
   "invalid_records": 0,
-  "new_candidates": 0,
+  "new_candidates": 3,
   "total_queue_items": 500,
-  "nasa_queue_items": 6,
+  "nasa_queue_items": 9,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 0,
+    "fallback_mp4_verified": 3,
     "failures": {},
     "samples": []
   },
