@@ -1,6 +1,15 @@
 import unittest
 
 from content_pipeline.nasa_video_discovery import allowed_nasa_metadata, merge_candidates
+from content_pipeline.social_discovery import platform, is_video_post
+
+
+class NasaQueueCompatibilityTests(unittest.TestCase):
+    def test_nasa_detail_pages_are_recognized_as_video_posts(self):
+        url = "https://images.nasa.gov/details/NASA001_ABC"
+        self.assertEqual(platform(url), "nasa")
+        self.assertTrue(is_video_post(url))
+        self.assertFalse(is_video_post("https://images.nasa.gov/search?q=Earth"))
 
 
 class NasaRightsScreenTests(unittest.TestCase):
