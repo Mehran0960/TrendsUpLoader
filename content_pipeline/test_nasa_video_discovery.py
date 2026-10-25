@@ -2,7 +2,13 @@ import unittest
 
 from unittest.mock import patch
 
-from content_pipeline.nasa_video_discovery import allowed_nasa_metadata, build_candidate, merge_candidates, search_slot
+from content_pipeline.nasa_video_discovery import (
+    allowed_nasa_metadata,
+    build_candidate,
+    merge_candidates,
+    mp4_media_url,
+    search_slot,
+)
 from content_pipeline.publish_ifilo import rights_cleared_for_ifilo
 from content_pipeline.social_discovery import platform, is_video_post
 
@@ -15,6 +21,34 @@ class NasaQueueCompatibilityTests(unittest.TestCase):
         third = datetime(2026, 10, 25, 1, 7, tzinfo=timezone.utc)
         self.assertEqual(search_slot(second), search_slot(first) + 1)
         self.assertEqual(search_slot(third), search_slot(second) + 1)
+
+    def test_mp4_manifest_prefers_verified_medium_derivative(self):
+        manifest = {
+            "collection": {
+                "items": [
+                    {"href": "https://images-assets.nasa.gov/video/ABC_123/ABC_123~orig.mp4"},
+                    {"href": "https://images-assets.nasa.gov/video/ABC_123/ABC_123~medium.mp4"},
+                    {"href": "https://example.com/video/ABC_123.mp4"},
+                ]
+            }
+        }
+        with patch("content_pipeline.nasa_video_discovery._request_json", return_value=manifest), patch(
+            "content_pipeline.nasa_video_discovery._verify_official_mp4_url", return_value=True
+        ):
+            url = mp4_media_url("ABC_123")
+        self.assertEqual(url, "https://images-assets.nasa.gov/video/ABC_123/ABC_123~medium.mp4")
+
+    def test_official_mp4_fallback_is_verified_before_use(self):
+        with patch(
+            "content_pipeline.nasa_video_discovery._request_json",
+            return_value={"collection": {"items": []}},
+        ), patch(
+            "content_pipeline.nasa_video_discovery._verify_official_mp4_url",
+            side_effect=[False, True],
+        ):
+            url = mp4_media_url("ABC_123")
+        self.assertEqual(url, "https://images-assets.nasa.gov/video/ABC_123/ABC_123~small.mp4")
+
 
     def test_nasa_detail_pages_are_recognized_as_video_posts(self):
         url = "https://images.nasa.gov/details/NASA001_ABC"
