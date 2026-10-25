@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v1",
-  "updated_at": "2026-10-25T05:31:08.334561+00:00",
+  "updated_at": "2026-10-25T05:34:12.417240+00:00",
   "status": "public_telegram_repost_and_bing_fallback",
   "count": 500,
   "quota_ledger": {
@@ -16,6 +16,162 @@
     "updated_at": "2026-10-25T05:21:59.183413+00:00"
   },
   "items": [
+    {
+      "id": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
+      "url": "https://images.nasa.gov/details/KSC-20191008-VP-CDC01-0001-Pegasus_ICON_Prelaunch_Mission_Briefing-3234088",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Pegasus ICON Prelaunch Mission Briefing",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "Live coverage of NASA’s Ionospheric Connection Explorer (ICON) Prelaunch Mission Briefing from Kennedy Space Center in Florida. Representatives from NASA, Northrop Grumman Innovation Systems, the Air Force’s 45th Space Wing, and the University of California, Berkeley provided an overview of the ICON mission. ICON will launch on a Northrop Grumman Pegasus XL rocket from the company’s Stargazer L-1011 on Wednesday, October 9, 2019. The ICON mission was managed by NASA’s Launch Services Program.",
+      "source_post_caption": "Pegasus ICON Prelaunch Mission Briefing",
+      "published_at": "2019-10-08T00:00:00Z",
+      "discovered_at": "2026-10-25T05:34:12.417240+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "KSC-20191008-VP-CDC01-0001-Pegasus_ICON_Prelaunch_Mission_Briefing-3234088",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20191008-VP-CDC01-0001-Pegasus_ICON_Prelaunch_Mission_Briefing-3234088/KSC-20191008-VP-CDC01-0001-Pegasus_ICON_Prelaunch_Mission_Briefing-3234088~small.mp4",
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Pegasus ICON Prelaunch Mission Briefing (https://images.nasa.gov/details/KSC-20191008-VP-CDC01-0001-Pegasus_ICON_Prelaunch_Mission_Briefing-3234088)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "b13ccb9fe53d5e0414b86d535f079b7234dd7d1356212a0abf8c6f526050d148",
+      "url": "https://images.nasa.gov/details/MSFC_2025_March_CenterHighlightReel",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Marshall Space Flight Center 2024-2025 Highlight Reel",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "A collection of work, facilities, and highlights at Marshall Space Flight Center in Huntsville, Alabama. Featured in this video are: Marshall’s central campus; Artemis I launch; inflatable habitat burst test; rotating detonation rocket engine test; V20 Thermal Vacuum Chamber; Michoud Assembly Facility; Nuclear Thermal Propulsion; Composites Lab; Huntsville Operations Support Center; Space Launch System; Human Landing System concepts; Artemis II crew visit; X-Ray Calibration Facility; Additive Manufacturing; 2024 Solar Eclipse; Rocket Garden; NASA in the Park; student competitions; aerial campus footage.",
+      "source_post_caption": "Marshall Space Flight Center 2024-2025 Highlight Reel",
+      "published_at": "2025-03-18T00:00:00Z",
+      "discovered_at": "2026-10-25T05:34:12.417240+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "MSFC_2025_March_CenterHighlightReel",
+      "direct_media_url": "https://images-assets.nasa.gov/video/MSFC_2025_March_CenterHighlightReel/MSFC_2025_March_CenterHighlightReel~small.mp4",
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "MSFC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Marshall Space Flight Center 2024-2025 Highlight Reel (https://images.nasa.gov/details/MSFC_2025_March_CenterHighlightReel)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "439f9c8f10b564a117a16271fec457d8295e0b11685d9ae5b5e7ee3611379c35",
+      "url": "https://images.nasa.gov/details/JPL-20230929-PSYCHEf-0002-Imager",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "How Will #MissionToPsyche See Its Target Asteroid?",
+      "title_fa": "تصاویر تماشایی تلسکوپ فضایی",
+      "description": "NASA’s Psyche spacecraft will use highly sensitive cameras to allow scientists to see a metal-rich asteroid that’s never been imaged up close before. Planetary scientist and Psyche mission co-investigator Jim Bell of Arizona State University, along with his instrument team, developed this critical technology in collaboration with Main Space Science Systems. Psyche’s multispectral imager consists of a pair of identical cameras with filters and telescopic lenses that will photograph the surface of the asteroid in different wavelengths of light. It will provide the data needed to build a digital terrain model of the asteroid’s surface, contribute to revealing Psyche’s geochemistry and composition, and help with navigation. Whether the asteroid Psyche is the partial core of a planetesimal (a building block of the rocky planets in our solar system) or primordial material that never melted, scientists expect the mission to help answer fundamental questions about Earth’s own metal core and the formation of our solar system. Psyche is expected to launch in October 2023. The spacecraft will begin orbiting the asteroid Psyche in 2029. Learn about this first-of-its-kind mission at: https://www.nasa.gov/psyche/. Credit: NASA/JPL-Caltech/ASU Produced by: True Story Films",
+      "source_post_caption": "How Will #MissionToPsyche See Its Target Asteroid?",
+      "published_at": "2023-09-29T00:00:00Z",
+      "discovered_at": "2026-10-25T05:34:12.417240+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "space telescope",
+      "nasa_id": "JPL-20230929-PSYCHEf-0002-Imager",
+      "direct_media_url": "https://images-assets.nasa.gov/video/JPL-20230929-PSYCHEf-0002-Imager/JPL-20230929-PSYCHEf-0002-Imager~small.mp4",
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "JPL",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — How Will #MissionToPsyche See Its Target Asteroid? (https://images.nasa.gov/details/JPL-20230929-PSYCHEf-0002-Imager)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "2f8a5ba9fa11086bceacbfa0fefd059c133afbf2d4a8b4ea24e82514fc8bcfe8",
+      "url": "https://images.nasa.gov/details/ksc_061404_t-nebula",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "KSC-04-S-00193",
+      "title_fa": "تصاویر تماشایی تلسکوپ فضایی",
+      "description": "The Hubble Space Telescope has trained its eyes on the Trifid Nebula, a dazzling star nursery 9,000 light-years from Earth. With its three huge intersecting dark lanes of interstellar dust, the Trifid Nebula is easily recognizable in the night sky. In the nebula's center is a group of young, massive 'O-type' stars -- the hottest and bluest type of star known to astronomers. The stars are releasing a flood of ultraviolet radiation that has blown away all the nearby gas and dust. Because there is no more star-forming material in that region, star formation is no longer happening in that particular area. But nearby, there are signs of new stars being born. One is surrounded a protoplanetary disk, which is believed to be an early formation of a planetary system. The spectacular images were taken with Hubble's Wide Field Planetary Camera 2 during the summers of 2001 and 2002. Thanks to this new look at the Trifid Nebula, astronomers are learning much more about how gas, dust, and stars of varying ages interact in space.",
+      "source_post_caption": "KSC-04-S-00193",
+      "published_at": "2004-06-14T00:00:00Z",
+      "discovered_at": "2026-10-25T05:34:12.417240+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "space telescope",
+      "nasa_id": "ksc_061404_t-nebula",
+      "direct_media_url": "https://images-assets.nasa.gov/video/ksc_061404_t-nebula/ksc_061404_t-nebula~orig.mp4",
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — KSC-04-S-00193 (https://images.nasa.gov/details/ksc_061404_t-nebula)",
+      "views_velocity_kind": "unavailable"
+    },
     {
       "id": "e588dbbbabe248459cf2f97afe1a9f73fcf40bf658b21ceaface761565c1dde7",
       "url": "https://t.me/gizmiztel/163851",
@@ -54738,514 +54894,48 @@
           "publishing_authorized": false
         }
       }
-    },
-    {
-      "id": "ece51f0a8fca703e4a86698a45226d25a212139f3f831563d488bace1d2b63da",
-      "url": "https://t.me/vaybabamumad/180156",
-      "title": "تا آخر ببین 🤣 🤣 🤣 Join ➪ 🆔 @vaybabamumad",
-      "description": "تا آخر ببین 🤣 🤣 🤣 Join ➪ 🆔 @vaybabamumad",
-      "platform": "telegram",
-      "views": 16800,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 16800,
-      "telegram_repost_channels": [],
-      "telegram_channel": "vaybabamumad",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-13T17:30:49+00:00",
-      "age_hours": 275.8528287258333,
-      "persian_signal": true,
-      "discovered_at": "2026-10-14T07:40:08.763327+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T04:32:04.294141+00:00",
-          "views": 16100
-        },
-        {
-          "observed_at": "2026-10-14T04:52:03.283810+00:00",
-          "views": 16200
-        },
-        {
-          "observed_at": "2026-10-14T04:52:22.531017+00:00",
-          "views": 16200
-        },
-        {
-          "observed_at": "2026-10-14T04:54:39.840547+00:00",
-          "views": 16200
-        },
-        {
-          "observed_at": "2026-10-14T04:55:12.995786+00:00",
-          "views": 16200
-        },
-        {
-          "observed_at": "2026-10-14T04:56:07.259842+00:00",
-          "views": 16200
-        },
-        {
-          "observed_at": "2026-10-14T04:56:28.191202+00:00",
-          "views": 16300
-        },
-        {
-          "observed_at": "2026-10-14T07:40:08.763327+00:00",
-          "views": 16800
-        }
-      ],
-      "metrics_observed_at": "2026-10-14T07:40:08.763327+00:00",
-      "views_velocity_per_hour": 183.29,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 500,
-      "views_measurement_interval_hours": 2.728,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 13.52,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "15cbc5f99dfb516a5805a332a42972dcb59ba71a98a706df337eda3f51dd6fe6",
-      "url": "https://t.me/vaybabamumad/180152",
-      "title": "باهم مدارا کنید Join ➪ 🆔 @vaybabamumad",
-      "description": "باهم مدارا کنید Join ➪ 🆔 @vaybabamumad",
-      "platform": "telegram",
-      "views": 16500,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 16500,
-      "telegram_repost_channels": [],
-      "telegram_channel": "vaybabamumad",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-13T17:30:14+00:00",
-      "age_hours": 275.86255094805557,
-      "persian_signal": true,
-      "discovered_at": "2026-10-14T07:40:08.763327+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T04:32:04.294141+00:00",
-          "views": 15800
-        },
-        {
-          "observed_at": "2026-10-14T04:52:03.283810+00:00",
-          "views": 15900
-        },
-        {
-          "observed_at": "2026-10-14T04:52:22.531017+00:00",
-          "views": 15900
-        },
-        {
-          "observed_at": "2026-10-14T04:54:39.840547+00:00",
-          "views": 15900
-        },
-        {
-          "observed_at": "2026-10-14T04:55:12.995786+00:00",
-          "views": 15900
-        },
-        {
-          "observed_at": "2026-10-14T04:56:07.259842+00:00",
-          "views": 15900
-        },
-        {
-          "observed_at": "2026-10-14T04:56:28.191202+00:00",
-          "views": 15900
-        },
-        {
-          "observed_at": "2026-10-14T07:40:08.763327+00:00",
-          "views": 16500
-        }
-      ],
-      "metrics_observed_at": "2026-10-14T07:40:08.763327+00:00",
-      "views_velocity_per_hour": 219.95,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 600,
-      "views_measurement_interval_hours": 2.728,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 13.51,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "9596b7bf497deeaa7058b7ff9c3b2b948af1ad4af215e678d20bc4aba2725214",
-      "url": "https://t.me/vaybabamumad/180151",
-      "title": "وقتی قراره چند روز دیگه بریم شمال و کنار دریا ... اکسپلورم : 😐 😂 Join ➪ 🆔 @vaybabamumad",
-      "description": "وقتی قراره چند روز دیگه بریم شمال و کنار دریا ... اکسپلورم : 😐 😂 Join ➪ 🆔 @vaybabamumad",
-      "platform": "telegram",
-      "views": 16300,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 16300,
-      "telegram_repost_channels": [],
-      "telegram_channel": "vaybabamumad",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-13T17:29:46+00:00",
-      "age_hours": 275.8703287258333,
-      "persian_signal": true,
-      "discovered_at": "2026-10-14T07:40:08.763327+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T04:32:04.294141+00:00",
-          "views": 15600
-        },
-        {
-          "observed_at": "2026-10-14T04:52:03.283810+00:00",
-          "views": 15800
-        },
-        {
-          "observed_at": "2026-10-14T04:52:22.531017+00:00",
-          "views": 15800
-        },
-        {
-          "observed_at": "2026-10-14T04:54:39.840547+00:00",
-          "views": 15800
-        },
-        {
-          "observed_at": "2026-10-14T04:55:12.995786+00:00",
-          "views": 15800
-        },
-        {
-          "observed_at": "2026-10-14T04:56:07.259842+00:00",
-          "views": 15800
-        },
-        {
-          "observed_at": "2026-10-14T04:56:28.191202+00:00",
-          "views": 15800
-        },
-        {
-          "observed_at": "2026-10-14T07:40:08.763327+00:00",
-          "views": 16300
-        }
-      ],
-      "metrics_observed_at": "2026-10-14T07:40:08.763327+00:00",
-      "views_velocity_per_hour": 183.29,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 500,
-      "views_measurement_interval_hours": 2.728,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 13.51,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "07d877eeb96b4cc5cee92d84b4b8898efe380a44bef479a9b50529810b36fc54",
-      "url": "https://www.aparat.com/v/ifb6o2k",
-      "title": "کلاغ - آپارات",
-      "description": "17 hours ago · بلعیده شدن کامل یک بز توسط اژدهای کومودو؛ تصاویری که در فضای مجازی پربازدید شد! خبر فوری. 292 بازدید 3 ساعت پیش.",
-      "platform": "aparat",
-      "views": 292,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "persian_signal": true,
-      "published_at": "",
-      "age_hours": 24.0,
-      "freshness_basis": "firecrawl_tbs_qdr_d_upper_bound",
-      "discovered_at": "2026-10-14T04:56:07.259842+00:00",
-      "source": "firecrawl_search",
-      "query": "site:aparat.com/v/ (قبل و بعد OR آشپزی OR تمیزکاری OR کاردستی OR موسیقی OR حیات وحش OR معما)",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T04:32:04.294141+00:00",
-          "views": 292
-        },
-        {
-          "observed_at": "2026-10-14T04:52:03.283810+00:00",
-          "views": 292
-        },
-        {
-          "observed_at": "2026-10-14T04:54:39.840547+00:00",
-          "views": 292
-        },
-        {
-          "observed_at": "2026-10-14T04:56:07.259842+00:00",
-          "views": 292
-        }
-      ],
-      "metrics_observed_at": "2026-10-14T04:56:07.259842+00:00",
-      "views_velocity_per_hour": 12.17,
-      "views_velocity_kind": "estimated_from_lifetime_views",
-      "views_delta_last_interval": null,
-      "views_measurement_interval_hours": null,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 21.38,
-      "follow_growth_score": 30.5,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": false,
-      "source_platform": "aparat",
-      "candidate_action": "deprioritize",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-25T05:31:08.334561+00:00",
-    "new_candidates": 0,
+    "updated_at": "2026-10-25T05:34:12.417240+00:00",
+    "new_candidates": 4,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
-    "query": "solar flare",
-    "api_results": 0,
-    "records_inspected": 0,
-    "metadata_screen_passes": 0,
-    "metadata_rejections": {},
-    "post_screen_build_failures": 0,
+    "query": "rocket launch",
+    "queries": [
+      {
+        "query": "solar flare",
+        "page": 2,
+        "results": 0
+      },
+      {
+        "query": "rocket launch",
+        "page": 3,
+        "results": 100
+      },
+      {
+        "query": "space telescope",
+        "page": 4,
+        "results": 100
+      }
+    ],
+    "api_results": 200,
+    "records_inspected": 40,
+    "metadata_screen_passes": 11,
+    "metadata_rejections": {
+      "secondary_creator_present": 6,
+      "non_nasa_center": 2,
+      "third_party_partner_signal": 11,
+      "person_or_audio_signal": 10
+    },
+    "post_screen_build_failures": 7,
     "duplicate_records": 0,
     "invalid_records": 0,
     "total_queue_items": 500,
-    "nasa_queue_items": 0,
+    "nasa_queue_items": 4,
     "asset_lookup_diagnostics": {
       "manifest_mp4_found": 0,
-      "fallback_mp4_verified": 0,
+      "fallback_mp4_verified": 4,
       "failures": {},
       "samples": []
     },
