@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T05:39:13.895996+00:00",
+  "updated_at": "2026-10-25T05:40:24.053488+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -150,6 +150,16 @@
       "finished_at": "2026-10-25T05:39:13.895882+00:00",
       "ifilo_url": "",
       "confirmation": "account_title_found"
+    },
+    {
+      "source_key": "cb7bd31356645f300a4a25a568a3823efd4c0e53666ed223715f783a6ce246db",
+      "source_url": "https://images.nasa.gov/details/art002m1200912237_SAJ-Jettison",
+      "source_title": "Orion Camera View of Artemis II Climb to Orbit",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T05:40:24.053443+00:00",
+      "finished_at": "2026-10-25T05:40:24.053450+00:00",
+      "mode": "nasa_rights_screened_queue"
     }
   ]
 }
