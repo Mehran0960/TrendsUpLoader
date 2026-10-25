@@ -414,7 +414,9 @@ def main() -> int:
     post_screen_build_failures = 0
     records_inspected = 0
     stop_inspecting = False
-    per_query_inspection_limit = max(1, MAX_SEARCH_RESULTS_TO_INSPECT // max(1, len(query_runs)))
+    nonempty_query_count = sum(1 for row in query_runs if row["items"])
+    # Don't waste a third of the inspection budget on an empty search page.
+    per_query_inspection_limit = max(1, MAX_SEARCH_RESULTS_TO_INSPECT // max(1, nonempty_query_count))
     for query_run in query_runs:
         for api_item in query_run["items"][:per_query_inspection_limit]:
             if len(additions) >= MAX_ADDITIONS_PER_RUN or records_inspected >= MAX_SEARCH_RESULTS_TO_INSPECT:
