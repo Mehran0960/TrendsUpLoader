@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v1",
-  "updated_at": "2026-10-25T05:34:12.417240+00:00",
+  "updated_at": "2026-10-25T05:36:23.328302+00:00",
   "status": "public_telegram_repost_and_bing_fallback",
   "count": 500,
   "quota_ledger": {
@@ -16,6 +16,84 @@
     "updated_at": "2026-10-25T05:21:59.183413+00:00"
   },
   "items": [
+    {
+      "id": "894ba15a7c0f470028676ce155b1a7ee54d42428d6aa51ff5745384560b17f5b",
+      "url": "https://images.nasa.gov/details/cmasaw1_20260402015754_3",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Artemis II Upper Stage Separation",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "cmasaw1_20260402015754_3 (April 1, 2026) - The upper stage – or interim cryogenic propulsion stage – of the SLS (Space Launch System) rocket separates from the Orion spacecraft after helping to deliver Orion to space on April 1, 2026, for the Artemis II mission. The upper stage was then used as a target for Orion to maneuver around in a demonstration of the spacecraft's ability to perform proximity operations.",
+      "source_post_caption": "Artemis II Upper Stage Separation",
+      "published_at": "2026-04-01T00:00:00Z",
+      "discovered_at": "2026-10-25T05:36:23.328302+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "cmasaw1_20260402015754_3",
+      "direct_media_url": "https://images-assets.nasa.gov/video/cmasaw1_20260402015754_3/cmasaw1_20260402015754_3~small.mp4",
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "JSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Artemis II Upper Stage Separation (https://images.nasa.gov/details/cmasaw1_20260402015754_3)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "cb7bd31356645f300a4a25a568a3823efd4c0e53666ed223715f783a6ce246db",
+      "url": "https://images.nasa.gov/details/art002m1200912237_SAJ-Jettison",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Orion Camera View of Artemis II Climb to Orbit",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "art002m1200912237 (April 1, 2026) - A view from cameras on board the Orion spacecraft as it climbs to orbit, powered by the SLS (Space Launch System) rocket following a 6:35 p.m. EDT liftoff on April 1, 2026. Included is the jettison of the solid rocket boosters that propelled Orion for the first two minutes of flight, and the jettison of the spacecraft adapter jettison panels, which protect the spacecraft's solar array wings during ascent.",
+      "source_post_caption": "Orion Camera View of Artemis II Climb to Orbit",
+      "published_at": "2026-04-01T00:00:00Z",
+      "discovered_at": "2026-10-25T05:36:23.328302+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "art002m1200912237_SAJ-Jettison",
+      "direct_media_url": "https://images-assets.nasa.gov/video/art002m1200912237_SAJ-Jettison/art002m1200912237_SAJ-Jettison~small.mp4",
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "JSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Orion Camera View of Artemis II Climb to Orbit (https://images.nasa.gov/details/art002m1200912237_SAJ-Jettison)",
+      "views_velocity_kind": "unavailable"
+    },
     {
       "id": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
       "url": "https://images.nasa.gov/details/KSC-20191008-VP-CDC01-0001-Pegasus_ICON_Prelaunch_Mission_Briefing-3234088",
@@ -54640,265 +54718,11 @@
           "publishing_authorized": false
         }
       }
-    },
-    {
-      "id": "1a85ec8d769af5f88b314a3a795e607bfd4e9e1cc1a41a6d8493a098c607e1d8",
-      "url": "https://t.me/keereker/256600",
-      "title": "بیچاره ممد؛ نه از رفیقاش شانس آورد نه از دوس‌دختر 🤣 . . ♨️ 🆔 @keereker ♨️",
-      "description": "بیچاره ممد؛ نه از رفیقاش شانس آورد نه از دوس‌دختر 🤣 . . ♨️ 🆔 @keereker ♨️",
-      "platform": "telegram",
-      "views": 16800,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 16800,
-      "telegram_repost_channels": [],
-      "telegram_channel": "keereker",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-13T19:59:45+00:00",
-      "age_hours": 273.3706065036111,
-      "persian_signal": true,
-      "discovered_at": "2026-10-14T07:40:08.763327+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T04:32:04.294141+00:00",
-          "views": 15200
-        },
-        {
-          "observed_at": "2026-10-14T04:52:03.283810+00:00",
-          "views": 15500
-        },
-        {
-          "observed_at": "2026-10-14T04:52:22.531017+00:00",
-          "views": 15500
-        },
-        {
-          "observed_at": "2026-10-14T04:54:39.840547+00:00",
-          "views": 15500
-        },
-        {
-          "observed_at": "2026-10-14T04:55:12.995786+00:00",
-          "views": 15500
-        },
-        {
-          "observed_at": "2026-10-14T04:56:07.259842+00:00",
-          "views": 15500
-        },
-        {
-          "observed_at": "2026-10-14T04:56:28.191202+00:00",
-          "views": 15500
-        },
-        {
-          "observed_at": "2026-10-14T07:40:08.763327+00:00",
-          "views": 16800
-        }
-      ],
-      "metrics_observed_at": "2026-10-14T07:40:08.763327+00:00",
-      "views_velocity_per_hour": 476.55,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 1300,
-      "views_measurement_interval_hours": 2.728,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 13.52,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "760b294dfd85f7996ad18e51f40edd2f69a257f186906bde871e45714e64ad37",
-      "url": "https://t.me/vaybabamumad/180155",
-      "title": "هر وقت احساس کردید زندگی‌تون خیلی سخته این ویدئو رو ببینید! Join ➪ 🆔 @vaybabamumad",
-      "description": "هر وقت احساس کردید زندگی‌تون خیلی سخته این ویدئو رو ببینید! Join ➪ 🆔 @vaybabamumad",
-      "platform": "telegram",
-      "views": 16700,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 16700,
-      "telegram_repost_channels": [],
-      "telegram_channel": "vaybabamumad",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-13T17:30:49+00:00",
-      "age_hours": 275.8528287258333,
-      "persian_signal": true,
-      "discovered_at": "2026-10-14T07:40:08.763327+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T04:32:04.294141+00:00",
-          "views": 16000
-        },
-        {
-          "observed_at": "2026-10-14T04:52:03.283810+00:00",
-          "views": 16100
-        },
-        {
-          "observed_at": "2026-10-14T04:52:22.531017+00:00",
-          "views": 16100
-        },
-        {
-          "observed_at": "2026-10-14T04:54:39.840547+00:00",
-          "views": 16100
-        },
-        {
-          "observed_at": "2026-10-14T04:55:12.995786+00:00",
-          "views": 16100
-        },
-        {
-          "observed_at": "2026-10-14T04:56:07.259842+00:00",
-          "views": 16100
-        },
-        {
-          "observed_at": "2026-10-14T04:56:28.191202+00:00",
-          "views": 16100
-        },
-        {
-          "observed_at": "2026-10-14T07:40:08.763327+00:00",
-          "views": 16700
-        }
-      ],
-      "metrics_observed_at": "2026-10-14T07:40:08.763327+00:00",
-      "views_velocity_per_hour": 219.95,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 600,
-      "views_measurement_interval_hours": 2.728,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 13.52,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-25T05:34:12.417240+00:00",
-    "new_candidates": 4,
+    "updated_at": "2026-10-25T05:36:23.328302+00:00",
+    "new_candidates": 2,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
     "query": "rocket launch",
@@ -54920,22 +54744,22 @@
       }
     ],
     "api_results": 200,
-    "records_inspected": 40,
-    "metadata_screen_passes": 11,
+    "records_inspected": 60,
+    "metadata_screen_passes": 9,
     "metadata_rejections": {
-      "secondary_creator_present": 6,
-      "non_nasa_center": 2,
-      "third_party_partner_signal": 11,
-      "person_or_audio_signal": 10
+      "secondary_creator_present": 9,
+      "non_nasa_center": 3,
+      "third_party_partner_signal": 12,
+      "person_or_audio_signal": 23
     },
     "post_screen_build_failures": 7,
-    "duplicate_records": 0,
+    "duplicate_records": 4,
     "invalid_records": 0,
     "total_queue_items": 500,
-    "nasa_queue_items": 4,
+    "nasa_queue_items": 6,
     "asset_lookup_diagnostics": {
       "manifest_mp4_found": 0,
-      "fallback_mp4_verified": 4,
+      "fallback_mp4_verified": 2,
       "failures": {},
       "samples": []
     },

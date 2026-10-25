@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T05:34:12.417240+00:00",
+  "updated_at": "2026-10-25T05:36:23.328302+00:00",
   "query": "rocket launch",
   "queries": [
     {
@@ -20,23 +20,23 @@
     }
   ],
   "api_results": 200,
-  "records_inspected": 40,
-  "metadata_screen_passes": 11,
+  "records_inspected": 60,
+  "metadata_screen_passes": 9,
   "metadata_rejections": {
-    "secondary_creator_present": 6,
-    "non_nasa_center": 2,
-    "third_party_partner_signal": 11,
-    "person_or_audio_signal": 10
+    "secondary_creator_present": 9,
+    "non_nasa_center": 3,
+    "third_party_partner_signal": 12,
+    "person_or_audio_signal": 23
   },
   "post_screen_build_failures": 7,
-  "duplicate_records": 0,
+  "duplicate_records": 4,
   "invalid_records": 0,
-  "new_candidates": 4,
+  "new_candidates": 2,
   "total_queue_items": 500,
-  "nasa_queue_items": 4,
+  "nasa_queue_items": 6,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 4,
+    "fallback_mp4_verified": 2,
     "failures": {},
     "samples": []
   },
