@@ -38,7 +38,7 @@ on:
     # Each run checks the shared discovery queue; FiLo publishing is independent of Telegram delivery.
     - cron: "2-57/5 * * * *"
   workflow_run:
-    workflows: ["Multi-Platform Social Discovery"]
+    workflows: ["Multi-Platform Social Discovery", "NASA Licensed Video Discovery"]
     types: [completed]
     branches: [main]
   push:
