@@ -437,6 +437,7 @@ def main() -> int:
             1 for row in merged.get("items", [])
             if isinstance(row, dict) and str(row.get("source") or "").lower() == "nasa_public_domain_video"
         ),
+        "asset_lookup_diagnostics": ASSET_DIAGNOSTICS,
         "source_policy_url": NASA_POLICY_URL,
         "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility.",
     }
