@@ -40,19 +40,19 @@ SEARCHES = [
 
 RIGHTS_WARNING_RE = re.compile(
     r"copyright(?:ed)?|all rights reserved|third.party|permission required|"
-    r"not for commercial|courtesy of|licensed from|©|\\bgetty\\b|\\breuters\\b|"
-    r"associated press|\\bap video\\b|\\bstock footage\\b|\\bcommercial use prohibited\\b",
+    r"not for commercial|courtesy of|licensed from|©|\bgetty\b|\breuters\b|"
+    r"associated press|\bap video\b|\bstock footage\b|\bcommercial use prohibited\b",
     re.I,
 )
 PERSON_OR_AUDIO_RE = re.compile(
     r"interview|voice.?over|narrat(?:ed|ion|or)|music|soundtrack|singing|"
     r"astronaut|crew member|crew interview|person speaking|people speaking|"
-    r"students? (?:at|from)|children|celebrity|actor|actress|\\bportrait\\b",
+    r"students? (?:at|from)|children|celebrity|actor|actress|\bportrait\b",
     re.I,
 )
 PARTNER_RE = re.compile(
-    r"\\b(?:ESA|JAXA|NOAA|USGS|U\\.S\\. Navy|SpaceX|Boeing|Lockheed Martin|"
-    r"Getty|Reuters|Associated Press|AP Video)\\b",
+    r"\b(?:ESA|JAXA|NOAA|USGS|U\.S\. Navy|SpaceX|Boeing|Lockheed Martin|"
+    r"Getty|Reuters|Associated Press|AP Video)\b",
     re.I,
 )
 
@@ -73,7 +73,7 @@ def load_payload() -> dict:
 
 def squash(value: object, limit: int = 2200) -> str:
     text = re.sub(r"<[^>]+>", " ", str(value or ""))
-    text = re.sub(r"\\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", text).strip()
     return text[:limit]
 
 
