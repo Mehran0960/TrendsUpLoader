@@ -103,6 +103,39 @@ PARTNER_RE = re.compile(
     r"Getty|Reuters|Associated Press|AP Video)\b",
     re.I,
 )
+LONG_FORM_RE = re.compile(
+    r"\b(?:briefing|press conference|highlight reel|full episode|full length|full-length|"
+    r"livestream|live stream|webcast|documentary|lecture|panel discussion|presentation|"
+    r"behind the scenes|deep dive|mission update|question and answer|q\s*&\s*a|"
+    r"how will .*?\?|how does .*?\?|explainer|explained)\b",
+    re.I,
+)
+MAX_FILO_MEDIA_BYTES = 48 * 1024 * 1024
+
+
+def metadata_duration_seconds(data: dict) -> float | None:
+    """Read explicit duration fields when the source supplies seconds or H:M:S."""
+    for key in ("duration_seconds", "duration", "runtime_seconds", "runtime"):
+        value = data.get(key)
+        if value in (None, ""):
+            continue
+        try:
+            if isinstance(value, (int, float)):
+                seconds = float(value)
+            else:
+                raw = str(value).strip()
+                if re.fullmatch(r"\d+(?:\.\d+)?", raw):
+                    seconds = float(raw)
+                elif re.fullmatch(r"\d{1,2}:\d{2}(?::\d{2})?", raw):
+                    parts = [float(part) for part in raw.split(":")]
+                    seconds = parts[0] * 60 + parts[1] if len(parts) == 2 else parts[0] * 3600 + parts[1] * 60 + parts[2]
+                else:
+                    continue
+            if 0 < seconds < 24 * 3600:
+                return seconds
+        except (TypeError, ValueError, OverflowError):
+            continue
+    return None
 
 
 def now_iso() -> str:
@@ -150,6 +183,11 @@ def allowed_nasa_metadata(data: dict) -> tuple[bool, str]:
         return False, "person_or_audio_signal"
     if PARTNER_RE.search(source_text):
         return False, "third_party_partner_signal"
+    if LONG_FORM_RE.search(title):
+        return False, "likely_long_form_title"
+    duration = metadata_duration_seconds(data)
+    if duration is not None and not 8 <= duration <= 60:
+        return False, "duration_metadata_out_of_range"
     if not title or not description:
         return False, "missing_metadata"
     return True, "metadata_passed_conservative_nasa_screen"
@@ -222,12 +260,19 @@ def _verify_official_mp4_url(url: str) -> bool:
         ) as response:
             final = urlparse(str(response.url or ""))
             content_type = str(response.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
+            content_range = str(response.headers.get("content-range") or "").strip()
+            total_match = re.search(r"/(\d+)$", content_range)
+            try:
+                declared_size = int(total_match.group(1)) if total_match else int(response.headers.get("content-length") or 0)
+            except (TypeError, ValueError):
+                declared_size = 0
             if (
                 response.status_code not in {200, 206}
                 or final.scheme != "https"
                 or final.hostname != "images-assets.nasa.gov"
                 or not final.path.lower().endswith(".mp4")
                 or (content_type and content_type not in {"video/mp4", "application/octet-stream", "binary/octet-stream"})
+                or (declared_size and declared_size > MAX_FILO_MEDIA_BYTES)
             ):
                 return False
             return True
@@ -338,6 +383,7 @@ def build_candidate(api_item: dict, query: str, lanes: list[str], discovered_at:
         "query": query,
         "nasa_id": nasa_id,
         "direct_media_url": media_url,
+        "source_duration_seconds": metadata_duration_seconds(data),
         "rights_cleared_for_publication": True,
         "rights_evidence_url": NASA_POLICY_URL,
         "license_url": NASA_POLICY_URL,
