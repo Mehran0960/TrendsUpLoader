@@ -413,35 +413,39 @@ def main() -> int:
     metadata_rejections: dict[str, int] = {}
     post_screen_build_failures = 0
     records_inspected = 0
+    stop_inspecting = False
     for query_run in query_runs:
-      for api_item in query_run["items"]:
-        if len(additions) >= MAX_ADDITIONS_PER_RUN or records_inspected >= MAX_SEARCH_RESULTS_TO_INSPECT:
+        for api_item in query_run["items"]:
+            if len(additions) >= MAX_ADDITIONS_PER_RUN or records_inspected >= MAX_SEARCH_RESULTS_TO_INSPECT:
+                stop_inspecting = True
+                break
+            records_inspected += 1
+            data_rows = api_item.get("data") or []
+            if not data_rows or not isinstance(data_rows[0], dict):
+                invalid_records += 1
+                continue
+            data = data_rows[0]
+            nasa_id = squash(data.get("nasa_id"), 100)
+            detail_url = "https://images.nasa.gov/details/" + nasa_id if nasa_id else ""
+            if not detail_url:
+                invalid_records += 1
+                continue
+            if detail_url in existing_urls:
+                duplicate_records += 1
+                continue
+            allowed, reason = allowed_nasa_metadata(data)
+            if not allowed:
+                metadata_rejections[reason] = metadata_rejections.get(reason, 0) + 1
+                continue
+            metadata_screen_passes += 1
+            candidate = build_candidate(api_item, query_run["query"], query_run["lanes"], timestamp)
+            if candidate:
+                additions.append(candidate)
+                existing_urls.add(candidate["url"])
+            else:
+                post_screen_build_failures += 1
+        if stop_inspecting:
             break
-        records_inspected += 1
-        data_rows = api_item.get("data") or []
-          if not data_rows or not isinstance(data_rows[0], dict):
-              invalid_records += 1
-              continue
-          data = data_rows[0]
-          nasa_id = squash(data.get("nasa_id"), 100)
-          detail_url = "https://images.nasa.gov/details/" + nasa_id if nasa_id else ""
-          if not detail_url:
-              invalid_records += 1
-              continue
-          if detail_url in existing_urls:
-              duplicate_records += 1
-              continue
-          allowed, reason = allowed_nasa_metadata(data)
-          if not allowed:
-              metadata_rejections[reason] = metadata_rejections.get(reason, 0) + 1
-              continue
-          metadata_screen_passes += 1
-          candidate = build_candidate(api_item, query_run["query"], query_run["lanes"], timestamp)
-          if candidate:
-              additions.append(candidate)
-              existing_urls.add(candidate["url"])
-          else:
-              post_screen_build_failures += 1
 
     merged = merge_candidates(payload, additions, timestamp)
     status = {
