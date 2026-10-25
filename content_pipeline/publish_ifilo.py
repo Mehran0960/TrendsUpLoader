@@ -1692,9 +1692,21 @@ def upload_video_thumbnail(page, video_path: Path, workdir: Path, mode_tag: str)
     return {"uploaded": uploaded, **safe_status}
 
 
-def upload_review_video_from_telegram(page, source_url: str, *, public: bool = False) -> int:
-    """Upload one exact Telegram video publicly when explicitly authorized, or as a private draft."""
-    mode_tag = "IFILO_REVIEW_PUBLIC" if public else "IFILO_REVIEW_DRAFT"
+def upload_review_video_from_telegram(
+    page,
+    source_url: str,
+    *,
+    public: bool = False,
+    candidate: dict | None = None,
+    prepared_video: Path | None = None,
+    prepared_quality: dict | None = None,
+) -> int:
+    """Use the full checked uploader for a review item or a rights-cleared queue candidate."""
+    mode_tag = (
+        "IFILO_QUEUE_PUBLIC" if public else "IFILO_QUEUE_DRAFT"
+    ) if candidate is not None else (
+        "IFILO_REVIEW_PUBLIC" if public else "IFILO_REVIEW_DRAFT"
+    )
     from urllib.parse import parse_qs
 
     normalized_url = _normalize_review_telegram_url(source_url)
@@ -1702,10 +1714,20 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
         print(f"{mode_tag}_BLOCKED_INVALID_TELEGRAM_URL")
         return 3
 
-    item = _load_previously_sent_review_item(normalized_url)
-    if item is None:
-        print(f"{mode_tag}_BLOCKED_NOT_FOUND_IN_SENT_REVIEW_STATE")
-        return 3
+    if candidate is not None:
+        item = candidate if isinstance(candidate, dict) else None
+        candidate_url = _normalize_review_telegram_url(str(item.get("url") or "")) if item else ""
+        if item is None or candidate_url != normalized_url:
+            print(f"{mode_tag}_BLOCKED_CANDIDATE_URL_MISMATCH")
+            return 3
+        if public and not rights_cleared_for_ifilo(item):
+            print(f"{mode_tag}_BLOCKED_RIGHTS_EVIDENCE_MISSING")
+            return 3
+    else:
+        item = _load_previously_sent_review_item(normalized_url)
+        if item is None:
+            print(f"{mode_tag}_BLOCKED_NOT_FOUND_IN_SENT_REVIEW_STATE")
+            return 3
 
     state = load_state()
     matching_attempts = [
@@ -1749,13 +1771,25 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
         return 4
 
     with tempfile.TemporaryDirectory(prefix=("ifilo-review-public-" if public else "ifilo-review-draft-")) as temp_dir:
-        video_path, quality = prepare_candidate_video(item, Path(temp_dir))
-        if video_path is None:
-            print(f"{mode_tag}_BLOCKED_MEDIA_QC " + json.dumps({
-                "reason": str(quality.get("reason") or quality.get("content_gate_reason") or "media_not_qualified"),
-                "source_url": normalized_url,
-            }, ensure_ascii=False))
-            return 3
+        if prepared_video is not None:
+            video_path = Path(prepared_video)
+            quality = prepared_quality if isinstance(prepared_quality, dict) else {}
+            if (
+                not video_path.is_file()
+                or not 0 < video_path.stat().st_size <= MAX_VIDEO_BYTES
+                or quality.get("passed") is not True
+                or quality.get("content_gate_passed") is not True
+            ):
+                print(f"{mode_tag}_BLOCKED_PREPARED_MEDIA_QC")
+                return 3
+        else:
+            video_path, quality = prepare_candidate_video(item, Path(temp_dir))
+            if video_path is None:
+                print(f"{mode_tag}_BLOCKED_MEDIA_QC " + json.dumps({
+                    "reason": str(quality.get("reason") or quality.get("content_gate_reason") or "media_not_qualified"),
+                    "source_url": normalized_url,
+                }, ensure_ascii=False))
+                return 3
 
         source_title = str(item.get("title") or item.get("source_post_caption") or "")[:300]
         base_title = make_title(item)
@@ -1861,7 +1895,9 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
         title_ok, description_ok = fill_metadata(page, title, description)
         rules_ok = _set_checkbox(page, "#acceptRules", True)
         publication_flag_ok = _set_checkbox(page, "#dontPublish", not public)
-        monetization_off = _set_checkbox(page, "#canMakeMoney", False, allow_hidden=True)
+        # Only the queue publisher with explicit rights evidence may enable monetization.
+        monetization_expected = bool(public and candidate is not None and rights_cleared_for_ifilo(item))
+        monetization_set = _set_checkbox(page, "#canMakeMoney", monetization_expected, allow_hidden=True)
         redistribution_off = _set_checkbox(page, "#canRepublish", False, allow_hidden=True)
         download_off = _set_checkbox(page, "#allowDownload", False, allow_hidden=True)
         ownership_not_claimed = _set_checkbox(page, "#isMadeByMe", False, allow_hidden=True)
@@ -1893,10 +1929,10 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             model = {}
 
         dom_safe = all((
-            title_ok, description_ok, rules_ok, publication_flag_ok, monetization_off,
+            title_ok, description_ok, rules_ok, publication_flag_ok, monetization_set,
             redistribution_off, download_off, ownership_not_claimed,
             page.locator("#dontPublish").is_checked() is (not public),
-            not page.locator("#canMakeMoney").is_checked(),
+            page.locator("#canMakeMoney").is_checked() is monetization_expected,
             not page.locator("#canRepublish").is_checked(),
             not page.locator("#allowDownload").is_checked(),
             not page.locator("#isMadeByMe").is_checked(),
@@ -1907,7 +1943,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             model.get("titleMatches") is True
             and model.get("descriptionMatches") is True
             and model.get("dontPublish") is (not public)
-            and model.get("canMakeMoney") is False
+            and model.get("canMakeMoney") is monetization_expected
             and model.get("canRepublish") is False
             and model.get("allowDownload") is False
             and model.get("isMadeByMe") is False
@@ -1947,13 +1983,18 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
             "source_title": source_title,
             "title": title,
             "status": "pending",
-            "mode": "telegram_review_public" if public else "telegram_review_draft_not_public",
+            "mode": (
+                ("queue_public" if public else "queue_draft_not_public")
+                if candidate is not None
+                else ("telegram_review_public" if public else "telegram_review_draft_not_public")
+            ),
             "started_at": utc_now(),
             "video_sha256": hashlib.sha256(video_path.read_bytes()).hexdigest(),
             "bytes": video_path.stat().st_size,
             "quality": quality,
+            "rights_evidence_url": str(item.get("rights_evidence_url") or item.get("license_url") or ""),
             "publication_checkbox": "dontPublish=false" if public else "dontPublish=true",
-            "monetization_checkbox": "canMakeMoney=false",
+            "monetization_checkbox": f"canMakeMoney={str(monetization_expected).lower()}",
             "redistribution_checkbox": "canRepublish=false",
             "download_checkbox": "allowDownload=false",
             "ownership_checkbox": "isMadeByMe=false",
@@ -1997,7 +2038,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
                 "exact_description": str(fields.get("description", [""])[-1]) == description,
                 # FiLo serializes unchecked checkboxes as 0/empty on some requests.
                 "publication_state_matches": field("dontPublish") in (false_values if public else true_values),
-                "monetization_false": field("canMakeMoney") in false_values,
+                "monetization_state_matches": field("canMakeMoney") in (true_values if monetization_expected else false_values),
                 "redistribution_false": field("canRepublish") in false_values,
                 "download_false": field("allowDownload") in false_values,
                 "not_claiming_ownership": field("isMadeByMe") in false_values,
@@ -2242,7 +2283,7 @@ def upload_review_video_from_telegram(page, source_url: str, *, public: bool = F
                 "status": attempt["status"],
                 "ifilo_url": public_video_url,
                 "public_post": bool(public),
-                "monetization_enabled": False,
+                "monetization_enabled": monetization_expected,
                 "redistribution_enabled": False,
                 "download_enabled": False,
                 "ownership_claimed": False,
@@ -2417,123 +2458,30 @@ def run_browser(publish: bool, test_draft: bool = False, verify_test_draft: bool
 
                 candidates = _eligible_candidates()
                 if not candidates:
-                    print("IFILO_NO_ELIGIBLE_NEW_CANDIDATE: No fresh, qualified, unattempted native Telegram video is ready.")
+                    print("IFILO_NO_ELIGIBLE_NEW_CANDIDATE: No fresh, qualified, unattempted native Telegram video with rights evidence is ready.")
                     return 0
 
-                candidate = None
-                video_path = None
-                quality = {}
+                # Use the full checked transfer + thumbnail + publish flow; never the
+                # older shallow form-submit path. Process one eligible item per run.
                 with tempfile.TemporaryDirectory(prefix="ifilo-media-") as media_tmp:
                     for row in candidates:
-                        path, qc = prepare_candidate_video(row, Path(media_tmp))
-                        if path is not None:
-                            candidate, video_path, quality = row, path, qc
-                            break
-                    if candidate is None or video_path is None:
-                        print("IFILO_NO_CANDIDATE_PASSED_MEDIA_QC")
-                        return 0
+                        video_path, quality = prepare_candidate_video(row, Path(media_tmp))
+                        if video_path is None:
+                            continue
+                        if has_prior_attempt(row, load_state()):
+                            print("IFILO_DUPLICATE_GUARD: Candidate was attempted by another run.")
+                            continue
+                        return upload_review_video_from_telegram(
+                            page,
+                            str(row.get("url") or ""),
+                            public=True,
+                            candidate=row,
+                            prepared_video=video_path,
+                            prepared_quality=quality,
+                        )
 
-                    title = make_title(candidate)
-                    description = make_description(candidate, title)
-                    # The upload form may reveal metadata fields only after a file is chosen.
-                    filled_title, filled_desc = fill_metadata(page, title, description)
-                    file_input = page.locator('input[type="file"]').first
-                    if file_input.count() == 0:
-                        print("IFILO_UPLOAD_BLOCKED_NO_FILE_INPUT")
-                        return 3
-                    try:
-                        file_input.set_input_files(str(video_path), timeout=30000)
-                        page.wait_for_timeout(1800)
-                    except Exception as exc:
-                        print("IFILO_FILE_SELECT_FAILED", type(exc).__name__)
-                        return 3
-
-                    title_after, desc_after = fill_metadata(page, title, description)
-                    filled_title = filled_title or title_after
-                    filled_desc = filled_desc or desc_after
-                    probe_upload_form(page)
-                    if not filled_title or not filled_desc:
-                        print("IFILO_UPLOAD_BLOCKED_METADATA_FIELDS_NOT_IDENTIFIED " + json.dumps({
-                            "title_field_found": filled_title,
-                            "description_field_found": filled_desc,
-                        }, ensure_ascii=False))
-                        return 3
-
-                    submit = choose_submit_button(page)
-                    if submit is None:
-                        print("IFILO_UPLOAD_BLOCKED_SUBMIT_BUTTON_NOT_IDENTIFIED")
-                        return 3
-
-                    state = load_state()
-                    if has_prior_attempt(candidate, state):
-                        print("IFILO_DUPLICATE_GUARD: Candidate was attempted by another run.")
-                        return 0
-                    attempt = {
-                        "source_key": source_key(candidate),
-                        "source_url": str(candidate.get("url") or ""),
-                        "source_title": str(candidate.get("title") or "")[:300],
-                        "title": title,
-                        "status": "pending",
-                        "started_at": utc_now(),
-                        "video_sha256": hashlib.sha256(video_path.read_bytes()).hexdigest(),
-                        "bytes": video_path.stat().st_size,
-                        "quality": quality,
-                    }
-                    state.setdefault("attempts", []).append(attempt)
-                    write_state(state)
-
-                    prior_url = page.url
-                    clicked = False
-                    try:
-                        submit.click(timeout=180000)
-                        clicked = True
-                        try:
-                            page.wait_for_load_state("domcontentloaded", timeout=30000)
-                        except Exception:
-                            pass
-                        page.wait_for_timeout(7000)
-                    except Exception as exc:
-                        attempt["status"] = "uncertain_after_submit" if clicked else "submit_failed_before_click"
-                        attempt["finished_at"] = utc_now()
-                        attempt["error_type"] = type(exc).__name__
-                        write_state(state)
-                        print("IFILO_SUBMIT_ERROR " + json.dumps({
-                            "clicked": clicked,
-                            "status": attempt["status"],
-                            "error_type": type(exc).__name__,
-                        }, ensure_ascii=False))
-                        return 4
-
-                    body_text = ""
-                    try:
-                        body_text = page.locator("body").inner_text(timeout=10000)
-                    except Exception:
-                        pass
-                    success_text = bool(SUCCESS_TEXT_RE.search(body_text))
-                    result_url = _upload_url_from_page(page, prior_url)
-                    if success_text or result_url:
-                        attempt["status"] = "uploaded"
-                        attempt["finished_at"] = utc_now()
-                        attempt["ifilo_url"] = result_url
-                        attempt["confirmation"] = "success_text" if success_text else "redirect_or_video_link"
-                        write_state(state)
-                        print("IFILO_UPLOAD_SUCCESS " + json.dumps({
-                            "title": title,
-                            "ifilo_url": result_url,
-                            "source_url": attempt["source_url"],
-                            "bytes": attempt["bytes"],
-                            "quality": quality,
-                            "confirmation": attempt["confirmation"],
-                        }, ensure_ascii=False))
-                        return 0
-
-                    # Never auto-retry an ambiguous submit: the server may have accepted the file.
-                    attempt["status"] = "uncertain_after_submit"
-                    attempt["finished_at"] = utc_now()
-                    write_state(state)
-                    print("IFILO_UPLOAD_UNCERTAIN: Submission was attempted, but success could not be verified; this source will not be retried automatically.")
-                    print("IFILO_POST_SUBMIT_PROBE " + json.dumps(_visible_control_summary(page), ensure_ascii=False))
-                    return 4
+                print("IFILO_NO_CANDIDATE_PASSED_MEDIA_QC")
+                return 0
             finally:
                 try:
                     context.close()
