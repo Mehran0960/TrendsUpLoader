@@ -1,7 +1,7 @@
 name: NASA Licensed Video Discovery
 
 # Independent of the social/Telegram workflow. Every run adds only source-screened
-# NASA-origin MP4s to the shared queue; the separate FiLo workflow handles publishing.
+# NASA-origin MP4s and writes small screening metrics; the separate FiLo workflow handles publishing.
 on:
   schedule:
     - cron: "7,37 * * * *"
