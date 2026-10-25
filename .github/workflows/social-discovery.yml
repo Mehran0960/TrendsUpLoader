@@ -32,7 +32,7 @@ on:
 jobs:
   discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     permissions:
       contents: write
     steps:
@@ -101,7 +101,90 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python content_pipeline/send_review_videos.py
+        id: send_review
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          rm -f artifacts/ifilo_source_urls.txt "$RUNNER_TEMP/review_sender.log"
+          python content_pipeline/send_review_videos.py 2>&1 | tee "$RUNNER_TEMP/review_sender.log"
+          python - "$RUNNER_TEMP/review_sender.log" artifacts/ifilo_source_urls.txt "$GITHUB_OUTPUT" <<'PY'
+          import json
+          import re
+          import sys
+          from urllib.parse import urlparse
+
+          log_path, output_path, github_output = sys.argv[1:]
+          urls = []
+          seen = set()
+          with open(log_path, encoding="utf-8", errors="replace") as source:
+              for line in source:
+                  if "MEDIA_REVIEW_VIDEO_SENT" not in line:
+                      continue
+                  start = line.find("{")
+                  if start < 0:
+                      continue
+                  try:
+                      payload = json.loads(line[start:])
+                  except Exception:
+                      continue
+                  if payload.get("MEDIA_REVIEW_VIDEO_SENT") is not True:
+                      continue
+                  raw = str(payload.get("url") or "").strip()
+                  parsed = urlparse(raw)
+                  host = (parsed.netloc or "").lower().removeprefix("www.")
+                  match = re.fullmatch(r"/([A-Za-z0-9_]+)/([0-9]+)/?", parsed.path or "")
+                  if host not in {"t.me", "telegram.me"} or not match:
+                      print("IFILO_AUTO_SKIP_UNSUPPORTED_SOURCE: only exact public Telegram post URLs are supported by this route.")
+                      continue
+                  channel, post_id = match.groups()
+                  url = f"https://t.me/{channel}/{post_id}"
+                  if url not in seen:
+                      seen.add(url)
+                      urls.append(url)
+
+          with open(output_path, "w", encoding="utf-8") as target:
+              target.write("".join(url + "\\n" for url in urls))
+          with open(github_output, "a", encoding="utf-8") as output:
+              output.write(f"ifilo_source_count={len(urls)}\\n")
+          print(f"IFILO_AUTO_QUEUE_FROM_SUCCESSFUL_TELEGRAM_SEND count={len(urls)}")
+          PY
+
+      - name: Prepare FiLo browser uploader for the sent Telegram video
+        id: ifilo_setup
+        if: ${{ success() && steps.send_review.outputs.ifilo_source_count != '' && steps.send_review.outputs.ifilo_source_count != '0' }}
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          pip install --disable-pip-version-check requests pillow yt-dlp playwright
+          python -m playwright install chromium
+          if ! command -v ffmpeg >/dev/null 2>&1 || ! command -v ffprobe >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq ffmpeg
+          fi
+
+      - name: Upload each successfully sent Telegram video to FiLo
+        if: ${{ steps.ifilo_setup.outcome == 'success' && steps.send_review.outputs.ifilo_source_count != '' && steps.send_review.outputs.ifilo_source_count != '0' }}
+        continue-on-error: true
+        env:
+          IFILO_LOGIN_ID: ${{ secrets.IFILO_LOGIN_ID }}
+          IFILO_PASSWORD: ${{ secrets.IFILO_PASSWORD }}
+          IFILO_STORAGE_STATE_B64: ${{ secrets.IFILO_STORAGE_STATE_B64 }}
+        run: |
+          set -uo pipefail
+          if [ -z "${IFILO_STORAGE_STATE_B64:-}" ] && { [ -z "${IFILO_LOGIN_ID:-}" ] || [ -z "${IFILO_PASSWORD:-}" ]; }; then
+            echo "IFILO_AUTO_SKIP: FiLo sign-in secrets are not configured; Telegram delivery remains successful."
+            exit 0
+          fi
+          while IFS= read -r source_url; do
+            [ -n "$source_url" ] || continue
+            echo "IFILO_AUTO_UPLOAD_START source_url=$source_url"
+            if python content_pipeline/publish_ifilo.py --publish-review-video "$source_url"; then
+              status=0
+            else
+              status=$?
+            fi
+            echo "IFILO_AUTO_UPLOAD_FINISHED exit_code=$status source_url=$source_url"
+          done < artifacts/ifilo_source_urls.txt
       - name: Persist discovery state
         if: ${{ always() && hashFiles('attention_state/social_discovery.json') != '' }}
         run: |
@@ -132,6 +215,9 @@ jobs:
           fi
           if [ -f attention_state/peak_window_planner_state.json ]; then
             cp attention_state/peak_window_planner_state.json "$state_tmp/peak_window_planner_state.json"
+          fi
+          if [ -f attention_state/ifilo_upload_state.json ]; then
+            cp attention_state/ifilo_upload_state.json "$state_tmp/ifilo_upload_state.json"
           fi
 
           pushed=false
@@ -182,6 +268,45 @@ jobs:
           merged["media_reviewed_fingerprints"] = list(fingerprints.values())[-300:]
           current_path.write_text(json.dumps(merged, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
           PY
+            fi
+
+            if [ -f "$state_tmp/ifilo_upload_state.json" ]; then
+              python - "$state_tmp/ifilo_upload_state.json" attention_state/ifilo_upload_state.json <<'PY'
+          import json, pathlib, sys
+          incoming_path, current_path = map(pathlib.Path, sys.argv[1:])
+          def load(path):
+              try:
+                  value = json.loads(path.read_text(encoding="utf-8"))
+                  return value if isinstance(value, dict) else {}
+              except Exception:
+                  return {}
+          incoming, current = load(incoming_path), load(current_path)
+          merged = {}
+          rank = {
+              "uploaded": 8, "draft_uploaded": 8, "test_draft_unexpected_public_route": 8,
+              "uncertain_after_submit": 6, "review_public_uncertain": 6, "test_draft_uncertain": 6,
+              "pending": 4, "review_public_rejected": 3, "review_draft_rejected": 3,
+              "submit_failed_before_click": 2, "download_failed": 1,
+          }
+          for row in (current.get("attempts") or []) + (incoming.get("attempts") or []):
+              if not isinstance(row, dict):
+                  continue
+              key = str(row.get("source_key") or row.get("source_url") or "")
+              if not key:
+                  continue
+              old = merged.get(key)
+              if old is None or rank.get(str(row.get("status") or ""), 0) >= rank.get(str(old.get("status") or ""), 0):
+                  merged.pop(key, None)
+                  merged[key] = row
+          payload = {
+              "schema_version": 1,
+              "updated_at": incoming.get("updated_at") or current.get("updated_at"),
+              "attempts": list(merged.values())[-500:],
+          }
+          current_path.parent.mkdir(parents=True, exist_ok=True)
+          current_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+          PY
+              git add attention_state/ifilo_upload_state.json
             fi
 
             if [ -f "$state_tmp/social_discovery.json" ]; then
