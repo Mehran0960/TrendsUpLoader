@@ -47,22 +47,27 @@ jobs:
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          state_tmp="$(mktemp)"
-          cp attention_state/social_discovery.json "$state_tmp"
+          state_dir="$(mktemp -d)"
+          cp attention_state/social_discovery.json "$state_dir/social_discovery.json"
+          cp attention_state/nasa_video_discovery_status.json "$state_dir/nasa_video_discovery_status.json"
           pushed=false
           for attempt in 1 2 3 4; do
             git fetch origin main
             git reset --hard origin/main
             mkdir -p attention_state
-            cp "$state_tmp" attention_state/social_discovery.json
-            python - attention_state/social_discovery.json <<'PY'
+            cp "$state_dir/social_discovery.json" attention_state/social_discovery.json
+            cp "$state_dir/nasa_video_discovery_status.json" attention_state/nasa_video_discovery_status.json
+            python - attention_state/social_discovery.json attention_state/nasa_video_discovery_status.json <<'PY'
           import json, pathlib, sys
-          path = pathlib.Path(sys.argv[1])
-          payload = json.loads(path.read_text(encoding="utf-8"))
-          if not isinstance(payload, dict) or not isinstance(payload.get("items"), list):
+          queue_path, status_path = map(pathlib.Path, sys.argv[1:])
+          queue = json.loads(queue_path.read_text(encoding="utf-8"))
+          status = json.loads(status_path.read_text(encoding="utf-8"))
+          if not isinstance(queue, dict) or not isinstance(queue.get("items"), list):
               raise SystemExit("Refusing to persist invalid shared discovery queue.")
+          if not isinstance(status, dict) or not status.get("updated_at"):
+              raise SystemExit("Refusing to persist invalid NASA discovery status.")
           PY
-            git add attention_state/social_discovery.json
+            git add attention_state/social_discovery.json attention_state/nasa_video_discovery_status.json
             if git diff --cached --quiet; then
               pushed=true
               break
@@ -74,7 +79,7 @@ jobs:
             fi
             sleep "$attempt"
           done
-          rm -f "$state_tmp"
+          rm -rf "$state_dir"
           if [ "$pushed" != "true" ]; then
             echo "Failed to persist the shared discovery queue after four attempts." >&2
             exit 1
