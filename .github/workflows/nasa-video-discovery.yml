@@ -39,7 +39,7 @@ jobs:
         run: python -m unittest -v content_pipeline.test_nasa_video_discovery content_pipeline.test_publish_ifilo
       - name: Discover NASA source-screened videos
         id: discover_nasa
-        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && contains(github.event.head_commit.message, 'Prime licensed video discovery')) }}
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push' }}
         run: python content_pipeline/nasa_video_discovery.py
       - name: Persist the shared discovery queue
         if: ${{ always() && !cancelled() && steps.discover_nasa.outcome == 'success' && hashFiles('attention_state/social_discovery.json') != '' }}
