@@ -179,6 +179,14 @@ def make_description(item: dict, title: str) -> str:
     lanes = [lane_labels[x] for x in item.get("hook_signals", []) if x in lane_labels]
     if lanes:
         body = body + "\n\nموضوع: " + "، ".join(dict.fromkeys(lanes[:3]))
+    if str(item.get("source") or "").lower() == "nasa_public_domain_video":
+        source_page = str(item.get("url") or "").strip()
+        evidence_url = str(item.get("rights_evidence_url") or item.get("license_url") or "").strip()
+        body += "\n\nمنبع ویدئو: NASA"
+        if source_page:
+            body += "\nصفحهٔ منبع: " + source_page
+        if evidence_url:
+            body += "\nراهنمای استفادهٔ رسانه‌ای: " + evidence_url
     return body[:1800]
 
 
@@ -643,10 +651,8 @@ def _eligible_candidates() -> list[dict]:
     items = payload.get("items", []) if isinstance(payload, dict) else []
     if not isinstance(items, list):
         return []
-    # Keep this first adapter narrow: the current pipeline has a stable direct
-    # media route for native Telegram videos, while other sources are discovery-only.
-    # Filter to the only source family with a stable direct-file acquisition
-    # path before ranking, so a different platform cannot crowd Telegram out.
+
+    # Telegram candidates keep the existing viral-evidence review selector.
     native_telegram_items = [
         row for row in items
         if isinstance(row, dict)
@@ -654,14 +660,64 @@ def _eligible_candidates() -> list[dict]:
         and str(row.get("source") or "").lower() == "telegram_native_video"
         and rights_cleared_for_ifilo(row)
     ]
-    candidates = select_media_candidates(
+    telegram_candidates = select_media_candidates(
         native_telegram_items,
         reviewed_ids=set(),
         limit=MAX_CANDIDATES_TO_TRY,
     )
+
+    # NASA candidates use a separate conservative metadata/license screen and
+    # direct official MP4 URLs. They do not pass through Telegram's viral-evidence
+    # selector because the NASA API does not provide comparable view/velocity data.
+    nasa_candidates = []
+    for row in items:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("platform") or "").lower() != "nasa":
+            continue
+        if str(row.get("source") or "").lower() != "nasa_public_domain_video":
+            continue
+        if not rights_cleared_for_ifilo(row):
+            continue
+        if not _normalize_queue_candidate_url(str(row.get("url") or ""), row):
+            continue
+        media = urlparse(str(row.get("direct_media_url") or "").strip())
+        if (
+            media.scheme != "https"
+            or media.hostname != "images-assets.nasa.gov"
+            or not media.path.lower().endswith(".mp4")
+            or media.username
+            or media.password
+        ):
+            continue
+        try:
+            score = float(row.get("follow_growth_score") or 0)
+        except (TypeError, ValueError):
+            continue
+        if score < 60 or len(set(row.get("hook_signals") or [])) < 2:
+            continue
+        row.setdefault("cleaned_review_caption", str(row.get("title") or ""))
+        nasa_candidates.append(row)
+
+    nasa_candidates.sort(
+        key=lambda row: (
+            str(row.get("discovered_at") or ""),
+            float(row.get("follow_growth_score") or 0),
+        ),
+        reverse=True,
+    )
     state = load_state()
-    eligible = [row for row in candidates if not has_prior_attempt(row, state)]
-    return eligible
+    combined = [row for row in telegram_candidates if not has_prior_attempt(row, state)]
+    combined.extend(row for row in nasa_candidates if not has_prior_attempt(row, state))
+    combined.sort(
+        key=lambda row: (
+            float(row.get("momentum_priority_score") or 0),
+            float(row.get("follow_growth_score") or 0),
+            str(row.get("discovered_at") or ""),
+        ),
+        reverse=True,
+    )
+    return combined[:MAX_CANDIDATES_TO_TRY]
 
 
 def prepare_candidate_video(item: dict, workdir: Path) -> tuple[Path | None, dict]:
@@ -670,24 +726,67 @@ def prepare_candidate_video(item: dict, workdir: Path) -> tuple[Path | None, dic
     if not url:
         return None, {"passed": False, "reason": "missing_source_url"}
     target = workdir / "selected-video.mp4"
-    # One-off public FiLo retry for the authorized Telegram video.
-    # Use refreshed Telegram media headers and a flexible yt-dlp selector if direct media is denied.
-    downloaded_directly = download_direct_telegram_post(url, target, item=item)
-    if not downloaded_directly:
-        # Telegram can render the public post while its embedded media URL returns
-        # an HTTP error. Retry through yt-dlp's supported extractor, still using this
-        # exact post URL (never a neighboring post or an unverified media URL).
-        target.unlink(missing_ok=True)
+
+    if str(item.get("source") or "").lower() == "nasa_public_domain_video":
+        media_url = str(item.get("direct_media_url") or "").strip()
+        parsed_media = urlparse(media_url)
+        if (
+            parsed_media.scheme != "https"
+            or parsed_media.hostname != "images-assets.nasa.gov"
+            or not parsed_media.path.lower().endswith(".mp4")
+            or parsed_media.username
+            or parsed_media.password
+        ):
+            return None, {"passed": False, "reason": "nasa_media_url_not_allowlisted"}
         try:
-            fallback_path = download_with_ytdlp(url, workdir)
-        except Exception as exc:
-            print("IFILO_TELEGRAM_YTDLP_FALLBACK_FAILED", type(exc).__name__)
-            fallback_path = None
-        if fallback_path is None or not Path(fallback_path).is_file():
-            return None, {"passed": False, "reason": "source_video_download_failed"}
-        fallback_path = Path(fallback_path)
-        if fallback_path.resolve() != target.resolve():
-            fallback_path.replace(target)
+            with requests.get(
+                media_url,
+                headers={"User-Agent": UA},
+                stream=True,
+                timeout=(15, 90),
+            ) as response:
+                final_url = urlparse(str(response.url or ""))
+                if final_url.scheme != "https" or final_url.hostname != "images-assets.nasa.gov":
+                    return None, {"passed": False, "reason": "nasa_media_redirect_not_allowlisted"}
+                response.raise_for_status()
+                try:
+                    declared_size = int(response.headers.get("content-length") or 0)
+                except (TypeError, ValueError):
+                    declared_size = 0
+                if declared_size > MAX_VIDEO_BYTES:
+                    return None, {"passed": False, "reason": "nasa_video_over_size_limit"}
+                written = 0
+                with target.open("wb") as output:
+                    for chunk in response.iter_content(chunk_size=1024 * 256):
+                        if not chunk:
+                            continue
+                        written += len(chunk)
+                        if written > MAX_VIDEO_BYTES:
+                            output.close()
+                            target.unlink(missing_ok=True)
+                            return None, {"passed": False, "reason": "nasa_video_over_size_limit"}
+                        output.write(chunk)
+                if written <= 0:
+                    target.unlink(missing_ok=True)
+                    return None, {"passed": False, "reason": "nasa_video_empty_download"}
+        except requests.RequestException as exc:
+            target.unlink(missing_ok=True)
+            return None, {"passed": False, "reason": "nasa_download_failed", "error_type": type(exc).__name__}
+    else:
+        # Telegram adapter may use only the exact source post selected from the queue.
+        downloaded_directly = download_direct_telegram_post(url, target, item=item)
+        if not downloaded_directly:
+            target.unlink(missing_ok=True)
+            try:
+                fallback_path = download_with_ytdlp(url, workdir)
+            except Exception as exc:
+                print("IFILO_TELEGRAM_YTDLP_FALLBACK_FAILED", type(exc).__name__)
+                fallback_path = None
+            if fallback_path is None or not Path(fallback_path).is_file():
+                return None, {"passed": False, "reason": "source_video_download_failed"}
+            fallback_path = Path(fallback_path)
+            if fallback_path.resolve() != target.resolve():
+                fallback_path.replace(target)
     if not target.exists() or not 0 < target.stat().st_size <= MAX_VIDEO_BYTES:
         target.unlink(missing_ok=True)
         return None, {"passed": False, "reason": "downloaded_file_missing_or_too_large"}
@@ -1487,6 +1586,25 @@ def _normalize_review_telegram_url(raw_url: str) -> str:
     return f"https://t.me/{channel}/{post_id}"
 
 
+def _normalize_queue_candidate_url(raw_url: str, item: dict) -> str:
+    """Validate a queue source URL against its specific source adapter."""
+    source = str((item or {}).get("source") or "").strip().lower()
+    if source == "nasa_public_domain_video":
+        parsed = urlparse(str(raw_url or "").strip())
+        host = (parsed.hostname or "").lower()
+        match = re.fullmatch(r"/details/([A-Za-z0-9_-]{2,100})/?", parsed.path or "")
+        if (
+            parsed.scheme != "https"
+            or host != "images.nasa.gov"
+            or not match
+            or parsed.username
+            or parsed.password
+        ):
+            return ""
+        return "https://images.nasa.gov/details/" + match.group(1)
+    return _normalize_review_telegram_url(raw_url)
+
+
 def _load_previously_sent_review_item(source_url: str) -> dict | None:
     """Return one exact Telegram review item only when its URL is in the sent state."""
     normalized = _normalize_review_telegram_url(source_url)
@@ -1709,14 +1827,18 @@ def upload_review_video_from_telegram(
     )
     from urllib.parse import parse_qs
 
-    normalized_url = _normalize_review_telegram_url(source_url)
+    item = candidate if isinstance(candidate, dict) else None
+    normalized_url = (
+        _normalize_queue_candidate_url(source_url, item)
+        if item is not None
+        else _normalize_review_telegram_url(source_url)
+    )
     if not normalized_url:
-        print(f"{mode_tag}_BLOCKED_INVALID_TELEGRAM_URL")
+        print(f"{mode_tag}_BLOCKED_INVALID_SOURCE_URL")
         return 3
 
     if candidate is not None:
-        item = candidate if isinstance(candidate, dict) else None
-        candidate_url = _normalize_review_telegram_url(str(item.get("url") or "")) if item else ""
+        candidate_url = _normalize_queue_candidate_url(str(item.get("url") or ""), item) if item else ""
         if item is None or candidate_url != normalized_url:
             print(f"{mode_tag}_BLOCKED_CANDIDATE_URL_MISMATCH")
             return 3
