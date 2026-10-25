@@ -54,6 +54,30 @@ class FiLoMetadataTests(unittest.TestCase):
         self.assertNotIn("https://", description)
 
 
+class FiLoNasaRightsGateTests(unittest.TestCase):
+    def test_nasa_candidate_requires_official_policy_and_screen_metadata(self):
+        valid = {
+            "source": "nasa_public_domain_video",
+            "rights_cleared_for_publication": True,
+            "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+            "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+            "rights_screen": {
+                "basis": "metadata_passed_conservative_nasa_screen",
+                "center": "NASA",
+                "secondary_creator": "",
+                "third_party_warning_found": False,
+                "person_or_audio_signal_found": False,
+            },
+        }
+        self.assertTrue(rights_cleared_for_ifilo(valid))
+        unverified = dict(valid)
+        unverified["rights_evidence_url"] = "https://example.com/license"
+        self.assertFalse(rights_cleared_for_ifilo(unverified))
+        missing_screen = dict(valid)
+        missing_screen.pop("rights_screen")
+        self.assertFalse(rights_cleared_for_ifilo(missing_screen))
+
+
 class FiLoQueueSourceTests(unittest.TestCase):
     def test_nasa_candidate_url_requires_official_detail_host(self):
         item = {"source": "nasa_public_domain_video"}
