@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T17:51:58.850921+00:00",
+  "updated_at": "2026-10-25T18:26:34.944078+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -597,6 +597,26 @@
       "finished_at": "2026-10-25T17:51:58.850852+00:00",
       "ifilo_url": "",
       "confirmation": "account_title_found"
+    },
+    {
+      "source_key": "f92084d58cb3e61f90b61b4a082462a0496d599cf855f31640e92f9e9e184c35",
+      "source_url": "https://images.nasa.gov/details/ksc_051109_sts125_launch",
+      "source_title": "KSC-09-S-00050",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T18:26:33.033260+00:00",
+      "finished_at": "2026-10-25T18:26:33.033269+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "7eace72452b43b3b62b68e5a75bc27e16eda2eae1d05475ee335311da94cbe74",
+      "source_url": "https://images.nasa.gov/details/van_121409_wise_intro",
+      "source_title": "KSC-09-S-00149",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-25T18:26:34.944033+00:00",
+      "finished_at": "2026-10-25T18:26:34.944041+00:00",
+      "mode": "nasa_rights_screened_queue"
     }
   ]
 }
