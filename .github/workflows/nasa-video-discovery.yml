@@ -3,6 +3,7 @@ name: NASA Licensed Video Discovery
 # Prime licensed video discovery: this queue source is independent of the social/Telegram workflow.
 # Every scheduled run adds only source-screened, auditable NASA-origin MP4s and writes small metrics.
 # The source adapter verifies an official MP4 URL before it enters the shared queue.
+# Empty search pages fall through to alternate topics; each run records a compact status snapshot.
 on:
   schedule:
     - cron: "7,37 * * * *"
