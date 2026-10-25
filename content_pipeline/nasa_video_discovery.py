@@ -242,13 +242,22 @@ def merge_candidates(payload: dict, additions: list[dict], timestamp: str) -> di
             by_url[url] = row
             added += 1
     merged = list(by_url.values())
-    # Preserve NASA candidates until their separate upload ledger marks an attempt.
-    # Keep newest discovery records first without dropping existing discovery metadata.
-    merged.sort(
-        key=lambda x: str(x.get("discovered_at") or x.get("observed_at") or x.get("published_at") or ""),
-        reverse=True,
-    )
-    payload["items"] = merged[:MAX_QUEUE_ITEMS]
+    # Reserve a bounded, dedicated NASA pool so social search volume cannot evict
+    # every licensed candidate before the five-minute FiLo publisher can consume it.
+    nasa_rows = [
+        row for row in merged
+        if str(row.get("source") or "").lower() == "nasa_public_domain_video"
+    ]
+    other_rows = [
+        row for row in merged
+        if str(row.get("source") or "").lower() != "nasa_public_domain_video"
+    ]
+    sort_key = lambda x: str(x.get("discovered_at") or x.get("observed_at") or x.get("published_at") or "")
+    nasa_rows.sort(key=sort_key, reverse=True)
+    other_rows.sort(key=sort_key, reverse=True)
+    nasa_rows = nasa_rows[:200]
+    other_rows = other_rows[:max(0, MAX_QUEUE_ITEMS - len(nasa_rows))]
+    payload["items"] = nasa_rows + other_rows
     payload["count"] = len(payload["items"])
     payload["updated_at"] = timestamp
     payload.setdefault("version", 2)
