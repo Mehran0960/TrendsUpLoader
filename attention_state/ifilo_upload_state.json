@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T07:45:11.995322+00:00",
+  "updated_at": "2026-10-26T20:46:52.312030+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -984,6 +984,143 @@
       "finished_at": "2026-10-26T07:45:11.995242+00:00",
       "ifilo_url": "",
       "confirmation": "server_success_payload"
+    },
+    {
+      "source_key": "247a823f98d20d9e1938c54d1b01f89f76b10655daf9e80db081b3695e4705f2",
+      "source_url": "https://images.nasa.gov/details/KSC-20200212-MH-CMS01-0001-Mars_2020_Rover_Arrival-3241966",
+      "source_title": "Mars 2020 Rover Arrival",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-26T20:46:23.043553+00:00",
+      "finished_at": "2026-10-26T20:46:23.043561+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "64b1df1610b804068fbab3847c9563ad771ffcfe38f0592c237550dd15fb184a",
+      "source_url": "https://images.nasa.gov/details/JPL-20210610-M2020f-Mars-Report-NASAs-Perseverance-Rover-SuperCam-Instrument-June-2021",
+      "source_title": "Mars Report: Update on NASA’s Perseverance Rover SuperCam Instrument",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-26T20:46:23.955613+00:00",
+      "finished_at": "2026-10-26T20:46:23.955621+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "ef60c65dcc0e4f7f5cc8aa8e2303f5b625d6210121fe5438c541f38737c49bc8",
+      "source_url": "https://images.nasa.gov/details/KSC-20200407-MH-JPL01-0001-Mars_2020_Perseverance_Rover_Turnover_in_PHSF-3247923",
+      "source_title": "Mars 2020 Perseverance Rover Turnover",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-26T20:46:24.804149+00:00",
+      "finished_at": "2026-10-26T20:46:24.804157+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "ae914e6d38b6411e2f3a394d2eec06137d78acc9e84ed2682a714bc2eb7efd25",
+      "source_url": "https://images.nasa.gov/details/JPL-20210222-M2020f-0003b-M2020_Audio_B_002",
+      "source_title": "NASA’s Perseverance Rover Microphone Captures Sounds from Mars - B",
+      "title": "تصاویر کاوشگر مریخ از سطح سیاره | NASA’s Perseverance Rover Microphone Captures Sounds from Mars - B",
+      "status": "review_public_rejected",
+      "mode": "queue_public",
+      "started_at": "2026-10-26T20:46:45.777683+00:00",
+      "video_sha256": "26d669e2b990e4a8f39f3e45c9fd87995430b1f99414925f7260fecc7e49e631",
+      "bytes": 3484903,
+      "quality": {
+        "passed": true,
+        "score": 71.5,
+        "reason": "technical_checks_passed",
+        "duration_seconds": 21.07,
+        "width": 640,
+        "height": 360,
+        "sampled_frames": 5,
+        "black_frame_ratio": 0.0,
+        "mean_frame_difference": 7.42,
+        "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
+        "frame_hashes": [
+          "0000c870f8fcec00",
+          "0000dc70f8fcec00",
+          "000ccc70f8fcec00",
+          "0000c470f8fcec00",
+          "0000043232100400"
+        ],
+        "content_gate_passed": true,
+        "content_gate_reason": "duration_and_topic_gate_passed"
+      },
+      "rights_evidence_present": true,
+      "rights_evidence_host": "www.nasa.gov",
+      "publication_checkbox": "dontPublish=false",
+      "monetization_checkbox": "canMakeMoney=true",
+      "redistribution_checkbox": "canRepublish=false",
+      "download_checkbox": "allowDownload=false",
+      "ownership_checkbox": "isMadeByMe=false",
+      "request_guard": {
+        "matching_post_count": 1,
+        "continued_count": 1,
+        "blocked_count": 0,
+        "checks": {
+          "canonical_host": true,
+          "exact_title": true,
+          "exact_description": true,
+          "publication_state_matches": true,
+          "monetization_state_matches": true,
+          "redistribution_false": true,
+          "download_false": true,
+          "not_claiming_ownership": true,
+          "first_request_only": true
+        }
+      },
+      "http_response_summary": {
+        "response_received": true,
+        "http_status": 200,
+        "payload_success": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_kind": "dict",
+        "response_keys": [
+          "r"
+        ]
+      },
+      "public_video_url_detected": false,
+      "server_reason_kind": "title_validation",
+      "provider_message_signals": [
+        "title"
+      ],
+      "provider_message_excerpt": "طول عنوان ویدیو باید کمتر از ۱۰۰ کاراکتر باشد!",
+      "verification_summary": {
+        "final_angular_state": {
+          "published": false,
+          "publishing": false,
+          "uploadComplete": true,
+          "dontPublish": false,
+          "canMakeMoney": true,
+          "canRepublish": false,
+          "allowDownload": false,
+          "isMadeByMe": false,
+          "acceptRules": true,
+          "messageIsError": true,
+          "titleCleared": false,
+          "descriptionCleared": false
+        },
+        "account_title_found": false,
+        "account_paths_checked": [
+          {
+            "requested_path": "/my",
+            "result_path": "/funtime24",
+            "title_found": false
+          },
+          {
+            "requested_path": "/myVideos",
+            "result_path": "/myvideos",
+            "title_found": false
+          },
+          {
+            "requested_path": "/my/videos",
+            "result_path": "/my/videos",
+            "title_found": false
+          }
+        ],
+        "submit_error_type": null
+      },
+      "finished_at": "2026-10-26T20:46:52.311934+00:00"
     }
   ]
 }
