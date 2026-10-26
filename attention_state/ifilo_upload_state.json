@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T04:50:26.135129+00:00",
+  "updated_at": "2026-10-26T06:17:56.262827+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -855,6 +855,16 @@
       "finished_at": "2026-10-26T04:50:26.135059+00:00",
       "ifilo_url": "",
       "confirmation": "account_title_found"
+    },
+    {
+      "source_key": "76b1680bc1e7c84d801488385dcf429c1626bb6bef6ec520bbe4389e86e99d10",
+      "source_url": "https://images.nasa.gov/details/KSC-20260721-MH-GEB01-0002-Roman_Space_Telescope_Propellant_Load_Preparations-M26247",
+      "source_title": "Roman Space Telescope Propellant Load Preparations",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-26T06:17:56.262785+00:00",
+      "finished_at": "2026-10-26T06:17:56.262793+00:00",
+      "mode": "nasa_rights_screened_queue"
     }
   ]
 }
