@@ -1,96 +1,44 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T15:08:01.231704+00:00",
-  "query": "International Space Station Earth",
+  "updated_at": "2026-10-26T20:45:09.224917+00:00",
+  "query": "Mars rover",
   "queries": [
     {
-      "query": "International Space Station Earth",
-      "page": 2,
-      "results": 100
-    },
-    {
-      "query": "planetary science",
-      "page": 3,
+      "query": "aurora",
+      "page": 4,
       "results": 0
     },
     {
-      "query": "Earth from space",
-      "page": 4,
+      "query": "Mars rover",
+      "page": 1,
       "results": 100
+    },
+    {
+      "query": "solar flare",
+      "page": 2,
+      "results": 0
     }
   ],
-  "api_results": 200,
-  "records_inspected": 60,
-  "metadata_screen_passes": 18,
+  "api_results": 100,
+  "records_inspected": 47,
+  "metadata_screen_passes": 38,
   "metadata_rejections": {
-    "person_or_audio_signal": 29,
-    "secondary_creator_present": 4,
-    "third_party_partner_signal": 6
+    "likely_long_form_title": 2,
+    "person_or_audio_signal": 1,
+    "third_party_partner_signal": 4,
+    "secondary_creator_present": 2
   },
-  "post_screen_build_failures": 18,
-  "duplicate_records": 3,
+  "post_screen_build_failures": 23,
+  "duplicate_records": 0,
   "invalid_records": 0,
-  "new_candidates": 0,
+  "new_candidates": 15,
   "total_queue_items": 500,
-  "nasa_queue_items": 29,
+  "nasa_queue_items": 44,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 0,
-    "failures": {
-      "asset_manifest_no_mp4_url": 12
-    },
-    "samples": [
-      {
-        "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629.srt",
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~large.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120.srt",
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~large.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~large.mp4",
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss068m260420759_Expedition_68_Progress_83_Docking_230211",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211.srt",
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~large.mp4"
-        ]
-      }
-    ]
+    "fallback_mp4_verified": 15,
+    "failures": {},
+    "samples": []
   },
   "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
   "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
