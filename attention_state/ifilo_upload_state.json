@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T06:17:56.262827+00:00",
+  "updated_at": "2026-10-26T07:45:11.995322+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -865,6 +865,125 @@
       "started_at": "2026-10-26T06:17:56.262785+00:00",
       "finished_at": "2026-10-26T06:17:56.262793+00:00",
       "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "dcf79f0984b094374fffacf25c4c0b586899c492acb329b7b8453f3cac7119b2",
+      "source_url": "https://images.nasa.gov/details/art002m1200920156_ICPS-Separation_2",
+      "source_title": "Orion Camera View of Artemis II Upper Stage Separation",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-26T07:44:40.780442+00:00",
+      "finished_at": "2026-10-26T07:44:40.780449+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "4cfd02148a94051ad4c0b26e29343ffcbb5f5c6fdb619e1afd23e639921bc4fc",
+      "source_url": "https://images.nasa.gov/details/art002m1200912222_Liftoff_1",
+      "source_title": "Orion Camera View of Artemis II Liftoff",
+      "title": "نمای شگفت‌انگیز زمین از فضا | Orion Camera View of Artemis II Liftoff",
+      "status": "uploaded",
+      "mode": "queue_public",
+      "started_at": "2026-10-26T07:45:05.269063+00:00",
+      "video_sha256": "0b763d5f6edda59694f13ab16f57d319caf111ee8291d770a5cf773757c2504a",
+      "bytes": 10667919,
+      "quality": {
+        "passed": true,
+        "score": 72.6,
+        "reason": "technical_checks_passed",
+        "duration_seconds": 53.8,
+        "width": 640,
+        "height": 360,
+        "sampled_frames": 5,
+        "black_frame_ratio": 0.0,
+        "mean_frame_difference": 12.95,
+        "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
+        "frame_hashes": [
+          "00e0e0e0f1e1e100",
+          "00e0e0f0f1e1e100",
+          "0070737171f1b100",
+          "00b0f3f3f3e1c100",
+          "00f0e1f1e1f1e100"
+        ],
+        "content_gate_passed": true,
+        "content_gate_reason": "duration_and_topic_gate_passed"
+      },
+      "rights_evidence_present": true,
+      "rights_evidence_host": "www.nasa.gov",
+      "publication_checkbox": "dontPublish=false",
+      "monetization_checkbox": "canMakeMoney=true",
+      "redistribution_checkbox": "canRepublish=false",
+      "download_checkbox": "allowDownload=false",
+      "ownership_checkbox": "isMadeByMe=false",
+      "request_guard": {
+        "matching_post_count": 1,
+        "continued_count": 1,
+        "blocked_count": 0,
+        "checks": {
+          "canonical_host": true,
+          "exact_title": true,
+          "exact_description": true,
+          "publication_state_matches": true,
+          "monetization_state_matches": true,
+          "redistribution_false": true,
+          "download_false": true,
+          "not_claiming_ownership": true,
+          "first_request_only": true
+        }
+      },
+      "http_response_summary": {
+        "response_received": true,
+        "http_status": 200,
+        "payload_success": true,
+        "content_type": "text/html; charset=utf-8",
+        "body_kind": "dict",
+        "response_keys": [
+          "s"
+        ]
+      },
+      "public_video_url_detected": false,
+      "server_reason_kind": "success_like_or_upload_related",
+      "provider_message_signals": [
+        "upload"
+      ],
+      "provider_message_excerpt": "آپلود با موفقیت انجام شد",
+      "verification_summary": {
+        "final_angular_state": {
+          "published": true,
+          "publishing": false,
+          "uploadComplete": true,
+          "dontPublish": false,
+          "canMakeMoney": true,
+          "canRepublish": false,
+          "allowDownload": false,
+          "isMadeByMe": false,
+          "acceptRules": true,
+          "messageIsError": false,
+          "titleCleared": true,
+          "descriptionCleared": true
+        },
+        "account_title_found": false,
+        "account_paths_checked": [
+          {
+            "requested_path": "/my",
+            "result_path": "/funtime24",
+            "title_found": false
+          },
+          {
+            "requested_path": "/myVideos",
+            "result_path": "/myvideos",
+            "title_found": false
+          },
+          {
+            "requested_path": "/my/videos",
+            "result_path": "/my/videos",
+            "title_found": false
+          }
+        ],
+        "submit_error_type": null
+      },
+      "finished_at": "2026-10-26T07:45:11.995242+00:00",
+      "ifilo_url": "",
+      "confirmation": "server_success_payload"
     }
   ]
 }
