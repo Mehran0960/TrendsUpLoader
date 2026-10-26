@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v1",
-  "updated_at": "2026-10-25T23:11:06.744517+00:00",
+  "updated_at": "2026-10-26T01:38:07.736251+00:00",
   "queries": [
     "site:tiktok.com/@*/video/ (ایرانی OR فارسی OR طنز OR حیوانات OR ترفند OR مهارت OR لحظه عجیب)",
     "site:tiktok.com/@*/video/ (funny OR unexpected OR animals OR science OR satisfying OR skill) viral"
@@ -19,6 +19,126 @@
     "updated_at": "2026-10-25T17:40:26.929614+00:00"
   },
   "items": [
+    {
+      "id": "54037349702d9281ee7e783c8fbeabc3bab8e3e99c798d9c7c40c18fb0d3b5f4",
+      "url": "https://images.nasa.gov/details/KSC-20200730-MH-FMX01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Offload_Timelapse-3243034",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Artemis I Launch Vehicle Stage Adapter Offload",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "The Launch Vehicle Stage Adapter for the Space Launch System rocket arrived on the Pegasus barge at Kennedy Space Center for ground processing and integration for the launch of Artemis I.",
+      "source_post_caption": "Artemis I Launch Vehicle Stage Adapter Offload",
+      "published_at": "2020-07-30T00:00:00Z",
+      "discovered_at": "2026-10-26T01:38:07.736251+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "KSC-20200730-MH-FMX01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Offload_Timelapse-3243034",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20200730-MH-FMX01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Offload_Timelapse-3243034/KSC-20200730-MH-FMX01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Offload_Timelapse-3243034~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Artemis I Launch Vehicle Stage Adapter Offload (https://images.nasa.gov/details/KSC-20200730-MH-FMX01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Offload_Timelapse-3243034)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "a683cedf2d61a1128f3d6b3bbb0a22d71edba7c952719f011e4b3dfef8dadf3f",
+      "url": "https://images.nasa.gov/details/KSC-20260621-MH-SER01-0001-Roman_Space_Telescope_Arrival_Timelapse_GSFC-M21344",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Roman Space Telescope Arrives At KSC",
+      "title_fa": "تصاویر تماشایی تلسکوپ فضایی",
+      "description": "NASA’s Pegasus barge arrives at the Launch Complex 39 turn basin at the agency’s Kennedy Space Center in Florida carrying NASA’s Nancy Grace Roman Space Telescope on Sunday, June 21, 2026. Teams will offload and transport the observatory to the spaceport’s Payload Hazardous Servicing Facility where it will undergo processing ahead of launch, targeted no earlier than Sunday, Aug. 30, 2026. Named for NASA’s first chief astronomer and “mother of the Hubble Space Telescope,” Roman will offer a field of view over 100 times larger than Hubble’s to study up to a billion galaxies, directly image exoplanets and planet‑forming disks, and address fundamental questions about dark energy, exoplanets, and infrared astrophysics.",
+      "source_post_caption": "Roman Space Telescope Arrives At KSC",
+      "published_at": "2026-06-21T00:00:00Z",
+      "discovered_at": "2026-10-26T01:38:07.736251+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "space telescope",
+      "nasa_id": "KSC-20260621-MH-SER01-0001-Roman_Space_Telescope_Arrival_Timelapse_GSFC-M21344",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20260621-MH-SER01-0001-Roman_Space_Telescope_Arrival_Timelapse_GSFC-M21344/KSC-20260621-MH-SER01-0001-Roman_Space_Telescope_Arrival_Timelapse_GSFC-M21344~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Roman Space Telescope Arrives At KSC (https://images.nasa.gov/details/KSC-20260621-MH-SER01-0001-Roman_Space_Telescope_Arrival_Timelapse_GSFC-M21344)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "76b1680bc1e7c84d801488385dcf429c1626bb6bef6ec520bbe4389e86e99d10",
+      "url": "https://images.nasa.gov/details/KSC-20260721-MH-GEB01-0002-Roman_Space_Telescope_Propellant_Load_Preparations-M26247",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Roman Space Telescope Propellant Load Preparations",
+      "title_fa": "تصاویر تماشایی تلسکوپ فضایی",
+      "description": "Roman Space Telescope Propellant Load Preparations",
+      "source_post_caption": "Roman Space Telescope Propellant Load Preparations",
+      "published_at": "2026-07-21T00:00:00Z",
+      "discovered_at": "2026-10-26T01:38:07.736251+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "space telescope",
+      "nasa_id": "KSC-20260721-MH-GEB01-0002-Roman_Space_Telescope_Propellant_Load_Preparations-M26247",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20260721-MH-GEB01-0002-Roman_Space_Telescope_Propellant_Load_Preparations-M26247/KSC-20260721-MH-GEB01-0002-Roman_Space_Telescope_Propellant_Load_Preparations-M26247~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Roman Space Telescope Propellant Load Preparations (https://images.nasa.gov/details/KSC-20260721-MH-GEB01-0002-Roman_Space_Telescope_Propellant_Load_Preparations-M26247)",
+      "views_velocity_kind": "unavailable"
+    },
     {
       "id": "c1881fd01614e5c01f9df65787b16ab49c307cc85a9b6bd47e42e7e8ce1d0941",
       "url": "https://images.nasa.gov/details/HumanHealth",
@@ -52240,408 +52360,81 @@
           "publishing_authorized": false
         }
       }
-    },
-    {
-      "id": "fb615de60fcc874bc798de4ee39b22f4d4e80d00413558a822a0b09a70cef5fc",
-      "url": "https://t.me/gizmiztel/163276",
-      "title": "دیس سنگین همتی به بسنت وزیر خزانه‌داری امریکا ها، چی شد؟ چی شد 🆔 @GizmizTel 💯",
-      "description": "دیس سنگین همتی به بسنت وزیر خزانه‌داری امریکا ها، چی شد؟ چی شد 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 90800,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 90800,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-14T19:08:07+00:00",
-      "age_hours": 262.53886933722225,
-      "persian_signal": true,
-      "discovered_at": "2026-10-15T07:28:16.297569+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T20:47:38.536397+00:00",
-          "views": 46700
-        },
-        {
-          "observed_at": "2026-10-15T07:28:16.297569+00:00",
-          "views": 90800
-        }
-      ],
-      "metrics_observed_at": "2026-10-15T07:28:16.297569+00:00",
-      "views_velocity_per_hour": 4130.31,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 44100,
-      "views_measurement_interval_hours": 10.677,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.18,
-      "follow_growth_score": 2.3,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "b1b400c59f3fc051278c53b8bf2dfa51fa93b34b55917bd9e0912135995ec802",
-      "url": "https://t.me/gizmiztel/163286",
-      "title": "چرا نباید اجازه بدید فرزندتون شب خونه کسی بمونه؟! لطفا تا پایان ویدیو رو ببینید. 🆔 @GizmizTel 💯",
-      "description": "چرا نباید اجازه بدید فرزندتون شب خونه کسی بمونه؟! لطفا تا پایان ویدیو رو ببینید. 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 87300,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 87300,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-14T20:21:20+00:00",
-      "age_hours": 261.3185915594444,
-      "persian_signal": true,
-      "discovered_at": "2026-10-15T07:28:16.297569+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T20:47:38.536397+00:00",
-          "views": 17300
-        },
-        {
-          "observed_at": "2026-10-15T07:28:16.297569+00:00",
-          "views": 87300
-        }
-      ],
-      "metrics_observed_at": "2026-10-15T07:28:16.297569+00:00",
-      "views_velocity_per_hour": 6556.05,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 70000,
-      "views_measurement_interval_hours": 10.677,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.12,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": true,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "reject_sensitive_or_manual_safety_review",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
-    },
-    {
-      "id": "354bf3b8a545f8e7b1a4c77c91d3f193ea1c02b030e667e8144d674de28c3fe1",
-      "url": "https://t.me/gizmiztel/163285",
-      "title": "یک نوجوان افغانستانی ویدیویی از مسیر ورود قاچاقی‌اش به ایران منتشر کرده و در کامنت‌ها هم شمار زیادی از هموطنانش ضمن دعای خیر، از دشواری‌های این راه گفته‌اند. این مسیر دقیقاً کجاست که این تعداد از افغانستانی‌ها از طریق آن قاچاقی وارد ایران می‌شوند؟ البته زمان ض",
-      "description": "یک نوجوان افغانستانی ویدیویی از مسیر ورود قاچاقی‌اش به ایران منتشر کرده و در کامنت‌ها هم شمار زیادی از هموطنانش ضمن دعای خیر، از دشواری‌های این راه گفته‌اند. این مسیر دقیقاً کجاست که این تعداد از افغانستانی‌ها از طریق آن قاچاقی وارد ایران می‌شوند؟ البته زمان ضبط ویدئو هم مشخص نیست. 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 84500,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 84500,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-14T20:21:20+00:00",
-      "age_hours": 261.3185915594444,
-      "persian_signal": true,
-      "discovered_at": "2026-10-15T07:28:16.297569+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-14T20:47:38.536397+00:00",
-          "views": 17300
-        },
-        {
-          "observed_at": "2026-10-15T07:28:16.297569+00:00",
-          "views": 84500
-        }
-      ],
-      "metrics_observed_at": "2026-10-15T07:28:16.297569+00:00",
-      "views_velocity_per_hour": 6293.81,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 67200,
-      "views_measurement_interval_hours": 10.677,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.11,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "news_or_current_affairs",
-      "hook_signals": [],
-      "news_risk_signal": true,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "manual_review_current_affairs",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      }
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-25T23:11:06.744517+00:00",
-    "new_candidates": 2,
+    "updated_at": "2026-10-26T01:38:07.736251+00:00",
+    "new_candidates": 3,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
-    "query": "International Space Station Earth",
+    "query": "rocket launch",
     "queries": [
       {
-        "query": "International Space Station Earth",
-        "page": 2,
-        "results": 100
-      },
-      {
-        "query": "planetary science",
+        "query": "solar flare",
         "page": 3,
         "results": 0
       },
       {
-        "query": "Earth from space",
+        "query": "rocket launch",
         "page": 4,
+        "results": 100
+      },
+      {
+        "query": "space telescope",
+        "page": 1,
         "results": 100
       }
     ],
     "api_results": 200,
     "records_inspected": 60,
-    "metadata_screen_passes": 20,
+    "metadata_screen_passes": 12,
     "metadata_rejections": {
-      "person_or_audio_signal": 29,
-      "secondary_creator_present": 4,
-      "third_party_partner_signal": 6
+      "secondary_creator_present": 18,
+      "third_party_partner_signal": 10,
+      "non_nasa_center": 8,
+      "person_or_audio_signal": 9,
+      "likely_long_form_title": 1
     },
-    "post_screen_build_failures": 18,
-    "duplicate_records": 1,
+    "post_screen_build_failures": 9,
+    "duplicate_records": 2,
     "invalid_records": 0,
     "total_queue_items": 500,
-    "nasa_queue_items": 24,
+    "nasa_queue_items": 27,
     "asset_lookup_diagnostics": {
       "manifest_mp4_found": 0,
-      "fallback_mp4_verified": 2,
+      "fallback_mp4_verified": 3,
       "failures": {
-        "asset_manifest_no_mp4_url": 12
+        "asset_manifest_no_mp4_url": 3
       },
       "samples": [
         {
-          "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
+          "nasa_id": "KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
+            "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~orig.mp4",
+            "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036.vtt",
+            "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~large.mp"
           ]
         },
         {
-          "nasa_id": "iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629",
+          "nasa_id": "KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~orig.mp4",
-            "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629.srt",
-            "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~large.mp4"
+            "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~orig.mp4",
+            "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397.srt",
+            "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~large.mp4"
           ]
         },
         {
-          "nasa_id": "iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 32,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~orig.mp4",
-            "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120.srt",
-            "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~large.mp4"
-          ]
-        },
-        {
-          "nasa_id": "iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427",
+          "nasa_id": "KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 33,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~orig.mp4",
-            "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~large.mp4",
-            "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~medium.mp4"
-          ]
-        },
-        {
-          "nasa_id": "iss068m260420759_Expedition_68_Progress_83_Docking_230211",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 32,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~orig.mp4",
-            "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211.srt",
-            "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~large.mp4"
+            "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4",
+            "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913.vtt",
+            "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4"
           ]
         }
       ]

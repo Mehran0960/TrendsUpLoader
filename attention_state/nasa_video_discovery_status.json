@@ -1,93 +1,75 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T23:11:06.744517+00:00",
-  "query": "International Space Station Earth",
+  "updated_at": "2026-10-26T01:38:07.736251+00:00",
+  "query": "rocket launch",
   "queries": [
     {
-      "query": "International Space Station Earth",
-      "page": 2,
-      "results": 100
-    },
-    {
-      "query": "planetary science",
+      "query": "solar flare",
       "page": 3,
       "results": 0
     },
     {
-      "query": "Earth from space",
+      "query": "rocket launch",
       "page": 4,
+      "results": 100
+    },
+    {
+      "query": "space telescope",
+      "page": 1,
       "results": 100
     }
   ],
   "api_results": 200,
   "records_inspected": 60,
-  "metadata_screen_passes": 20,
+  "metadata_screen_passes": 12,
   "metadata_rejections": {
-    "person_or_audio_signal": 29,
-    "secondary_creator_present": 4,
-    "third_party_partner_signal": 6
+    "secondary_creator_present": 18,
+    "third_party_partner_signal": 10,
+    "non_nasa_center": 8,
+    "person_or_audio_signal": 9,
+    "likely_long_form_title": 1
   },
-  "post_screen_build_failures": 18,
-  "duplicate_records": 1,
+  "post_screen_build_failures": 9,
+  "duplicate_records": 2,
   "invalid_records": 0,
-  "new_candidates": 2,
+  "new_candidates": 3,
   "total_queue_items": 500,
-  "nasa_queue_items": 24,
+  "nasa_queue_items": 27,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 2,
+    "fallback_mp4_verified": 3,
     "failures": {
-      "asset_manifest_no_mp4_url": 12
+      "asset_manifest_no_mp4_url": 3
     },
     "samples": [
       {
-        "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
+        "nasa_id": "KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~large.mp"
         ]
       },
       {
-        "nasa_id": "iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629",
+        "nasa_id": "KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629.srt",
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~large.mp4"
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397.srt",
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~large.mp4"
         ]
       },
       {
-        "nasa_id": "iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120.srt",
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~large.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427",
+        "nasa_id": "KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~large.mp4",
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss068m260420759_Expedition_68_Progress_83_Docking_230211",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211.srt",
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~large.mp4"
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4"
         ]
       }
     ]
