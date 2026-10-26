@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T20:46:52.312030+00:00",
+  "updated_at": "2026-10-26T21:25:45.659874+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1121,6 +1121,113 @@
         "submit_error_type": null
       },
       "finished_at": "2026-10-26T20:46:52.311934+00:00"
+    },
+    {
+      "source_key": "7ed6ef1bc172fafa478dd4ac10b30fe7ffe0985bee8790284e6a0340508f63de",
+      "source_url": "https://images.nasa.gov/details/JPL-20210222-M2020f-0003a-M2020_Audio_A_002",
+      "source_title": "NASA’s Perseverance Rover Microphone Captures Sounds from Mars - A",
+      "title": "تصاویر کاوشگر مریخ از سطح سیاره | NASA’s Perseverance Rover Microphone Captures Sounds from Mars - A",
+      "status": "review_public_rejected",
+      "mode": "queue_public",
+      "started_at": "2026-10-26T21:25:38.418509+00:00",
+      "video_sha256": "7feab7fc4d6341e262c2eb0115682e3bdf251b31a82b2a9b9b0513a4370e30b3",
+      "bytes": 3463806,
+      "quality": {
+        "passed": true,
+        "score": 72.4,
+        "reason": "technical_checks_passed",
+        "duration_seconds": 21.07,
+        "width": 640,
+        "height": 360,
+        "sampled_frames": 5,
+        "black_frame_ratio": 0.0,
+        "mean_frame_difference": 11.77,
+        "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
+        "frame_hashes": [
+          "0000dab8bccce600",
+          "0000dab8bccce600",
+          "0000dab8bccce600",
+          "0000dab8bccce600",
+          "0000043232100400"
+        ],
+        "content_gate_passed": true,
+        "content_gate_reason": "duration_and_topic_gate_passed"
+      },
+      "rights_evidence_present": true,
+      "rights_evidence_host": "www.nasa.gov",
+      "publication_checkbox": "dontPublish=false",
+      "monetization_checkbox": "canMakeMoney=true",
+      "redistribution_checkbox": "canRepublish=false",
+      "download_checkbox": "allowDownload=false",
+      "ownership_checkbox": "isMadeByMe=false",
+      "request_guard": {
+        "matching_post_count": 1,
+        "continued_count": 1,
+        "blocked_count": 0,
+        "checks": {
+          "canonical_host": true,
+          "exact_title": true,
+          "exact_description": true,
+          "publication_state_matches": true,
+          "monetization_state_matches": true,
+          "redistribution_false": true,
+          "download_false": true,
+          "not_claiming_ownership": true,
+          "first_request_only": true
+        }
+      },
+      "http_response_summary": {
+        "response_received": true,
+        "http_status": 200,
+        "payload_success": null,
+        "content_type": "text/html; charset=utf-8",
+        "body_kind": "dict",
+        "response_keys": [
+          "r"
+        ]
+      },
+      "public_video_url_detected": false,
+      "server_reason_kind": "title_validation",
+      "provider_message_signals": [
+        "title"
+      ],
+      "provider_message_excerpt": "طول عنوان ویدیو باید کمتر از ۱۰۰ کاراکتر باشد!",
+      "verification_summary": {
+        "final_angular_state": {
+          "published": false,
+          "publishing": false,
+          "uploadComplete": true,
+          "dontPublish": false,
+          "canMakeMoney": true,
+          "canRepublish": false,
+          "allowDownload": false,
+          "isMadeByMe": false,
+          "acceptRules": true,
+          "messageIsError": true,
+          "titleCleared": false,
+          "descriptionCleared": false
+        },
+        "account_title_found": false,
+        "account_paths_checked": [
+          {
+            "requested_path": "/my",
+            "result_path": "/funtime24",
+            "title_found": false
+          },
+          {
+            "requested_path": "/myVideos",
+            "result_path": "/myvideos",
+            "title_found": false
+          },
+          {
+            "requested_path": "/my/videos",
+            "result_path": "/my/videos",
+            "title_found": false
+          }
+        ],
+        "submit_error_type": null
+      },
+      "finished_at": "2026-10-26T21:25:45.659794+00:00"
     }
   ]
 }
