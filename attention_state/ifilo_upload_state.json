@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T21:25:45.659874+00:00",
+  "updated_at": "2026-10-26T21:43:18.452028+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1228,6 +1228,115 @@
         "submit_error_type": null
       },
       "finished_at": "2026-10-26T21:25:45.659794+00:00"
+    },
+    {
+      "source_key": "fcd838ad5a2b72b6da288b5a6a90875edd56e9154c7d05bef46549cb832078c9",
+      "source_url": "https://images.nasa.gov/details/KSC-20200506-MH-JPL01-0001-Mars_2020_Perseverance_Rover_Lift-3249787",
+      "source_title": "Mars 2020 Perseverance Rover Lift Operations",
+      "title": "تصاویر کاوشگر مریخ از سطح سیاره | Mars 2020 Perseverance Rover Lift Operations",
+      "status": "uploaded",
+      "mode": "queue_public",
+      "started_at": "2026-10-26T21:43:11.446668+00:00",
+      "video_sha256": "c31e69753235c045543f923a0a5b6be14da1dbd68829655e5053effa03e4f235",
+      "bytes": 8009924,
+      "quality": {
+        "passed": true,
+        "score": 73.2,
+        "reason": "technical_checks_passed",
+        "duration_seconds": 37.7,
+        "width": 640,
+        "height": 360,
+        "sampled_frames": 5,
+        "black_frame_ratio": 0.0,
+        "mean_frame_difference": 15.81,
+        "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
+        "frame_hashes": [
+          "0040f4f0f0f0f800",
+          "00f87a5a86a4b000",
+          "00f87ad584b0b000",
+          "00f87e5685b0b000",
+          "00b87c5484b0b000"
+        ],
+        "content_gate_passed": true,
+        "content_gate_reason": "duration_and_topic_gate_passed"
+      },
+      "rights_evidence_present": true,
+      "rights_evidence_host": "www.nasa.gov",
+      "publication_checkbox": "dontPublish=false",
+      "monetization_checkbox": "canMakeMoney=true",
+      "redistribution_checkbox": "canRepublish=false",
+      "download_checkbox": "allowDownload=false",
+      "ownership_checkbox": "isMadeByMe=false",
+      "request_guard": {
+        "matching_post_count": 1,
+        "continued_count": 1,
+        "blocked_count": 0,
+        "checks": {
+          "canonical_host": true,
+          "exact_title": true,
+          "exact_description": true,
+          "publication_state_matches": true,
+          "monetization_state_matches": true,
+          "redistribution_false": true,
+          "download_false": true,
+          "not_claiming_ownership": true,
+          "first_request_only": true
+        }
+      },
+      "http_response_summary": {
+        "response_received": true,
+        "http_status": 200,
+        "payload_success": true,
+        "content_type": "text/html; charset=utf-8",
+        "body_kind": "dict",
+        "response_keys": [
+          "s"
+        ]
+      },
+      "public_video_url_detected": false,
+      "server_reason_kind": "success_like_or_upload_related",
+      "provider_message_signals": [
+        "upload"
+      ],
+      "provider_message_excerpt": "آپلود با موفقیت انجام شد",
+      "verification_summary": {
+        "final_angular_state": {
+          "published": true,
+          "publishing": false,
+          "uploadComplete": true,
+          "dontPublish": false,
+          "canMakeMoney": true,
+          "canRepublish": false,
+          "allowDownload": false,
+          "isMadeByMe": false,
+          "acceptRules": true,
+          "messageIsError": false,
+          "titleCleared": true,
+          "descriptionCleared": true
+        },
+        "account_title_found": true,
+        "account_paths_checked": [
+          {
+            "requested_path": "/my",
+            "result_path": "/funtime24",
+            "title_found": false
+          },
+          {
+            "requested_path": "/myVideos",
+            "result_path": "/myvideos",
+            "title_found": false
+          },
+          {
+            "requested_path": "/my/videos",
+            "result_path": "/my/videos",
+            "title_found": true
+          }
+        ],
+        "submit_error_type": null
+      },
+      "finished_at": "2026-10-26T21:43:18.451943+00:00",
+      "ifilo_url": "",
+      "confirmation": "account_title_found"
     }
   ]
 }
