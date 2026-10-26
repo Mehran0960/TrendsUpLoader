@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-25T23:12:30.648833+00:00",
+  "updated_at": "2026-10-26T01:40:08.080036+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -637,6 +637,115 @@
       "started_at": "2026-10-25T23:12:30.648793+00:00",
       "finished_at": "2026-10-25T23:12:30.648800+00:00",
       "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "54037349702d9281ee7e783c8fbeabc3bab8e3e99c798d9c7c40c18fb0d3b5f4",
+      "source_url": "https://images.nasa.gov/details/KSC-20200730-MH-FMX01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Offload_Timelapse-3243034",
+      "source_title": "Artemis I Launch Vehicle Stage Adapter Offload",
+      "title": "لحظه پرتاب موشک به فضا | Artemis I Launch Vehicle Stage Adapter Offload",
+      "status": "uploaded",
+      "mode": "queue_public",
+      "started_at": "2026-10-26T01:40:01.277515+00:00",
+      "video_sha256": "ea5448b90561a5c8238093cbd1232214ae9303629eb1039441a349a8b19f7be8",
+      "bytes": 11324033,
+      "quality": {
+        "passed": true,
+        "score": 71.5,
+        "reason": "technical_checks_passed",
+        "duration_seconds": 56.33,
+        "width": 640,
+        "height": 360,
+        "sampled_frames": 5,
+        "black_frame_ratio": 0.0,
+        "mean_frame_difference": 7.27,
+        "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
+        "frame_hashes": [
+          "0040f4f0f0f0f800",
+          "00995b7ff9380200",
+          "00995b7ff9380200",
+          "00995b7bfa3a0100",
+          "00995b7bf9380200"
+        ],
+        "content_gate_passed": true,
+        "content_gate_reason": "duration_and_topic_gate_passed"
+      },
+      "rights_evidence_present": true,
+      "rights_evidence_host": "www.nasa.gov",
+      "publication_checkbox": "dontPublish=false",
+      "monetization_checkbox": "canMakeMoney=true",
+      "redistribution_checkbox": "canRepublish=false",
+      "download_checkbox": "allowDownload=false",
+      "ownership_checkbox": "isMadeByMe=false",
+      "request_guard": {
+        "matching_post_count": 1,
+        "continued_count": 1,
+        "blocked_count": 0,
+        "checks": {
+          "canonical_host": true,
+          "exact_title": true,
+          "exact_description": true,
+          "publication_state_matches": true,
+          "monetization_state_matches": true,
+          "redistribution_false": true,
+          "download_false": true,
+          "not_claiming_ownership": true,
+          "first_request_only": true
+        }
+      },
+      "http_response_summary": {
+        "response_received": true,
+        "http_status": 200,
+        "payload_success": true,
+        "content_type": "text/html; charset=utf-8",
+        "body_kind": "dict",
+        "response_keys": [
+          "s"
+        ]
+      },
+      "public_video_url_detected": false,
+      "server_reason_kind": "success_like_or_upload_related",
+      "provider_message_signals": [
+        "upload"
+      ],
+      "provider_message_excerpt": "آپلود با موفقیت انجام شد",
+      "verification_summary": {
+        "final_angular_state": {
+          "published": true,
+          "publishing": false,
+          "uploadComplete": true,
+          "dontPublish": false,
+          "canMakeMoney": true,
+          "canRepublish": false,
+          "allowDownload": false,
+          "isMadeByMe": false,
+          "acceptRules": true,
+          "messageIsError": false,
+          "titleCleared": true,
+          "descriptionCleared": true
+        },
+        "account_title_found": true,
+        "account_paths_checked": [
+          {
+            "requested_path": "/my",
+            "result_path": "/funtime24",
+            "title_found": false
+          },
+          {
+            "requested_path": "/myVideos",
+            "result_path": "/myvideos",
+            "title_found": false
+          },
+          {
+            "requested_path": "/my/videos",
+            "result_path": "/my/videos",
+            "title_found": true
+          }
+        ],
+        "submit_error_type": null
+      },
+      "finished_at": "2026-10-26T01:40:08.079965+00:00",
+      "ifilo_url": "",
+      "confirmation": "account_title_found"
     }
   ]
 }
