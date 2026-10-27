@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-26T22:55:44.477442+00:00",
+  "updated_at": "2026-10-27T00:28:06.636891+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1446,6 +1446,86 @@
       "finished_at": "2026-10-26T22:55:44.477374+00:00",
       "ifilo_url": "",
       "confirmation": "account_title_found"
+    },
+    {
+      "source_key": "575a3c4c3f38009636f74deaa03ad65aa96571b19db2f824436c3dbe38596543",
+      "source_url": "https://images.nasa.gov/details/JPL-20230208-MSLf-0001-Curiosity_Finds_New_Clues_to_Mars_Watery_Past",
+      "source_title": "NASA’s Curiosity Rover Finds New Clues to Mars’ Watery Past",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:27:58.817302+00:00",
+      "finished_at": "2026-10-27T00:27:58.817309+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "9265aebc837a5286a68b129483c03664538a7acc6383acf90d4a338624c55acb",
+      "source_url": "https://images.nasa.gov/details/JPL-20211221-M2020f-0001-Explore_Mars_Jezero_Crater_with_NASAs_Perseverance_Rover",
+      "source_title": "Explore Mars' Jezero Crater with NASA’s Perseverance Rover",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:28:00.217282+00:00",
+      "finished_at": "2026-10-27T00:28:00.217289+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "83b99ea6a2e693be62d38a65a940b47bde5257695e87661b1dd628445918207c",
+      "source_url": "https://images.nasa.gov/details/JPL-20190712-M2020f-0001-PIT_CREW_FOR_MARS",
+      "source_title": "Pit Crew for Mars: NASA's Mars 2020 Rover Gets Some Wheels (time lapse)",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:28:01.175904+00:00",
+      "finished_at": "2026-10-27T00:28:01.175912+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "a13f0b5f4e2e8d9c95b8809c0d010fb02fa0250fec88346599f4197a1949cd9a",
+      "source_url": "https://images.nasa.gov/details/JPL-20250415-MARSf-0001-What_You_See_at_Night_on_Mars_2160cc",
+      "source_title": "Mars After Dark: What NASA Rovers Really See",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:28:02.083167+00:00",
+      "finished_at": "2026-10-27T00:28:02.083174+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "5812298b45f3c2ed62d115991dae07d54b053d7f1f637002fe757cedef254f58",
+      "source_url": "https://images.nasa.gov/details/JPL-20210319-M2020-0001-Mars_Report_Update_on_Perseverance_and_Ingenuity",
+      "source_title": "Mars Report: Update on NASA’s Perseverance Rover & Ingenuity Helicopter",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:28:03.419998+00:00",
+      "finished_at": "2026-10-27T00:28:03.420006+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "db79ff153324792ff738ed740b7f746da1bb2fd61744141f070c855fdb43a830",
+      "source_url": "https://images.nasa.gov/details/JPL-20210816-MSLf-0001-2160",
+      "source_title": "NASA’s Curiosity Mars Rover Finds A Changing Landscape",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:28:04.676372+00:00",
+      "finished_at": "2026-10-27T00:28:04.676380+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "d3c6f06f26f5988f3736623f52635c112ef52096abf980261f3af5165855b407",
+      "source_url": "https://images.nasa.gov/details/JPL-20211208-M2020f-0001-Youve_Got_Perseverance",
+      "source_title": "You’ve Got Perseverance",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:28:05.461856+00:00",
+      "finished_at": "2026-10-27T00:28:05.461863+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "14e3e389169082e4c885cee8635e8f5a5262806ede6a19879bc75d6366bf4f97",
+      "source_url": "https://images.nasa.gov/details/KSC-20200213-MH-GEB01-0001-Mars_2020_Unbagging_and_Additional_Processing_in_PHSF-3243450",
+      "source_title": "Mars 2020 Rover and Sky Crane Unbagging, Cleaning and Additional Processing",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T00:28:06.636846+00:00",
+      "finished_at": "2026-10-27T00:28:06.636854+00:00",
+      "mode": "nasa_rights_screened_queue"
     }
   ]
 }
