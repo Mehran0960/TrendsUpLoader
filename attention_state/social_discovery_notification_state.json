@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-26T22:54:01.992642+00:00",
+  "media_review_updated_at": "2026-10-27T19:29:04.910685+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -298,7 +298,10 @@
     "b519b14e071449f276b4d056331d37b24dc9db362cf461d9a47f5dcf49d6b0b2",
     "88a12b9b94cfd7aa18c3d7fca4e48f04ea0c5e5b6388c57e124ff6bf892f87aa",
     "cb28a892f0ab410fc15025291c9d21fa922b8d138ae26cb64b924b15ba7b3468",
-    "f77d8641f779941641d081790a517db272427bc463d9a8dd51fb60b868c1332c"
+    "f77d8641f779941641d081790a517db272427bc463d9a8dd51fb60b868c1332c",
+    "92f8edbb481036297630fae1211928ace05b081346cd900b7973a8306d405e3c",
+    "170aa22d414d35ac38547c5dff34f314d171e3dab7597de115430dab749b7cac",
+    "1f3d8277f65173230322026b8ac90db5741af7d554618f876c51b7f0cf8d4a35"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -530,7 +533,10 @@
     "https://t.me/gizmiztel/163948",
     "https://t.me/gizmiztel/163945",
     "https://t.me/gizmiztel/163939",
-    "https://t.me/gizmiztel/163941"
+    "https://t.me/gizmiztel/163941",
+    "https://t.me/gizmiztel/163963",
+    "https://t.me/gizmiztel/163994",
+    "https://t.me/gizmiztel/163990"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1577,15 +1583,20 @@
         "d8f8f8fcccd4ecec",
         "d8f8f8e4e4e8d8d8"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/163963",
+      "sha256": "04c82c3e6cea6d04c2867ad53bb6cd59a20d4b2032253c39804c2cb04a3d6860",
+      "frame_hashes": [
+        "e4e4dccce0e0f0f0",
+        "ecccece0e4fcf0f8",
+        "ecf8f8e0f8f0f0f8",
+        "f0f8e0f8e8e4f0e0",
+        "f8e0c0e0e8f8f0f0"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "curiosity_and_process",
-      "topic": "science_curiosity",
-      "url": "https://t.me/vaybabamumad/180663",
-      "sent_at": "2026-10-23T18:37:26.993432+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -1699,6 +1710,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/163941",
       "sent_at": "2026-10-26T22:54:01.992028+00:00"
+    },
+    {
+      "pillar": "experimental",
+      "topic": "travel_and_places",
+      "url": "https://t.me/gizmiztel/163963",
+      "sent_at": "2026-10-27T19:29:04.910010+00:00"
     }
   ]
 }
