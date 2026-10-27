@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v1",
-  "updated_at": "2026-10-27T16:29:22.420520+00:00",
+  "updated_at": "2026-10-27T20:55:55.456340+00:00",
   "queries": [
     "site:facebook.com/reel/ (funny OR animals OR amazing skill OR satisfying OR unexpected) video",
     "site:reddit.com/r/videos/comments/ (viral OR amazing OR funny OR unexpected OR skill OR science) video"
@@ -49483,17 +49483,12 @@
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-27T16:29:22.420520+00:00",
+    "updated_at": "2026-10-27T20:55:55.456340+00:00",
     "new_candidates": 0,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
-    "query": "Earth from space",
+    "query": "aurora",
     "queries": [
-      {
-        "query": "Earth from space",
-        "page": 1,
-        "results": 100
-      },
       {
         "query": "aurora",
         "page": 2,
@@ -49503,60 +49498,27 @@
         "query": "Mars rover",
         "page": 3,
         "results": 0
+      },
+      {
+        "query": "solar flare",
+        "page": 4,
+        "results": 0
       }
     ],
-    "api_results": 100,
-    "records_inspected": 60,
-    "metadata_screen_passes": 13,
-    "metadata_rejections": {
-      "person_or_audio_signal": 8,
-      "secondary_creator_present": 30,
-      "missing_metadata": 1,
-      "third_party_partner_signal": 6
-    },
-    "post_screen_build_failures": 13,
-    "duplicate_records": 2,
+    "api_results": 0,
+    "records_inspected": 0,
+    "metadata_screen_passes": 0,
+    "metadata_rejections": {},
+    "post_screen_build_failures": 0,
+    "duplicate_records": 0,
     "invalid_records": 0,
     "total_queue_items": 500,
     "nasa_queue_items": 47,
     "asset_lookup_diagnostics": {
       "manifest_mp4_found": 0,
       "fallback_mp4_verified": 0,
-      "failures": {
-        "asset_manifest_no_mp4_url": 3
-      },
-      "samples": [
-        {
-          "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 32,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
-          ]
-        },
-        {
-          "nasa_id": "art002m1200920011_Apogee_Raise_Burn",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 32,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~orig.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~medium.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~mobile.mp4"
-          ]
-        },
-        {
-          "nasa_id": "iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 32,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~orig.mp4",
-            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422.srt",
-            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~large.mp4"
-          ]
-        }
-      ]
+      "failures": {},
+      "samples": []
     },
     "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
     "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
