@@ -1,75 +1,74 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-27T10:54:56.971836+00:00",
-  "query": "space telescope",
+  "updated_at": "2026-10-27T16:29:22.420520+00:00",
+  "query": "Earth from space",
   "queries": [
     {
-      "query": "space telescope",
-      "page": 3,
-      "results": 100
-    },
-    {
-      "query": "International Space Station Earth",
-      "page": 4,
-      "results": 100
-    },
-    {
-      "query": "planetary science",
+      "query": "Earth from space",
       "page": 1,
       "results": 100
+    },
+    {
+      "query": "aurora",
+      "page": 2,
+      "results": 0
+    },
+    {
+      "query": "Mars rover",
+      "page": 3,
+      "results": 0
     }
   ],
-  "api_results": 300,
+  "api_results": 100,
   "records_inspected": 60,
-  "metadata_screen_passes": 11,
+  "metadata_screen_passes": 13,
   "metadata_rejections": {
-    "secondary_creator_present": 24,
+    "person_or_audio_signal": 8,
+    "secondary_creator_present": 30,
     "missing_metadata": 1,
-    "third_party_partner_signal": 4,
-    "person_or_audio_signal": 13,
-    "likely_long_form_title": 1
+    "third_party_partner_signal": 6
   },
-  "post_screen_build_failures": 8,
-  "duplicate_records": 6,
+  "post_screen_build_failures": 13,
+  "duplicate_records": 2,
   "invalid_records": 0,
-  "new_candidates": 3,
+  "new_candidates": 0,
   "total_queue_items": 500,
   "nasa_queue_items": 47,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 3,
+    "fallback_mp4_verified": 0,
     "failures": {
       "asset_manifest_no_mp4_url": 3
     },
     "samples": [
       {
-        "nasa_id": "ksc_050809_sts125_webcast1",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 30,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1~orig.mp4",
-          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1.vtt",
-          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1~mobile.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing",
+        "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing.srt",
-          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~large.mp4"
+          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
+          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
+          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
         ]
       },
       {
-        "nasa_id": "20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a",
+        "nasa_id": "art002m1200920011_Apogee_Raise_Burn",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~orig.mp4",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a.srt",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~large.mp4"
+          "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~orig.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~medium.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~mobile.mp4"
+        ]
+      },
+      {
+        "nasa_id": "iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422.srt",
+          "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~large.mp4"
         ]
       }
     ]
