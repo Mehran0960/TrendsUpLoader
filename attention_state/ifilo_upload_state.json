@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-27T00:28:06.636891+00:00",
+  "updated_at": "2026-10-27T10:56:12.604289+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1525,6 +1525,36 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-27T00:28:06.636846+00:00",
       "finished_at": "2026-10-27T00:28:06.636854+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "9793feabf60f0818c34351c0c6b442bc3d25d012a1efccb8694d8d542350b523",
+      "source_url": "https://images.nasa.gov/details/ksc_101504_gyro",
+      "source_title": "KSC-04-S-00335",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T10:56:10.469728+00:00",
+      "finished_at": "2026-10-27T10:56:10.469736+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "59cf204b3292237504a0ae0af40e721a9f8bd5482cadb219dfc1f3a5e8396ab1",
+      "source_url": "https://images.nasa.gov/details/International_Space_Station_Benefits_for_Humanity_2022",
+      "source_title": "International Space Station Benefits for Humanity 2022",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T10:56:11.270877+00:00",
+      "finished_at": "2026-10-27T10:56:11.270884+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "23cea8d6e690f40131aeaacb566f456588cf490eb8aeb39da17cb5396f7179a4",
+      "source_url": "https://images.nasa.gov/details/291_SuperStartTo2019",
+      "source_title": "NASA ScienceCasts: A Super Start to 2019",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-27T10:56:12.604245+00:00",
+      "finished_at": "2026-10-27T10:56:12.604253+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
