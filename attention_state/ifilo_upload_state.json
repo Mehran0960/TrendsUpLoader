@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T02:17:41.503638+00:00",
+  "updated_at": "2026-10-28T13:29:58.205482+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1694,6 +1694,56 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-28T02:17:41.503586+00:00",
       "finished_at": "2026-10-28T02:17:41.503596+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "d4bb33891fbeafd56e32459140920bf4d22ad75f7acf673487200a3a72eaf4ab",
+      "source_url": "https://images.nasa.gov/details/JPL-20220906-Perseverance_Explores_Jezero_Crater_Delta_UHD",
+      "source_title": "Perseverance Explores the Jezero Crater Delta",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T13:29:54.295613+00:00",
+      "finished_at": "2026-10-28T13:29:54.295620+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "0da117319ea658ccd363d367745337b46769dfe8ac082202b15ca45d4689d49b",
+      "source_url": "https://images.nasa.gov/details/NHQ_2019_1231_2020_Look_Ahead",
+      "source_title": "NASA 2020: Are You Ready?",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T13:29:55.448837+00:00",
+      "finished_at": "2026-10-28T13:29:55.448844+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "188195458b5e95472052dfeb5abc4eb8b843bdb85ebe9125f9aa7fb86853fd0e",
+      "source_url": "https://images.nasa.gov/details/JPL-20240329-MSLf-0001-Curiosity_Reaches_Gediz_Vallis_Channel_360_8k",
+      "source_title": "NASA’s Curiosity Rover Reaches Gediz Vallis Channel (360 View)",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T13:29:56.109807+00:00",
+      "finished_at": "2026-10-28T13:29:56.109814+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "2c23c7580a57617728552744247b59bf41521660544de3552cf4f6b0e2711147",
+      "source_url": "https://images.nasa.gov/details/JPL-20210201-WHATSUf-0001-Whats-Up-February-2021",
+      "source_title": "What's Up: February 2021 Skywatching Tips from NASA",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T13:29:57.115012+00:00",
+      "finished_at": "2026-10-28T13:29:57.115019+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "585dd4d29c79db02e76167aa0741687455ca8d4c17d0c48580736850a1b7fc9f",
+      "source_url": "https://images.nasa.gov/details/The_Search_for_Life_H264",
+      "source_title": "The Search for Life",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T13:29:58.205445+00:00",
+      "finished_at": "2026-10-28T13:29:58.205451+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
