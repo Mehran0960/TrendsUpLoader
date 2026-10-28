@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-27T10:56:12.604289+00:00",
+  "updated_at": "2026-10-28T00:29:22.184733+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1556,6 +1556,135 @@
       "started_at": "2026-10-27T10:56:12.604245+00:00",
       "finished_at": "2026-10-27T10:56:12.604253+00:00",
       "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "9a11cdc4ad68cd4bf4f25457b948f5d06fa12c35097b8bbc3ec1010416ca596f",
+      "source_url": "https://images.nasa.gov/details/ISS_Research_Overview-Adam_Savage",
+      "source_title": "International Space Station: Humanity’s Lab in Space",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T00:28:47.161051+00:00",
+      "finished_at": "2026-10-28T00:28:47.161060+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "f49f8c74906af5a1f9bbdc570448e604da2a8bc99a2d57fca247823def43280c",
+      "source_url": "https://images.nasa.gov/details/KSC-20260320-MH-JBS01-0001-Artemis_II_Rollout_Timelapse_Arrival_at_LC_39B-M19827",
+      "source_title": "Artemis II Rollout for Launch - Timelapse - Arrival at LC 39B",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T00:28:48.651750+00:00",
+      "finished_at": "2026-10-28T00:28:48.651761+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "5736f22be83d0e781d6d0cbe9e5c2084314ce967008e8db6485b90d166ae9223",
+      "source_url": "https://images.nasa.gov/details/KSC-20260320-MH-JBS01-0001-Artemis_II_Rollout_Timelapse_Press_Site-M19827",
+      "source_title": "Artemis II Rollout for Launch - Timelapse - LC 39 Press Site",
+      "title": "نمای شگفت‌انگیز زمین از فضا | Artemis II Rollout for Launch - Timelapse - LC 39 Press Site",
+      "status": "uploaded",
+      "mode": "queue_public",
+      "started_at": "2026-10-28T00:29:15.536672+00:00",
+      "video_sha256": "61992f8378ffa827b4dff38b51cdc43a2e78dcf7a39b26dfae778f887fe9c278",
+      "bytes": 10604838,
+      "quality": {
+        "passed": true,
+        "score": 71.3,
+        "reason": "technical_checks_passed",
+        "duration_seconds": 53.07,
+        "width": 640,
+        "height": 360,
+        "sampled_frames": 5,
+        "black_frame_ratio": 0.0,
+        "mean_frame_difference": 6.35,
+        "note": "Technical screen only; does not judge humor, topic relevance, or repost rights.",
+        "frame_hashes": [
+          "0040f4f0f0f0f800",
+          "0003a7e47c100000",
+          "000387848c300000",
+          "0043a7a4bc100000",
+          "0003a7641c100000"
+        ],
+        "content_gate_passed": true,
+        "content_gate_reason": "duration_and_topic_gate_passed"
+      },
+      "rights_evidence_present": true,
+      "rights_evidence_host": "www.nasa.gov",
+      "publication_checkbox": "dontPublish=false",
+      "monetization_checkbox": "canMakeMoney=true",
+      "redistribution_checkbox": "canRepublish=false",
+      "download_checkbox": "allowDownload=false",
+      "ownership_checkbox": "isMadeByMe=false",
+      "request_guard": {
+        "matching_post_count": 1,
+        "continued_count": 1,
+        "blocked_count": 0,
+        "checks": {
+          "canonical_host": true,
+          "exact_title": true,
+          "exact_description": true,
+          "publication_state_matches": true,
+          "monetization_state_matches": true,
+          "redistribution_false": true,
+          "download_false": true,
+          "not_claiming_ownership": true,
+          "first_request_only": true
+        }
+      },
+      "http_response_summary": {
+        "response_received": true,
+        "http_status": 200,
+        "payload_success": true,
+        "content_type": "text/html; charset=utf-8",
+        "body_kind": "dict",
+        "response_keys": [
+          "s"
+        ]
+      },
+      "public_video_url_detected": false,
+      "server_reason_kind": "success_like_or_upload_related",
+      "provider_message_signals": [
+        "upload"
+      ],
+      "provider_message_excerpt": "آپلود با موفقیت انجام شد",
+      "verification_summary": {
+        "final_angular_state": {
+          "published": true,
+          "publishing": false,
+          "uploadComplete": true,
+          "dontPublish": false,
+          "canMakeMoney": true,
+          "canRepublish": false,
+          "allowDownload": false,
+          "isMadeByMe": false,
+          "acceptRules": true,
+          "messageIsError": false,
+          "titleCleared": true,
+          "descriptionCleared": true
+        },
+        "account_title_found": false,
+        "account_paths_checked": [
+          {
+            "requested_path": "/my",
+            "result_path": "/funtime24",
+            "title_found": false
+          },
+          {
+            "requested_path": "/myVideos",
+            "result_path": "/myvideos",
+            "title_found": false
+          },
+          {
+            "requested_path": "/my/videos",
+            "result_path": "/my/videos",
+            "title_found": false
+          }
+        ],
+        "submit_error_type": null
+      },
+      "finished_at": "2026-10-28T00:29:22.184642+00:00",
+      "ifilo_url": "",
+      "confirmation": "server_success_payload"
     }
   ]
 }
