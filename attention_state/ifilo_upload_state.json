@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T19:06:09.353769+00:00",
+  "updated_at": "2026-10-28T23:10:34.868922+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1754,6 +1754,26 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-28T19:06:09.353725+00:00",
       "finished_at": "2026-10-28T19:06:09.353734+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "e9848d6e87d8d8af5bee567f376a845e18827e90db3a6d114ea5f642fcfff152",
+      "source_url": "https://images.nasa.gov/details/ksc_041504_genesis",
+      "source_title": "KSC-04-S-00100",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T23:10:33.596265+00:00",
+      "finished_at": "2026-10-28T23:10:33.596273+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "2c3b40a3384c691b62523a0398a79e56ba10967b92e5b4d011a876d37fe665b2",
+      "source_url": "https://images.nasa.gov/details/KSC-20221116-MH-NAS01-0001-Artemis_I_Orion_First_Imagery_of_Earth-3314595",
+      "source_title": "Artemis I Orion First Imagery of Earth",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T23:10:34.868868+00:00",
+      "finished_at": "2026-10-28T23:10:34.868877+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
