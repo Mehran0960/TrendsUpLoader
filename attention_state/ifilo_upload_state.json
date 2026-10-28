@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T00:29:22.184733+00:00",
+  "updated_at": "2026-10-28T02:17:41.503638+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1685,6 +1685,16 @@
       "finished_at": "2026-10-28T00:29:22.184642+00:00",
       "ifilo_url": "",
       "confirmation": "server_success_payload"
+    },
+    {
+      "source_key": "e3745e79d21c4608af6b769a387a8595e30e55a8aa221d8451de74888d8d1705",
+      "source_url": "https://images.nasa.gov/details/KSC-20260320-MH-FMX01-Artemis_II_Rollout_Timelapses_WON_M19827",
+      "source_title": "Artemis II Rollout Timelapses",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T02:17:41.503586+00:00",
+      "finished_at": "2026-10-28T02:17:41.503596+00:00",
+      "mode": "nasa_rights_screened_queue"
     }
   ]
 }
