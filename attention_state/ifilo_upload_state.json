@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T13:29:58.205482+00:00",
+  "updated_at": "2026-10-28T19:06:09.353769+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1744,6 +1744,16 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-28T13:29:58.205445+00:00",
       "finished_at": "2026-10-28T13:29:58.205451+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "432317f6720810d9e8899f6562a5381adeab4ebfc293660d98fb4bd3aa0067eb",
+      "source_url": "https://images.nasa.gov/details/Space-247365",
+      "source_title": "Space 24/7/365: Space Station Benefits",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-28T19:06:09.353725+00:00",
+      "finished_at": "2026-10-28T19:06:09.353734+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
