@@ -1,44 +1,87 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T06:14:17.836650+00:00",
-  "query": "rocket launch",
+  "updated_at": "2026-10-28T13:28:38.083887+00:00",
+  "query": "Mars rover",
   "queries": [
+    {
+      "query": "Mars rover",
+      "page": 2,
+      "results": 97
+    },
+    {
+      "query": "solar flare",
+      "page": 3,
+      "results": 0
+    },
     {
       "query": "rocket launch",
       "page": 4,
       "results": 100
-    },
-    {
-      "query": "space telescope",
-      "page": 1,
-      "results": 100
-    },
-    {
-      "query": "International Space Station Earth",
-      "page": 2,
-      "results": 100
     }
   ],
-  "api_results": 300,
+  "api_results": 197,
   "records_inspected": 60,
-  "metadata_screen_passes": 5,
+  "metadata_screen_passes": 25,
   "metadata_rejections": {
-    "secondary_creator_present": 15,
-    "third_party_partner_signal": 10,
-    "non_nasa_center": 7,
-    "person_or_audio_signal": 19
+    "secondary_creator_present": 9,
+    "person_or_audio_signal": 11,
+    "third_party_partner_signal": 4,
+    "non_nasa_center": 8
   },
-  "post_screen_build_failures": 5,
-  "duplicate_records": 4,
+  "post_screen_build_failures": 20,
+  "duplicate_records": 3,
   "invalid_records": 0,
-  "new_candidates": 0,
+  "new_candidates": 5,
   "total_queue_items": 500,
-  "nasa_queue_items": 51,
+  "nasa_queue_items": 56,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 0,
-    "failures": {},
-    "samples": []
+    "fallback_mp4_verified": 5,
+    "failures": {
+      "asset_manifest_no_mp4_url": 4
+    },
+    "samples": [
+      {
+        "nasa_id": "KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897.srt",
+          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~large.mp"
+        ]
+      },
+      {
+        "nasa_id": "KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397.srt",
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~large.mp4"
+        ]
+      }
+    ]
   },
   "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
   "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
