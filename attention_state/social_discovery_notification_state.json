@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-27T22:38:34.502530+00:00",
+  "media_review_updated_at": "2026-10-28T15:31:02.409497+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -304,9 +304,11 @@
     "1f3d8277f65173230322026b8ac90db5741af7d554618f876c51b7f0cf8d4a35",
     "5c74a02d7adc9ce3c9caafbd5a49f9b8cc35e3e29afd0a019a8ff7f68e2a9f71",
     "2154f5051a0a4cf68accacc906f7d4d3425b40d3987bc0d2a24b123097aae3a8",
-    "f0bf929a5df17d0dda98c45f08c7429e73bddb3d6fa4523ff41917c26b236edc"
+    "f0bf929a5df17d0dda98c45f08c7429e73bddb3d6fa4523ff41917c26b236edc",
+    "e1ab74435d37c350342d35a364473e16e3a5e54851030d5fc7f92d608f3e5a74",
+    "d21379a1b9532d466a3e80846f7071849e75244e6091ea0176ca1eb5b0c610ce"
   ],
-  "media_review_last_count": 1,
+  "media_review_last_count": 0,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -542,7 +544,9 @@
     "https://t.me/gizmiztel/163990",
     "https://t.me/gizmiztel/163964",
     "https://t.me/gizmiztel/164026",
-    "https://t.me/gizmiztel/164030"
+    "https://t.me/gizmiztel/164030",
+    "https://t.me/gizmiztel/164063",
+    "https://t.me/khandbazar20/176749"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1636,12 +1640,6 @@
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "reaction_and_comedy",
-      "topic": "surprise_or_reveal",
-      "url": "https://t.me/gizmiztel/163829",
-      "sent_at": "2026-10-24T17:29:16.099465+00:00"
-    },
     {
       "pillar": "visual_wow",
       "topic": "skill_or_spectacle",
