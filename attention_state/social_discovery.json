@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v1",
-  "updated_at": "2026-10-28T00:27:32.620582+00:00",
+  "updated_at": "2026-10-28T06:14:17.836650+00:00",
   "status": "public_telegram_repost_and_bing_fallback",
   "count": 500,
   "quota_ledger": {
@@ -51699,90 +51699,47 @@
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-28T00:27:32.620582+00:00",
-    "new_candidates": 4,
+    "updated_at": "2026-10-28T06:14:17.836650+00:00",
+    "new_candidates": 0,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
-    "query": "Earth from space",
+    "query": "rocket launch",
     "queries": [
       {
-        "query": "Earth from space",
-        "page": 3,
+        "query": "rocket launch",
+        "page": 4,
         "results": 100
       },
       {
-        "query": "aurora",
-        "page": 4,
-        "results": 0
+        "query": "space telescope",
+        "page": 1,
+        "results": 100
       },
       {
-        "query": "Mars rover",
-        "page": 1,
+        "query": "International Space Station Earth",
+        "page": 2,
         "results": 100
       }
     ],
-    "api_results": 200,
+    "api_results": 300,
     "records_inspected": 60,
-    "metadata_screen_passes": 31,
+    "metadata_screen_passes": 5,
     "metadata_rejections": {
-      "person_or_audio_signal": 11,
-      "third_party_partner_signal": 6,
-      "secondary_creator_present": 2,
-      "likely_long_form_title": 1
+      "secondary_creator_present": 15,
+      "third_party_partner_signal": 10,
+      "non_nasa_center": 7,
+      "person_or_audio_signal": 19
     },
-    "post_screen_build_failures": 27,
-    "duplicate_records": 9,
+    "post_screen_build_failures": 5,
+    "duplicate_records": 4,
     "invalid_records": 0,
     "total_queue_items": 500,
     "nasa_queue_items": 51,
     "asset_lookup_diagnostics": {
       "manifest_mp4_found": 0,
-      "fallback_mp4_verified": 4,
-      "failures": {
-        "asset_manifest_no_mp4_url": 4
-      },
-      "samples": [
-        {
-          "nasa_id": "iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-            "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-            "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station"
-          ]
-        },
-        {
-          "nasa_id": "art002m1200912324",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~orig.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~large.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~medium.mp4"
-          ]
-        },
-        {
-          "nasa_id": "art002m1200912311",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~orig.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~large.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~medium.mp4"
-          ]
-        },
-        {
-          "nasa_id": "KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4",
-            "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870.vtt",
-            "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4"
-          ]
-        }
-      ]
+      "fallback_mp4_verified": 0,
+      "failures": {},
+      "samples": []
     },
     "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
     "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
