@@ -1,64 +1,84 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T23:09:19.270799+00:00",
-  "query": "International Space Station Earth",
+  "updated_at": "2026-10-29T02:47:39.944183+00:00",
+  "query": "space telescope",
   "queries": [
     {
-      "query": "International Space Station Earth",
-      "page": 4,
-      "results": 100
-    },
-    {
-      "query": "planetary science",
+      "query": "space telescope",
       "page": 1,
       "results": 100
     },
     {
-      "query": "Earth from space",
+      "query": "International Space Station Earth",
       "page": 2,
       "results": 100
+    },
+    {
+      "query": "planetary science",
+      "page": 3,
+      "results": 0
     }
   ],
-  "api_results": 300,
+  "api_results": 200,
   "records_inspected": 60,
-  "metadata_screen_passes": 8,
+  "metadata_screen_passes": 10,
   "metadata_rejections": {
-    "secondary_creator_present": 21,
-    "person_or_audio_signal": 18,
-    "third_party_partner_signal": 8,
-    "likely_long_form_title": 1
+    "secondary_creator_present": 16,
+    "third_party_partner_signal": 9,
+    "likely_long_form_title": 1,
+    "person_or_audio_signal": 19
   },
-  "post_screen_build_failures": 6,
-  "duplicate_records": 4,
+  "post_screen_build_failures": 10,
+  "duplicate_records": 5,
   "invalid_records": 0,
-  "new_candidates": 2,
+  "new_candidates": 0,
   "total_queue_items": 500,
   "nasa_queue_items": 59,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 2,
+    "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 2
+      "asset_manifest_no_mp4_url": 4
     },
     "samples": [
       {
-        "nasa_id": "iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing",
+        "nasa_id": "KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
+        "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing.srt",
-          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~large.mp4"
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4"
         ]
       },
       {
-        "nasa_id": "20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a",
+        "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~orig.mp4",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a.srt",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~large.mp4"
+          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
+          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
+          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629.srt",
+          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120.srt",
+          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~large.mp4"
         ]
       }
     ]
