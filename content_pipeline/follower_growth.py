@@ -141,6 +141,78 @@ def _age_hours(item):
     return None
 
 
+
+PERSIAN_LANGUAGE_CODES = {"fa", "fas", "per", "persian", "farsi", "فارسی"}
+PERSIAN_SCRIPT_RE = re.compile(r"[\\u0600-\\u06ff]")
+PERSIAN_SPECIFIC_LETTERS_RE = re.compile(r"[پچژگک]")
+PERSIAN_FUNCTION_WORDS_RE = re.compile(
+    r"(?<![\\w\\u0600-\\u06ff])(?:و|از|به|در|با|که|برای|این|اون|آن|یک|را|اما|چون|هم|است|شد|بود|رو|تو|تا)(?![\\w\\u0600-\\u06ff])",
+    re.I,
+)
+
+
+def persian_language_evidence(item):
+    """Infer Persian-language priority from explicit audio/transcript metadata or cautious text proxies."""
+    row = item if isinstance(item, dict) else {}
+
+    # Prefer fields that describe spoken audio/subtitles over generic page locale.
+    language_keys = (
+        "audio_language", "spoken_language", "speech_language",
+        "detected_audio_language", "transcript_language", "captions_language",
+        "subtitle_language", "audio_lang", "transcript_lang",
+    )
+    for key in language_keys:
+        value = str(row.get(key) or "").strip().casefold()
+        if not value:
+            continue
+        normalized = re.sub(r"[ _]", "-", value)
+        is_persian = (
+            normalized in PERSIAN_LANGUAGE_CODES
+            or normalized.startswith("fa-")
+            or normalized.startswith("persian-")
+            or normalized.startswith("farsi-")
+        )
+        return is_persian, "explicit_audio_or_transcript_language"
+
+    for key in ("transcript", "transcript_text", "speech_transcript", "captions_text", "subtitle_text"):
+        transcript = str(row.get(key) or "").strip()
+        if not transcript:
+            continue
+        script_chars = len(PERSIAN_SCRIPT_RE.findall(transcript))
+        alphabetic_chars = len(re.findall(r"[^\\W\\d_]", transcript, re.UNICODE))
+        function_words = len(PERSIAN_FUNCTION_WORDS_RE.findall(transcript))
+        has_persian_shape = bool(PERSIAN_SPECIFIC_LETTERS_RE.search(transcript)) or function_words >= 2
+        is_persian = (
+            script_chars >= 8
+            and script_chars / max(1, alphabetic_chars) >= 0.30
+            and has_persian_shape
+        )
+        return is_persian, "transcript_text"
+
+    text = " ".join(str(row.get(key) or "") for key in (
+        "title", "description", "source_post_caption", "cleaned_review_caption",
+    ))
+    text = re.sub(r"https?://\\S+", " ", text)
+    text = re.sub(r"(?<!\\w)#[\\w\\u0600-\\u06ff]+", " ", text, flags=re.I)
+    text = re.sub(r"(?<!\\w)@[A-Za-z0-9_]+", " ", text)
+    script_chars = len(PERSIAN_SCRIPT_RE.findall(text))
+    alphabetic_chars = len(re.findall(r"[^\\W\\d_]", text, re.UNICODE))
+    function_words = len(PERSIAN_FUNCTION_WORDS_RE.findall(text))
+    has_persian_shape = bool(PERSIAN_SPECIFIC_LETTERS_RE.search(text)) or function_words >= 2
+    if (
+        script_chars >= 8
+        and script_chars / max(1, alphabetic_chars) >= 0.20
+        and has_persian_shape
+    ):
+        return True, "title_caption_text_proxy"
+
+    # Existing collectors set this weak signal from script count alone. Retain it
+    # only as low-confidence evidence; it never overrides explicit non-Persian audio.
+    if row.get("persian_signal") is True:
+        return True, "source_persian_metadata_signal"
+    return False, "no_persian_language_evidence"
+
+
 def expected_platform_for_query(query):
     """Infer platform constraint from a site-scoped public search query."""
     q = str(query or "").lower()
@@ -269,6 +341,25 @@ def annotate_candidate(item):
     safety_review = bool(MANUAL_SAFETY_REVIEW.search(text))
     compilation = bool(MULTI_CLIP_RISK.search(text))
     promotional = bool(PROMOTIONAL_RISK.search(text))
+    persian_signal, language_signal_basis = persian_language_evidence(x)
+
+    # Persian language is a ranking preference, not a substitute for freshness,
+    # a strong visual hook, or safety/quality gates.
+    language_score_bonus = 0.0
+    language_priority_bonus = 0.0
+    age_allows_language_bonus = age is not None and age <= 24.0
+    quality_allows_language_bonus = not any(
+        (is_news, is_sensitive, safety_review, compilation, promotional, stale)
+    )
+    if persian_signal and age_allows_language_bonus and quality_allows_language_bonus:
+        if language_signal_basis == "explicit_audio_or_transcript_language":
+            language_score_bonus, language_priority_bonus = 12.0, 10.0
+        elif language_signal_basis == "transcript_text":
+            language_score_bonus, language_priority_bonus = 10.0, 8.0
+        elif language_signal_basis == "title_caption_text_proxy":
+            language_score_bonus, language_priority_bonus = 8.0, 6.0
+        else:
+            language_score_bonus, language_priority_bonus = 5.0, 3.0
 
     native_views = _int(x.get("views"))
     repost_views = _int(x.get("telegram_repost_views"))
@@ -307,7 +398,7 @@ def annotate_candidate(item):
     repost_signal = min(6.0, math.log10(repost_views + 1) / 6.0 * 4.0 + min(2.0, len(repost_channels) * 0.5)) if repost_views else min(2.0, len(repost_channels) * 0.5)
 
     native_platform_fit = 2.0 if platform in PLATFORMS else 0.0
-    score = _freshness(age) + demand + velocity + hook + engagement + repost_signal + native_platform_fit
+    score = _freshness(age) + demand + velocity + hook + engagement + repost_signal + native_platform_fit + language_score_bonus
     if is_news:
         score -= 15.0
     if is_sensitive:
@@ -368,14 +459,18 @@ def annotate_candidate(item):
         observed_velocity_for_rank = max(0.0, float(x.get("views_velocity_per_hour") or 0))
     except (TypeError, ValueError, OverflowError):
         observed_velocity_for_rank = 0.0
-    x["momentum_priority_score"] = momentum_priority(
+    x["momentum_priority_score"] = round(min(100.0, momentum_priority(
         age, observed_velocity_for_rank,
         x.get("views_acceleration_per_hour2", 0),
         views, source, x.get("telegram_channel_priority", 1),
         x.get("views_velocity_kind", "estimated_from_lifetime_views"), score,
-    )
+    ) + language_priority_bonus), 2)
 
     x.update({
+        "persian_language_signal": persian_signal,
+        "language_signal_basis": language_signal_basis,
+        "language_score_bonus": language_score_bonus,
+        "language_priority_bonus": language_priority_bonus,
         "follow_growth_score": score,
         "score_confidence": confidence,
         "content_lane": lane,
