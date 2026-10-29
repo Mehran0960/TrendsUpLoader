@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-29T15:39:19.720993+00:00",
+  "media_review_updated_at": "2026-10-29T19:39:56.230366+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -312,7 +312,10 @@
     "5446021eeb43b5568a139551e7f9eaba3845f3fa86814f1bd2048b77c9f4588f",
     "29f11e99351e3aa14bfbae186c5fc3facaede6311a7a1afe9cbab045831339e8",
     "217e5204b04ad2e0ae32ee3de9fa4092afdfdeccc1332de071ba57cc822b3c2d",
-    "d35384a635c70a6a14fd9d24cc6334cab533fa364b37ff06f22af91c82f67261"
+    "d35384a635c70a6a14fd9d24cc6334cab533fa364b37ff06f22af91c82f67261",
+    "5ac81217a079915b27da7b46332e73d4a93537b518b71a5d4734eb07e4a2204c",
+    "dcbdf3bda57988e82edcf389c7048cd71a4c08abc94a7300242f2d3bd852317b",
+    "17189f07458b54890ff81db231e01c50acec14b97f67df0ed285458d68dfd8c7"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -558,7 +561,10 @@
     "https://t.me/gizmiztel/164068",
     "https://t.me/gizmiztel/164069",
     "https://t.me/gizmiztel/164066",
-    "https://t.me/gizmiztel/164106"
+    "https://t.me/gizmiztel/164106",
+    "https://t.me/gizmiztel/164072",
+    "https://t.me/regaplus/24172",
+    "https://t.me/gizmiztel/164092"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1704,15 +1710,20 @@
         "c0e0e0e0e8e8e0e0",
         "c8c0e0f0f8e8e8e8"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164072",
+      "sha256": "9bb238660d861bb895e507853cc74feae8038e785e8c56c9897682d9ef6dbf4b",
+      "frame_hashes": [
+        "ccf8f0f0e0f8f0f8",
+        "f8f0c0e0e0e8e0ec",
+        "c4ccccccccc4cce8",
+        "e0e8e8f4f4e4e4ec",
+        "60e0e0e0c0e4c440"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "visual_wow",
-      "topic": "transformation_or_satisfying",
-      "url": "https://t.me/gizmiztel/163843",
-      "sent_at": "2026-10-25T05:18:04.629693+00:00"
-    },
     {
       "pillar": "reaction_and_comedy",
       "topic": "animals",
@@ -1826,6 +1837,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164106",
       "sent_at": "2026-10-29T15:39:19.720424+00:00"
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "animals",
+      "url": "https://t.me/gizmiztel/164072",
+      "sent_at": "2026-10-29T19:39:56.229895+00:00"
     }
   ]
 }
