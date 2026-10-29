@@ -78,7 +78,7 @@ jobs:
     # Push-triggered runs are diagnostics unless a specifically named private draft smoke test is requested.
     # Both draft modes force publication, monetization, redistribution, and download off; they never enable public auto-publishing.
     # FiLo publishes independently after discovery completes (even if Telegram delivery failed), plus every five minutes as a retry/check cadence.
-    if: ${{ always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'cancelled') || (github.event_name == 'push' && github.event.head_commit.message == 'Update multi-platform social discovery state') || needs.regression-tests.result == 'success') && (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'cancelled')) }}
+    if: ${{ always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'cancelled' && (github.event.workflow_run.event == 'schedule' || github.event.workflow_run.event == 'workflow_dispatch')) || (github.event_name == 'push' && github.event.head_commit.message == 'Update multi-platform social discovery state') || needs.regression-tests.result == 'success') && (github.event_name == 'workflow_dispatch' || github.event_name == 'push' || github.event_name == 'schedule' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'cancelled' && (github.event.workflow_run.event == 'schedule' || github.event.workflow_run.event == 'workflow_dispatch'))) }}
     needs: regression-tests
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -106,6 +106,7 @@ jobs:
           MANUAL_REVIEW_VIDEO_URL: ${{ inputs.review_video_source_url }}
           HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
           WORKFLOW_RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          WORKFLOW_RUN_EVENT: ${{ github.event.workflow_run.event }}
         run: |
           echo "publish=false" >> "$GITHUB_OUTPUT"
           echo "test_draft=false" >> "$GITHUB_OUTPUT"
@@ -116,7 +117,7 @@ jobs:
           echo "review_video_url=" >> "$GITHUB_OUTPUT"
           if [ "$EVENT_NAME" = "schedule" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
-          elif [ "$EVENT_NAME" = "workflow_run" ] && [ "$WORKFLOW_RUN_CONCLUSION" != "cancelled" ]; then
+          elif [ "$EVENT_NAME" = "workflow_run" ] && [ "$WORKFLOW_RUN_CONCLUSION" != "cancelled" ] && { [ "$WORKFLOW_RUN_EVENT" = "schedule" ] || [ "$WORKFLOW_RUN_EVENT" = "workflow_dispatch" ]; }; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
           elif [ "$EVENT_NAME" = "push" ] && [ "$HEAD_COMMIT_MESSAGE" = "Update multi-platform social discovery state" ]; then
             echo "publish=true" >> "$GITHUB_OUTPUT"
