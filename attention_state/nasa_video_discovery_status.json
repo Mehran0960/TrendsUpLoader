@@ -1,86 +1,44 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-29T16:52:40.484563+00:00",
-  "query": "aurora",
+  "updated_at": "2026-10-29T21:44:50.368858+00:00",
+  "query": "rocket launch",
   "queries": [
     {
-      "query": "aurora",
-      "page": 1,
-      "results": 32
-    },
-    {
-      "query": "Mars rover",
-      "page": 2,
-      "results": 97
-    },
-    {
       "query": "solar flare",
-      "page": 3,
+      "page": 2,
       "results": 0
+    },
+    {
+      "query": "rocket launch",
+      "page": 3,
+      "results": 100
+    },
+    {
+      "query": "space telescope",
+      "page": 4,
+      "results": 100
     }
   ],
-  "api_results": 129,
+  "api_results": 200,
   "records_inspected": 60,
-  "metadata_screen_passes": 25,
+  "metadata_screen_passes": 7,
   "metadata_rejections": {
-    "secondary_creator_present": 22,
-    "person_or_audio_signal": 7,
-    "third_party_partner_signal": 1
+    "secondary_creator_present": 9,
+    "non_nasa_center": 3,
+    "third_party_partner_signal": 12,
+    "person_or_audio_signal": 23
   },
-  "post_screen_build_failures": 19,
-  "duplicate_records": 5,
+  "post_screen_build_failures": 7,
+  "duplicate_records": 6,
   "invalid_records": 0,
-  "new_candidates": 6,
+  "new_candidates": 0,
   "total_queue_items": 500,
   "nasa_queue_items": 65,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 6,
-    "failures": {
-      "asset_manifest_no_mp4_url": 4
-    },
-    "samples": [
-      {
-        "nasa_id": "ksc_021707_themis_berk",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 30,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/ksc_021707_themis_berk/ksc_021707_themis_berk~orig.mp4",
-          "http://images-assets.nasa.gov/video/ksc_021707_themis_berk/ksc_021707_themis_berk.vtt",
-          "http://images-assets.nasa.gov/video/ksc_021707_themis_berk/ksc_021707_themis_berk~mobile.mp4"
-        ]
-      },
-      {
-        "nasa_id": "Hispanos_WilbertRupertoHdez",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/Hispanos_WilbertRupertoHdez/Hispanos_WilbertRupertoHdez~orig.mp4",
-          "http://images-assets.nasa.gov/video/Hispanos_WilbertRupertoHdez/Hispanos_WilbertRupertoHdez.srt",
-          "http://images-assets.nasa.gov/video/Hispanos_WilbertRupertoHdez/Hispanos_WilbertRupertoHdez~large.mp4"
-        ]
-      },
-      {
-        "nasa_id": "KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886~large.mp4"
-        ]
-      },
-      {
-        "nasa_id": "KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897.srt",
-          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897~large.mp4"
-        ]
-      }
-    ]
+    "fallback_mp4_verified": 0,
+    "failures": {},
+    "samples": []
   },
   "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
   "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
