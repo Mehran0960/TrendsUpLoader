@@ -157,7 +157,7 @@ class SocialDiscoveryTests(unittest.TestCase):
             QUERIES, next_time, count=2, window_seconds=3600
         )
         self.assertEqual(len(first), 2)
-        self.assertTrue(all(re.search(r"[\\u0600-\\u06ff]", query) for query in first))
+        self.assertTrue(all(re.search(r"[\u0600-\u06ff]", query) for query in first))
         self.assertNotEqual(first, second)
 
     def test_youtube_queries_rotate_between_half_hour_windows(self):
