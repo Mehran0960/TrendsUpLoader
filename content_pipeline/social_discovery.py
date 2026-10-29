@@ -681,7 +681,7 @@ def select_language_weighted_queries(query_pool, now, count, window_seconds=3600
         if isinstance(row, (tuple, list)) and len(row) > 1:
             if str(row[1] or "").strip().casefold() in {"fa", "fas", "per", "persian", "farsi"}:
                 return True
-        return bool(re.search(r"[\\u0600-\\u06ff]", str(row)))
+        return bool(re.search(r"[\u0600-\u06ff]", str(row)))
 
     persian = [row for row in rows if is_persian_query(row)]
     international = [row for row in rows if not is_persian_query(row)]
