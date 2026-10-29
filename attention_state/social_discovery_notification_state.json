@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-29T19:39:56.230366+00:00",
+  "media_review_updated_at": "2026-10-29T20:42:00.690073+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -315,7 +315,10 @@
     "d35384a635c70a6a14fd9d24cc6334cab533fa364b37ff06f22af91c82f67261",
     "5ac81217a079915b27da7b46332e73d4a93537b518b71a5d4734eb07e4a2204c",
     "dcbdf3bda57988e82edcf389c7048cd71a4c08abc94a7300242f2d3bd852317b",
-    "17189f07458b54890ff81db231e01c50acec14b97f67df0ed285458d68dfd8c7"
+    "17189f07458b54890ff81db231e01c50acec14b97f67df0ed285458d68dfd8c7",
+    "2814368e0f3e67abb420df025b69ea8ab9c93ae01fc821b7c53a2cd3f72fe440",
+    "21e409bff74861e22f1bf795860936919ebc88793f52295d8ea4d762ddb53df5",
+    "7210da773f60efc0a6682802ef02cd34a82a83074886b7efb026822221a63d65"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -564,7 +567,10 @@
     "https://t.me/gizmiztel/164106",
     "https://t.me/gizmiztel/164072",
     "https://t.me/regaplus/24172",
-    "https://t.me/gizmiztel/164092"
+    "https://t.me/gizmiztel/164092",
+    "https://t.me/VahidOnline/78884",
+    "https://t.me/gizmiztel/164104",
+    "https://t.me/gizmiztel/164098"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1721,15 +1727,20 @@
         "e0e8e8f4f4e4e4ec",
         "60e0e0e0c0e4c440"
       ]
+    },
+    {
+      "url": "https://t.me/VahidOnline/78884",
+      "sha256": "30071315f57516241154178a99fcdb95605234235a9cc5469e76e12ed9df6169",
+      "frame_hashes": [
+        "cce0f0dcccdcdcfc",
+        "fccce0ccccccdcdc",
+        "cce0e0c4d4d4c4cc",
+        "e4e0e0ccc4e4c0e0",
+        "e8e0e0c0ccc8c4f4"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "reaction_and_comedy",
-      "topic": "animals",
-      "url": "https://t.me/gizmiztel/163861",
-      "sent_at": "2026-10-25T13:24:47.727468+00:00"
-    },
     {
       "pillar": "visual_wow",
       "topic": "sports_or_athletic_skill",
@@ -1843,6 +1854,12 @@
       "topic": "animals",
       "url": "https://t.me/gizmiztel/164072",
       "sent_at": "2026-10-29T19:39:56.229895+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/VahidOnline/78884",
+      "sent_at": "2026-10-29T20:42:00.689097+00:00"
     }
   ]
 }
