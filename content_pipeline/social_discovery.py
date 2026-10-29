@@ -21,7 +21,7 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "attention_state" / "social_discovery.json"
 KEY = os.environ.get("FIRECRAWL_API_KEY", "").strip()
-RANKING_VERSION = "telegram_momentum_v1"
+RANKING_VERSION = "telegram_momentum_v2_persian_priority"
 GIZMIZ_STYLE_CHANNELS = {
     "gizmiztel", "regaplus", "insta_clip85", "comedi", "khandehabadd",
     "vaybabamumad", "khandbazar20", "bikhiyalbaba", "kafeh_khande",
@@ -663,10 +663,46 @@ def parse_youtube_duration(value):
 
 
 def youtube_queries_for_time(now, count=2):
-    """Rotate a small batch of distinct queries while staying within the default daily search-call budget."""
-    start = int(now.timestamp() // (30 * 60)) % len(YOUTUBE_QUERIES)
-    amount = min(max(1, int(count)), len(YOUTUBE_QUERIES))
-    return [YOUTUBE_QUERIES[(start + offset) % len(YOUTUBE_QUERIES)] for offset in range(amount)]
+    """Rotate searches every 30 minutes; when mixed, at least two-thirds use Persian queries."""
+    return select_language_weighted_queries(
+        YOUTUBE_QUERIES, now, count, window_seconds=30 * 60
+    )
+
+
+
+def select_language_weighted_queries(query_pool, now, count, window_seconds=3600):
+    """Rotate a mixed query bank with roughly two-thirds of searches favoring Persian."""
+    rows = list(query_pool or [])
+    amount = min(max(0, int(count)), len(rows))
+    if amount <= 0:
+        return []
+
+    def is_persian_query(row):
+        if isinstance(row, (tuple, list)) and len(row) > 1:
+            if str(row[1] or "").strip().casefold() in {"fa", "fas", "per", "persian", "farsi"}:
+                return True
+        return bool(re.search(r"[\\u0600-\\u06ff]", str(row)))
+
+    persian = [row for row in rows if is_persian_query(row)]
+    international = [row for row in rows if not is_persian_query(row)]
+    slot = int(now.timestamp() // max(1, int(window_seconds)))
+
+    if not persian:
+        return [rows[(slot * amount + offset) % len(rows)] for offset in range(amount)]
+    if not international:
+        return [persian[(slot * amount + offset) % len(persian)] for offset in range(amount)]
+
+    persian_count = min(len(persian), amount, (2 * amount + 2) // 3)
+    international_count = amount - persian_count
+    selected = [
+        persian[(slot * persian_count + offset) % len(persian)]
+        for offset in range(persian_count)
+    ]
+    selected.extend(
+        international[(slot * international_count + offset) % len(international)]
+        for offset in range(international_count)
+    )
+    return selected
 
 
 def youtube_query_for_time(now):
@@ -1041,11 +1077,9 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         found = telegram_repost_candidates()
         # Rotate a small free-search batch too, to reduce rate-limit risk when
         # Firecrawl is unavailable or its monthly budget is reached.
-        fallback_start = qidx % len(query_variants)
-        fallback_queries = [
-            query_variants[(fallback_start + offset) % len(query_variants)]
-            for offset in range(min(BING_FALLBACK_SEARCHES_PER_RUN, len(query_variants)))
-        ]
+        fallback_queries = select_language_weighted_queries(
+            query_variants, now, BING_FALLBACK_SEARCHES_PER_RUN, window_seconds=3600
+        )
         for q in fallback_queries:
             try:
                 batch = bing_search(q, limit=12)
@@ -1164,7 +1198,6 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     now = datetime.now(timezone.utc)
     # One keyless Firecrawl search per 4-hour run is about 360 credits/month
     # (6 runs/day × 30 days × 2 credits/search), leaving a large reserve.
-    start_index = (int(now.timestamp() // 3600) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
     selected_queries = []
     if not PAID_SEARCH_ENABLED:
         print("PAID_PUBLIC_SEARCH_SKIPPED_NON_SCHEDULED_RUN")
@@ -1173,10 +1206,9 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         remaining = max(0, FIRECRAWL_MONTHLY_CREDIT_BUDGET - used)
         allowed = min(FIRECRAWL_SEARCHES_PER_RUN, remaining // FIRECRAWL_CREDITS_PER_SEARCH)
         if allowed > 0:
-            selected_queries = [
-                QUERIES[(start_index + offset) % len(QUERIES)]
-                for offset in range(allowed)
-            ]
+            selected_queries = select_language_weighted_queries(
+                QUERIES, now, allowed, window_seconds=3600
+            )
         else:
             print("FIRECRAWL_SEARCH_SKIPPED_MONTHLY_BUDGET", json.dumps({
                 "credits_used": used,
