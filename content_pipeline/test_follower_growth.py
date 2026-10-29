@@ -4,6 +4,7 @@ import unittest
 from content_pipeline.follower_growth import (
     annotate_candidate,
     expected_platform_for_query,
+    persian_language_evidence,
     rank_candidates,
 )
 
@@ -259,6 +260,73 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertTrue(result["news_risk_signal"])
         self.assertEqual(result["content_lane"], "news_or_current_affairs")
 
+
+
+    def test_persian_video_outranks_equivalent_english_video(self):
+        common = {
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "views": 50000,
+            "age_hours": 2,
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+        }
+        rows = [
+            {
+                **common,
+                "url": "https://t.me/demo/english",
+                "title": "A funny cat has a surprising reaction to a toy",
+                "description": "A short funny cat clip",
+            },
+            {
+                **common,
+                "url": "https://t.me/demo/persian",
+                "title": "گربه بامزه با واکنش عجیب به اسباب‌بازی",
+                "description": "یک ویدیوی کوتاه و خنده‌دار",
+            },
+        ]
+        ranked = rank_candidates(rows)
+        self.assertEqual(ranked[0]["url"], "https://t.me/demo/persian")
+        self.assertTrue(ranked[0]["persian_language_signal"])
+        self.assertGreater(ranked[0]["language_priority_bonus"], 0)
+        self.assertEqual(ranked[1]["language_priority_bonus"], 0)
+
+    def test_explicit_non_persian_audio_overrides_persian_caption(self):
+        signal, basis = persian_language_evidence({
+            "title": "گربه بامزه با واکنش عجیب",
+            "audio_language": "en",
+        })
+        self.assertFalse(signal)
+        self.assertEqual(basis, "explicit_audio_or_transcript_language")
+
+    def test_persian_transcript_is_stronger_than_caption_proxy(self):
+        signal, basis = persian_language_evidence({
+            "title": "Funny cat reaction",
+            "transcript_text": "این یک ویدیوی بامزه است که واکنش جالبی را نشان می‌دهد",
+        })
+        self.assertTrue(signal)
+        self.assertEqual(basis, "transcript_text")
+
+    def test_persian_bonus_never_rescues_stale_or_news_content(self):
+        stale = annotate_candidate({
+            "url": "https://t.me/demo/stale",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "گربه بامزه با واکنش عجیب",
+            "views": 90000,
+            "age_hours": 60,
+        })
+        news = annotate_candidate({
+            "url": "https://t.me/demo/news",
+            "platform": "telegram",
+            "source": "telegram_native_video",
+            "title": "گزارش انفجار و حمله نظامی",
+            "views": 90000,
+            "age_hours": 2,
+        })
+        self.assertEqual(stale["language_priority_bonus"], 0)
+        self.assertEqual(news["language_priority_bonus"], 0)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
