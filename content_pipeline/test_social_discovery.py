@@ -1,5 +1,6 @@
 """Tests for freshness-aware multi-platform candidate retention."""
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
