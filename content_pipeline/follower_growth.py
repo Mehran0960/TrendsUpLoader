@@ -143,10 +143,10 @@ def _age_hours(item):
 
 
 PERSIAN_LANGUAGE_CODES = {"fa", "fas", "per", "persian", "farsi", "فارسی"}
-PERSIAN_SCRIPT_RE = re.compile(r"[\\u0600-\\u06ff]")
+PERSIAN_SCRIPT_RE = re.compile(r"[\u0600-\u06ff]")
 PERSIAN_SPECIFIC_LETTERS_RE = re.compile(r"[پچژگک]")
 PERSIAN_FUNCTION_WORDS_RE = re.compile(
-    r"(?<![\\w\\u0600-\\u06ff])(?:و|از|به|در|با|که|برای|این|اون|آن|یک|را|اما|چون|هم|است|شد|بود|رو|تو|تا)(?![\\w\\u0600-\\u06ff])",
+    r"(?<![\w\u0600-\u06ff])(?:و|از|به|در|با|که|برای|این|اون|آن|یک|را|اما|چون|هم|است|شد|بود|رو|تو|تا)(?![\w\u0600-\u06ff])",
     re.I,
 )
 
@@ -179,7 +179,7 @@ def persian_language_evidence(item):
         if not transcript:
             continue
         script_chars = len(PERSIAN_SCRIPT_RE.findall(transcript))
-        alphabetic_chars = len(re.findall(r"[^\\W\\d_]", transcript, re.UNICODE))
+        alphabetic_chars = len(re.findall(r"[^\W\d_]", transcript, re.UNICODE))
         function_words = len(PERSIAN_FUNCTION_WORDS_RE.findall(transcript))
         has_persian_shape = bool(PERSIAN_SPECIFIC_LETTERS_RE.search(transcript)) or function_words >= 2
         is_persian = (
@@ -192,11 +192,11 @@ def persian_language_evidence(item):
     text = " ".join(str(row.get(key) or "") for key in (
         "title", "description", "source_post_caption", "cleaned_review_caption",
     ))
-    text = re.sub(r"https?://\\S+", " ", text)
-    text = re.sub(r"(?<!\\w)#[\\w\\u0600-\\u06ff]+", " ", text, flags=re.I)
-    text = re.sub(r"(?<!\\w)@[A-Za-z0-9_]+", " ", text)
+    text = re.sub(r"https?://\S+", " ", text)
+    text = re.sub(r"(?<!\w)#[\w\u0600-\u06ff]+", " ", text, flags=re.I)
+    text = re.sub(r"(?<!\w)@[A-Za-z0-9_]+", " ", text)
     script_chars = len(PERSIAN_SCRIPT_RE.findall(text))
-    alphabetic_chars = len(re.findall(r"[^\\W\\d_]", text, re.UNICODE))
+    alphabetic_chars = len(re.findall(r"[^\W\d_]", text, re.UNICODE))
     function_words = len(PERSIAN_FUNCTION_WORDS_RE.findall(text))
     has_persian_shape = bool(PERSIAN_SPECIFIC_LETTERS_RE.search(text)) or function_words >= 2
     if (
@@ -328,9 +328,9 @@ def annotate_candidate(item):
 
     # Hashtags, channel handles and URLs are distribution metadata, not proof
     # that the video itself contains comedy, surprise, or another desired hook.
-    text = re.sub(r"https?://\\S+", " ", f"{title} {description}")
-    text = re.sub(r"(?<!\\w)#[\\w\\u0600-\\u06ff]+", " ", text, flags=re.I)
-    text = re.sub(r"(?<!\\w)@[A-Za-z0-9_]+", " ", text)
+    text = re.sub(r"https?://\S+", " ", f"{title} {description}")
+    text = re.sub(r"(?<!\w)#[\w\u0600-\u06ff]+", " ", text, flags=re.I)
+    text = re.sub(r"(?<!\w)@[A-Za-z0-9_]+", " ", text)
     text = re.sub(r"\\s+", " ", text).strip()
 
     lanes = [name for name, pattern in LANES.items() if pattern.search(text)]
