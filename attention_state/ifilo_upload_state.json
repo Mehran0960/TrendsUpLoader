@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-28T23:10:34.868922+00:00",
+  "updated_at": "2026-10-29T16:53:54.698384+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1774,6 +1774,36 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-28T23:10:34.868868+00:00",
       "finished_at": "2026-10-28T23:10:34.868877+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "06aed4832ff8dbacd85730423931a8b75d44ea82289af076d932af0b0fad1fd2",
+      "source_url": "https://images.nasa.gov/details/ksc_020107_themis",
+      "source_title": "KSC-07-S-00003",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-29T16:53:52.843387+00:00",
+      "finished_at": "2026-10-29T16:53:52.843395+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "86897741bd249c846ada00aea01560db7ba86b526ddfac64dca56b54d68a538b",
+      "source_url": "https://images.nasa.gov/details/ksc_021707_themis_launch",
+      "source_title": "KSC-07-S-00014",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-29T16:53:53.859412+00:00",
+      "finished_at": "2026-10-29T16:53:53.859420+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "a127b8d288adb62c0b71bc3557b441c59e21ab0b54454fab9c38b8041ffc0e16",
+      "source_url": "https://images.nasa.gov/details/ksc_021607_themis_wx",
+      "source_title": "KSC-07-S-00009",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-29T16:53:54.698339+00:00",
+      "finished_at": "2026-10-29T16:53:54.698347+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
