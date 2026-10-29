@@ -663,7 +663,7 @@ def parse_youtube_duration(value):
 
 
 def youtube_queries_for_time(now, count=2):
-    """Rotate searches every 30 minutes; when mixed, at least two-thirds use Persian queries."""
+    """Rotate every 30 minutes; favor Persian while keeping a global lane in each mixed batch."""
     return select_language_weighted_queries(
         YOUTUBE_QUERIES, now, count, window_seconds=30 * 60
     )
@@ -671,7 +671,7 @@ def youtube_queries_for_time(now, count=2):
 
 
 def select_language_weighted_queries(query_pool, now, count, window_seconds=3600):
-    """Rotate a mixed query bank with roughly two-thirds of searches favoring Persian."""
+    """Prioritize Persian searches while retaining international coverage in small batches."""
     rows = list(query_pool or [])
     amount = min(max(0, int(count)), len(rows))
     if amount <= 0:
@@ -692,7 +692,8 @@ def select_language_weighted_queries(query_pool, now, count, window_seconds=3600
     if not international:
         return [persian[(slot * amount + offset) % len(persian)] for offset in range(amount)]
 
-    persian_count = min(len(persian), amount, (2 * amount + 2) // 3)
+    international_count = min(len(international), (amount + 1) // 3)
+    persian_count = min(len(persian), amount - international_count)
     international_count = amount - persian_count
     selected = [
         persian[(slot * persian_count + offset) % len(persian)]
@@ -850,12 +851,16 @@ def discover_youtube_public_candidates(now=None, limit=50, max_search_calls=None
         url = f"https://www.youtube.com/watch?v={video_id}"
         title = str(snippet.get("title") or "").strip()
         description = str(snippet.get("description") or "").strip()
+        audio_language = str(snippet.get("defaultAudioLanguage") or "").strip()
+        video_default_language = str(snippet.get("defaultLanguage") or "").strip()
         text_blob = title + " " + description
         results.append({
             "id": hashlib.sha256(url.encode()).hexdigest(),
             "url": url,
             "title": title,
             "description": description[:1500],
+            "audio_language": audio_language,
+            "video_default_language": video_default_language,
             "platform": "youtube",
             "views": views,
             "likes": int(stats.get("likeCount") or 0),

@@ -308,6 +308,22 @@ class FollowerGrowthTests(unittest.TestCase):
         self.assertTrue(signal)
         self.assertEqual(basis, "transcript_text")
 
+
+    def test_persian_video_default_language_metadata_is_a_priority_signal(self):
+        row = annotate_candidate({
+            "url": "https://www.youtube.com/watch?v=demo123",
+            "platform": "youtube",
+            "source": "youtube_public_api",
+            "title": "A funny cat has a surprising reaction to a toy",
+            "description": "A short funny cat clip",
+            "video_default_language": "fa",
+            "views": 50000,
+            "age_hours": 2,
+        })
+        self.assertTrue(row["persian_language_signal"])
+        self.assertEqual(row["language_signal_basis"], "video_language_metadata")
+        self.assertGreater(row["language_priority_bonus"], 0)
+
     def test_persian_bonus_never_rescues_stale_or_news_content(self):
         stale = annotate_candidate({
             "url": "https://t.me/demo/stale",

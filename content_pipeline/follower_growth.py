@@ -174,6 +174,21 @@ def persian_language_evidence(item):
         )
         return is_persian, "explicit_audio_or_transcript_language"
 
+    # YouTube defaultLanguage describes the video metadata language, not proof of spoken audio.
+    # Use Persian as a positive hint only; non-Persian metadata must not suppress Persian captions.
+    for key in ("video_default_language", "default_language", "content_language"):
+        value = str(row.get(key) or "").strip().casefold()
+        if not value:
+            continue
+        normalized = re.sub(r"[ _]", "-", value)
+        if (
+            normalized in PERSIAN_LANGUAGE_CODES
+            or normalized.startswith("fa-")
+            or normalized.startswith("persian-")
+            or normalized.startswith("farsi-")
+        ):
+            return True, "video_language_metadata"
+
     for key in ("transcript", "transcript_text", "speech_transcript", "captions_text", "subtitle_text"):
         transcript = str(row.get(key) or "").strip()
         if not transcript:
@@ -354,6 +369,8 @@ def annotate_candidate(item):
     if persian_signal and age_allows_language_bonus and quality_allows_language_bonus:
         if language_signal_basis == "explicit_audio_or_transcript_language":
             language_score_bonus, language_priority_bonus = 12.0, 10.0
+        elif language_signal_basis == "video_language_metadata":
+            language_score_bonus, language_priority_bonus = 9.0, 7.0
         elif language_signal_basis == "transcript_text":
             language_score_bonus, language_priority_bonus = 10.0, 8.0
         elif language_signal_basis == "title_caption_text_proxy":

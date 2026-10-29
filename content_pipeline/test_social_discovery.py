@@ -158,7 +158,8 @@ class SocialDiscoveryTests(unittest.TestCase):
             QUERIES, next_time, count=2, window_seconds=3600
         )
         self.assertEqual(len(first), 2)
-        self.assertTrue(all(re.search(r"[\u0600-\u06ff]", query) for query in first))
+        self.assertEqual(sum(1 for query in first if re.search(r"[\u0600-\u06ff]", query)), 1)
+        self.assertEqual(sum(1 for query in first if not re.search(r"[\u0600-\u06ff]", query)), 1)
         self.assertNotEqual(first, second)
 
     def test_youtube_queries_rotate_between_half_hour_windows(self):
@@ -316,6 +317,52 @@ class SocialDiscoveryTests(unittest.TestCase):
             social_discovery.search_result_freshness({"raw": {}}, now),
             (24.0, "", "firecrawl_tbs_qdr_d_upper_bound"),
         )
+
+
+    def test_youtube_candidates_keep_audio_and_default_language_metadata(self):
+        class FakeResponse:
+            def __init__(self, payload):
+                self.payload = payload
+
+            def raise_for_status(self):
+                return None
+
+            def json(self):
+                return self.payload
+
+        now = datetime(2026, 10, 29, 21, 0, tzinfo=timezone.utc)
+        search_payload = {
+            "items": [{"id": {"videoId": "persianDemo123"}}]
+        }
+        details_payload = {
+            "items": [{
+                "id": "persianDemo123",
+                "snippet": {
+                    "title": "ویدیوی فارسی جالب",
+                    "description": "یک ویدیوی کوتاه",
+                    "publishedAt": "2026-10-29T20:00:00Z",
+                    "defaultAudioLanguage": "fa",
+                    "defaultLanguage": "fa",
+                },
+                "statistics": {"viewCount": "12000", "likeCount": "400", "commentCount": "35"},
+                "contentDetails": {"duration": "PT18S"},
+            }]
+        }
+        with (
+            patch.object(social_discovery, "YOUTUBE_KEY", "demo-key"),
+            patch.object(social_discovery, "YOUTUBE_API_ENABLED", True),
+            patch(
+                "content_pipeline.social_discovery.requests.get",
+                side_effect=[FakeResponse(search_payload), FakeResponse(details_payload)],
+            ) as get,
+        ):
+            rows = social_discovery.discover_youtube_public_candidates(
+                now=now, max_search_calls=1
+            )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["audio_language"], "fa")
+        self.assertEqual(rows[0]["video_default_language"], "fa")
+        self.assertEqual(get.call_count, 2)
 
     def test_youtube_api_calls_are_skipped_when_workflow_flag_is_disabled(self):
         with (
