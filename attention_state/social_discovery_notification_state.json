@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-29T20:42:00.690073+00:00",
+  "media_review_updated_at": "2026-10-29T21:53:05.625904+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -318,7 +318,8 @@
     "17189f07458b54890ff81db231e01c50acec14b97f67df0ed285458d68dfd8c7",
     "2814368e0f3e67abb420df025b69ea8ab9c93ae01fc821b7c53a2cd3f72fe440",
     "21e409bff74861e22f1bf795860936919ebc88793f52295d8ea4d762ddb53df5",
-    "7210da773f60efc0a6682802ef02cd34a82a83074886b7efb026822221a63d65"
+    "7210da773f60efc0a6682802ef02cd34a82a83074886b7efb026822221a63d65",
+    "80b26c648dda875fccb63c10794f8bde249b992e6727dcfeb72909d5b9ae07da"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -570,7 +571,8 @@
     "https://t.me/gizmiztel/164092",
     "https://t.me/VahidOnline/78884",
     "https://t.me/gizmiztel/164104",
-    "https://t.me/gizmiztel/164098"
+    "https://t.me/gizmiztel/164098",
+    "https://t.me/gizmiztel/164091"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1738,15 +1740,20 @@
         "e4e0e0ccc4e4c0e0",
         "e8e0e0c0ccc8c4f4"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164091",
+      "sha256": "a46258e4381341b40fb715f068be0ee2e843b6071023924745c62727ebf7e200",
+      "frame_hashes": [
+        "e4ccf4c4cce4ecfc",
+        "fcecc4e4d0e4ecec",
+        "e4e0e4c4c8e4ecec",
+        "e4f0d8f8ecccc8e0",
+        "e0e0f8f8e0f0f0f0"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "visual_wow",
-      "topic": "sports_or_athletic_skill",
-      "url": "https://t.me/gizmiztel/163880",
-      "sent_at": "2026-10-25T17:41:00.140366+00:00"
-    },
     {
       "pillar": "visual_wow",
       "topic": "sports_or_athletic_skill",
@@ -1860,6 +1867,12 @@
       "topic": "other",
       "url": "https://t.me/VahidOnline/78884",
       "sent_at": "2026-10-29T20:42:00.689097+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/164091",
+      "sent_at": "2026-10-29T21:53:05.625422+00:00"
     }
   ]
 }
