@@ -12,6 +12,7 @@ from content_pipeline.social_discovery import (
     youtube_query_for_time, youtube_queries_for_time, quota_ledger_for_run,
     discover_youtube_with_budget, FIRECRAWL_MONTHLY_CREDIT_BUDGET,
     YOUTUBE_DAILY_SEARCH_BUDGET, attach_view_trajectory,
+    select_language_weighted_queries,
     normalize_native_telegram_candidates,
 )
 
@@ -130,6 +131,34 @@ class SocialDiscoveryTests(unittest.TestCase):
         self.assertEqual(parse_youtube_duration("PT1M30S"), 90)
         self.assertEqual(parse_youtube_duration("PT2H3M4S"), 7384)
         self.assertIsNone(parse_youtube_duration("invalid"))
+
+
+    def test_youtube_query_batch_prioritizes_persian_but_keeps_global_discovery(self):
+        rows = youtube_queries_for_time(
+            datetime(2026, 10, 10, 10, 0, tzinfo=timezone.utc), count=3
+        )
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(sum(1 for _query, language in rows if language == "fa"), 2)
+        self.assertEqual(sum(1 for _query, language in rows if language == "en"), 1)
+
+    def test_single_youtube_search_prefers_persian_query(self):
+        row = youtube_queries_for_time(
+            datetime(2026, 10, 10, 10, 0, tzinfo=timezone.utc), count=1
+        )[0]
+        self.assertEqual(row[1], "fa")
+
+    def test_firecrawl_and_bing_query_selection_favors_persian_and_rotates(self):
+        first_time = datetime(2026, 10, 10, 10, 0, tzinfo=timezone.utc)
+        next_time = datetime(2026, 10, 10, 11, 0, tzinfo=timezone.utc)
+        first = select_language_weighted_queries(
+            QUERIES, first_time, count=2, window_seconds=3600
+        )
+        second = select_language_weighted_queries(
+            QUERIES, next_time, count=2, window_seconds=3600
+        )
+        self.assertEqual(len(first), 2)
+        self.assertTrue(all(re.search(r"[\\u0600-\\u06ff]", query) for query in first))
+        self.assertNotEqual(first, second)
 
     def test_youtube_queries_rotate_between_half_hour_windows(self):
         first = youtube_query_for_time(datetime(2026, 10, 10, 10, 0, tzinfo=timezone.utc))
