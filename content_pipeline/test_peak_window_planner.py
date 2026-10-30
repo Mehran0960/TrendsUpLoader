@@ -15,7 +15,7 @@ class PeakWindowPlannerTests(unittest.TestCase):
             "timezone": "Asia/Tehran",
             "preparation_ahead_minutes": 300,
             "review_queue_target": 6,
-            "max_discovery_runs_per_local_day": 6,
+            "max_discovery_runs_per_local_day": 10,
             "windows": {
                 "instagram_reels": ["18:00", "21:00"],
                 "youtube_shorts": ["12:00", "20:30"],
@@ -50,7 +50,7 @@ class PeakWindowPlannerTests(unittest.TestCase):
     def test_daily_discovery_cap_wins_over_force(self):
         plan = build_plan(
             self.now, self.config, 0,
-            {"version": 1, "local_day": "2026-10-11", "discovery_runs": 6},
+            {"version": 1, "local_day": "2026-10-11", "discovery_runs": 10},
             force=True,
         )
         self.assertFalse(plan["should_discover"])
