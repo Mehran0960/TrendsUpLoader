@@ -30,7 +30,7 @@ DEFAULT_CONFIG = {
     "timezone": "Asia/Tehran",
     "preparation_ahead_minutes": 300,
     "review_queue_target": 12,
-    "max_discovery_runs_per_local_day": 8,
+    "max_discovery_runs_per_local_day": 10,
     "windows": {},
 }
 
@@ -151,9 +151,9 @@ def build_plan(now, config, queue_count, planner_state, force=False):
     try:
         lead_minutes = max(0, int(config.get("preparation_ahead_minutes", 300)))
         target = max(1, int(config.get("review_queue_target", 6)))
-        daily_cap = max(1, int(config.get("max_discovery_runs_per_local_day", 6)))
+        daily_cap = max(1, int(config.get("max_discovery_runs_per_local_day", 10)))
     except (TypeError, ValueError, OverflowError):
-        lead_minutes, target, daily_cap = 300, 6, 6
+        lead_minutes, target, daily_cap = 300, 6, 10
 
     windows = upcoming_windows(now, config)
     next_window = windows[0] if windows else None
