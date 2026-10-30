@@ -984,7 +984,7 @@ def probe_upload_rules(page) -> dict:
 
 
 def inspect_upload_client(page) -> int:
-    """Read-only inspect of same-origin upload-page JavaScript and form wiring."""
+    """Read-only inspect of FiLo lazy-loaded Vue upload chunks and form wiring."""
     expected_host = urlparse(BASE_URL).netloc.lower()
     # Dry-run checkbox changes in the browser only. No file is selected and no submit occurs.
     flag_toggles = {
