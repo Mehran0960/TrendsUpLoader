@@ -1149,9 +1149,12 @@ def inspect_upload_client(page) -> int:
                 # Report compact source context around upload lifecycle methods in the
                 # lazy route bundles, not only legacy Angular handlers.
                 lifecycle_terms = (
+                    "DorfakUploader", "upload_domain", "file_domain", "serverId",
+                    "onBeforeSend", "onStart", "onUploadProgress", "onEnd", "onError",
                     "startUpload", "uploadChunk", "createUploader", "finishUpload",
                     "completeUpload", "publishVideo", "videoCode", "uploadProgress",
-                    "presigned", "signedUrl",
+                    "fileHeader", "acceptRule", "acceptRules", "dontPublish",
+                    "canMakeMoney", "canRepublish", "presigned", "signedUrl",
                 )
                 contexts = []
                 seen_contexts = set()
@@ -1162,20 +1165,50 @@ def inspect_upload_client(page) -> int:
                         idx = body.find(term, idx)
                         if idx < 0:
                             break
-                        start = max(0, idx - 650)
-                        end = min(len(body), idx + len(term) + 1100)
+                        start = max(0, idx - 700)
+                        end = min(len(body), idx + len(term) + 1300)
                         sample = re.sub(r"\\s+", " ", body[start:end]).strip()
                         if sample not in seen_contexts:
                             seen_contexts.add(sample)
-                            contexts.append({"term": term, "offset": idx, "snippet": sample[:1700]})
+                            contexts.append({"term": term, "offset": idx, "snippet": sample[:2000]})
                         occurrences += 1
                         idx += len(term)
-                        if len(contexts) >= 18:
+                        if len(contexts) >= 36:
                             break
-                    if len(contexts) >= 18:
+                    if len(contexts) >= 36:
                         break
                 if contexts:
                     row["upload_lifecycle_contexts"] = contexts
+
+                # Extract only same-origin path strings and request-call context;
+                # this reveals the public upload protocol without reading auth data.
+                endpoint_paths = []
+                for match in re.finditer(r'["\\x60](/(?:api|upload|video|file)[^"\\x60\\s]{1,160})["\\x60]', body, re.I):
+                    candidate_path = match.group(1).split("?", 1)[0]
+                    if candidate_path not in endpoint_paths:
+                        endpoint_paths.append(candidate_path)
+                    if len(endpoint_paths) >= 60:
+                        break
+                if endpoint_paths:
+                    row["endpoint_path_candidates"] = endpoint_paths
+                request_contexts = []
+                for term in ("fetch(", ".post(", ".put(", ".get(", "uploadChunk", "DorfakUploader"):
+                    idx = 0
+                    found = 0
+                    while found < 3:
+                        idx = body.find(term, idx)
+                        if idx < 0:
+                            break
+                        sample = re.sub(r"\\s+", " ", body[max(0, idx - 450):min(len(body), idx + len(term) + 900)]).strip()
+                        request_contexts.append({"term": term, "snippet": sample[:1400]})
+                        found += 1
+                        idx += len(term)
+                        if len(request_contexts) >= 20:
+                            break
+                    if len(request_contexts) >= 20:
+                        break
+                if request_contexts:
+                    row["request_contexts"] = request_contexts
                 handler_start = body.find("$scope.startPublish=function")
                 if handler_start < 0:
                     handler_start = body.find("$scope.startPublish = function")
