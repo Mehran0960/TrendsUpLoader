@@ -298,13 +298,15 @@ def mp4_media_url(nasa_id: str) -> str:
             # Store only scheme, host, path, and suffix; never record query strings.
             href_samples.append(f"{parsed.scheme}://{parsed.netloc}{parsed.path}"[:220])
         if (
-            parsed.scheme == "https"
+            parsed.scheme in {"http", "https"}
             and parsed.hostname == "images-assets.nasa.gov"
             and parsed.path.lower().endswith(".mp4")
             and not parsed.username
             and not parsed.password
         ):
-            urls.append(href)
+            # NASA manifests still expose some media links as HTTP. Upgrade only
+            # the exact official asset host to HTTPS; never follow arbitrary hosts.
+            urls.append(parsed._replace(scheme="https").geturl())
     if urls:
         # Prefer a middle/small derivative to reduce bandwidth; fall back to the
         # official manifest's available MP4s. Verify that the media URL is live.
