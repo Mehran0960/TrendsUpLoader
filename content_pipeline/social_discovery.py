@@ -38,9 +38,9 @@ PAID_SEARCH_ENABLED = os.environ.get("DISCOVERY_PAID_SEARCH_ENABLED", "true").st
 # These limits intentionally operate below provider maxima to keep a large reserve.
 FIRECRAWL_MONTHLY_CREDIT_BUDGET = 800
 FIRECRAWL_CREDITS_PER_SEARCH = 2
-FIRECRAWL_SEARCHES_PER_RUN = 2
+FIRECRAWL_SEARCHES_PER_RUN = 1
 BING_FALLBACK_SEARCHES_PER_RUN = 3
-YOUTUBE_SEARCHES_PER_RUN = 3
+YOUTUBE_SEARCHES_PER_RUN = 2
 YOUTUBE_DAILY_SEARCH_BUDGET = 30
 # One-time conservative estimate for quota already spent before the ledger existed.
 # The saved ledger carries forward afterward; the estimate is only used if no ledger exists.
