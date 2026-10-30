@@ -1069,6 +1069,20 @@ def inspect_upload_client(page) -> int:
         script_urls = page.locator("script[src]").evaluate_all(
             "els => els.map(el => el.src).filter(Boolean).slice(0, 30)"
         )
+        # Modern FiLo lazy-loads the upload page as a route chunk. Such chunks are
+        # not necessarily represented by a persistent <script src> element.
+        dynamic_script_urls = page.evaluate("""() => {
+            const origin = location.origin;
+            return performance.getEntriesByType('resource')
+                .map(entry => String(entry.name || ''))
+                .filter(raw => {
+                    try {
+                        const url = new URL(raw, location.href);
+                        return url.origin === origin && /\\.m?js$/i.test(url.pathname);
+                    } catch { return false; }
+                });
+        }""")
+        script_urls = list(dict.fromkeys((script_urls or []) + (dynamic_script_urls or [])))[:40]
     except Exception:
         script_urls = []
 
@@ -1079,6 +1093,10 @@ def inspect_upload_client(page) -> int:
         "fileSelected", "publishing", "messageIsError", "message", "videoCode",
         "scopeUpload", "publishVideo", "saveVideo", "uploadVideo", "startUrlUpload",
         "startPublish", "checkDontPublish", "checkMadeByMe",
+        "createUploader", "uploadChunk", "chunkSize", "uploadProgress",
+        "finishUpload", "completeUpload", "FormData",
+        "multipart/form-data", "presigned", "signedUrl", "video/upload",
+        "/api/v1/", "axios.post", "fetch(", "uploadFile", "fileUpload",
     ]
     seen_paths = set()
     for script_url in script_urls:
@@ -1128,6 +1146,36 @@ def inspect_upload_client(page) -> int:
                         break
                 if matches:
                     row["matches"] = matches
+                # Report compact source context around upload lifecycle methods in the
+                # lazy route bundles, not only legacy Angular handlers.
+                lifecycle_terms = (
+                    "startUpload", "uploadChunk", "createUploader", "finishUpload",
+                    "completeUpload", "publishVideo", "videoCode", "uploadProgress",
+                    "presigned", "signedUrl",
+                )
+                contexts = []
+                seen_contexts = set()
+                for term in lifecycle_terms:
+                    idx = 0
+                    occurrences = 0
+                    while occurrences < 2:
+                        idx = body.find(term, idx)
+                        if idx < 0:
+                            break
+                        start = max(0, idx - 650)
+                        end = min(len(body), idx + len(term) + 1100)
+                        sample = re.sub(r"\\s+", " ", body[start:end]).strip()
+                        if sample not in seen_contexts:
+                            seen_contexts.add(sample)
+                            contexts.append({"term": term, "offset": idx, "snippet": sample[:1700]})
+                        occurrences += 1
+                        idx += len(term)
+                        if len(contexts) >= 18:
+                            break
+                    if len(contexts) >= 18:
+                        break
+                if contexts:
+                    row["upload_lifecycle_contexts"] = contexts
                 handler_start = body.find("$scope.startPublish=function")
                 if handler_start < 0:
                     handler_start = body.find("$scope.startPublish = function")
