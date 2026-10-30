@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v2_persian_priority",
-  "updated_at": "2026-10-30T15:18:15.993927+00:00",
+  "updated_at": "2026-10-30T15:20:12.442453+00:00",
   "queries": [
     "site:x.com/*/status/ (ویدیو OR ویدئو) (طنز OR حیوانات OR مهارت OR اتفاق عجیب OR علم OR ورزش)",
     "viral short videos trending in the last 24 hours funny unexpected animal skill science satisfying"
@@ -53090,7 +53090,7 @@
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-30T15:18:15.993927+00:00",
+    "updated_at": "2026-10-30T15:20:12.442453+00:00",
     "new_candidates": 0,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
