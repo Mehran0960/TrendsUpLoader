@@ -1222,6 +1222,7 @@ def inspect_upload_client(page) -> int:
         report["scripts_checked"].append(row)
 
     # This is static code and UI metadata only; no account profile/body text is emitted.
+    # The inspection also captures the current lazy-loaded Vue upload protocol.
     print("IFILO_UPLOAD_CLIENT_DIAGNOSTICS " + json.dumps(report, ensure_ascii=False))
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
     (ARTIFACTS / "upload_client_diagnostics.json").write_text(
