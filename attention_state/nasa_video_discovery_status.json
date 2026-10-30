@@ -1,35 +1,36 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-29T21:44:50.368858+00:00",
+  "updated_at": "2026-10-30T01:53:34.541141+00:00",
   "query": "rocket launch",
   "queries": [
     {
       "query": "solar flare",
-      "page": 2,
+      "page": 3,
       "results": 0
     },
     {
       "query": "rocket launch",
-      "page": 3,
+      "page": 4,
       "results": 100
     },
     {
       "query": "space telescope",
-      "page": 4,
+      "page": 1,
       "results": 100
     }
   ],
   "api_results": 200,
   "records_inspected": 60,
-  "metadata_screen_passes": 7,
+  "metadata_screen_passes": 9,
   "metadata_rejections": {
-    "secondary_creator_present": 9,
-    "non_nasa_center": 3,
-    "third_party_partner_signal": 12,
-    "person_or_audio_signal": 23
+    "secondary_creator_present": 18,
+    "third_party_partner_signal": 10,
+    "non_nasa_center": 8,
+    "person_or_audio_signal": 9,
+    "likely_long_form_title": 1
   },
-  "post_screen_build_failures": 7,
-  "duplicate_records": 6,
+  "post_screen_build_failures": 9,
+  "duplicate_records": 5,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -37,8 +38,41 @@
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
-    "failures": {},
-    "samples": []
+    "failures": {
+      "asset_manifest_no_mp4_url": 3
+    },
+    "samples": [
+      {
+        "nasa_id": "KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~large.mp"
+        ]
+      },
+      {
+        "nasa_id": "KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397.srt",
+          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 33,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4"
+        ]
+      }
+    ]
   },
   "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
   "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
