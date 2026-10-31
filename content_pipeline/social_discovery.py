@@ -1065,8 +1065,8 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
     }, ensure_ascii=False))
     if force_fallback:
         # Use Bing only if Firecrawl's keyless/API request actually fails.
-        # Firecrawl keyless currently provides a free monthly search allowance.
-        # This is discovery-only; media acquisition still happens downstream.
+        # Use the repository API key when configured; the keyless endpoint remains
+        # a fallback. This is discovery-only; media acquisition happens downstream.
         # Rotate by scheduled four-hour windows. A half-hour index combined
         # with a four-hour schedule would repeat the same query every run.
         qidx = (int(now.timestamp() // 3600) * FIRECRAWL_SEARCHES_PER_RUN) % len(QUERIES)
@@ -1201,8 +1201,9 @@ def main(force_fallback=False, _quota_ledger=None, _previous_payload=None):
         return 0
 
     now = datetime.now(timezone.utc)
-    # One keyless Firecrawl search per 4-hour run is about 360 credits/month
-    # (6 runs/day × 30 days × 2 credits/search), leaving a large reserve.
+    # One Firecrawl search per replenishment pass. With the planner's cap of ten
+    # discovery passes/day, the ceiling is 600 credits/month (10 × 30 × 2),
+    # within the 800-credit internal budget and leaving 200 credits in reserve.
     selected_queries = []
     if not PAID_SEARCH_ENABLED:
         print("PAID_PUBLIC_SEARCH_SKIPPED_NON_SCHEDULED_RUN")
