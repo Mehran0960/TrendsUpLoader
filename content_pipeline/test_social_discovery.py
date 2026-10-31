@@ -189,8 +189,10 @@ class SocialDiscoveryTests(unittest.TestCase):
             with self.subTest(platform=platform):
                 self.assertIn(platform, platforms)
         self.assertTrue(any(not platform for platform in platforms), "include at least one cross-web query")
-        self.assertEqual(social_discovery.FIRECRAWL_SEARCHES_PER_RUN, 2)
-        self.assertEqual(social_discovery.YOUTUBE_SEARCHES_PER_RUN, 3)
+        # Keep test expectations aligned with the deliberate quota envelope:
+        # one Firecrawl search per discovery pass and two YouTube searches per run.
+        self.assertEqual(social_discovery.FIRECRAWL_SEARCHES_PER_RUN, 1)
+        self.assertEqual(social_discovery.YOUTUBE_SEARCHES_PER_RUN, 2)
 
     def test_individual_post_url_validation_covers_new_platforms(self):
         valid = [
@@ -225,7 +227,10 @@ class SocialDiscoveryTests(unittest.TestCase):
                 patch.object(social_discovery, "telegram_repost_candidates", return_value=[]),
             ):
                 self.assertEqual(social_discovery.main(), 0)
-                self.assertEqual(firecrawl.call_count, 2)
+                self.assertEqual(
+                    firecrawl.call_count,
+                    social_discovery.FIRECRAWL_SEARCHES_PER_RUN,
+                )
                 bing.assert_not_called()
                 self.assertTrue(output.is_file())
                 payload = json.loads(output.read_text(encoding="utf-8"))
