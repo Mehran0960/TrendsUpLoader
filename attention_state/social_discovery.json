@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v2_persian_priority",
-  "updated_at": "2026-10-31T16:18:15.343895+00:00",
+  "updated_at": "2026-10-31T20:15:59.684742+00:00",
   "queries": [
     "site:x.com/*/status/ (ویدیو OR ویدئو) (طنز OR حیوانات OR مهارت OR اتفاق عجیب OR علم OR ورزش)",
     "viral short videos trending in the last 24 hours funny unexpected animal skill science satisfying"
@@ -19,6 +19,46 @@
     "updated_at": "2026-10-30T14:10:04.068417+00:00"
   },
   "items": [
+    {
+      "id": "36475526ca65c2b13c10cbda535633affd057ec7ea105252660f2a10272b7e99",
+      "url": "https://images.nasa.gov/details/ksc_010605_icesat",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "KSC-05-S-00004",
+      "title_fa": "نمای شگفت‌انگیز زمین از فضا",
+      "description": "NASA's Ice, Cloud and land Elevation Satellite -- known as ICESat -- is doing just that, and more. From its perspective in space, ICESat measures Earth's dynamic features with unprecedented accuracy. These measurements are providing scientists with a new way of understanding our changing planet. ICESat's 'laser radar' profiles the height distribution of clouds. These measurements have determined that Earth has a 70 percent cloud cover. This accurate information helps scientists make computer weather forecast models more accurate. Instruments onboard ICESat measure elevation, enabling scientists to monitor changes in the ice cover at the poles and glaciers around the world. These same measuring devices can also help monitor forests and measure mountains, valleys, rivers and lakes -- all from a 3-D perspective previously impossible. Arming scientists with this information can help manage the Earth's resources and improve the quality of life on our planet.",
+      "source_post_caption": "KSC-05-S-00004",
+      "published_at": "2005-01-10T00:00:00Z",
+      "discovered_at": "2026-10-31T20:15:59.684742+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "nature_and_wildlife"
+      ],
+      "language": "en",
+      "query": "Earth from space",
+      "nasa_id": "ksc_010605_icesat",
+      "direct_media_url": "https://images-assets.nasa.gov/video/ksc_010605_icesat/ksc_010605_icesat~orig.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — KSC-05-S-00004 (https://images.nasa.gov/details/ksc_010605_icesat)",
+      "views_velocity_kind": "unavailable"
+    },
     {
       "id": "06aed4832ff8dbacd85730423931a8b75d44ea82289af076d932af0b0fad1fd2",
       "url": "https://images.nasa.gov/details/ksc_020107_themis",
@@ -52978,189 +53018,81 @@
       "language_signal_basis": "title_caption_text_proxy",
       "language_score_bonus": 0.0,
       "language_priority_bonus": 0.0
-    },
-    {
-      "id": "7d3abb94d4293465052018acf9fe61cd6a4b4b5b01502db19ea274597cffdae8",
-      "url": "https://t.me/gizmiztel/163430",
-      "title": "عواقب استفاده از خودروی پرنده در هند 😄 🆔 @GizmizTel 💯",
-      "description": "عواقب استفاده از خودروی پرنده در هند 😄 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 64200,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 64200,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-17T10:58:30+00:00",
-      "age_hours": 315.19279678249995,
-      "persian_signal": true,
-      "discovered_at": "2026-10-17T13:44:18.678779+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-17T12:28:59.432470+00:00",
-          "views": 46900
-        },
-        {
-          "observed_at": "2026-10-17T13:44:18.678779+00:00",
-          "views": 64200
-        }
-      ],
-      "metrics_observed_at": "2026-10-17T13:44:18.678779+00:00",
-      "views_velocity_per_hour": 13781.06,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 17300,
-      "views_measurement_interval_hours": 1.255,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.22,
-      "follow_growth_score": 10.9,
-      "score_confidence": "medium",
-      "content_lane": "animals",
-      "hook_signals": [
-        "animals"
-      ],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      },
-      "persian_language_signal": true,
-      "language_signal_basis": "title_caption_text_proxy",
-      "language_score_bonus": 0.0,
-      "language_priority_bonus": 0.0
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-31T16:18:15.343895+00:00",
-    "new_candidates": 0,
+    "updated_at": "2026-10-31T20:15:59.684742+00:00",
+    "new_candidates": 1,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
     "query": "Earth from space",
     "queries": [
       {
         "query": "Earth from space",
-        "page": 1,
+        "page": 2,
         "results": 100
       },
       {
         "query": "aurora",
-        "page": 2,
+        "page": 3,
         "results": 0
       },
       {
         "query": "Mars rover",
-        "page": 3,
+        "page": 4,
         "results": 0
       }
     ],
     "api_results": 100,
     "records_inspected": 60,
-    "metadata_screen_passes": 13,
+    "metadata_screen_passes": 15,
     "metadata_rejections": {
-      "person_or_audio_signal": 8,
-      "secondary_creator_present": 30,
-      "missing_metadata": 1,
-      "third_party_partner_signal": 6
+      "person_or_audio_signal": 19,
+      "third_party_partner_signal": 7,
+      "secondary_creator_present": 14,
+      "rights_warning_in_metadata": 1,
+      "non_nasa_center": 1
     },
-    "post_screen_build_failures": 13,
-    "duplicate_records": 2,
+    "post_screen_build_failures": 14,
+    "duplicate_records": 3,
     "invalid_records": 0,
     "total_queue_items": 500,
-    "nasa_queue_items": 65,
+    "nasa_queue_items": 66,
     "asset_lookup_diagnostics": {
       "manifest_mp4_found": 0,
-      "fallback_mp4_verified": 0,
+      "fallback_mp4_verified": 1,
       "failures": {
         "asset_manifest_no_mp4_url": 3
       },
       "samples": [
         {
-          "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
+          "nasa_id": "iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
-            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
+            "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~orig.mp4",
+            "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120.srt",
+            "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~large.mp4"
           ]
         },
         {
-          "nasa_id": "art002m1200920011_Apogee_Raise_Burn",
+          "nasa_id": "Artemis_II_Flight_Day_3_Highlights_NoLowerThirds",
           "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 32,
+          "manifest_item_count": 33,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~orig.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~medium.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~mobile.mp4"
+            "http://images-assets.nasa.gov/video/Artemis_II_Flight_Day_3_Highlights_NoLowerThirds/Artemis_II_Flight_Day_3_Highlights_NoLowerThirds~orig.mp4",
+            "http://images-assets.nasa.gov/video/Artemis_II_Flight_Day_3_Highlights_NoLowerThirds/Artemis_II_Flight_Day_3_Highlights_NoLowerThirds.srt",
+            "http://images-assets.nasa.gov/video/Artemis_II_Flight_Day_3_Highlights_NoLowerThirds/Artemis_II_Flight_Day_3_Highlights_NoLowerThirds~orig.mp4"
           ]
         },
         {
-          "nasa_id": "iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422",
+          "nasa_id": "KSC-20220207-MH-GEB01-0001-Dream_Chaser_GSE_Testing-3293842",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~orig.mp4",
-            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422.srt",
-            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~large.mp4"
+            "http://images-assets.nasa.gov/video/KSC-20220207-MH-GEB01-0001-Dream_Chaser_GSE_Testing-3293842/KSC-20220207-MH-GEB01-0001-Dream_Chaser_GSE_Testing-3293842~orig.mp4",
+            "http://images-assets.nasa.gov/video/KSC-20220207-MH-GEB01-0001-Dream_Chaser_GSE_Testing-3293842/KSC-20220207-MH-GEB01-0001-Dream_Chaser_GSE_Testing-3293842.vtt",
+            "http://images-assets.nasa.gov/video/KSC-20220207-MH-GEB01-0001-Dream_Chaser_GSE_Testing-3293842/KSC-20220207-MH-GEB01-0001-Dream_Chaser_GSE_Testing-3293842~large.mp4"
           ]
         }
       ]
