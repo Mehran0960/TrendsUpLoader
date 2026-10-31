@@ -45,6 +45,11 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install --disable-pip-version-check requests yt-dlp pillow
+      - name: One-time Firecrawl API credential smoke test
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, 'Firecrawl live auth check') }}
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+        run: python content_pipeline/firecrawl_auth_smoke.py
       - name: Run topic-selection regression tests
         run: python -m unittest -v content_pipeline.test_follower_growth content_pipeline.test_social_discovery content_pipeline.test_send_review_videos content_pipeline.test_peak_window_planner
       - name: Verify frame-analysis tools
