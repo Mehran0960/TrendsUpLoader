@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-29T16:53:54.698384+00:00",
+  "updated_at": "2026-10-31T20:17:07.884195+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1804,6 +1804,16 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-29T16:53:54.698339+00:00",
       "finished_at": "2026-10-29T16:53:54.698347+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "36475526ca65c2b13c10cbda535633affd057ec7ea105252660f2a10272b7e99",
+      "source_url": "https://images.nasa.gov/details/ksc_010605_icesat",
+      "source_title": "KSC-05-S-00004",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-10-31T20:17:07.884152+00:00",
+      "finished_at": "2026-10-31T20:17:07.884160+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
