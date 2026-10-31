@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-10-29T22:59:52.524951+00:00",
+  "media_review_updated_at": "2026-10-31T20:29:56.109705+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -321,7 +321,13 @@
     "7210da773f60efc0a6682802ef02cd34a82a83074886b7efb026822221a63d65",
     "80b26c648dda875fccb63c10794f8bde249b992e6727dcfeb72909d5b9ae07da",
     "cea5eee403be24eaf30e8da95356051dd6780336a8a4f0ba87c725330b572b9c",
-    "bb14f669e7b89ed65f4b225d5c69cd3f8ca53239d6d3766bdc120ac5b27fb305"
+    "bb14f669e7b89ed65f4b225d5c69cd3f8ca53239d6d3766bdc120ac5b27fb305",
+    "16307bd4b691401e25a8d683ffb4cc445720fe2b2f8afdd2fe43744fb06a0099",
+    "4f096b9891a24fa481024f826209094e79481145ed8c45d445000b6d456cba73",
+    "6ee699fa1b3e1582698aadca5c50cccaae58d93535d7489c3c7e2de020bfe9d2",
+    "e29615f119777ad19dfd2a2e515f350651d520ce04ef57f0dc3c95ae443c4d80",
+    "30f06238d72a72fbfbd142a6d846052e4a9056eb6a51fb5594a4205d01c641dd",
+    "5cdb539c5d7fd9d55bd499edf44f548170733944cbe7568e201b331ca3a7b4f7"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -576,7 +582,13 @@
     "https://t.me/gizmiztel/164098",
     "https://t.me/gizmiztel/164091",
     "https://t.me/gizmiztel/164089",
-    "https://t.me/gizmiztel/164090"
+    "https://t.me/gizmiztel/164090",
+    "https://t.me/gizmiztel/164142",
+    "https://t.me/gizmiztel/164140",
+    "https://t.me/teacheryar/45480",
+    "https://t.me/gizmiztel/164135",
+    "https://t.me/gizmiztel/164112",
+    "https://t.me/gizmiztel/164121"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1766,15 +1778,20 @@
         "646464e4f4f0f0c0",
         "e060687064ecf072"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164142",
+      "sha256": "0bcee8f8a3642011837b532b71e1978f6e19d48aeb17d1df18bf10da7fb3bf6f",
+      "frame_hashes": [
+        "e0e0f0f4e4e0e8e0",
+        "e0e0f0f4f4e4e0e0",
+        "e0e0f0e4e4ecf0e0",
+        "e0e0f0f4e4ecf0e0",
+        "e0e8f0f4e4ecece0"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/163888",
-      "sent_at": "2026-10-25T19:46:35.594194+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -1888,6 +1905,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164089",
       "sent_at": "2026-10-29T22:59:52.524526+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/164142",
+      "sent_at": "2026-10-31T20:29:56.109299+00:00"
     }
   ]
 }
