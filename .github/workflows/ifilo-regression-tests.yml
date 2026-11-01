@@ -1,0 +1,28 @@
+name: FiLo regression tests
+
+on:
+  pull_request:
+    paths:
+      - "content_pipeline/publish_ifilo.py"
+      - "content_pipeline/test_publish_ifilo.py"
+      - "content_pipeline/nasa_video_discovery.py"
+      - "content_pipeline/test_nasa_video_discovery.py"
+      - ".github/workflows/ifilo-regression-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: pip install --disable-pip-version-check requests pillow yt-dlp
+      - name: Test FiLo publishing and NASA discovery
+        run: python -m unittest -v content_pipeline.test_publish_ifilo content_pipeline.test_nasa_video_discovery

@@ -55,6 +55,22 @@ class NasaQueueCompatibilityTests(unittest.TestCase):
             url = mp4_media_url("ABC_123")
         self.assertEqual(url, "https://images-assets.nasa.gov/video/ABC_123/ABC_123~medium.mp4")
 
+    def test_http_nasa_manifest_asset_is_upgraded_to_https(self):
+        manifest = {
+            "collection": {
+                "items": [
+                    {"href": "http://images-assets.nasa.gov/video/ABC_123/ABC_123~medium.mp4"},
+                    {"href": "http://example.com/video/ABC_123.mp4"},
+                ]
+            }
+        }
+        with patch("content_pipeline.nasa_video_discovery._request_json", return_value=manifest), patch(
+            "content_pipeline.nasa_video_discovery._verify_official_mp4_url", return_value=True
+        ) as verify:
+            url = mp4_media_url("ABC_123")
+        self.assertEqual(url, "https://images-assets.nasa.gov/video/ABC_123/ABC_123~medium.mp4")
+        verify.assert_called_once_with(url)
+
     def test_official_mp4_fallback_is_verified_before_use(self):
         with patch(
             "content_pipeline.nasa_video_discovery._request_json",
