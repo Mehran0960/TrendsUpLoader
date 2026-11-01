@@ -1,35 +1,36 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-01T13:12:24.587239+00:00",
-  "query": "Mars rover",
+  "updated_at": "2026-11-01T18:32:05.867310+00:00",
+  "query": "space telescope",
   "queries": [
     {
-      "query": "Mars rover",
-      "page": 2,
-      "results": 97
-    },
-    {
-      "query": "solar flare",
+      "query": "space telescope",
       "page": 3,
-      "results": 0
+      "results": 100
     },
     {
-      "query": "rocket launch",
+      "query": "International Space Station Earth",
       "page": 4,
+      "results": 100
+    },
+    {
+      "query": "planetary science",
+      "page": 1,
       "results": 100
     }
   ],
-  "api_results": 197,
+  "api_results": 300,
   "records_inspected": 60,
-  "metadata_screen_passes": 20,
+  "metadata_screen_passes": 8,
   "metadata_rejections": {
-    "secondary_creator_present": 9,
-    "person_or_audio_signal": 11,
+    "secondary_creator_present": 24,
+    "missing_metadata": 1,
     "third_party_partner_signal": 4,
-    "non_nasa_center": 8
+    "person_or_audio_signal": 13,
+    "likely_long_form_title": 1
   },
-  "post_screen_build_failures": 20,
-  "duplicate_records": 8,
+  "post_screen_build_failures": 8,
+  "duplicate_records": 9,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -38,47 +39,37 @@
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 4
+      "asset_manifest_no_mp4_url": 3
     },
     "samples": [
       {
-        "nasa_id": "KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886",
+        "nasa_id": "ksc_050809_sts125_webcast1",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
+        "manifest_item_count": 30,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886/KSC-20190215-MH-CSH01_0003-Mars_2020_Trailblazer_H265-3212886~large.mp4"
+          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1~orig.mp4",
+          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1.vtt",
+          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1~mobile.mp4"
         ]
       },
       {
-        "nasa_id": "KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897",
+        "nasa_id": "iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897.srt",
-          "http://images-assets.nasa.gov/video/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897/KSC-20210205-VP-FJM04_0001-ROCKETRANCH-MOO-3255897~large.mp4"
+          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing.srt",
+          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~large.mp4"
         ]
       },
       {
-        "nasa_id": "KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036",
+        "nasa_id": "20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~large.mp"
-        ]
-      },
-      {
-        "nasa_id": "KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397.srt",
-          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~large.mp4"
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~orig.mp4",
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a.srt",
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~large.mp4"
         ]
       }
     ]
