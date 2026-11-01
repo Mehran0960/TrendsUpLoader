@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-01T19:55:07.065534+00:00",
+  "media_review_updated_at": "2026-11-01T21:16:26.788526+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -333,7 +333,9 @@
     "49825696e014e555dbb286513a0dac590967f4631b44ec7ef1d6468982244f9a",
     "46ec314fb7fe58f7eccb674b0b6e831820c76ea852f420901673364282d59795",
     "d907c8134bb5aeee885e3f3775ecc6d024ce066bd89bbf49f29016d31678f1a1",
-    "2f475cd5b237c2e8340aed944bd31f724a0b5a414b11fd2015557d22619caba7"
+    "2f475cd5b237c2e8340aed944bd31f724a0b5a414b11fd2015557d22619caba7",
+    "f4b89d18b39070a1923bd1c2bb7f3457a0ebf8307552dc82bb4aea90894d8ed9",
+    "64448871a764bb4de83759936182b69c7abd34f8924985528e7dc9f6922e1b43"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -600,7 +602,9 @@
     "https://t.me/gizmiztel/164221",
     "https://t.me/gizmiztel/164216",
     "https://t.me/gizmiztel/164180",
-    "https://t.me/gizmiztel/164215"
+    "https://t.me/gizmiztel/164215",
+    "https://t.me/gizmiztel/164210",
+    "https://t.me/gizmiztel/164214"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1845,15 +1849,20 @@
         "c6d6b6c6c6c6c606",
         "c4d6b6c6c6c6c606"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164210",
+      "sha256": "b9a2b812cf3b4a8713724972bc991b4c9331af1aa23b9c4b857e5e73c8aad9a8",
+      "frame_hashes": [
+        "c4d4f8f8707070c0",
+        "d8d0dcc4dcd8f0f4",
+        "c4ccd8d0d8f8f0d8",
+        "f4d8e0f4d8f8c8c0",
+        "f870b4f0f4f0e8e8"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "reaction_and_comedy",
-      "topic": "surprise_or_reveal",
-      "url": "https://t.me/gizmiztel/163939",
-      "sent_at": "2026-10-26T21:41:26.223480+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -1967,6 +1976,12 @@
       "topic": "transformation_or_satisfying",
       "url": "https://t.me/gizmiztel/164180",
       "sent_at": "2026-11-01T19:55:07.065116+00:00"
+    },
+    {
+      "pillar": "curiosity_and_process",
+      "topic": "technology_demo",
+      "url": "https://t.me/gizmiztel/164210",
+      "sent_at": "2026-11-01T21:16:26.788091+00:00"
     }
   ]
 }
