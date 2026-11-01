@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v2_persian_priority",
-  "updated_at": "2026-10-31T23:40:24.360981+00:00",
+  "updated_at": "2026-11-01T05:52:44.340631+00:00",
   "status": "public_telegram_repost_and_bing_fallback",
   "count": 500,
   "quota_ledger": {
@@ -16,6 +16,246 @@
     "updated_at": "2026-10-31T21:53:35.117466+00:00"
   },
   "items": [
+    {
+      "id": "abf7a59581c4bf098f2807ed34fddcc5453dbc3a990a097c3d92fb1cd001d66b",
+      "url": "https://images.nasa.gov/details/KSC-20230507-MH-RLS01-TROPICS_Rocket_Launch-Rocket_Lab-WON_3330130",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "TROPICS Rocket Launch",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "TROPICS Rocket Launch",
+      "source_post_caption": "TROPICS Rocket Launch",
+      "published_at": "2023-05-07T00:00:00Z",
+      "discovered_at": "2026-11-01T05:52:44.340631+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "KSC-20230507-MH-RLS01-TROPICS_Rocket_Launch-Rocket_Lab-WON_3330130",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20230507-MH-RLS01-TROPICS_Rocket_Launch-Rocket_Lab-WON_3330130/KSC-20230507-MH-RLS01-TROPICS_Rocket_Launch-Rocket_Lab-WON_3330130~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — TROPICS Rocket Launch (https://images.nasa.gov/details/KSC-20230507-MH-RLS01-TROPICS_Rocket_Launch-Rocket_Lab-WON_3330130)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "409f141bf35a39d84b888858b22147742df55a3a13f423ef5c2bacd09be1548a",
+      "url": "https://images.nasa.gov/details/KSC-20240525-MH-RKL01-0001-Rocket_Lab_PREFIRE_1_Launch_1080p-M6988",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Rocket Lab PREFIRE-1 Launch",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "A Rocket Lab Electron rocket lifts off from Launch Complex 1 in Māhia, New Zealand at 7:41 p.m. NZST (3:41 a.m. EDT) Saturday, May 25, 2024, on the first of two launches which Rocket Lab named “Ready, Aim, PREFIRE,” for NASA’s PREFIRE (Polar Radiant Energy in the Far-InfraRed Experiment) mission. The PREFIRE mission, expected to last at least 10 months, consists of sending two CubeSats to synchronous, near-polar orbits, to help close a gap in our understanding of how much of Earth’s heat is lost to space from the Arctic and Antarctica.",
+      "source_post_caption": "Rocket Lab PREFIRE-1 Launch",
+      "published_at": "2024-05-25T00:00:00Z",
+      "discovered_at": "2026-11-01T05:52:44.340631+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "KSC-20240525-MH-RKL01-0001-Rocket_Lab_PREFIRE_1_Launch_1080p-M6988",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20240525-MH-RKL01-0001-Rocket_Lab_PREFIRE_1_Launch_1080p-M6988/KSC-20240525-MH-RKL01-0001-Rocket_Lab_PREFIRE_1_Launch_1080p-M6988~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Rocket Lab PREFIRE-1 Launch (https://images.nasa.gov/details/KSC-20240525-MH-RKL01-0001-Rocket_Lab_PREFIRE_1_Launch_1080p-M6988)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "b2fc4aae849841ef99a5820535582323321af1c60c10076f4d564a1f9128fcad",
+      "url": "https://images.nasa.gov/details/KSC-20240605-MH-RKL01-0001-Rocket_Lab_PREFIRE_and_Ice_Launch_1080p-M6988",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Rocket Lab PREFIRE and Ice Launch",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "Rocket Lab’s Electron rocket called “PREFIRE and Ice,” lifts off from Launch Complex 1 in Māhia, New Zealand at 3:15 p.m. NZST Wednesday, June 5, 2024 (11:15 p.m. EDT, Tuesday, June 4), on the second of two launches for NASA’s PREFIRE (Polar Radiant Energy in the Far-InfraRed Experiment). The PREFIRE mission, expected to last at least 10 months, consists of sending two CubeSats to asynchronous, near-polar orbits, to help close a gap in our understanding of how much of Earth’s heat is lost to space from the Arctic and Antarctica.",
+      "source_post_caption": "Rocket Lab PREFIRE and Ice Launch",
+      "published_at": "2024-06-05T00:00:00Z",
+      "discovered_at": "2026-11-01T05:52:44.340631+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "KSC-20240605-MH-RKL01-0001-Rocket_Lab_PREFIRE_and_Ice_Launch_1080p-M6988",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20240605-MH-RKL01-0001-Rocket_Lab_PREFIRE_and_Ice_Launch_1080p-M6988/KSC-20240605-MH-RKL01-0001-Rocket_Lab_PREFIRE_and_Ice_Launch_1080p-M6988~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Rocket Lab PREFIRE and Ice Launch (https://images.nasa.gov/details/KSC-20240605-MH-RKL01-0001-Rocket_Lab_PREFIRE_and_Ice_Launch_1080p-M6988)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "5efd2e1cb247337241f11162be8aedabe0d4dba2c03d5a105942946f967346e8",
+      "url": "https://images.nasa.gov/details/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage_ROCKET_VIEWS_ONLY-3306978",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "Rocket Lab Capstone Live Launch Coverage - ROCKET VIEWS",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "Rocket Lab’s Electron rocket carrying NASA’s Cislunar Autonomous Positioning System Technology Operations and Navigation Experiment, or CAPSTONE, lifts off from the Rocket Lab Launch Complex 1 on the Mahia Peninsula of New Zealand, June 28 at 5:55 a.m. EDT. The CAPSTONE mission is owned and operated by Advanced Space of Westminster, Colorado, on behalf of NASA. The microwave-oven sized CubeSat – which was designed and built by Tyvak Nano-Satellite Systems, a Terran Orbital Corporation – is set to be the first spacecraft to test a unique lunar orbit intended for NASA’s Gateway, the future lunar outpost for the Artemis missions.",
+      "source_post_caption": "Rocket Lab Capstone Live Launch Coverage - ROCKET VIEWS",
+      "published_at": "2022-06-28T00:00:00Z",
+      "discovered_at": "2026-11-01T05:52:44.340631+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage_ROCKET_VIEWS_ONLY-3306978",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage_ROCKET_VIEWS_ONLY-3306978/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage_ROCKET_VIEWS_ONLY-3306978~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — Rocket Lab Capstone Live Launch Coverage - ROCKET VIEWS (https://images.nasa.gov/details/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage_ROCKET_VIEWS_ONLY-3306978)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "e7850585621d6fa9c539a64c2c16b0987a4520abb7fc9f54edef007ae2d2b0bb",
+      "url": "https://images.nasa.gov/details/KSC_20260117_A2_to_39B",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "NASA's SLS Rocket and Orion Spacecraft Rollout to Launch Pad 39B",
+      "title_fa": "لحظه پرتاب موشک به فضا",
+      "description": "This image shows NASA’s SLS (Space Launch System) and Orion spacecraft rolling out of the Vehicle Assembly Building at NASA’s Kennedy Space Center. NASA's massive Crawler-Transporter, upgraded for the Artemis program, carries the powerful SLS rocket and Orion spacecraft on the Mobile Launcher from the Vehicle Assembly Building to Launch Pad 39B at Kennedy Space Center in preparation for the Artemis II mission.",
+      "source_post_caption": "NASA's SLS Rocket and Orion Spacecraft Rollout to Launch Pad 39B",
+      "published_at": "2026-01-17T00:00:00Z",
+      "discovered_at": "2026-11-01T05:52:44.340631+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "rocket launch",
+      "nasa_id": "KSC_20260117_A2_to_39B",
+      "direct_media_url": "https://images-assets.nasa.gov/video/KSC_20260117_A2_to_39B/KSC_20260117_A2_to_39B~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "KSC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — NASA's SLS Rocket and Orion Spacecraft Rollout to Launch Pad 39B (https://images.nasa.gov/details/KSC_20260117_A2_to_39B)",
+      "views_velocity_kind": "unavailable"
+    },
+    {
+      "id": "98f5042a42ec514b08a2d7bd92a460c53b4a057b7a1fe96f4f62c8b292c3539a",
+      "url": "https://images.nasa.gov/details/29_DAYS_ON_THE_EDGE-VOTY_Entry-h264",
+      "platform": "nasa",
+      "source": "nasa_public_domain_video",
+      "title": "29 Days On The Edge VOTY Entery",
+      "title_fa": "تصاویر تماشایی تلسکوپ فضایی",
+      "description": "The incredible challenge of getting the Webb Telescope into space, deployed and ready for science. This is an edited version of the full length feature showing the production's videography.",
+      "source_post_caption": "29 Days On The Edge VOTY Entery",
+      "published_at": "2021-10-18T00:00:00Z",
+      "discovered_at": "2026-11-01T05:52:44.340631+00:00",
+      "age_hours": 0.0,
+      "views": 0,
+      "follow_growth_score": 62.0,
+      "momentum_priority_score": 1.0,
+      "score_confidence": "medium",
+      "score_reason": "rights-screened NASA source; popularity metrics not available",
+      "hook_signals": [
+        "science_curiosity",
+        "technology_demo"
+      ],
+      "language": "en",
+      "query": "space telescope",
+      "nasa_id": "29_DAYS_ON_THE_EDGE-VOTY_Entry-h264",
+      "direct_media_url": "https://images-assets.nasa.gov/video/29_DAYS_ON_THE_EDGE-VOTY_Entry-h264/29_DAYS_ON_THE_EDGE-VOTY_Entry-h264~small.mp4",
+      "source_duration_seconds": null,
+      "rights_cleared_for_publication": true,
+      "rights_evidence_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "license_name": "NASA media-use guidelines; item screened for NASA center and visible third-party/copyright signals",
+      "rights_screen": {
+        "basis": "metadata_passed_conservative_nasa_screen",
+        "center": "GSFC",
+        "secondary_creator": "",
+        "third_party_warning_found": false,
+        "person_or_audio_signal_found": false
+      },
+      "attribution_text": "Source: NASA — 29 Days On The Edge VOTY Entery (https://images.nasa.gov/details/29_DAYS_ON_THE_EDGE-VOTY_Entry-h264)",
+      "views_velocity_kind": "unavailable"
+    },
     {
       "id": "36475526ca65c2b13c10cbda535633affd057ec7ea105252660f2a10272b7e99",
       "url": "https://images.nasa.gov/details/ksc_010605_icesat",
@@ -52986,737 +53226,70 @@
       "language_signal_basis": "title_caption_text_proxy",
       "language_score_bonus": 0.0,
       "language_priority_bonus": 0.0
-    },
-    {
-      "id": "027ce2fc0e8d6b9d5802f1f4c6f0fb1f4505666cc75424b305c0d703a86fca33",
-      "url": "https://t.me/gizmiztel/163466",
-      "title": "محتوای خواب‌ هام 🆔 @GizmizTel 💯",
-      "description": "محتوای خواب‌ هام 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 117000,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 117000,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-17T20:01:49+00:00",
-      "age_hours": 337.8628104072222,
-      "persian_signal": true,
-      "discovered_at": "2026-10-18T11:07:38.869288+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-17T21:00:10.465873+00:00",
-          "views": 38600
-        },
-        {
-          "observed_at": "2026-10-18T05:55:24.068472+00:00",
-          "views": 91900
-        },
-        {
-          "observed_at": "2026-10-18T11:07:38.869288+00:00",
-          "views": 117000
-        }
-      ],
-      "metrics_observed_at": "2026-10-18T11:07:38.869288+00:00",
-      "views_velocity_per_hour": 4823.11,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 25100,
-      "views_measurement_interval_hours": 5.204,
-      "views_acceleration_per_hour2": -163.11,
-      "momentum_priority_score": 13.82,
-      "follow_growth_score": 2.9,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      },
-      "persian_language_signal": true,
-      "language_signal_basis": "source_persian_metadata_signal",
-      "language_score_bonus": 0.0,
-      "language_priority_bonus": 0.0
-    },
-    {
-      "id": "b5ad8de41562b1fdfeb471bd9c7cfe5c14226eba339e04fb482c299c379c3c12",
-      "url": "https://t.me/gizmiztel/163461",
-      "title": "گیم آو دمبل 🔥 خلاقیتش بی نظیر بود 👏 🆔 @GizmizTel 💯",
-      "description": "گیم آو دمبل 🔥 خلاقیتش بی نظیر بود 👏 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 102000,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 102000,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-17T18:25:34+00:00",
-      "age_hours": 339.46697707388887,
-      "persian_signal": true,
-      "discovered_at": "2026-10-18T05:55:24.068472+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-17T21:00:10.465873+00:00",
-          "views": 70000
-        },
-        {
-          "observed_at": "2026-10-18T05:55:24.068472+00:00",
-          "views": 102000
-        }
-      ],
-      "metrics_observed_at": "2026-10-18T05:55:24.068472+00:00",
-      "views_velocity_per_hour": 3587.26,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 32000,
-      "views_measurement_interval_hours": 8.92,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.22,
-      "follow_growth_score": 2.3,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      },
-      "persian_language_signal": true,
-      "language_signal_basis": "title_caption_text_proxy",
-      "language_score_bonus": 0.0,
-      "language_priority_bonus": 0.0
-    },
-    {
-      "id": "b47a53f31eba063467060eb3024f2bfce81eac96a68216be62ec35d84e7f21e5",
-      "url": "https://t.me/gizmiztel/163460",
-      "title": "این ویدیوی زیبا از سورپرایز یه پسربچه ایرانی توسط مامانش، حسابی وایرال شده. بوی سلامت روان، امنیت عاطفی و عشق از پشت گوشی حس شد ✨ ❤️ 🆔 @GizmizTel 💯",
-      "description": "این ویدیوی زیبا از سورپرایز یه پسربچه ایرانی توسط مامانش، حسابی وایرال شده. بوی سلامت روان، امنیت عاطفی و عشق از پشت گوشی حس شد ✨ ❤️ 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 100000,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 100000,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-17T18:25:34+00:00",
-      "age_hours": 339.46697707388887,
-      "persian_signal": true,
-      "discovered_at": "2026-10-18T05:55:24.068472+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-17T21:00:10.465873+00:00",
-          "views": 69000
-        },
-        {
-          "observed_at": "2026-10-18T05:55:24.068472+00:00",
-          "views": 100000
-        }
-      ],
-      "metrics_observed_at": "2026-10-18T05:55:24.068472+00:00",
-      "views_velocity_per_hour": 3475.16,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 31000,
-      "views_measurement_interval_hours": 8.92,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.21,
-      "follow_growth_score": 2.3,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      },
-      "persian_language_signal": true,
-      "language_signal_basis": "title_caption_text_proxy",
-      "language_score_bonus": 0.0,
-      "language_priority_bonus": 0.0
-    },
-    {
-      "id": "efe09d3a5b8016636658beaa677231cf7748951996aa3ce671e36b042c77a0f2",
-      "url": "https://t.me/gizmiztel/163464",
-      "title": "این همه جمعیتی که می‌ بینید صف کشیدن، بخاطر این دوتا دختربچه بلاگر اومدن 😐 🆔 @GizmizTel 💯",
-      "description": "این همه جمعیتی که می‌ بینید صف کشیدن، بخاطر این دوتا دختربچه بلاگر اومدن 😐 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 91200,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 91200,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-17T20:01:36+00:00",
-      "age_hours": 337.8664215183333,
-      "persian_signal": true,
-      "discovered_at": "2026-10-18T05:55:24.068472+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-17T21:00:10.465873+00:00",
-          "views": 38600
-        },
-        {
-          "observed_at": "2026-10-18T05:55:24.068472+00:00",
-          "views": 91200
-        }
-      ],
-      "metrics_observed_at": "2026-10-18T05:55:24.068472+00:00",
-      "views_velocity_per_hour": 5896.57,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 52600,
-      "views_measurement_interval_hours": 8.92,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.19,
-      "follow_growth_score": 2.6,
-      "score_confidence": "medium",
-      "content_lane": "unclassified",
-      "hook_signals": [],
-      "news_risk_signal": false,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "deprioritize_stale_candidate",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      },
-      "persian_language_signal": true,
-      "language_signal_basis": "title_caption_text_proxy",
-      "language_score_bonus": 0.0,
-      "language_priority_bonus": 0.0
-    },
-    {
-      "id": "048604c263988cf897a651fb83f44a02c10886e3a3103f591b900d934aa65b02",
-      "url": "https://t.me/gizmiztel/163463",
-      "title": "ادامه‌ صحبتای مهم ترامپ : من اصلا از گیاهخواری چیزی سر در نمیارم، ولی اصلا دوست ندارم واسه شام سالاد یا یه تیکه کرفس بخورم. زنم برگشت بهم گفت تو خیر سرت رئیس‌جمهورِ آمریکایی، توروخدا دیگه نرقص. 🆔 @GizmizTel 💯",
-      "description": "ادامه‌ صحبتای مهم ترامپ : من اصلا از گیاهخواری چیزی سر در نمیارم، ولی اصلا دوست ندارم واسه شام سالاد یا یه تیکه کرفس بخورم. زنم برگشت بهم گفت تو خیر سرت رئیس‌جمهورِ آمریکایی، توروخدا دیگه نرقص. 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 89100,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 89100,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-17T20:01:26+00:00",
-      "age_hours": 337.8691992961111,
-      "persian_signal": true,
-      "discovered_at": "2026-10-18T05:55:24.068472+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-17T21:00:10.465873+00:00",
-          "views": 37600
-        },
-        {
-          "observed_at": "2026-10-18T05:55:24.068472+00:00",
-          "views": 89100
-        }
-      ],
-      "metrics_observed_at": "2026-10-18T05:55:24.068472+00:00",
-      "views_velocity_per_hour": 5773.25,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 51500,
-      "views_measurement_interval_hours": 8.92,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.12,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "news_or_current_affairs",
-      "hook_signals": [
-        "music_or_dance"
-      ],
-      "news_risk_signal": true,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "manual_review_current_affairs",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      },
-      "persian_language_signal": true,
-      "language_signal_basis": "title_caption_text_proxy",
-      "language_score_bonus": 0.0,
-      "language_priority_bonus": 0.0
-    },
-    {
-      "id": "a996c0bbfebff99100d01d063bfb23ec8da70469295c4704353ffd5d49c82624",
-      "url": "https://t.me/gizmiztel/163462",
-      "title": "همه گفتن ترامپ امشب سخنرانی مهمی داره ولی توی سخنرانیش داستان معاینه کـون «جان هاستد» سناتور جمهوری‌خواه رو تعریف کرده که چقدر قوی بوده‌. رسما دیوانه ست. 🆔 @GizmizTel 💯",
-      "description": "همه گفتن ترامپ امشب سخنرانی مهمی داره ولی توی سخنرانیش داستان معاینه کـون «جان هاستد» سناتور جمهوری‌خواه رو تعریف کرده که چقدر قوی بوده‌. رسما دیوانه ست. 🆔 @GizmizTel 💯",
-      "platform": "telegram",
-      "views": 85500,
-      "likes": 0,
-      "comments": 0,
-      "shares": 0,
-      "telegram_repost_views": 0,
-      "telegram_post_views": 85500,
-      "telegram_repost_channels": [],
-      "telegram_channel": "gizmiztel",
-      "telegram_channel_priority": 0,
-      "published_at": "2026-10-17T20:01:26+00:00",
-      "age_hours": 337.8691992961111,
-      "persian_signal": true,
-      "discovered_at": "2026-10-18T05:55:24.068472+00:00",
-      "source": "telegram_native_video",
-      "query": "telegram_public_channel",
-      "views_history": [
-        {
-          "observed_at": "2026-10-17T21:00:10.465873+00:00",
-          "views": 35500
-        },
-        {
-          "observed_at": "2026-10-18T05:55:24.068472+00:00",
-          "views": 85500
-        }
-      ],
-      "metrics_observed_at": "2026-10-18T05:55:24.068472+00:00",
-      "views_velocity_per_hour": 5605.1,
-      "views_velocity_kind": "observed",
-      "views_delta_last_interval": 50000,
-      "views_measurement_interval_hours": 8.92,
-      "views_acceleration_per_hour2": 0.0,
-      "momentum_priority_score": 14.11,
-      "follow_growth_score": 0.0,
-      "score_confidence": "medium",
-      "content_lane": "news_or_current_affairs",
-      "hook_signals": [],
-      "news_risk_signal": true,
-      "sensitive_risk_signal": false,
-      "safety_review_signal": false,
-      "compilation_signal": false,
-      "promotional_signal": false,
-      "stale_signal": true,
-      "source_platform": "telegram",
-      "candidate_action": "manual_review_current_affairs",
-      "rights_status": "not_assessed",
-      "score_note": "Heuristic triage only; actual follower growth and publication rights are not established by this score.",
-      "distribution_guidance": {
-        "instagram": {
-          "preferred_route": "native_repost_with_original_credit_when_available; otherwise rights-cleared original edit",
-          "do_not_assume": "downloading and re-uploading a public Reel is equivalent to native reposting",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://about.fb.com/ltam/news/2024/05/ayudando-a-los-creadores-a-encontrar-nuevas-audiencias/",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "tiktok": {
-          "preferred_route": "native reuse feature when available, or rights-cleared original/meaningfully edited post",
-          "do_not_assume": "For You eligibility and permission to publish are the same thing",
-          "publishing_automation": "not_connected; Content Posting API approval and audit may be required",
-          "policy_reference": "https://support.tiktok.com/en/using-tiktok/exploring-videos/how-tiktok-recommends-content",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "youtube": {
-          "preferred_route": "native Remix when available, or an accurately contextualized post using media cleared for the intended use",
-          "do_not_assume": "YouTube Partner Program reused-content rules are a universal ban on posting; direct platform payouts are out of scope here",
-          "publishing_automation": "not_connected; export bundle only; copyright, Community Guidelines, and spam rules still apply",
-          "policy_reference": "https://support.google.com/youtube/answer/2801973",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "telegram": {
-          "preferred_route": "native link/forward when appropriate, or rights-cleared original upload",
-          "do_not_assume": "public availability means permission to copy the media file",
-          "publishing_automation": "Bot API route is opt-in and disabled by default",
-          "policy_reference": "https://core.telegram.org/bots/api#sendvideo",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "aparat": {
-          "preferred_route": "rights-cleared original upload or a supported native share feature",
-          "do_not_assume": "a stable authorized upload API exists until verified",
-          "publishing_automation": "not_connected; export/manual fallback",
-          "policy_reference": "",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        },
-        "x": {
-          "preferred_route": "native link/share with context, or a distinct localized post",
-          "do_not_assume": "repeated identical automated cross-posts are safe",
-          "publishing_automation": "not_connected",
-          "policy_reference": "https://help.x.com/en/rules-and-policies/authenticity",
-          "rights_must_be_checked_for_file_reuse": true,
-          "publishing_authorized": false
-        }
-      },
-      "persian_language_signal": true,
-      "language_signal_basis": "title_caption_text_proxy",
-      "language_score_bonus": 0.0,
-      "language_priority_bonus": 0.0
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-10-31T23:40:24.360981+00:00",
-    "new_candidates": 0,
+    "updated_at": "2026-11-01T05:52:44.340631+00:00",
+    "new_candidates": 6,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
-    "query": "planetary science",
+    "query": "rocket launch",
     "queries": [
       {
-        "query": "planetary science",
-        "page": 2,
-        "results": 5
+        "query": "solar flare",
+        "page": 4,
+        "results": 0
       },
       {
-        "query": "Earth from space",
-        "page": 3,
+        "query": "rocket launch",
+        "page": 1,
         "results": 100
       },
       {
-        "query": "aurora",
-        "page": 4,
-        "results": 0
+        "query": "space telescope",
+        "page": 2,
+        "results": 100
       }
     ],
-    "api_results": 105,
-    "records_inspected": 35,
-    "metadata_screen_passes": 13,
+    "api_results": 200,
+    "records_inspected": 60,
+    "metadata_screen_passes": 14,
     "metadata_rejections": {
-      "person_or_audio_signal": 11,
-      "secondary_creator_present": 3,
+      "non_nasa_center": 8,
+      "person_or_audio_signal": 4,
+      "secondary_creator_present": 30,
       "third_party_partner_signal": 4
     },
-    "post_screen_build_failures": 13,
-    "duplicate_records": 4,
+    "post_screen_build_failures": 8,
+    "duplicate_records": 0,
     "invalid_records": 0,
     "total_queue_items": 500,
-    "nasa_queue_items": 66,
+    "nasa_queue_items": 72,
     "asset_lookup_diagnostics": {
       "manifest_mp4_found": 0,
-      "fallback_mp4_verified": 0,
+      "fallback_mp4_verified": 6,
       "failures": {
-        "asset_manifest_no_mp4_url": 4
+        "asset_manifest_no_mp4_url": 2
       },
       "samples": [
         {
-          "nasa_id": "iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312",
+          "nasa_id": "GSFC_20160909_M12368_OSIRIS_launch",
           "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
+          "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-            "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-            "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station"
+            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~orig.mp4",
+            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch.srt",
+            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~large.mp4"
           ]
         },
         {
-          "nasa_id": "art002m1200912324",
+          "nasa_id": "NHQ_2020_0429_AskNASA_202_Hubble",
           "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
+          "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~orig.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~large.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~medium.mp4"
-          ]
-        },
-        {
-          "nasa_id": "art002m1200912311",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~orig.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~large.mp4",
-            "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~medium.mp4"
-          ]
-        },
-        {
-          "nasa_id": "KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870",
-          "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 33,
-          "href_samples": [
-            "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4",
-            "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870.vtt",
-            "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4"
+            "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~orig.mp4",
+            "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble.srt",
+            "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~large.mp4"
           ]
         }
       ]
