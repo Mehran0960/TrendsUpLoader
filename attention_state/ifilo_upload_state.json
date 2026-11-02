@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-31T20:17:07.884195+00:00",
+  "updated_at": "2026-11-02T09:22:34.371257+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1814,6 +1814,16 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-10-31T20:17:07.884152+00:00",
       "finished_at": "2026-10-31T20:17:07.884160+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "c48e3dd9c62d38af1654202409d7a86643db3c38b7ee596ea7c1266b2e390823",
+      "source_url": "https://images.nasa.gov/details/ART-DL-1_2022_320_0650_SHARED_art001m1013200650",
+      "source_title": "SLS Solid Rocket Boosters Separate After Artemis I Launch",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-11-02T09:22:34.371209+00:00",
+      "finished_at": "2026-11-02T09:22:34.371217+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
