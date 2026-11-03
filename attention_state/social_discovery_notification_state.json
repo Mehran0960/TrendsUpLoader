@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-02T23:56:27.132574+00:00",
+  "media_review_updated_at": "2026-11-03T01:19:40.606813+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -348,7 +348,9 @@
     "d9bdb7ace9739c7043a7093efdf83d139ec300fb114e7023d55cee558642fb9b",
     "0bf4596b590d15f251b6b5f9614d454234d308851217d97f2c2a62f8ae2e2123",
     "c43631b33653834c53056c0484ea74670caf7d1aeebcc66f3350a4b9063ad974",
-    "ce45de02a1eef82569a7e23f6ae32b987d333418b4de2d2880ba015cf2266634"
+    "ce45de02a1eef82569a7e23f6ae32b987d333418b4de2d2880ba015cf2266634",
+    "883849b71a53d7dd94fa9e6f69e19d5448b0088cf02958936a8194b304ff568a",
+    "7973c211ab1774e394715447c8e1c18162b0681dc610cc8498054896da42ef77"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -630,7 +632,9 @@
     "https://t.me/gizmiztel/164287",
     "https://t.me/gizmiztel/164286",
     "https://t.me/gizmiztel/164298",
-    "https://t.me/keereker/257512"
+    "https://t.me/keereker/257512",
+    "https://t.me/keereker/257510",
+    "https://t.me/vaybabamumad/181193"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1941,15 +1945,20 @@
         "c8c4e0e0e8e8e0fc",
         "dcc0c8e4ece8e0f4"
       ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/181193",
+      "sha256": "520128f82735faa72d56088546c9c2d8f6c16ebc86acaade2ee6b9bde2504a97",
+      "frame_hashes": [
+        "e8e8d8c8cce8e0ec",
+        "f4f4f0f8c8e8e0e8",
+        "f0f4f0f0c8e8e0e8",
+        "f4e8dce0d0e8d0d0",
+        "e8ece8c8ccecd0e4"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164058",
-      "sent_at": "2026-10-28T19:36:15.624243+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -2063,6 +2072,12 @@
       "topic": "food_cooking",
       "url": "https://t.me/keereker/257512",
       "sent_at": "2026-11-02T23:56:27.132178+00:00"
+    },
+    {
+      "pillar": "curiosity_and_process",
+      "topic": "technology_demo",
+      "url": "https://t.me/vaybabamumad/181193",
+      "sent_at": "2026-11-03T01:19:40.606141+00:00"
     }
   ]
 }
