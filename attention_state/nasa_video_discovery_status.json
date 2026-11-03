@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T19:44:32.090291+00:00",
-  "query": "planetary science",
+  "updated_at": "2026-11-03T02:13:25.627976+00:00",
+  "query": "rocket launch",
   "queries": [
     {
-      "query": "planetary science",
+      "query": "rocket launch",
+      "page": 3,
+      "results": 100
+    },
+    {
+      "query": "space telescope",
+      "page": 4,
+      "results": 100
+    },
+    {
+      "query": "International Space Station Earth",
       "page": 1,
       "results": 100
-    },
-    {
-      "query": "Earth from space",
-      "page": 2,
-      "results": 100
-    },
-    {
-      "query": "aurora",
-      "page": 3,
-      "results": 0
     }
   ],
-  "api_results": 200,
+  "api_results": 300,
   "records_inspected": 60,
   "metadata_screen_passes": 12,
   "metadata_rejections": {
-    "secondary_creator_present": 21,
-    "likely_long_form_title": 1,
-    "third_party_partner_signal": 9,
-    "person_or_audio_signal": 11,
-    "rights_warning_in_metadata": 1
+    "secondary_creator_present": 8,
+    "non_nasa_center": 2,
+    "third_party_partner_signal": 13,
+    "person_or_audio_signal": 17,
+    "missing_metadata": 1
   },
   "post_screen_build_failures": 12,
-  "duplicate_records": 5,
+  "duplicate_records": 7,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -38,31 +38,8 @@
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
-    "failures": {
-      "asset_manifest_no_mp4_url": 2
-    },
-    "samples": [
-      {
-        "nasa_id": "20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~orig.mp4",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a.srt",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~large.mp4"
-        ]
-      },
-      {
-        "nasa_id": "KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343.srt",
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343~large.mp4"
-        ]
-      }
-    ]
+    "failures": {},
+    "samples": []
   },
   "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
   "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
