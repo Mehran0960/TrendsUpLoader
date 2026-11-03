@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-03T21:18:20.438977+00:00",
+  "media_review_updated_at": "2026-11-03T22:30:22.706563+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -353,9 +353,11 @@
     "7973c211ab1774e394715447c8e1c18162b0681dc610cc8498054896da42ef77",
     "f7538eb8562a9b746d62b13d5eaa085e184d9f516dfd5c51b82e194cbe878c3b",
     "6360a00127fa1f32800883c84cdf9f2dfb29c4866fff6aa2774a2805c4467de4",
-    "d4a9ebb4e1c60bec24f536b3f295957d12d0a54ceb21bb739c8c13735571b92f"
+    "d4a9ebb4e1c60bec24f536b3f295957d12d0a54ceb21bb739c8c13735571b92f",
+    "8e2ed9abfb4071b368c7a848789cd435c24e9992df29799868c8ee327432cf0d",
+    "1b37e012eb573a9a82428420b65cf0453bff982c5acb44440db27c41f40273b8"
   ],
-  "media_review_last_count": 1,
+  "media_review_last_count": 0,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -640,7 +642,9 @@
     "https://t.me/vaybabamumad/181193",
     "https://t.me/gizmiztel/164331",
     "https://t.me/gizmiztel/164323",
-    "https://t.me/gizmiztel/164324"
+    "https://t.me/gizmiztel/164324",
+    "https://t.me/gizmiztel/164326",
+    "https://t.me/keereker/257537"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -1998,12 +2002,6 @@
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164106",
-      "sent_at": "2026-10-29T15:39:19.720424+00:00"
-    },
     {
       "pillar": "reaction_and_comedy",
       "topic": "animals",
