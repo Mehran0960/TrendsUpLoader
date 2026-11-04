@@ -1,35 +1,34 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T03:11:20.987224+00:00",
-  "query": "International Space Station Earth",
+  "updated_at": "2026-11-04T11:30:34.810691+00:00",
+  "query": "Earth from space",
   "queries": [
     {
-      "query": "International Space Station Earth",
-      "page": 1,
-      "results": 100
-    },
-    {
       "query": "planetary science",
-      "page": 2,
-      "results": 5
+      "page": 3,
+      "results": 0
     },
     {
       "query": "Earth from space",
-      "page": 3,
+      "page": 4,
       "results": 100
+    },
+    {
+      "query": "aurora",
+      "page": 1,
+      "results": 32
     }
   ],
-  "api_results": 205,
-  "records_inspected": 45,
-  "metadata_screen_passes": 12,
+  "api_results": 132,
+  "records_inspected": 60,
+  "metadata_screen_passes": 16,
   "metadata_rejections": {
-    "person_or_audio_signal": 17,
-    "secondary_creator_present": 5,
-    "missing_metadata": 1,
-    "third_party_partner_signal": 6
+    "person_or_audio_signal": 15,
+    "secondary_creator_present": 19,
+    "third_party_partner_signal": 4
   },
-  "post_screen_build_failures": 12,
-  "duplicate_records": 4,
+  "post_screen_build_failures": 16,
+  "duplicate_records": 6,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -38,37 +37,57 @@
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 3
+      "asset_manifest_no_mp4_url": 11
     },
     "samples": [
       {
-        "nasa_id": "iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312",
+        "nasa_id": "iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station"
+          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~large.mp4",
+          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~medium.mp4"
         ]
       },
       {
-        "nasa_id": "art002m1200912324",
+        "nasa_id": "iss068m260420759_Expedition_68_Progress_83_Docking_230211",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
+        "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~orig.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~large.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~medium.mp4"
+          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211.srt",
+          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~large.mp4"
         ]
       },
       {
-        "nasa_id": "art002m1200912311",
+        "nasa_id": "iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~orig.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~large.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~medium.mp4"
+          "http://images-assets.nasa.gov/video/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919~large.mp4",
+          "http://images-assets.nasa.gov/video/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919~medium.mp4"
+        ]
+      },
+      {
+        "nasa_id": "iss072m263281344_Progress_90_Cargo_Ship_Docking_241123",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 33,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123~large.mp4",
+          "http://images-assets.nasa.gov/video/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123~medium.mp4"
+        ]
+      },
+      {
+        "nasa_id": "iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1.srt",
+          "http://images-assets.nasa.gov/video/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1~large.mp4"
         ]
       }
     ]
