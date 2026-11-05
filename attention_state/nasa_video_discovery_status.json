@@ -1,35 +1,35 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-04T18:50:49.324891+00:00",
-  "query": "space telescope",
+  "updated_at": "2026-11-05T00:19:39.960842+00:00",
+  "query": "Earth from space",
   "queries": [
     {
-      "query": "space telescope",
+      "query": "Earth from space",
+      "page": 3,
+      "results": 100
+    },
+    {
+      "query": "aurora",
+      "page": 4,
+      "results": 0
+    },
+    {
+      "query": "Mars rover",
       "page": 1,
       "results": 100
-    },
-    {
-      "query": "International Space Station Earth",
-      "page": 2,
-      "results": 100
-    },
-    {
-      "query": "planetary science",
-      "page": 3,
-      "results": 0
     }
   ],
   "api_results": 200,
   "records_inspected": 60,
-  "metadata_screen_passes": 10,
+  "metadata_screen_passes": 27,
   "metadata_rejections": {
-    "secondary_creator_present": 16,
-    "third_party_partner_signal": 9,
-    "likely_long_form_title": 1,
-    "person_or_audio_signal": 19
+    "person_or_audio_signal": 11,
+    "third_party_partner_signal": 6,
+    "secondary_creator_present": 2,
+    "likely_long_form_title": 1
   },
-  "post_screen_build_failures": 10,
-  "duplicate_records": 5,
+  "post_screen_build_failures": 27,
+  "duplicate_records": 13,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -42,43 +42,43 @@
     },
     "samples": [
       {
-        "nasa_id": "KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913",
+        "nasa_id": "iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4"
+          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
+          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
+          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station"
         ]
       },
       {
-        "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
+        "nasa_id": "art002m1200912324",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
+        "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
-          "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
+          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~orig.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~large.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~medium.mp4"
         ]
       },
       {
-        "nasa_id": "iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629",
+        "nasa_id": "art002m1200912311",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
+        "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629.srt",
-          "http://images-assets.nasa.gov/video/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629/iss065m261801558_Expedition_65_Cygnus_NG-15_Release_210629~large.mp4"
+          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~orig.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~large.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~medium.mp4"
         ]
       },
       {
-        "nasa_id": "iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120",
+        "nasa_id": "KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
+        "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120.srt",
-          "http://images-assets.nasa.gov/video/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120/iss066m263241544_Expedition_66__NG-16_Cygnus_Release_211120~large.mp4"
+          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870.vtt",
+          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4"
         ]
       }
     ]
