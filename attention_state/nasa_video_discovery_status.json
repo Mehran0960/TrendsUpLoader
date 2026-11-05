@@ -1,34 +1,35 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T15:46:23.411452+00:00",
-  "query": "planetary science",
+  "updated_at": "2026-11-05T21:56:27.307299+00:00",
+  "query": "rocket launch",
   "queries": [
     {
-      "query": "planetary science",
-      "page": 2,
-      "results": 5
+      "query": "solar flare",
+      "page": 4,
+      "results": 0
     },
     {
-      "query": "Earth from space",
-      "page": 3,
+      "query": "rocket launch",
+      "page": 1,
       "results": 100
     },
     {
-      "query": "aurora",
-      "page": 4,
-      "results": 0
+      "query": "space telescope",
+      "page": 2,
+      "results": 100
     }
   ],
-  "api_results": 105,
-  "records_inspected": 35,
-  "metadata_screen_passes": 13,
+  "api_results": 200,
+  "records_inspected": 60,
+  "metadata_screen_passes": 8,
   "metadata_rejections": {
-    "person_or_audio_signal": 11,
-    "secondary_creator_present": 3,
+    "non_nasa_center": 8,
+    "person_or_audio_signal": 4,
+    "secondary_creator_present": 30,
     "third_party_partner_signal": 4
   },
-  "post_screen_build_failures": 13,
-  "duplicate_records": 4,
+  "post_screen_build_failures": 8,
+  "duplicate_records": 6,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -37,47 +38,27 @@
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 4
+      "asset_manifest_no_mp4_url": 2
     },
     "samples": [
       {
-        "nasa_id": "iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312",
+        "nasa_id": "GSFC_20160909_M12368_OSIRIS_launch",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
+        "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station"
+          "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~orig.mp4",
+          "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch.srt",
+          "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~large.mp4"
         ]
       },
       {
-        "nasa_id": "art002m1200912324",
+        "nasa_id": "NHQ_2020_0429_AskNASA_202_Hubble",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
+        "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~orig.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~large.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "art002m1200912311",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~orig.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~large.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4"
+          "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~orig.mp4",
+          "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble.srt",
+          "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~large.mp4"
         ]
       }
     ]
