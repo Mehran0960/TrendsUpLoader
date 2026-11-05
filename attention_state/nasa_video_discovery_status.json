@@ -1,35 +1,35 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T00:19:39.960842+00:00",
-  "query": "Earth from space",
+  "updated_at": "2026-11-05T07:20:03.803164+00:00",
+  "query": "International Space Station Earth",
   "queries": [
     {
-      "query": "Earth from space",
-      "page": 3,
+      "query": "International Space Station Earth",
+      "page": 4,
       "results": 100
     },
     {
-      "query": "aurora",
-      "page": 4,
-      "results": 0
+      "query": "planetary science",
+      "page": 1,
+      "results": 100
     },
     {
-      "query": "Mars rover",
-      "page": 1,
+      "query": "Earth from space",
+      "page": 2,
       "results": 100
     }
   ],
-  "api_results": 200,
+  "api_results": 300,
   "records_inspected": 60,
-  "metadata_screen_passes": 27,
+  "metadata_screen_passes": 6,
   "metadata_rejections": {
-    "person_or_audio_signal": 11,
-    "third_party_partner_signal": 6,
-    "secondary_creator_present": 2,
+    "person_or_audio_signal": 18,
+    "secondary_creator_present": 21,
+    "third_party_partner_signal": 8,
     "likely_long_form_title": 1
   },
-  "post_screen_build_failures": 27,
-  "duplicate_records": 13,
+  "post_screen_build_failures": 6,
+  "duplicate_records": 6,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -38,47 +38,27 @@
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 4
+      "asset_manifest_no_mp4_url": 2
     },
     "samples": [
       {
-        "nasa_id": "iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312",
+        "nasa_id": "iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
+        "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
-          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station"
+          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing.srt",
+          "http://images-assets.nasa.gov/video/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing/iss064m261070319_Expedition_64_MS-17_Deorbit_Burn_and_Landing~large.mp4"
         ]
       },
       {
-        "nasa_id": "art002m1200912324",
+        "nasa_id": "20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
+        "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~orig.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~large.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "art002m1200912311",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~orig.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~large.mp4",
-          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870/KSC-20260116-MH-FWF01-0001-Artemis_II_Platforms_Retracted_Preps_for_Rollout_VAB-M18870~orig.mp4"
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~orig.mp4",
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a.srt",
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~large.mp4"
         ]
       }
     ]
