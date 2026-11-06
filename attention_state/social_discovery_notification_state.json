@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-05T23:51:55.896876+00:00",
+  "media_review_updated_at": "2026-11-06T16:21:26.220632+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -374,7 +374,10 @@
     "248ee8627b3ed57c0636231adf1f4665489d2d40e752e256bf15ee7a7f9300eb",
     "01f9fad458ec1f3581110c6c1c47d56d5c94a9ce5586f979430136d881ee5f68",
     "c6a2238f62ad99105bccb48455a11cc0b39199d303242d6f127f529aca609808",
-    "2a85bf53292c92ed45403a6a29fae222291e3b45ded5392fd1cba5438c28a795"
+    "2a85bf53292c92ed45403a6a29fae222291e3b45ded5392fd1cba5438c28a795",
+    "a81462190409b5e01c07be38e49aea7e61f5b37d893c733c10293c7772b38897",
+    "23521ab6644aad816aea6afe87414975b3e865912586f32805fc4582ec14a762",
+    "16d15c804b6db960be3ab08e4b8ff8ac8f7c10a75e2c9a77f77305aed1f3ae00"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -682,7 +685,10 @@
     "https://t.me/gizmiztel/164446",
     "https://t.me/gizmiztel/164448",
     "https://t.me/vaybabamumad/181360",
-    "https://t.me/gizmiztel/164443"
+    "https://t.me/gizmiztel/164443",
+    "https://t.me/vaybabamumad/181364",
+    "https://t.me/regaplus/24260",
+    "https://t.me/khandbazar20/177034"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2136,15 +2142,20 @@
         "9c80a2f0d2939eac",
         "acf0fef8d2969ce8"
       ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/181364",
+      "sha256": "84bcb817a9ad49d7b0ab173fdbd9da93ec5197f524fbf57fe2621593cd537f06",
+      "frame_hashes": [
+        "68e0ccecece0f0c8",
+        "f0f4fcf8f8f8f0e8",
+        "f8fcfcf8e0e8f0e8",
+        "d8fcfcf0e8f0f0e0",
+        "d8d8d0ccfcf0fcfc"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "visual_wow",
-      "topic": "transformation_or_satisfying",
-      "url": "https://t.me/gizmiztel/164180",
-      "sent_at": "2026-11-01T19:55:07.065116+00:00"
-    },
     {
       "pillar": "curiosity_and_process",
       "topic": "technology_demo",
@@ -2258,6 +2269,12 @@
       "topic": "animals",
       "url": "https://t.me/vaybabamumad/181360",
       "sent_at": "2026-11-05T23:51:55.896054+00:00"
+    },
+    {
+      "pillar": "visual_wow",
+      "topic": "skill_or_spectacle",
+      "url": "https://t.me/vaybabamumad/181364",
+      "sent_at": "2026-11-06T16:21:26.220250+00:00"
     }
   ]
 }
