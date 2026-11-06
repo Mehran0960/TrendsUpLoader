@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v2_persian_priority",
-  "updated_at": "2026-11-06T02:19:00.654123+00:00",
+  "updated_at": "2026-11-06T09:48:03.120992+00:00",
   "status": "public_telegram_repost_and_bing_fallback",
   "count": 500,
   "quota_ledger": {
@@ -54578,37 +54578,37 @@
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-11-06T02:19:00.654123+00:00",
+    "updated_at": "2026-11-06T09:48:03.120992+00:00",
     "new_candidates": 0,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
     "query": "rocket launch",
     "queries": [
       {
+        "query": "solar flare",
+        "page": 3,
+        "results": 0
+      },
+      {
         "query": "rocket launch",
-        "page": 1,
+        "page": 4,
         "results": 100
       },
       {
         "query": "space telescope",
-        "page": 2,
-        "results": 100
-      },
-      {
-        "query": "International Space Station Earth",
-        "page": 3,
+        "page": 1,
         "results": 100
       }
     ],
-    "api_results": 300,
+    "api_results": 200,
     "records_inspected": 60,
     "metadata_screen_passes": 9,
     "metadata_rejections": {
-      "non_nasa_center": 6,
-      "person_or_audio_signal": 15,
-      "secondary_creator_present": 19,
-      "third_party_partner_signal": 5,
-      "missing_metadata": 1
+      "secondary_creator_present": 18,
+      "third_party_partner_signal": 10,
+      "non_nasa_center": 8,
+      "person_or_audio_signal": 9,
+      "likely_long_form_title": 1
     },
     "post_screen_build_failures": 9,
     "duplicate_records": 5,
@@ -54623,33 +54623,33 @@
       },
       "samples": [
         {
-          "nasa_id": "GSFC_20160909_M12368_OSIRIS_launch",
+          "nasa_id": "KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~orig.mp4",
-            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch.srt",
-            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~large.mp4"
+            "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~orig.mp4",
+            "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036.vtt",
+            "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~large.mp"
           ]
         },
         {
-          "nasa_id": "NHQ_2020_0429_AskNASA_202_Hubble",
+          "nasa_id": "KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~orig.mp4",
-            "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble.srt",
-            "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~large.mp4"
+            "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~orig.mp4",
+            "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397.srt",
+            "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~large.mp4"
           ]
         },
         {
-          "nasa_id": "iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715",
+          "nasa_id": "KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913",
           "reason": "asset_manifest_no_mp4_url",
-          "manifest_item_count": 32,
+          "manifest_item_count": 33,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715~orig.mp4",
-            "http://images-assets.nasa.gov/video/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715.srt",
-            "http://images-assets.nasa.gov/video/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715~large.mp4"
+            "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4",
+            "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913.vtt",
+            "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4"
           ]
         }
       ]
