@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-06T21:06:56.918308+00:00",
+  "media_review_updated_at": "2026-11-06T23:32:23.875325+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -379,7 +379,9 @@
     "23521ab6644aad816aea6afe87414975b3e865912586f32805fc4582ec14a762",
     "16d15c804b6db960be3ab08e4b8ff8ac8f7c10a75e2c9a77f77305aed1f3ae00",
     "9854cc82458dfdd679441f393a7bc81ee0395ffde2c5a69434cdbe6da54c18aa",
-    "c144cc562c0fa73b80f47e5158537b8c932ca44b55958abedf0b62ffa85531df"
+    "c144cc562c0fa73b80f47e5158537b8c932ca44b55958abedf0b62ffa85531df",
+    "76c93a816ce666c5c62ace9e84b441a9082547342ef9d4d52987be019d6cd66a",
+    "1a5c67e281e11ee334d8fb5c0a196a7b6dd6533d14ea1dac008f6cbb9045c3c9"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -692,7 +694,9 @@
     "https://t.me/regaplus/24260",
     "https://t.me/khandbazar20/177034",
     "https://t.me/gizmiztel/164477",
-    "https://t.me/gizmiztel/164472"
+    "https://t.me/gizmiztel/164472",
+    "https://t.me/keereker/257689",
+    "https://t.me/gizmiztel/164466"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2179,15 +2183,20 @@
         "6868686868606078",
         "f8d0c8e0e0e0e0f0"
       ]
+    },
+    {
+      "url": "https://t.me/keereker/257689",
+      "sha256": "2eb11968029705699725f6278986280a5e1df88cf7831cb9a8e7ae64dc327538",
+      "frame_hashes": [
+        "f8f8f8f4e8f4f4e4",
+        "f8f8f8f4e0f4e4e4",
+        "f8f4f8f0f4f4e4e4",
+        "f8f4f4f0f4f4e4e4",
+        "f8f8f8f0f4f4e4e4"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164302",
-      "sent_at": "2026-11-02T18:53:13.932451+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -2301,6 +2310,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164472",
       "sent_at": "2026-11-06T21:06:56.917940+00:00"
+    },
+    {
+      "pillar": "visual_wow",
+      "topic": "sports_or_athletic_skill",
+      "url": "https://t.me/keereker/257689",
+      "sent_at": "2026-11-06T23:32:23.874921+00:00"
     }
   ]
 }
