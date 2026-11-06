@@ -1,13 +1,8 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-05T21:56:27.307299+00:00",
+  "updated_at": "2026-11-06T02:19:00.654123+00:00",
   "query": "rocket launch",
   "queries": [
-    {
-      "query": "solar flare",
-      "page": 4,
-      "results": 0
-    },
     {
       "query": "rocket launch",
       "page": 1,
@@ -17,19 +12,25 @@
       "query": "space telescope",
       "page": 2,
       "results": 100
+    },
+    {
+      "query": "International Space Station Earth",
+      "page": 3,
+      "results": 100
     }
   ],
-  "api_results": 200,
+  "api_results": 300,
   "records_inspected": 60,
-  "metadata_screen_passes": 8,
+  "metadata_screen_passes": 9,
   "metadata_rejections": {
-    "non_nasa_center": 8,
-    "person_or_audio_signal": 4,
-    "secondary_creator_present": 30,
-    "third_party_partner_signal": 4
+    "non_nasa_center": 6,
+    "person_or_audio_signal": 15,
+    "secondary_creator_present": 19,
+    "third_party_partner_signal": 5,
+    "missing_metadata": 1
   },
-  "post_screen_build_failures": 8,
-  "duplicate_records": 6,
+  "post_screen_build_failures": 9,
+  "duplicate_records": 5,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -38,7 +39,7 @@
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 2
+      "asset_manifest_no_mp4_url": 3
     },
     "samples": [
       {
@@ -59,6 +60,16 @@
           "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~orig.mp4",
           "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble.srt",
           "http://images-assets.nasa.gov/video/NHQ_2020_0429_AskNASA_202_Hubble/NHQ_2020_0429_AskNASA_202_Hubble~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715~orig.mp4",
+          "http://images-assets.nasa.gov/video/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715.srt",
+          "http://images-assets.nasa.gov/video/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715/iss061m261961803_Expedition_61-61_Crew_News_COnference_2019_0715~large.mp4"
         ]
       }
     ]
