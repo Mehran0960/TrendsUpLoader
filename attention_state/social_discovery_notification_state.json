@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-07T20:58:59.946156+00:00",
+  "media_review_updated_at": "2026-11-07T22:20:10.451879+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -392,7 +392,9 @@
     "9da08f7a0da33afd868764e48ce1478a515c10c9323d72fdc16d4456ae2eadd6",
     "52859070a2779021bb2f32d30128c0d4afbc9a7b24cd13697aaadf1a64482c11",
     "869004a1a6b89913a23c12f50e9757d32d6238e88b6fedcda5b462d3da9dceb1",
-    "f5088a12e5e9af9762f47b50aac09b61ed376d65cde9a366d439ca8e33f5afd3"
+    "f5088a12e5e9af9762f47b50aac09b61ed376d65cde9a366d439ca8e33f5afd3",
+    "97cdcc741f6fe4ed8deaa08233d601925d8e8666aa67cb3249d66a32e40d1854",
+    "fd564e6d9514dc792457a1abbc0e8071b74e2061001147c210ae58dec99f897b"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -718,7 +720,9 @@
     "https://t.me/keereker/257719",
     "https://t.me/gizmiztel/164501",
     "https://t.me/gizmiztel/164495",
-    "https://t.me/keereker/257717"
+    "https://t.me/keereker/257717",
+    "https://t.me/gizmiztel/164511",
+    "https://t.me/keereker/257731"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2260,15 +2264,20 @@
         "f078f0f0d0f0f4c4",
         "cccc6cfcfce4e4f4"
       ]
+    },
+    {
+      "url": "https://t.me/keereker/257731",
+      "sha256": "61e6a086c6afa158bbc0d2c87af9af37d4c21387ad98771ab80f2409daf2d732",
+      "frame_hashes": [
+        "d86cc8d8f8e8e4ec",
+        "cc6cc8ecfcece4ec",
+        "cccce8e4fce0e4ec",
+        "ec4cd070f0f0e4ec",
+        "fcfcf870e0e0e0e0"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164331",
-      "sent_at": "2026-11-03T16:39:44.572002+00:00"
-    },
     {
       "pillar": "reaction_and_comedy",
       "topic": "surprise_or_reveal",
@@ -2382,6 +2391,12 @@
       "topic": "music_or_dance",
       "url": "https://t.me/keereker/257725",
       "sent_at": "2026-11-07T20:58:59.945359+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "food_cooking",
+      "url": "https://t.me/keereker/257731",
+      "sent_at": "2026-11-07T22:20:10.451497+00:00"
     }
   ]
 }
