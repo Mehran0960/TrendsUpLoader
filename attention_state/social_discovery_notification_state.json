@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-07T19:41:13.421486+00:00",
+  "media_review_updated_at": "2026-11-07T20:58:59.946156+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -385,7 +385,14 @@
     "60b82be8c29b2c9f516c9441694a236695ff85f9cf3bda6a083140df928fe41f",
     "aec6cbfa8b4a00c3684592dca78f8551d26306ea13fed5d041b73db03f9b236c",
     "ae709a24734f31f6e77d3993d226309812f734f9a22dc36a8db6eb4d85fc75a1",
-    "72ccd72a97feadb1d9296755044b2549b22ae77daa866b6e47f3d3efc9b8b493"
+    "72ccd72a97feadb1d9296755044b2549b22ae77daa866b6e47f3d3efc9b8b493",
+    "f3dcdc952c8fd310d9186776853e6338ad0c4fa8c1fdbcbd58759825ff1eb896",
+    "f1c9149554f43655f7e5b839641430ecddc6da44fc1aeef259206bbe8be9e221",
+    "f30482f2025cb82b2336f77f8d08009d7762286c1a2c441bf6a1b159b8f051ff",
+    "9da08f7a0da33afd868764e48ce1478a515c10c9323d72fdc16d4456ae2eadd6",
+    "52859070a2779021bb2f32d30128c0d4afbc9a7b24cd13697aaadf1a64482c11",
+    "869004a1a6b89913a23c12f50e9757d32d6238e88b6fedcda5b462d3da9dceb1",
+    "f5088a12e5e9af9762f47b50aac09b61ed376d65cde9a366d439ca8e33f5afd3"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -704,7 +711,14 @@
     "https://t.me/gizmiztel/164508",
     "https://t.me/gizmiztel/164516",
     "https://t.me/gizmiztel/164513",
-    "https://t.me/gizmiztel/164515"
+    "https://t.me/gizmiztel/164515",
+    "https://t.me/keereker/257725",
+    "https://t.me/gizmiztel/164512",
+    "https://t.me/gizmiztel/164506",
+    "https://t.me/keereker/257719",
+    "https://t.me/gizmiztel/164501",
+    "https://t.me/gizmiztel/164495",
+    "https://t.me/keereker/257717"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2235,15 +2249,20 @@
         "ccccccccf4cce8e8",
         "ecccccccdcfcf8e8"
       ]
+    },
+    {
+      "url": "https://t.me/keereker/257725",
+      "sha256": "6de8d83b5fc1b854150da44c12b4cc48830fe99fb94ff74c974f5fd02375b095",
+      "frame_hashes": [
+        "c4e07cece8e8dce0",
+        "f8dcccccc4dccce4",
+        "dcdcc8d8ccf4d4d4",
+        "f078f0f0d0f0f4c4",
+        "cccc6cfcfce4e4f4"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "curiosity_and_process",
-      "topic": "technology_demo",
-      "url": "https://t.me/vaybabamumad/181193",
-      "sent_at": "2026-11-03T01:19:40.606141+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -2357,6 +2376,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164515",
       "sent_at": "2026-11-07T19:41:13.420945+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "music_or_dance",
+      "url": "https://t.me/keereker/257725",
+      "sent_at": "2026-11-07T20:58:59.945359+00:00"
     }
   ]
 }
