@@ -1,8 +1,8 @@
 {
   "version": 1,
   "local_day": "2026-11-07",
-  "discovery_runs": 2,
-  "last_discovery_attempt_at": "2026-11-07T18:44:14.398251+03:30",
+  "discovery_runs": 3,
+  "last_discovery_attempt_at": "2026-11-07T19:59:52.438922+03:30",
   "last_decision": "replenish_review_queue_before_platform_window",
   "last_review_queue_count": 4,
   "review_queue_target": 12,
@@ -10,6 +10,6 @@
   "next_window": {
     "platform": "youtube_shorts",
     "starts_at": "2026-11-07T20:30:00+03:30",
-    "minutes_until": 106
+    "minutes_until": 30
   }
 }
