@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-07T02:19:56.598178+00:00",
-  "query": "rocket launch",
+  "updated_at": "2026-11-07T09:12:11.423231+00:00",
+  "query": "Mars rover",
   "queries": [
+    {
+      "query": "Mars rover",
+      "page": 1,
+      "results": 100
+    },
+    {
+      "query": "solar flare",
+      "page": 2,
+      "results": 0
+    },
     {
       "query": "rocket launch",
       "page": 3,
       "results": 100
-    },
-    {
-      "query": "space telescope",
-      "page": 4,
-      "results": 100
-    },
-    {
-      "query": "International Space Station Earth",
-      "page": 1,
-      "results": 100
     }
   ],
-  "api_results": 300,
+  "api_results": 200,
   "records_inspected": 60,
-  "metadata_screen_passes": 12,
+  "metadata_screen_passes": 18,
   "metadata_rejections": {
-    "secondary_creator_present": 8,
-    "non_nasa_center": 2,
-    "third_party_partner_signal": 13,
-    "person_or_audio_signal": 17,
-    "missing_metadata": 1
+    "likely_long_form_title": 1,
+    "person_or_audio_signal": 8,
+    "third_party_partner_signal": 11,
+    "secondary_creator_present": 6,
+    "non_nasa_center": 3
   },
-  "post_screen_build_failures": 12,
-  "duplicate_records": 7,
+  "post_screen_build_failures": 18,
+  "duplicate_records": 13,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
