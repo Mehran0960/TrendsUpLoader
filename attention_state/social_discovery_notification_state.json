@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-08T15:37:51.100154+00:00",
+  "media_review_updated_at": "2026-11-08T18:51:06.753340+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -396,7 +396,8 @@
     "97cdcc741f6fe4ed8deaa08233d601925d8e8666aa67cb3249d66a32e40d1854",
     "fd564e6d9514dc792457a1abbc0e8071b74e2061001147c210ae58dec99f897b",
     "e907d3070a789e40a1d131f8cac86209c416dfc42ef0a54eeaad1605bc74f27c",
-    "ba035bb4abdb175be1cb3de483ca1fbf9661146be73556ced164c88342a5058b"
+    "ba035bb4abdb175be1cb3de483ca1fbf9661146be73556ced164c88342a5058b",
+    "25965219a190c4ad62c20a105dbdf931717438e0c6d283cb58d2ab6d7138b9b6"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -726,7 +727,8 @@
     "https://t.me/gizmiztel/164511",
     "https://t.me/keereker/257731",
     "https://t.me/gizmiztel/164555",
-    "https://t.me/gizmiztel/164564"
+    "https://t.me/gizmiztel/164564",
+    "https://t.me/gizmiztel/164565"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2290,15 +2292,20 @@
         "f070f8d8fcfceccc",
         "e0e0e0f0f0f0ecd8"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164565",
+      "sha256": "926ae655b63b6afbcf82f7bb1d899c10e4cee187489afba84f5bd639cd66172e",
+      "frame_hashes": [
+        "f8f8f0f8fc78ccc0",
+        "ccd8f8e8fcfcfce4",
+        "f0f0f8e0e0d0f8c0",
+        "d8f8f8e07858e8c0",
+        "d8f8f8e060c8ece0"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164324",
-      "sent_at": "2026-11-03T21:18:20.438668+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -2412,6 +2419,12 @@
       "topic": "transformation_or_satisfying",
       "url": "https://t.me/gizmiztel/164555",
       "sent_at": "2026-11-08T15:37:51.099414+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/164565",
+      "sent_at": "2026-11-08T18:51:06.752887+00:00"
     }
   ]
 }
