@@ -1,44 +1,67 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-08T05:52:35.656839+00:00",
-  "query": "rocket launch",
+  "updated_at": "2026-11-08T13:14:32.054222+00:00",
+  "query": "solar flare",
   "queries": [
     {
-      "query": "solar flare",
-      "page": 2,
+      "query": "Mars rover",
+      "page": 4,
       "results": 0
     },
     {
-      "query": "rocket launch",
-      "page": 3,
-      "results": 100
+      "query": "solar flare",
+      "page": 1,
+      "results": 68
     },
     {
-      "query": "space telescope",
-      "page": 4,
+      "query": "rocket launch",
+      "page": 2,
       "results": 100
     }
   ],
-  "api_results": 200,
+  "api_results": 168,
   "records_inspected": 60,
-  "metadata_screen_passes": 7,
+  "metadata_screen_passes": 6,
   "metadata_rejections": {
-    "secondary_creator_present": 9,
-    "non_nasa_center": 3,
-    "third_party_partner_signal": 12,
-    "person_or_audio_signal": 23
+    "secondary_creator_present": 38,
+    "third_party_partner_signal": 3,
+    "non_nasa_center": 4,
+    "person_or_audio_signal": 5
   },
-  "post_screen_build_failures": 7,
-  "duplicate_records": 6,
+  "post_screen_build_failures": 4,
+  "duplicate_records": 4,
   "invalid_records": 0,
-  "new_candidates": 0,
+  "new_candidates": 2,
   "total_queue_items": 500,
-  "nasa_queue_items": 73,
+  "nasa_queue_items": 75,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 0,
-    "failures": {},
-    "samples": []
+    "fallback_mp4_verified": 2,
+    "failures": {
+      "asset_manifest_no_mp4_url": 2
+    },
+    "samples": [
+      {
+        "nasa_id": "SSC_2021_0520_RS25EngineTest",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/SSC_2021_0520_RS25EngineTest/SSC_2021_0520_RS25EngineTest~orig.mp4",
+          "http://images-assets.nasa.gov/video/SSC_2021_0520_RS25EngineTest/SSC_2021_0520_RS25EngineTest.srt",
+          "http://images-assets.nasa.gov/video/SSC_2021_0520_RS25EngineTest/SSC_2021_0520_RS25EngineTest~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "SSC_2021-09-30_RS-25_Engine_Test",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/SSC_2021-09-30_RS-25_Engine_Test/SSC_2021-09-30_RS-25_Engine_Test~orig.mp4",
+          "http://images-assets.nasa.gov/video/SSC_2021-09-30_RS-25_Engine_Test/SSC_2021-09-30_RS-25_Engine_Test.srt",
+          "http://images-assets.nasa.gov/video/SSC_2021-09-30_RS-25_Engine_Test/SSC_2021-09-30_RS-25_Engine_Test~large.mp4"
+        ]
+      }
+    ]
   },
   "source_policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
   "screening_note": "Conservative metadata screen; not a guarantee about unlisted embedded rights or platform payout eligibility."
