@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-02T09:22:34.371257+00:00",
+  "updated_at": "2026-11-09T20:40:51.311905+00:00",
   "attempts": [
     {
       "source_key": "3cc3b2c723df7273e037841a0670a58acb4ec79b7d3d9f7436678668248c963c",
@@ -1824,6 +1824,16 @@
       "reason_code": "duration_out_of_range",
       "started_at": "2026-11-02T09:22:34.371209+00:00",
       "finished_at": "2026-11-02T09:22:34.371217+00:00",
+      "mode": "nasa_rights_screened_queue"
+    },
+    {
+      "source_key": "9aeec61707002ad500448fb45acfb3373bf47a3c54857ff7044f0a674e5a8aee",
+      "source_url": "https://images.nasa.gov/details/ksc_122104_spirit_anniv",
+      "source_title": "KSC-04-S-00404",
+      "status": "media_rejected",
+      "reason_code": "duration_out_of_range",
+      "started_at": "2026-11-09T20:40:51.311853+00:00",
+      "finished_at": "2026-11-09T20:40:51.311863+00:00",
       "mode": "nasa_rights_screened_queue"
     }
   ]
