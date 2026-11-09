@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T01:55:53.139853+00:00",
-  "query": "rocket launch",
+  "updated_at": "2026-11-09T09:39:33.738793+00:00",
+  "query": "solar flare",
   "queries": [
     {
       "query": "solar flare",
-      "page": 3,
-      "results": 0
+      "page": 1,
+      "results": 68
     },
     {
       "query": "rocket launch",
-      "page": 4,
+      "page": 2,
       "results": 100
     },
     {
       "query": "space telescope",
-      "page": 1,
+      "page": 3,
       "results": 100
     }
   ],
-  "api_results": 200,
+  "api_results": 268,
   "records_inspected": 60,
-  "metadata_screen_passes": 9,
+  "metadata_screen_passes": 7,
   "metadata_rejections": {
-    "secondary_creator_present": 18,
-    "third_party_partner_signal": 10,
-    "non_nasa_center": 8,
-    "person_or_audio_signal": 9,
-    "likely_long_form_title": 1
+    "secondary_creator_present": 31,
+    "non_nasa_center": 4,
+    "third_party_partner_signal": 3,
+    "person_or_audio_signal": 4,
+    "missing_metadata": 1
   },
-  "post_screen_build_failures": 9,
-  "duplicate_records": 5,
+  "post_screen_build_failures": 7,
+  "duplicate_records": 10,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -43,33 +43,33 @@
     },
     "samples": [
       {
-        "nasa_id": "KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036",
+        "nasa_id": "SSC_2021_0520_RS25EngineTest",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036/KSC-20200729-MH-JNB01_0001-Artemis_I_Launch_Vehicle_Stage_Adapter_Arrival_Drone-3242036~large.mp"
+          "http://images-assets.nasa.gov/video/SSC_2021_0520_RS25EngineTest/SSC_2021_0520_RS25EngineTest~orig.mp4",
+          "http://images-assets.nasa.gov/video/SSC_2021_0520_RS25EngineTest/SSC_2021_0520_RS25EngineTest.srt",
+          "http://images-assets.nasa.gov/video/SSC_2021_0520_RS25EngineTest/SSC_2021_0520_RS25EngineTest~large.mp4"
         ]
       },
       {
-        "nasa_id": "KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397",
+        "nasa_id": "SSC_2021-09-30_RS-25_Engine_Test",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397.srt",
-          "http://images-assets.nasa.gov/video/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397/KSC-20220829-VP-MMS02-0001-Media_Update_on_Status_of_Artemis_I--3312397~large.mp4"
+          "http://images-assets.nasa.gov/video/SSC_2021-09-30_RS-25_Engine_Test/SSC_2021-09-30_RS-25_Engine_Test~orig.mp4",
+          "http://images-assets.nasa.gov/video/SSC_2021-09-30_RS-25_Engine_Test/SSC_2021-09-30_RS-25_Engine_Test.srt",
+          "http://images-assets.nasa.gov/video/SSC_2021-09-30_RS-25_Engine_Test/SSC_2021-09-30_RS-25_Engine_Test~large.mp4"
         ]
       },
       {
-        "nasa_id": "KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913",
+        "nasa_id": "ksc_050809_sts125_webcast1",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
+        "manifest_item_count": 30,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913/KSC-20260621-MH-SNW01-0001-Roman_Space_Telescope_Arrival_GSFC_Broll_Trimmed-M21913~orig.mp4"
+          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1~orig.mp4",
+          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1.vtt",
+          "http://images-assets.nasa.gov/video/ksc_050809_sts125_webcast1/ksc_050809_sts125_webcast1~mobile.mp4"
         ]
       }
     ]
