@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-08T22:30:24.771211+00:00",
+  "media_review_updated_at": "2026-11-09T19:13:55.650326+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -402,7 +402,9 @@
     "095b1f1c97f44ba57810083c8a34db72027d56e26a6f55790962842764ec0d47",
     "db3ce0b1b666332b20a917af5c3f1652206bdeb194e89b0856e69f1f22fb5124",
     "301f152770957063edfeb233d6dfdad4c7a1351a418e2c3518db481a59344791",
-    "9555e5413a5ac4c218f471992a76fd138ca77433cd9b30520849259c218cd398"
+    "9555e5413a5ac4c218f471992a76fd138ca77433cd9b30520849259c218cd398",
+    "2196f9fcf369ae448f60c2e1d9f55197f3c3555e9bcd1fef975ea30c3b160d88",
+    "be070225b23350598863dc673370b1d2b47d7efc854057615b461d84c0a20e02"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -738,7 +740,9 @@
     "https://t.me/gizmiztel/164556",
     "https://t.me/gizmiztel/164550",
     "https://t.me/gizmiztel/164554",
-    "https://t.me/keereker/257766"
+    "https://t.me/keereker/257766",
+    "https://t.me/gizmiztel/164605",
+    "https://t.me/gizmiztel/164615"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2346,15 +2350,20 @@
         "e0e4e4e4f8ececf8",
         "e8e4c4c0e8e0e8e0"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164605",
+      "sha256": "aa61b5bb72e292ef7d62da6f49125aac16456906afa464cb54896949771237b7",
+      "frame_hashes": [
+        "008c67d3da586000",
+        "00cc6793da586000",
+        "00cc6793da586000",
+        "00c867d3da586000",
+        "00c867d3da586000"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "food_cooking",
-      "url": "https://t.me/gizmiztel/164396",
-      "sent_at": "2026-11-04T23:57:15.702398+00:00"
-    },
     {
       "pillar": "curiosity_and_process",
       "topic": "technology_demo",
@@ -2468,6 +2477,12 @@
       "topic": "music_or_dance",
       "url": "https://t.me/gizmiztel/164550",
       "sent_at": "2026-11-08T22:30:24.770748+00:00"
+    },
+    {
+      "pillar": "curiosity_and_process",
+      "topic": "technology_demo",
+      "url": "https://t.me/gizmiztel/164605",
+      "sent_at": "2026-11-09T19:13:55.649928+00:00"
     }
   ]
 }
