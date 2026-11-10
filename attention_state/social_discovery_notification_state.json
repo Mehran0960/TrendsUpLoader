@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-09T23:52:32.797435+00:00",
+  "media_review_updated_at": "2026-11-10T00:45:24.081014+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -408,7 +408,9 @@
     "1e64bd69ac9eada01d317cc4e9a91aab83321ccf500b64523a16fedbb7c37817",
     "b133c55256226ebe6ef1b977de6866b082128130ce0677b71096096581118d95",
     "dfc4b3cd14d95919720e00257307245f048b0c7349899a0a2a588c5cf1bbdab9",
-    "ead07e4045659ed5d8bf36a7669f0108e5ff6b6adb0f8aa83f492ace245251e7"
+    "ead07e4045659ed5d8bf36a7669f0108e5ff6b6adb0f8aa83f492ace245251e7",
+    "9c5d0dd83721a530ff71337e596dfcda19f92021418d05fcc66970829d70ef31",
+    "d9740eb357ff68ee6c4cdb2170a2e02ade71a28c53a50f7dfe502c4f65eede92"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -750,7 +752,9 @@
     "https://t.me/gizmiztel/164585",
     "https://t.me/gizmiztel/164617",
     "https://t.me/gizmiztel/164607",
-    "https://t.me/gizmiztel/164618"
+    "https://t.me/gizmiztel/164618",
+    "https://t.me/gizmiztel/164613",
+    "https://t.me/gizmiztel/164625"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2391,15 +2395,20 @@
         "c8fcdce4e8d8e8e0",
         "e0ecf8ecd4d4e8e0"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164625",
+      "sha256": "27b7f60054f6966b5b7ca23f602e299bfced950d784aae041de35ae8396c816e",
+      "frame_hashes": [
+        "f4e06070f0f0f0fc",
+        "78f0f8f8d4f8e8e8",
+        "78f8f0f0f4f8e8e8",
+        "70f8f8f8ecece8e8",
+        "6878f8f8ecece8e8"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "experimental",
-      "topic": "travel_and_places",
-      "url": "https://t.me/gizmiztel/164406",
-      "sent_at": "2026-11-05T21:36:57.109300+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -2513,6 +2522,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164618",
       "sent_at": "2026-11-09T23:52:32.797132+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "diy_and_creativity",
+      "url": "https://t.me/gizmiztel/164625",
+      "sent_at": "2026-11-10T00:45:24.080306+00:00"
     }
   ]
 }
