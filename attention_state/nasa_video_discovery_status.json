@@ -1,54 +1,74 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-09T20:39:34.240828+00:00",
-  "query": "Mars rover",
+  "updated_at": "2026-11-10T03:28:10.355870+00:00",
+  "query": "International Space Station Earth",
   "queries": [
     {
-      "query": "aurora",
-      "page": 4,
-      "results": 0
-    },
-    {
-      "query": "Mars rover",
+      "query": "International Space Station Earth",
       "page": 1,
       "results": 100
     },
     {
-      "query": "solar flare",
+      "query": "planetary science",
       "page": 2,
-      "results": 0
+      "results": 5
+    },
+    {
+      "query": "Earth from space",
+      "page": 3,
+      "results": 100
     }
   ],
-  "api_results": 100,
-  "records_inspected": 60,
-  "metadata_screen_passes": 35,
+  "api_results": 205,
+  "records_inspected": 45,
+  "metadata_screen_passes": 12,
   "metadata_rejections": {
-    "likely_long_form_title": 2,
-    "person_or_audio_signal": 1,
-    "third_party_partner_signal": 5,
-    "secondary_creator_present": 2
+    "person_or_audio_signal": 17,
+    "secondary_creator_present": 5,
+    "missing_metadata": 1,
+    "third_party_partner_signal": 6
   },
-  "post_screen_build_failures": 34,
-  "duplicate_records": 15,
+  "post_screen_build_failures": 12,
+  "duplicate_records": 4,
   "invalid_records": 0,
-  "new_candidates": 1,
+  "new_candidates": 0,
   "total_queue_items": 500,
   "nasa_queue_items": 76,
   "asset_lookup_diagnostics": {
     "manifest_mp4_found": 0,
-    "fallback_mp4_verified": 1,
+    "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 1
+      "asset_manifest_no_mp4_url": 3
     },
     "samples": [
       {
-        "nasa_id": "KSC-20200730-VP-MMS01-0001-Mars_2020_Live_Launch_Coverage_ISO_Broll_String-3254502",
+        "nasa_id": "iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312",
         "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 32,
+        "manifest_item_count": 33,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-MMS01-0001-Mars_2020_Live_Launch_Coverage_ISO_Broll_String-3254502/KSC-20200730-VP-MMS01-0001-Mars_2020_Live_Launch_Coverage_ISO_Broll_String-3254502~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-MMS01-0001-Mars_2020_Live_Launch_Coverage_ISO_Broll_String-3254502/KSC-20200730-VP-MMS01-0001-Mars_2020_Live_Launch_Coverage_ISO_Broll_String-3254502.vtt",
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-MMS01-0001-Mars_2020_Live_Launch_Coverage_ISO_Broll_String-3254502/KSC-20200730-VP-MMS01-0001-Mars_2020_Live_Launch_Coverage_ISO_Broll_String-3254502~large.mp4"
+          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
+          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station",
+          "http://images-assets.nasa.gov/video/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station_260312/iss074m260711044_Northrop_Grumman_Cygnus_Cargo_Craft_Departs_International_Space_Station"
+        ]
+      },
+      {
+        "nasa_id": "art002m1200912324",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 33,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~orig.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~large.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912324/art002m1200912324~medium.mp4"
+        ]
+      },
+      {
+        "nasa_id": "art002m1200912311",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 33,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~orig.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~large.mp4",
+          "http://images-assets.nasa.gov/video/art002m1200912311/art002m1200912311~medium.mp4"
         ]
       }
     ]
