@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-10T20:50:25.238805+00:00",
+  "media_review_updated_at": "2026-11-10T21:28:25.742820+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -414,7 +414,9 @@
     "9e0a5bf2700704e79833ae1e91b4b4f25c0b7f8dfea734194c52c2ab6b87c9e9",
     "f334480ff647f0c2d407b67b2d9d8a2f15a05413a4a3721b5ae49a01c7e7b4cf",
     "729ba4cea70ff2da69d4f5675741ca977c2813637bb37f98d548e6fb8aff3fe1",
-    "c30fa9a11c197270c27107d24884e0fff85d0c128d51f5fd14940ef01c97851e"
+    "c30fa9a11c197270c27107d24884e0fff85d0c128d51f5fd14940ef01c97851e",
+    "0c46c8738359bc3d5cd0d05c3ff68af38d96d7b2ceeadff7a8ba04253bb4aa7c",
+    "baa4a72a4a8862405579ebf8d063ec7bf4cf97e828e2b70fa1889d48ebee74b2"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -762,7 +764,9 @@
     "https://t.me/keereker/257844",
     "https://t.me/keereker/257825",
     "https://t.me/gizmiztel/164664",
-    "https://t.me/gizmiztel/164666"
+    "https://t.me/gizmiztel/164666",
+    "https://t.me/gizmiztel/164662",
+    "https://t.me/gizmiztel/164663"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2425,15 +2429,20 @@
         "ccf8e8f2e4c69aba",
         "fcf0e2f2b4e49eba"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164662",
+      "sha256": "94da345e131d2aa640d942128b81cf74287908976cb64f3361ecd6c6ec7731af",
+      "frame_hashes": [
+        "f8e8e4e0f8f0e0e0",
+        "e0f0d8d0e0f0f0f0",
+        "f4c4c4d0d8ece4dc",
+        "ece4e0e0f4d4f0e0",
+        "c4dcd0d0ccdcc4cc"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "reaction_and_comedy",
-      "topic": "animals",
-      "url": "https://t.me/vaybabamumad/181360",
-      "sent_at": "2026-11-05T23:51:55.896054+00:00"
-    },
     {
       "pillar": "visual_wow",
       "topic": "skill_or_spectacle",
@@ -2547,6 +2556,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164664",
       "sent_at": "2026-11-10T20:50:25.238435+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/164662",
+      "sent_at": "2026-11-10T21:28:25.742272+00:00"
     }
   ]
 }
