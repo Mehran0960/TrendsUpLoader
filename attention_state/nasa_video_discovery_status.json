@@ -1,34 +1,36 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-10T11:42:00.313243+00:00",
-  "query": "Earth from space",
+  "updated_at": "2026-11-10T19:39:09.098604+00:00",
+  "query": "planetary science",
   "queries": [
     {
       "query": "planetary science",
-      "page": 3,
-      "results": 0
+      "page": 1,
+      "results": 100
     },
     {
       "query": "Earth from space",
-      "page": 4,
+      "page": 2,
       "results": 100
     },
     {
       "query": "aurora",
-      "page": 1,
-      "results": 32
+      "page": 3,
+      "results": 0
     }
   ],
-  "api_results": 132,
+  "api_results": 200,
   "records_inspected": 60,
-  "metadata_screen_passes": 16,
+  "metadata_screen_passes": 12,
   "metadata_rejections": {
-    "person_or_audio_signal": 15,
-    "secondary_creator_present": 19,
-    "third_party_partner_signal": 4
+    "secondary_creator_present": 21,
+    "likely_long_form_title": 1,
+    "third_party_partner_signal": 9,
+    "person_or_audio_signal": 11,
+    "rights_warning_in_metadata": 1
   },
-  "post_screen_build_failures": 16,
-  "duplicate_records": 6,
+  "post_screen_build_failures": 12,
+  "duplicate_records": 5,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -37,57 +39,27 @@
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 11
+      "asset_manifest_no_mp4_url": 2
     },
     "samples": [
       {
-        "nasa_id": "iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~large.mp4",
-          "http://images-assets.nasa.gov/video/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427/iss074m261172314_Progress_95_Cargo_Spacecraft_Docking_260427~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss068m260420759_Expedition_68_Progress_83_Docking_230211",
+        "nasa_id": "20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211.srt",
-          "http://images-assets.nasa.gov/video/iss068m260420759_Expedition_68_Progress_83_Docking_230211/iss068m260420759_Expedition_68_Progress_83_Docking_230211~large.mp4"
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~orig.mp4",
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a.srt",
+          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~large.mp4"
         ]
       },
       {
-        "nasa_id": "iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919~large.mp4",
-          "http://images-assets.nasa.gov/video/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919/iss075m262621259_Progress_96_Cargo_Spacecraft_Docking_260919~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss072m263281344_Progress_90_Cargo_Ship_Docking_241123",
-        "reason": "asset_manifest_no_mp4_url",
-        "manifest_item_count": 33,
-        "href_samples": [
-          "http://images-assets.nasa.gov/video/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123~large.mp4",
-          "http://images-assets.nasa.gov/video/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123/iss072m263281344_Progress_90_Cargo_Ship_Docking_241123~medium.mp4"
-        ]
-      },
-      {
-        "nasa_id": "iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1",
+        "nasa_id": "KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1~orig.mp4",
-          "http://images-assets.nasa.gov/video/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1.srt",
-          "http://images-assets.nasa.gov/video/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1/iss069m262370259_Expedition_69_Progress_85_Cargo_Ship_Docks_to_Space_Station_230824_1~large.mp4"
+          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343.srt",
+          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343~large.mp4"
         ]
       }
     ]
