@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-11T21:29:00.249151+00:00",
+  "media_review_updated_at": "2026-11-11T22:19:58.896830+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -419,7 +419,9 @@
     "baa4a72a4a8862405579ebf8d063ec7bf4cf97e828e2b70fa1889d48ebee74b2",
     "0feb81e9a7080cedd2e9b2658c539e06cd18969a41181a48e61968ecd9c28420",
     "178246dc46615dc023626cc1b3333b75da1d83fecca7ddaaac04f726945049b8",
-    "246c8ac4ac511b933636f3007c02893558d2548552790b3a553f8d5f0455e544"
+    "246c8ac4ac511b933636f3007c02893558d2548552790b3a553f8d5f0455e544",
+    "cec9e5b966be4f1c83048cd94ba388ec64b39659c02ec50a17165253c52ede09",
+    "b199014a8941e9c4bc2d36977462238d9519df12ee7b4508b7f7697588f67388"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -772,7 +774,9 @@
     "https://t.me/gizmiztel/164663",
     "https://t.me/gizmiztel/164682",
     "https://t.me/gizmiztel/164681",
-    "https://t.me/gizmiztel/164688"
+    "https://t.me/gizmiztel/164688",
+    "https://t.me/vaybabamumad/181657",
+    "https://t.me/gizmiztel/164689"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2479,15 +2483,20 @@
         "646060646c687870",
         "6860607470606878"
       ]
+    },
+    {
+      "url": "https://t.me/vaybabamumad/181657",
+      "sha256": "5ae5cc88483cfb54dad2697f9609c485a90c847f5024e630853ad2b23050ed50",
+      "frame_hashes": [
+        "e078fc7c6cc87c7c",
+        "e8e0e0f0e868ecec",
+        "dcf0f8f8d8f8ece4",
+        "f0f8dc7cccfce860",
+        "f87078e46468587c"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "visual_wow",
-      "topic": "sports_or_athletic_skill",
-      "url": "https://t.me/keereker/257689",
-      "sent_at": "2026-11-06T23:32:23.874921+00:00"
-    },
     {
       "pillar": "reaction_and_comedy",
       "topic": "surprise_or_reveal",
@@ -2601,6 +2610,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164688",
       "sent_at": "2026-11-11T21:29:00.248684+00:00"
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "comedy",
+      "url": "https://t.me/vaybabamumad/181657",
+      "sent_at": "2026-11-11T22:19:58.896411+00:00"
     }
   ]
 }
