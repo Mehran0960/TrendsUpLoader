@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-12T01:02:33.156419+00:00",
+  "media_review_updated_at": "2026-11-12T17:08:56.387681+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -425,9 +425,10 @@
     "3d560286c93e4591df1154a5f37d136ae6ad35a41ce08fd7374eb56daf180401",
     "2ef878d84f740b6108687eab1b586c0d86484450e504b41fdcd0679ce2661964",
     "575ff46aae5c108e9603779341009da5ed6903a0b6f73141d45b6f20afd41bbc",
-    "dff60ad01da10f47feeded7b4542ce5941eab43b8ed8e56cf841a045b75bb7a3"
+    "dff60ad01da10f47feeded7b4542ce5941eab43b8ed8e56cf841a045b75bb7a3",
+    "1e30318a771b0fdff5d1f8afdf51e20b9d86f0d0e3bfac92ba50998c58fe68e9"
   ],
-  "media_review_last_count": 0,
+  "media_review_last_count": 1,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -784,7 +785,8 @@
     "https://t.me/vaybabamumad/181658",
     "https://t.me/gizmiztel/164683",
     "https://t.me/farda_ai/8111",
-    "https://t.me/farda_ai/8127"
+    "https://t.me/farda_ai/8127",
+    "https://t.me/gizmiztel/164733"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2513,6 +2515,17 @@
         "d8f8e8c8d868e4d4",
         "e0e8c8d8f0c8cce0"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164733",
+      "sha256": "a93e6d44ad3674062bec6d42d4e231873b015979472a34728fbfdd08bb2d71f1",
+      "frame_hashes": [
+        "c4e0c0c0c8e0e4f0",
+        "f8f8d8c0c4c4e0e0",
+        "c4c0e0e4e0e0f0f8",
+        "c4c0e0c4c8e0f0f8",
+        "c0c0c8c0e0e0e4e4"
+      ]
     }
   ],
   "media_reviewed_topics": [
@@ -2629,6 +2642,12 @@
       "topic": "technology_demo",
       "url": "https://t.me/vaybabamumad/181658",
       "sent_at": "2026-11-11T23:30:51.700987+00:00"
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "animals",
+      "url": "https://t.me/gizmiztel/164733",
+      "sent_at": "2026-11-12T17:08:56.387217+00:00"
     }
   ]
 }
