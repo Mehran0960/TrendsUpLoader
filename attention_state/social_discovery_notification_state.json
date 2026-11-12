@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-12T21:57:32.704975+00:00",
+  "media_review_updated_at": "2026-11-12T22:46:55.500028+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -430,7 +430,13 @@
     "90d82ea866dfb30865f055df67c044966f31ece588642889989cd02e04db9970",
     "90c147df2d3c56caf41f3a453a974e935649bc9d7dee9dd4956b1d6c8c17b4c5",
     "f23e319dcca2f0e9a48ab37f5abe20122f511007e0fe4ed786c10cd9a2482b60",
-    "862c938a86a2f9cb81bdcd6e7ae1df92b1ebd99ceb8ae00fdeddd82ec66e2a37"
+    "862c938a86a2f9cb81bdcd6e7ae1df92b1ebd99ceb8ae00fdeddd82ec66e2a37",
+    "2be13a135cf93d766ae9bd57694bced64f6bcf78e33383b837742d273048f18d",
+    "db64146b24f2dc663c43c7e18d5d16461e0a9727f6b9a55e17b9cd1bdda6f481",
+    "7d92efe767b05341b3c31fa09ccf26a31fd53a4cb11ccfce1ec57dbc7d2c4314",
+    "9e6b6dec48919a53286f875bb33c38c6b755a4e831d9ef959eb5d1cc397a9592",
+    "03bbb738ab6886fb77f2da8e065ec7abc2e40bd3612c0bf927aff794713a6046",
+    "e71dc5d10e7e93b4549829fb1232dc2c86b9e31b6a5df93f250da1179e1146a3"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -794,7 +800,13 @@
     "https://t.me/gizmiztel/164736",
     "https://t.me/keereker/257953",
     "https://t.me/gizmiztel/164763",
-    "https://t.me/gizmiztel/164764"
+    "https://t.me/gizmiztel/164764",
+    "https://t.me/gizmiztel/164760",
+    "https://t.me/farda_ai/8133",
+    "https://t.me/khandbazar20/177223",
+    "https://t.me/gizmiztel/164754",
+    "https://t.me/regaplus/24324",
+    "https://t.me/gizmiztel/164756"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2556,15 +2568,20 @@
         "e0e0e0ccf0f0e0e0",
         "e0f0e0c8ece4e4e8"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164754",
+      "sha256": "6e34ddc2b5b09bec4c677417f4beb52c7355269aaf1fcd5cc3ad942ce7bf9d37",
+      "frame_hashes": [
+        "d8f0dcccc4d4d4e4",
+        "fcf0f8dcc4ccc4e4",
+        "e8f4e4c4c4dcc4e4",
+        "d4ecececf4ccc4e4",
+        "dcccecc4d4ccc4e4"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "food_cooking",
-      "url": "https://t.me/keereker/257731",
-      "sent_at": "2026-11-07T22:20:10.451497+00:00"
-    },
     {
       "pillar": "visual_wow",
       "topic": "transformation_or_satisfying",
@@ -2678,6 +2695,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164764",
       "sent_at": "2026-11-12T21:57:32.704241+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/164754",
+      "sent_at": "2026-11-12T22:46:55.499429+00:00"
     }
   ]
 }
