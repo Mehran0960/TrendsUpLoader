@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-11T23:30:51.701445+00:00",
+  "media_review_updated_at": "2026-11-12T01:02:33.156419+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -424,9 +424,10 @@
     "b199014a8941e9c4bc2d36977462238d9519df12ee7b4508b7f7697588f67388",
     "3d560286c93e4591df1154a5f37d136ae6ad35a41ce08fd7374eb56daf180401",
     "2ef878d84f740b6108687eab1b586c0d86484450e504b41fdcd0679ce2661964",
-    "575ff46aae5c108e9603779341009da5ed6903a0b6f73141d45b6f20afd41bbc"
+    "575ff46aae5c108e9603779341009da5ed6903a0b6f73141d45b6f20afd41bbc",
+    "dff60ad01da10f47feeded7b4542ce5941eab43b8ed8e56cf841a045b75bb7a3"
   ],
-  "media_review_last_count": 1,
+  "media_review_last_count": 0,
   "media_reviewed_urls": [
     "https://t.me/gizmiztel/163080",
     "https://t.me/gizmiztel/163081",
@@ -782,7 +783,8 @@
     "https://t.me/gizmiztel/164689",
     "https://t.me/vaybabamumad/181658",
     "https://t.me/gizmiztel/164683",
-    "https://t.me/farda_ai/8111"
+    "https://t.me/farda_ai/8111",
+    "https://t.me/farda_ai/8127"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2514,12 +2516,6 @@
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "reaction_and_comedy",
-      "topic": "surprise_or_reveal",
-      "url": "https://t.me/gizmiztel/164513",
-      "sent_at": "2026-11-07T18:49:14.638899+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
