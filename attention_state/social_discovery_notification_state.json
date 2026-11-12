@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-12T17:08:56.387681+00:00",
+  "media_review_updated_at": "2026-11-12T21:29:44.659374+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -426,7 +426,10 @@
     "2ef878d84f740b6108687eab1b586c0d86484450e504b41fdcd0679ce2661964",
     "575ff46aae5c108e9603779341009da5ed6903a0b6f73141d45b6f20afd41bbc",
     "dff60ad01da10f47feeded7b4542ce5941eab43b8ed8e56cf841a045b75bb7a3",
-    "1e30318a771b0fdff5d1f8afdf51e20b9d86f0d0e3bfac92ba50998c58fe68e9"
+    "1e30318a771b0fdff5d1f8afdf51e20b9d86f0d0e3bfac92ba50998c58fe68e9",
+    "90d82ea866dfb30865f055df67c044966f31ece588642889989cd02e04db9970",
+    "90c147df2d3c56caf41f3a453a974e935649bc9d7dee9dd4956b1d6c8c17b4c5",
+    "f23e319dcca2f0e9a48ab37f5abe20122f511007e0fe4ed786c10cd9a2482b60"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -786,7 +789,10 @@
     "https://t.me/gizmiztel/164683",
     "https://t.me/farda_ai/8111",
     "https://t.me/farda_ai/8127",
-    "https://t.me/gizmiztel/164733"
+    "https://t.me/gizmiztel/164733",
+    "https://t.me/gizmiztel/164736",
+    "https://t.me/keereker/257953",
+    "https://t.me/gizmiztel/164763"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2526,15 +2532,20 @@
         "c4c0e0c4c8e0f0f8",
         "c0c0c8c0e0e0e4e4"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164763",
+      "sha256": "1c5f268b338bf25dc97293dc8d5492d470bf650677fc727377d416fbc854956e",
+      "frame_hashes": [
+        "e4e8d4f0c8ece46c",
+        "e0e8dcf8c8fc7078",
+        "e0e8d8f8c8e87070",
+        "e0f8d0f8d8f478f8",
+        "e8e8d0f0c8f87864"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164515",
-      "sent_at": "2026-11-07T19:41:13.420945+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "music_or_dance",
@@ -2648,6 +2659,12 @@
       "topic": "animals",
       "url": "https://t.me/gizmiztel/164733",
       "sent_at": "2026-11-12T17:08:56.387217+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "other",
+      "url": "https://t.me/gizmiztel/164763",
+      "sent_at": "2026-11-12T21:29:44.658619+00:00"
     }
   ]
 }
