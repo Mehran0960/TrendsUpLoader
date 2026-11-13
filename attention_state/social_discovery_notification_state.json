@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-13T20:55:20.388808+00:00",
+  "media_review_updated_at": "2026-11-13T21:41:04.475878+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -440,7 +440,8 @@
     "b1d54e17fae05a4b52d09733442a90fd29d0b002a0b7445709e10bb0f2e31b8f",
     "f68edecaa8d14fccf4ba96fe01fe33c95868b40d169c53b777e4312febb922b6",
     "903d13ff2889e7196b615807d33756c2dfdaa5e4cf321aac6e5b39f791f7160b",
-    "1dc68fa755141729a85a551fec046ce669296d7dfa394edba013edf722e721e1"
+    "1dc68fa755141729a85a551fec046ce669296d7dfa394edba013edf722e721e1",
+    "e8640638f8c9647f0f8073d8135d2e86eb756b1eb6e453c86acd71bc4ed63e82"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -814,7 +815,8 @@
     "https://t.me/gizmiztel/164748",
     "https://t.me/gizmiztel/164795",
     "https://t.me/gizmiztel/164785",
-    "https://t.me/gizmiztel/164767"
+    "https://t.me/gizmiztel/164767",
+    "https://t.me/gizmiztel/164789"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2620,15 +2622,20 @@
         "e0fcf0f8d8f8f8f4",
         "ecdccccccce4f8d8"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164789",
+      "sha256": "c6165f32d386c2efe5abaca4da9002f16262f5d0b5e077ae1b10f7a40a1f4fb9",
+      "frame_hashes": [
+        "0008ecacacac1600",
+        "003463f3a9985a00",
+        "000d3d79c8ceeb00",
+        "00b09110f0040000",
+        "00e1cc1cf00c1000"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164556",
-      "sent_at": "2026-11-08T21:15:04.202065+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "music_or_dance",
@@ -2742,6 +2749,12 @@
       "topic": "animals",
       "url": "https://t.me/gizmiztel/164785",
       "sent_at": "2026-11-13T20:55:20.388433+00:00"
+    },
+    {
+      "pillar": "visual_wow",
+      "topic": "sports_or_athletic_skill",
+      "url": "https://t.me/gizmiztel/164789",
+      "sent_at": "2026-11-13T21:41:04.475337+00:00"
     }
   ]
 }
