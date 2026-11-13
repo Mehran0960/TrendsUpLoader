@@ -1,36 +1,35 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-11-12T19:50:18.387377+00:00",
-  "query": "planetary science",
+  "updated_at": "2026-11-13T01:00:34.363444+00:00",
+  "query": "rocket launch",
   "queries": [
     {
-      "query": "planetary science",
-      "page": 1,
-      "results": 100
-    },
-    {
-      "query": "Earth from space",
-      "page": 2,
-      "results": 100
-    },
-    {
-      "query": "aurora",
+      "query": "Mars rover",
       "page": 3,
       "results": 0
+    },
+    {
+      "query": "solar flare",
+      "page": 4,
+      "results": 0
+    },
+    {
+      "query": "rocket launch",
+      "page": 1,
+      "results": 100
     }
   ],
-  "api_results": 200,
+  "api_results": 100,
   "records_inspected": 60,
-  "metadata_screen_passes": 12,
+  "metadata_screen_passes": 8,
   "metadata_rejections": {
-    "secondary_creator_present": 21,
-    "likely_long_form_title": 1,
-    "third_party_partner_signal": 9,
-    "person_or_audio_signal": 11,
-    "rights_warning_in_metadata": 1
+    "non_nasa_center": 15,
+    "person_or_audio_signal": 5,
+    "secondary_creator_present": 25,
+    "third_party_partner_signal": 1
   },
-  "post_screen_build_failures": 12,
-  "duplicate_records": 5,
+  "post_screen_build_failures": 8,
+  "duplicate_records": 6,
   "invalid_records": 0,
   "new_candidates": 0,
   "total_queue_items": 500,
@@ -39,27 +38,37 @@
     "manifest_mp4_found": 0,
     "fallback_mp4_verified": 0,
     "failures": {
-      "asset_manifest_no_mp4_url": 2
+      "asset_manifest_no_mp4_url": 3
     },
     "samples": [
       {
-        "nasa_id": "20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a",
+        "nasa_id": "GSFC_20160909_M12368_OSIRIS_launch",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~orig.mp4",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a.srt",
-          "http://images-assets.nasa.gov/video/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a/20220926-GSFC-DARTs_Impact_with_Asteroid_Dimorphos_REV1a~large.mp4"
+          "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~orig.mp4",
+          "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch.srt",
+          "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~large.mp4"
         ]
       },
       {
-        "nasa_id": "KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343",
+        "nasa_id": "KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978",
         "reason": "asset_manifest_no_mp4_url",
         "manifest_item_count": 32,
         "href_samples": [
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343~orig.mp4",
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343.srt",
-          "http://images-assets.nasa.gov/video/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343/KSC-20200730-VP-CDC01-0001-Mars_2020_Post_Launch_News_Conference-3254343~large.mp4"
+          "http://images-assets.nasa.gov/video/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978~orig.mp4",
+          "http://images-assets.nasa.gov/video/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978.srt",
+          "http://images-assets.nasa.gov/video/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978~large.mp4"
+        ]
+      },
+      {
+        "nasa_id": "MSFC_SLS_01142021_SLS_Orion_Animation_0034",
+        "reason": "asset_manifest_no_mp4_url",
+        "manifest_item_count": 32,
+        "href_samples": [
+          "http://images-assets.nasa.gov/video/MSFC_SLS_01142021_SLS_Orion_Animation_0034/MSFC_SLS_01142021_SLS_Orion_Animation_0034~orig.mp4",
+          "http://images-assets.nasa.gov/video/MSFC_SLS_01142021_SLS_Orion_Animation_0034/MSFC_SLS_01142021_SLS_Orion_Animation_0034.srt",
+          "http://images-assets.nasa.gov/video/MSFC_SLS_01142021_SLS_Orion_Animation_0034/MSFC_SLS_01142021_SLS_Orion_Animation_0034~large.mp4"
         ]
       }
     ]
