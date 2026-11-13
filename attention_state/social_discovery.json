@@ -1,7 +1,7 @@
 {
   "version": 2,
   "ranking_version": "telegram_momentum_v2_persian_priority",
-  "updated_at": "2026-11-13T01:00:34.363444+00:00",
+  "updated_at": "2026-11-13T07:50:24.003404+00:00",
   "status": "public_telegram_repost_and_bing_fallback",
   "count": 500,
   "quota_ledger": {
@@ -54261,39 +54261,39 @@
     }
   ],
   "nasa_video_discovery": {
-    "updated_at": "2026-11-13T01:00:34.363444+00:00",
+    "updated_at": "2026-11-13T07:50:24.003404+00:00",
     "new_candidates": 0,
     "rights_screen": "NASA center only; visible copyright/partner/person/audio signals excluded",
     "schema_version": 1,
-    "query": "rocket launch",
+    "query": "Earth from space",
     "queries": [
       {
-        "query": "Mars rover",
-        "page": 3,
-        "results": 0
-      },
-      {
-        "query": "solar flare",
+        "query": "planetary science",
         "page": 4,
         "results": 0
       },
       {
-        "query": "rocket launch",
+        "query": "Earth from space",
         "page": 1,
         "results": 100
+      },
+      {
+        "query": "aurora",
+        "page": 2,
+        "results": 0
       }
     ],
     "api_results": 100,
     "records_inspected": 60,
-    "metadata_screen_passes": 8,
+    "metadata_screen_passes": 13,
     "metadata_rejections": {
-      "non_nasa_center": 15,
-      "person_or_audio_signal": 5,
-      "secondary_creator_present": 25,
-      "third_party_partner_signal": 1
+      "person_or_audio_signal": 8,
+      "secondary_creator_present": 30,
+      "missing_metadata": 1,
+      "third_party_partner_signal": 6
     },
-    "post_screen_build_failures": 8,
-    "duplicate_records": 6,
+    "post_screen_build_failures": 13,
+    "duplicate_records": 2,
     "invalid_records": 0,
     "total_queue_items": 500,
     "nasa_queue_items": 76,
@@ -54305,33 +54305,33 @@
       },
       "samples": [
         {
-          "nasa_id": "GSFC_20160909_M12368_OSIRIS_launch",
+          "nasa_id": "jsc2022m000172_Earth_in_4K_Expedition_65_Edition",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~orig.mp4",
-            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch.srt",
-            "http://images-assets.nasa.gov/video/GSFC_20160909_M12368_OSIRIS_launch/GSFC_20160909_M12368_OSIRIS_launch~large.mp4"
+            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~orig.mp4",
+            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition.srt",
+            "http://images-assets.nasa.gov/video/jsc2022m000172_Earth_in_4K_Expedition_65_Edition/jsc2022m000172_Earth_in_4K_Expedition_65_Edition~large.mp4"
           ]
         },
         {
-          "nasa_id": "KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978",
+          "nasa_id": "art002m1200920011_Apogee_Raise_Burn",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978~orig.mp4",
-            "http://images-assets.nasa.gov/video/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978.srt",
-            "http://images-assets.nasa.gov/video/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978/KSC-20220628-VP-MMS01-0001-RocketLab_Capstone_Live_Launch_Coverage-3306978~large.mp4"
+            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~orig.mp4",
+            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~medium.mp4",
+            "http://images-assets.nasa.gov/video/art002m1200920011_Apogee_Raise_Burn/art002m1200920011_Apogee_Raise_Burn~mobile.mp4"
           ]
         },
         {
-          "nasa_id": "MSFC_SLS_01142021_SLS_Orion_Animation_0034",
+          "nasa_id": "iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422",
           "reason": "asset_manifest_no_mp4_url",
           "manifest_item_count": 32,
           "href_samples": [
-            "http://images-assets.nasa.gov/video/MSFC_SLS_01142021_SLS_Orion_Animation_0034/MSFC_SLS_01142021_SLS_Orion_Animation_0034~orig.mp4",
-            "http://images-assets.nasa.gov/video/MSFC_SLS_01142021_SLS_Orion_Animation_0034/MSFC_SLS_01142021_SLS_Orion_Animation_0034.srt",
-            "http://images-assets.nasa.gov/video/MSFC_SLS_01142021_SLS_Orion_Animation_0034/MSFC_SLS_01142021_SLS_Orion_Animation_0034~large.mp4"
+            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~orig.mp4",
+            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422.srt",
+            "http://images-assets.nasa.gov/video/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422/iss063m261131609_EXP_63_ABC_NASA_Social_Cassidy_200422~large.mp4"
           ]
         }
       ]
