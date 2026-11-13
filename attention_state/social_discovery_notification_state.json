@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-13T16:47:50.132665+00:00",
+  "media_review_updated_at": "2026-11-13T20:55:20.388808+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -438,7 +438,9 @@
     "03bbb738ab6886fb77f2da8e065ec7abc2e40bd3612c0bf927aff794713a6046",
     "e71dc5d10e7e93b4549829fb1232dc2c86b9e31b6a5df93f250da1179e1146a3",
     "b1d54e17fae05a4b52d09733442a90fd29d0b002a0b7445709e10bb0f2e31b8f",
-    "f68edecaa8d14fccf4ba96fe01fe33c95868b40d169c53b777e4312febb922b6"
+    "f68edecaa8d14fccf4ba96fe01fe33c95868b40d169c53b777e4312febb922b6",
+    "903d13ff2889e7196b615807d33756c2dfdaa5e4cf321aac6e5b39f791f7160b",
+    "1dc68fa755141729a85a551fec046ce669296d7dfa394edba013edf722e721e1"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -810,7 +812,9 @@
     "https://t.me/regaplus/24324",
     "https://t.me/gizmiztel/164756",
     "https://t.me/gizmiztel/164748",
-    "https://t.me/gizmiztel/164795"
+    "https://t.me/gizmiztel/164795",
+    "https://t.me/gizmiztel/164785",
+    "https://t.me/gizmiztel/164767"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2605,15 +2609,20 @@
         "ece8f0f8f8e8e8f8",
         "ece8f8fcf8f8e8ec"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164785",
+      "sha256": "d57b22ffc7d138f97439c7901b925483cdf4336c202510389a8f1c797ece2ced",
+      "frame_hashes": [
+        "e0c8d8d0c8c8e0f0",
+        "c8e0f0e0e0e0c4e4",
+        "e4f8f4f4f4f8f8e4",
+        "e0fcf0f8d8f8f8f4",
+        "ecdccccccce4f8d8"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164561",
-      "sent_at": "2026-11-08T20:00:28.998332+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "other",
@@ -2727,6 +2736,12 @@
       "topic": "other",
       "url": "https://t.me/gizmiztel/164795",
       "sent_at": "2026-11-13T16:47:50.132195+00:00"
+    },
+    {
+      "pillar": "reaction_and_comedy",
+      "topic": "animals",
+      "url": "https://t.me/gizmiztel/164785",
+      "sent_at": "2026-11-13T20:55:20.388433+00:00"
     }
   ]
 }
