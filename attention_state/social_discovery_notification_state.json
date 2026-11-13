@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-13T21:41:04.475878+00:00",
+  "media_review_updated_at": "2026-11-13T22:43:30.175743+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -441,7 +441,8 @@
     "f68edecaa8d14fccf4ba96fe01fe33c95868b40d169c53b777e4312febb922b6",
     "903d13ff2889e7196b615807d33756c2dfdaa5e4cf321aac6e5b39f791f7160b",
     "1dc68fa755141729a85a551fec046ce669296d7dfa394edba013edf722e721e1",
-    "e8640638f8c9647f0f8073d8135d2e86eb756b1eb6e453c86acd71bc4ed63e82"
+    "e8640638f8c9647f0f8073d8135d2e86eb756b1eb6e453c86acd71bc4ed63e82",
+    "1b0bb83559ce7bf89c87fb7963e5c582aca7cd088b8ab042ce5f2ab9ea0b5175"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -816,7 +817,8 @@
     "https://t.me/gizmiztel/164795",
     "https://t.me/gizmiztel/164785",
     "https://t.me/gizmiztel/164767",
-    "https://t.me/gizmiztel/164789"
+    "https://t.me/gizmiztel/164789",
+    "https://t.me/gizmiztel/164834"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2633,15 +2635,20 @@
         "00b09110f0040000",
         "00e1cc1cf00c1000"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164834",
+      "sha256": "bb120ddf57f22bdb130250f45b345ba785fa6c115a9b92055a749a6aaf009ede",
+      "frame_hashes": [
+        "000075b7b6764000",
+        "00000d4f5fcd4000",
+        "0000d8deceec1800",
+        "0000cf99939b4400",
+        "0000ecc4480c1000"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "music_or_dance",
-      "url": "https://t.me/gizmiztel/164550",
-      "sent_at": "2026-11-08T22:30:24.770748+00:00"
-    },
     {
       "pillar": "curiosity_and_process",
       "topic": "technology_demo",
@@ -2755,6 +2762,12 @@
       "topic": "sports_or_athletic_skill",
       "url": "https://t.me/gizmiztel/164789",
       "sent_at": "2026-11-13T21:41:04.475337+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "wholesome_or_heartwarming",
+      "url": "https://t.me/gizmiztel/164834",
+      "sent_at": "2026-11-13T22:43:30.175374+00:00"
     }
   ]
 }
