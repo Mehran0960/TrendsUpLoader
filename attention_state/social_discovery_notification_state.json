@@ -55,7 +55,7 @@
   "updated_at": "2026-10-10T19:25:07.070030+00:00",
   "last_message_id": 71,
   "last_count": 3,
-  "media_review_updated_at": "2026-11-14T15:23:28.741090+00:00",
+  "media_review_updated_at": "2026-11-14T19:11:34.150535+00:00",
   "media_reviewed_ids": [
     "81788a897c6d7e14a2b4a0b5ef25902d7643faba660963bc4a6d5a6dfc2c169d",
     "0b2383041b8a14942c22819ade9b39f0926157b80d9bf2e31ad41a746794c978",
@@ -445,7 +445,8 @@
     "1b0bb83559ce7bf89c87fb7963e5c582aca7cd088b8ab042ce5f2ab9ea0b5175",
     "415f228ecd8a470f75c21b0e97b42dcfe724c7169c122ddcfa385fd30fce28ab",
     "252193327962163003bbc42056a8415c7911b249fe823c708e3b25947edbebdb",
-    "72fde1521564e8fef7ded750517056f0d6cd8fdb39246d0d9733663373f537d3"
+    "72fde1521564e8fef7ded750517056f0d6cd8fdb39246d0d9733663373f537d3",
+    "ba6b7d9e22fe02223b119c6fa44f064056bcb2cb0eb0ec23a0547444f2db8641"
   ],
   "media_review_last_count": 1,
   "media_reviewed_urls": [
@@ -824,7 +825,8 @@
     "https://t.me/gizmiztel/164834",
     "https://t.me/keereker/258010",
     "https://t.me/gizmiztel/164827",
-    "https://t.me/gizmiztel/164862"
+    "https://t.me/gizmiztel/164862",
+    "https://t.me/gizmiztel/164860"
   ],
   "media_reviewed_fingerprints": [
     {
@@ -2674,15 +2676,20 @@
         "000606541cb4cc00",
         "0080800807437200"
       ]
+    },
+    {
+      "url": "https://t.me/gizmiztel/164860",
+      "sha256": "9c30454bae93093de1d9f4dc0ab5950c788fcbbbcd8690fbcdd1ce7c85cd0cf3",
+      "frame_hashes": [
+        "f0f0f0ecd8d0c8e8",
+        "e0e4f0e8d8d4e4f8",
+        "e8e0f4f0f8d0c4f4",
+        "e4e4f4f0d8f0e4fc",
+        "e4f4f0e8d0e4fcec"
+      ]
     }
   ],
   "media_reviewed_topics": [
-    {
-      "pillar": "adjacent",
-      "topic": "other",
-      "url": "https://t.me/gizmiztel/164618",
-      "sent_at": "2026-11-09T23:52:32.797132+00:00"
-    },
     {
       "pillar": "adjacent",
       "topic": "diy_and_creativity",
@@ -2796,6 +2803,12 @@
       "topic": "sports_or_athletic_skill",
       "url": "https://t.me/gizmiztel/164862",
       "sent_at": "2026-11-14T15:23:28.740717+00:00"
+    },
+    {
+      "pillar": "adjacent",
+      "topic": "diy_and_creativity",
+      "url": "https://t.me/gizmiztel/164860",
+      "sent_at": "2026-11-14T19:11:34.149789+00:00"
     }
   ]
 }
